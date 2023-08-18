@@ -8,34 +8,34 @@ import AdminLayout from "./components/AdminLayout";
 
 import Sidebar from "./components/Sidebar";
 
-const page = () => {
+const Page = () => {
   const [selectedFileContent, setSelectedFileContent] = useState<any>(null);
 
-  const handleWordClick = (word: string) => {
-    console.log("word link: ", word);
-    const matchedFile = filesData.find((file) => file.fileName === word);
+  // const handleWordClick = (word: string) => {
+  //   console.log("word link: ", word);
+  //   const matchedFile = filesData.find((file) => file.fileName === word);
 
-    if (matchedFile) {
-      console.log("Matched File Object:", matchedFile);
-    } else {
-      console.log("File not found: ", word);
-    }
-    handleFileClick(matchedFile);
-  };
+  //   if (matchedFile) {
+  //     console.log("Matched File Object:", matchedFile);
+  //   } else {
+  //     console.log("File not found: ", word);
+  //   }
+  //   handleFileClick(matchedFile);
+  // };
 
-  const handleFileClick = async (content: any) => {
-    let clickedTitle = [content];
-    const regex = /\[\[([^[\]]+)\]\]/g;
+  // const handleFileClick = async (content: any) => {
+  //   let clickedTitle = [content];
+  //   const regex = /\[\[([^[\]]+)\]\]/g;
 
-    clickedTitle[0]["content"] = clickedTitle[0]["content"].replace(
-      regex,
-      (match, word) =>
-        `<p style="text-decoration: underline; color: blue; cursor: pointer;">${word}</p>`
-    );
-    // console.log("clicked title: ", clickedTitle);
+  //   clickedTitle[0]["content"] = clickedTitle[0]["content"].replace(
+  //     regex,
+  //     (match, word) =>
+  //       `<p style="text-decoration: underline; color: blue; cursor: pointer;">${word}</p>`
+  //   );
+  //   // console.log("clicked title: ", clickedTitle);
 
-    setSelectedFileContent(clickedTitle);
-  };
+  //   setSelectedFileContent(clickedTitle);
+  // };
 
   return (
     <LayoutWrapper layout={AdminLayout}>
@@ -175,4 +175,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

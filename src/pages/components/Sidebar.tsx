@@ -3,11 +3,17 @@ import { Fzf, FzfOptions, byLengthAsc } from "fzf";
 import _, { replace } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
 
-const sidebar = () => {
+const Sidebar = () => {
   interface FileData {
     fileName: string;
     content: string;
   }
+
+  interface File {
+    id: string;
+    name: string;
+  }
+
   const [filesData, setFilesData] = useState([]);
   const [filtersFileData, setFiltersFileData] = useState<FileData[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -46,11 +52,11 @@ const sidebar = () => {
 
         filteredData = filteredData[0].content
           .split("\n")
-          .filter((word) => word.trim() !== "");
+          .filter((word: any) => word.trim() !== "");
 
         setFiltersFileData(filteredData);
 
-        const categories = [];
+        const categories: any = [];
         let currentCategories = null;
 
         for (const item of filteredData) {
@@ -73,7 +79,7 @@ const sidebar = () => {
 
         setAllCheckboxes(categories);
 
-        const checkboxes = [];
+        const checkboxes: any = [];
 
         let currentCategory = null;
 
@@ -191,12 +197,12 @@ const sidebar = () => {
     // console.log("Words to exclude: ", wordsToExclude);
     // console.log("gate word: ", orGateWord);
 
-    const options: FzfOptions = {
+    const options: FzfOptions<File> = {
       selector: (item: any) => `${item.fileName} (${item.content})`,
       casing: "case-insensitive",
       fuzzy: false,
     };
-    const fzf: any = new Fzf(filesData, options);
+    const fzf: any = new Fzf<File[]>(filesData, options);
 
     let entries: any = []; // Initialize the array to store results
 
@@ -218,7 +224,7 @@ const sidebar = () => {
 
     for (const file of filesData) {
       let inputExpression = inputValue;
-      const fzf: any = new Fzf([file], options);
+      const fzf: any = new Fzf<File[]>([file], options);
       for (const word of wordsArray) {
         if (word === "OR" || word === "AND") {
           continue;
@@ -260,7 +266,7 @@ const sidebar = () => {
       }
       // console.log(`${inputExpression} for ${file.fileName} `);
       const expressionEvaluation = evaluateLogicalExpression(inputExpression);
-      console.log(`${expressionEvaluation} for ${file.fileName} `);
+      // console.log(`${expressionEvaluation} for ${file.fileName} `);
       if (expressionEvaluation === 1) {
         newEntries.push(file);
       }
@@ -349,46 +355,48 @@ const sidebar = () => {
   }
 
   const handleCheckboxClick = (category: any, id: any) => {
-    const updatedCheckboxes = allCheckboxes.map((checkboxCategory) => {
-      if (checkboxCategory.category === category) {
-        const updatedItems = checkboxCategory.items.map((item) => {
-          if (item.id === id) {
-            // Toggle the state and status of the checkbox
-            const newState =
-              item.status === "neutral"
-                ? "checked"
-                : item.status === "include"
-                ? "checked"
-                : "unchecked";
-            const newStatus =
-              item.status === "neutral"
-                ? "include"
-                : item.status === "include"
-                ? "exclude"
-                : "neutral";
+    const updatedCheckboxes: any = allCheckboxes.map(
+      (checkboxCategory: any) => {
+        if (checkboxCategory.category === category) {
+          const updatedItems = checkboxCategory.items.map((item: any) => {
+            if (item.id === id) {
+              // Toggle the state and status of the checkbox
+              const newState =
+                item.status === "neutral"
+                  ? "checked"
+                  : item.status === "include"
+                  ? "checked"
+                  : "unchecked";
+              const newStatus =
+                item.status === "neutral"
+                  ? "include"
+                  : item.status === "include"
+                  ? "exclude"
+                  : "neutral";
 
-            return {
-              ...item,
-              state: newState,
-              status: newStatus,
-            };
-          }
-          return item;
-        });
-        return {
-          ...checkboxCategory,
-          items: updatedItems,
-        };
+              return {
+                ...item,
+                state: newState,
+                status: newStatus,
+              };
+            }
+            return item;
+          });
+          return {
+            ...checkboxCategory,
+            items: updatedItems,
+          };
+        }
+        return checkboxCategory;
       }
-      return checkboxCategory;
-    });
+    );
 
     const currentValue = searchValue;
     let valueToInclude = null;
     let valueToCheck = null;
 
     const foundCategory = updatedCheckboxes.find(
-      (checkboxCategory) => checkboxCategory.category === category
+      (checkboxCategory: any) => checkboxCategory.category === category
     );
     if (foundCategory) {
       const foundItem = foundCategory.items.find((item: any) => item.id === id);
@@ -473,20 +481,26 @@ const sidebar = () => {
             {searchValue.length > 0 && (
               <div>
                 {searchResults.map((result, index) => (
-                  <div className="filter-data">
+                  <div className="filter-data" key={index}>
                     <div className="set set-1">
                       <div>
                         <h1
                           dangerouslySetInnerHTML={{
-                            __html: result.fileNameWithHighlightedWords,
+                            __html: (
+                              result as { fileNameWithHighlightedWords: string }
+                            ).fileNameWithHighlightedWords,
                           }}
                           // onClick={() => handleFileClick(result["item"])}
                         />
-                        <p>{result.wordOccurence}</p>
+                        <p>
+                          {(result as { wordOccurence: number }).wordOccurence}
+                        </p>
                       </div>
                       <p
                         dangerouslySetInnerHTML={{
-                          __html: result.contentWithHighlightedWords,
+                          __html: (
+                            result as { contentWithHighlightedWords: string }
+                          ).contentWithHighlightedWords,
                         }}
                         className="note"
                       />
@@ -498,7 +512,7 @@ const sidebar = () => {
 
             <div className="munus-link">
               <Accordion>
-                {allCheckboxes.map((category, index) => (
+                {allCheckboxes.map((category: any, index: any) => (
                   <Accordion.Item
                     eventKey={index.toString()}
                     key={category.category}
@@ -510,7 +524,7 @@ const sidebar = () => {
                     </Accordion.Header>
                     <Accordion.Body className="accordion-body">
                       <div className="form-check form-check-inline">
-                        {category.items.map((item) => (
+                        {category.items.map((item: any) => (
                           <div
                             className="form-check form-check-inline"
                             key={item.id}
@@ -551,4 +565,4 @@ const sidebar = () => {
   );
 };
 
-export default sidebar;
+export default Sidebar;

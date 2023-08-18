@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { useRouter } from "next/router";
 
-interface AdminLayoutProps {
+export interface AdminLayoutProps {
   children: ReactNode;
 }
 
