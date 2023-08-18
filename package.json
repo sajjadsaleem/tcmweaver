@@ -9,14 +9,36 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.197",
     "@types/node": "20.4.5",
     "@types/react": "18.2.18",
     "@types/react-dom": "18.2.7",
+    "bootstrap": "^5.3.1",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
+    "flexsearch": "^0.7.31",
+    "fuse.js": "^6.6.2",
+    "fuzzy-search": "^3.2.1",
+    "fzf": "^0.5.2",
+    "gray-matter": "^4.0.3",
+    "lodash": "^4.17.21",
+    "marked": "^6.0.0",
     "next": "13.4.12",
     "react": "18.2.0",
+    "react-bootstrap": "^2.8.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.10.1",
+    "rehype-stringify": "^9.0.3",
+    "remark": "^14.0.3",
+    "remark-html": "^15.0.2",
+    "remark-mdx": "^2.3.0",
+    "remark-parse": "^10.0.2",
+    "remark-rehype": "^10.1.0",
+    "showdown": "^2.1.0",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "@types/showdown": "^2.0.1",
+    "prettier": "^3.0.1"
   }
 }

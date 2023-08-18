@@ -1,0 +1,559 @@
+
+
+
+
+.wrapper{
+    display: flex;
+}
+
+
+
+
+.mainContainer{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+}
+.mainDiv{
+    /* border: 1px solid red; */
+    display: flex;
+    min-height: 93vh;
+    height: auto;
+    
+}
+
+.mainHeader{
+    /* border: 1px solid rgb(236, 115, 135); */
+    border-bottom: 1px solid grey;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon{
+    margin-left: 12px;
+    
+}
+
+.leftSection{
+    /* border: 1px solid blue; */
+    border-right: 1px solid grey;
+    padding-right: 20px;
+    padding-left: 15px;
+    padding-top: 10px;
+    width: 240px;
+}
+
+.rightSection{
+    /* border: 1px solid orange; */
+    margin-left: 20px;
+   
+    padding-top: 10px;
+}
+
+.searchButton{
+    margin-top: 18px;
+    padding: 7px 15px 7px 15px;
+    border-radius: 28px;
+    text-align: left; /* To center the placeholder text */
+    font-size: 17px;
+    border: 1px solid rgb(37, 36, 36);
+}
+
+.searchButton::placeholder {
+    text-align: center;
+    font-size: 18px;
+    /* background-color: rgb(197, 189, 189); */
+}
+
+/* ==== new code ======*/
+
+
+.side-nav {
+    width: 346px;
+    height: 100vh;
+    background-color: #f4f4f4;
+    position: fixed;
+    z-index: 11;
+    overflow-y: hidden;
+    /* background-color: red; */
+}
+
+.side-nav.night-mode {
+    background-color: #000 !important;
+}
+
+.side-nav.active {
+    width: 60vw;
+}
+
+.side-nav:hover {
+    overflow-y: scroll;
+    padding-left:0;
+}
+
+.side-nav:hover .navVc {
+    width: 284px;
+ 
+    margin-right: 16px;
+}
+
+.side-nav::-webkit-scrollbar,
+.accordion-body::-webkit-scrollbar {
+      width: 15px;
+}
+
+.side-nav::-webkit-scrollbar-track,
+.accordion-body::-webkit-scrollbar-track {
+    border-radius: 0px;
+}
+
+.side-nav::-webkit-scrollbar-thumb,
+.accordion-body::-webkit-scrollbar-thumb {
+    background: #D9D9D9;
+    border-radius: 10px;
+}
+
+.side-nav::-webkit-scrollbar-thumb:hover,
+.accordion-body::-webkit-scrollbar-thumb:hover {
+    background: #616161;
+}
+
+.navVc {
+    width: 284px;
+    margin: auto;
+ 
+}
+
+
+.logoVc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logoVc p {
+    font-weight: 400;
+    font-size: 30px;
+    margin: 0px;
+    padding: 3px 0px;
+    color: #616161;
+}
+
+.night-mode .logoVc p {
+    color: #fff;
+}
+
+.icon-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+}
+
+.icon-profile div:nth-child(1),
+.icon-profile div:nth-child(2),
+.icon-profile div:nth-child(3) {
+    cursor: pointer;
+}
+
+.night-mode .icon-profile div:nth-child(1) img,
+.night-mode .icon-profile div:nth-child(2) img {
+    filter: brightness(10);
+}
+
+.icon-profile img {
+    width: 20px;
+    height: auto;
+}
+
+@font-face {
+font-family: 'YourFontName'; /* Use your desired font name */
+src: url('/fonts/your-font-file.woff2') format('woff2'),
+        url('/fonts/your-font-file.woff') format('woff');
+/* Add more src declarations for different font formats if needed */
+/* Other font properties such as font-weight and font-style can be added here */
+}
+
+@font-face {
+    font-family: 'inter'; /* Use your desired font name */
+    src: url('/public/fonts/Inter-Bold.ttf') format('ttf');
+    /* Add more src declarations for different font formats if needed */
+    /* Other font properties such as font-weight and font-style can be added here */
+    }
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    src: url('/public/fonts/Inter.ttf') format('ttf');
+    }
+
+.menus {
+margin-top: 3rem;
+}
+
+.menuBtn input {
+    border: 1px solid #616161;
+    background-color: transparent;
+    color: #888888 !important;
+    border-radius: 40px;
+    width: 100%;
+    height: 40px;
+    font-weight: 600;
+    font-size: 1.325rem;
+    padding-top: 0px;
+    margin: 0px;
+    text-align: center;
+}
+
+.night-mode .menuBtn input {
+    border: 1px solid #bfbfbf;
+    color: #fff !important;
+}
+
+.menuBtn input::placeholder {
+    color: #acacac !important;
+}
+
+.night-mode .menuBtn input::placeholder {
+    color: #fff !important;
+}
+
+.menuBtn input:focus {
+    border: 1px solid #616161;
+    background-color: transparent;
+    box-shadow: none;
+
+}
+
+.night-mode .menuBtn input:focus {
+    border: 1px solid #bfbfbf;
+}
+
+.set {
+    margin: 20px 0px;
+}
+
+.set-1 div{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-data {
+    margin: 30px 0px;
+}
+
+
+.filter-data h1 {
+    font-size: 1.063rem;
+    text-transform: uppercase;
+    margin: 0px;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.filter-data p {
+    font-size: 1rem;
+    margin: 0px;
+    font-weight: 700;
+}
+
+.filter-data .note {
+    font-size: 0.938rem;
+    margin: 0px;
+    font-weight: 400;
+}
+
+.night-mode .filter-data h1 {
+    color: #fff;
+    
+}
+
+.night-mode .filter-data p {
+    color: #fff;
+
+}
+
+.night-mode .filter-data .note {
+    color: #fff;
+
+}
+
+.filter-data h1 span ,
+.filter-data .note span {
+    background-color: #d4cece;
+}
+
+.night-mode .filter-data h1 span ,
+    .night-mode .filter-data .note span {
+    background-color: #666262;
+}
+
+.munus-link {
+    margin-top: 2rem;
+}
+
+
+
+.accordion-item {
+    background-color: transparent !important;
+    border: 1px solid #b7b7b7 !important;
+    border-radius: 0px !important;
+    margin-bottom: 10px !important;
+}
+
+.night-mode .accordion-item {
+    border: 1px solid #bfbfbf !important;
+}
+
+
+
+.accordion-header button{
+    background-color: transparent;
+    padding: 6px;
+}
+
+.accordion-header button:focus{
+    box-shadow: none;
+    background-color: transparent;
+}
+
+
+
+
+.accordion-body {
+    border-top: 1px solid #b7b7b7;
+    transition: all 1s ease;
+    height: 110px;
+    padding: 5px 0px !important;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    position: relative;
+    padding-left: 25px !important;
+    transition: none !important;
+    font-weight: 600;
+}
+
+.night-mode .accordion-body {
+    border-top: 1px solid #bfbfbf;
+}
+
+.accordion-body:after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 1px;
+    height: var(--accordion-body-height);
+    background: #b7b7b7;
+}
+
+.night-mode .accordion-body:after {
+    background: #bfbfbf;
+}
+
+.form-check-input:checked[type=checkbox] {
+    background-image: none !important;
+    box-shadow: none !important;
+    border-color: #000 !important;
+    background-color: #000 !important;
+}
+
+.night-mode .form-check-input:checked[type=checkbox] {
+    border-color: #fff !important;
+    background-color: #fff !important;
+}
+
+.form-check-input[type=checkbox] {
+    border-radius: 50px !important;
+    box-shadow: none !important;
+    border: 1px solid #616161 !important;
+    background-color: transparent !important;
+}
+
+.night-mode .form-check-input[type=checkbox] {
+    border: 1px solid #c5c5c5 !important;
+}
+
+.form-check-input:disabled {
+    pointer-events: none;
+    filter: none;
+    opacity: 1 !important;
+    position: relative;
+}
+
+.form-check-input:disabled::after {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 6.3px;
+    width: 100%;
+    height: 2px;
+    background-color: #3D4043;
+    transform: rotate(-20deg);
+}
+
+.night-mode .form-check-input:disabled::after {
+    background-color: #c5c5c5;
+}
+
+.form-check-input[disabled]~.form-check-label,
+.form-check-input:disabled~.form-check-label {
+    cursor: default;
+    opacity: 1 !important;
+}
+
+.night-mode .form-check-input~.form-check-label {
+    color: #fff;
+}
+
+.night-mode .form-check-input[disabled]~.form-check-label,
+.night-mode .form-check-input:disabled~.form-check-label {
+    cursor: default;
+    opacity: 1 !important;
+    color: #fff;
+}
+
+.form-check-inline {
+    margin: 0px !important;
+    display: block !important;
+}
+
+
+.accordion-button:not(.collapsed){
+    background-color: transparent !important;
+}
+
+.customCheckBackground{
+    /* pointer-events: none; */
+    /* filter: none; */
+    opacity: 1 !important;
+    position: relative;
+    background-color: transparent !important;
+}
+
+.customCheckBackground::after {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 6.3px;
+    width: 100%;
+    height: 2px;
+    background-color: #3D4043;
+    transform: rotate(-20deg);
+}
+
+.night-mode .customCheckBackground::after {
+    background-color: #c5c5c5;
+}
+
+.customCheckBackground~.form-check-label,
+.customCheckBackground~.form-check-label {
+    cursor: default;
+    opacity: 1 !important;
+}
+
+.form-check-input.customCheckBackground:checked[type=checkbox] {
+    background-image: none !important;
+    box-shadow: none !important;
+    border-color: #000 !important;
+    background-color: transparent !important;
+}
+
+.accordion-button {
+    flex-direction: row-reverse;
+}
+
+.accordion-button::after {
+    content: "";
+    background-image: url('/angle-down.svg') !important;
+    background-size: cover;
+    position: absolute;
+    left: 10px;
+}
+
+.accordion-button.collapsed::after {
+    content: "";
+    background-image: url('/angle-down.svg') !important;
+    background-size: cover;
+    position: absolute;
+    left: 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===========Main================*/
+
+.main {
+    height: 100vh;
+    width: 100%;
+    padding-left: 346px;
+    position: relative;
+    background-color: orange;
+}
+
+.main.active {
+    padding-right: 60vw;
+    width: 100vw !important;
+}
+
+.main.night-mode {
+    background-color: #242424;
+}
+
+.main.active .navOpen button {
+    position: absolute;
+    left: 58.5vw;
+    top: 70px;
+    transform: rotate(180deg);
+}
+
+.main.active .topHeader {
+    position: absolute;
+    left: 60vw;
+    top: 0px;
+    width: 40vw;
+}
+
+.navOpen button {
+    position: absolute;
+    left: 325px;
+    top: 70px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50px;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    z-index: 11111;
+}
+
+.navOpen i {
+    font-size: 1.375rem;
+}
+
+.topHeader {
+    width: 100%;
+    height: 40px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    padding-right: 30px;
+}
+
+.topHeader.night-mode {
+    background-color: #000;
+}
