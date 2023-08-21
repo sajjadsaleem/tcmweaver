@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Fzf, FzfOptions, byLengthAsc } from "fzf";
 import _, { replace } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
+import AccordionItem from "react-bootstrap/esm/AccordionItem";
+import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
+import AccordionBody from "react-bootstrap/esm/AccordionBody";
 
 const Sidebar = () => {
   interface FileData {
@@ -20,6 +23,8 @@ const Sidebar = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
+  const [shouldShowDivs, setShouldShowDivs] = useState(true);
+  const [themeChangericon, setThemeChangerIcon] = useState(true);
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -148,6 +153,60 @@ const Sidebar = () => {
 
     const wordsArray = wordToSearch.split(" ");
     console.log("words array: ", wordsArray);
+
+    //changing filter status for each word in search bar
+    wordsArray.forEach((word: any) => {
+      if (word.startsWith("-")) {
+        word = word.replace("-", "");
+        for (const category of allCheckboxes) {
+          for (const item of category.items) {
+            console.log("item: ", item);
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              item.state = "checked";
+              item.status = "exclude";
+              console.log("item: ", item);
+
+              console.log(`Word: ${word}`);
+              console.log(`Category: ${categoryTitle}`);
+              console.log(`Item ID: ${itemId}`);
+            }
+          }
+        }
+      } else if (!word.startsWith("-")) {
+        for (const category of allCheckboxes) {
+          for (const item of category.items) {
+            console.log("item: ", item);
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              item.state = "checked";
+              item.status = "include";
+              console.log("item: ", item);
+
+              console.log(`Word: ${word}`);
+              console.log(`Category: ${categoryTitle}`);
+              console.log(`Item ID: ${itemId}`);
+            }
+          }
+        }
+      }
+      for (const category of allCheckboxes) {
+        for (const item of category.items) {
+          const lowerItemValue = item.value.toLowerCase();
+          const lowerWordsArray = wordsArray.map((word) => word.toLowerCase());
+
+          if (
+            !lowerWordsArray.includes(lowerItemValue) &&
+            !lowerWordsArray.includes(`-${lowerItemValue}`)
+          ) {
+            item.state = "unchecked";
+            item.status = "neutral";
+          }
+        }
+      }
+    });
 
     const resultCalculateWithOR: any = [];
     let currentPair = [];
@@ -348,6 +407,7 @@ const Sidebar = () => {
   }
 
   function handleThemeChangerClick() {
+    setThemeChangerIcon(!themeChangericon);
     const sideNav = document.querySelector(`.${"side-nav"}`);
     if (sideNav) {
       sideNav.classList.toggle("night-mode");
@@ -443,6 +503,10 @@ const Sidebar = () => {
     setAllCheckboxes(updatedCheckboxes);
   };
 
+  const handleAccordionClick = () => {
+    setShouldShowDivs(!shouldShowDivs);
+  };
+
   return (
     <div>
       <div className="side-nav">
@@ -453,11 +517,19 @@ const Sidebar = () => {
             </div>
             <div className={"icon-profile"}>
               <div className={"themeChanger"}>
-                <img
-                  src="/mood.png"
-                  alt="img"
-                  onClick={handleThemeChangerClick}
-                />
+                {themeChangericon ? (
+                  <img
+                    src="/mood.png"
+                    alt="img"
+                    onClick={handleThemeChangerClick}
+                  />
+                ) : (
+                  <img
+                    src="/light-mode.png"
+                    alt="img"
+                    onClick={handleThemeChangerClick}
+                  />
+                )}
               </div>
               <div className={"simpleIcon"}>
                 <img src="/logo.png" alt="img" />
@@ -478,85 +550,122 @@ const Sidebar = () => {
               />
             </div>
 
-            {searchValue.length > 0 && (
-              <div>
-                {searchResults.map((result, index) => (
-                  <div className="filter-data" key={index}>
-                    <div className="set set-1">
-                      <div>
-                        <h1
+            <div
+              className={`search-results ${
+                !shouldShowDivs ? "results-height" : ""
+              }`}
+            >
+              {searchValue.length > 0 && (
+                <div>
+                  {searchResults.map((result, index) => (
+                    <div className="filter-data" key={index}>
+                      <div className="set set-1">
+                        <div>
+                          <h1
+                            dangerouslySetInnerHTML={{
+                              __html: (
+                                result as {
+                                  fileNameWithHighlightedWords: string;
+                                }
+                              ).fileNameWithHighlightedWords,
+                            }}
+                            // onClick={() => handleFileClick(result["item"])}
+                          />
+                          <p>
+                            {
+                              (result as { wordOccurence: number })
+                                .wordOccurence
+                            }
+                          </p>
+                        </div>
+                        <p
                           dangerouslySetInnerHTML={{
                             __html: (
-                              result as { fileNameWithHighlightedWords: string }
-                            ).fileNameWithHighlightedWords,
+                              result as { contentWithHighlightedWords: string }
+                            ).contentWithHighlightedWords,
                           }}
-                          // onClick={() => handleFileClick(result["item"])}
+                          className="note"
                         />
-                        <p>
-                          {(result as { wordOccurence: number }).wordOccurence}
-                        </p>
                       </div>
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: (
-                            result as { contentWithHighlightedWords: string }
-                          ).contentWithHighlightedWords,
-                        }}
-                        className="note"
-                      />
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
 
-            <div className="munus-link">
-              <Accordion>
-                {allCheckboxes.map((category: any, index: any) => (
-                  <Accordion.Item
-                    eventKey={index.toString()}
-                    key={category.category}
-                    title={category.category}
-                    className="accordion-item"
-                  >
-                    <Accordion.Header className="accordion-header">
-                      {category.category}
-                    </Accordion.Header>
-                    <Accordion.Body className="accordion-body">
-                      <div className="form-check form-check-inline">
-                        {category.items.map((item: any) => (
-                          <div
-                            className="form-check form-check-inline"
-                            key={item.id}
-                          >
-                            <input
-                              className={`form-check-input ${
-                                category.items[item.id - 1]["status"] ===
-                                "exclude"
-                                  ? "customCheckBackground"
-                                  : ""
-                              }`}
-                              type="checkbox"
-                              id={`checkbox${item.id}`}
-                              checked={item.state === "checked"}
-                              onChange={() =>
-                                handleCheckboxClick(category.category, item.id)
-                              }
-                              value={item.value}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor={`checkbox${item.id}`}
-                            >
-                              {item.value}
-                            </label>
+            <div className="menus-link">
+              {!shouldShowDivs && (
+                <div className="sub-accordion">
+                  <Accordion>
+                    {allCheckboxes.map((category: any, index: any) => (
+                      <Accordion.Item
+                        eventKey={index.toString()}
+                        key={category.category}
+                        title={category.category}
+                        className="accordion-item"
+                      >
+                        <Accordion.Header className="accordion-header">
+                          {category.category}
+                        </Accordion.Header>
+                        <Accordion.Body className="accordion-body">
+                          <div className="form-check form-check-inline">
+                            {category.items.map((item: any) => (
+                              <div
+                                className="form-check form-check-inline"
+                                key={item.id}
+                              >
+                                <input
+                                  className={`form-check-input ${
+                                    category.items[item.id - 1]["status"] ===
+                                    "exclude"
+                                      ? "customCheckBackground"
+                                      : ""
+                                  }`}
+                                  type="checkbox"
+                                  id={`checkbox${item.id}`}
+                                  checked={item.state === "checked"}
+                                  onChange={() =>
+                                    handleCheckboxClick(
+                                      category.category,
+                                      item.id
+                                    )
+                                  }
+                                  value={item.value}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor={`checkbox${item.id}`}
+                                >
+                                  {item.value}
+                                </label>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    ))}
+                  </Accordion>
+                </div>
+              )}
+              {shouldShowDivs && (
+                <div className="filter-accordion">
+                  <Accordion>
+                    <Accordion.Item
+                      eventKey="0"
+                      key="0"
+                      title="filter"
+                      className="accordion-item"
+                    >
+                      <Accordion.Header
+                        className="accordion-header"
+                        onClick={handleAccordionClick}
+                      >
+                        Filters
+                      </Accordion.Header>
+                    </Accordion.Item>
+                  </Accordion>
+                </div>
+              )}
             </div>
           </div>
         </div>
