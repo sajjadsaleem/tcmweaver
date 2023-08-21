@@ -158,9 +158,8 @@ const Sidebar = () => {
     wordsArray.forEach((word: any) => {
       if (word.startsWith("-")) {
         word = word.replace("-", "");
-        for (const category of allCheckboxes) {
+        for (const category of allCheckboxes as any[]) {
           for (const item of category.items) {
-            console.log("item: ", item);
             if (item.value.toLowerCase() === word.toLowerCase()) {
               const categoryTitle = category.category;
               const itemId = item.id;
@@ -175,7 +174,7 @@ const Sidebar = () => {
           }
         }
       } else if (!word.startsWith("-")) {
-        for (const category of allCheckboxes) {
+        for (const category of allCheckboxes as any[]) {
           for (const item of category.items) {
             console.log("item: ", item);
             if (item.value.toLowerCase() === word.toLowerCase()) {
@@ -192,10 +191,10 @@ const Sidebar = () => {
           }
         }
       }
-      for (const category of allCheckboxes) {
+      for (const category of allCheckboxes as any[]) {
         for (const item of category.items) {
           const lowerItemValue = item.value.toLowerCase();
-          const lowerWordsArray = wordsArray.map((word) => word.toLowerCase());
+          const lowerWordsArray = wordsArray.map((word:any) => word.toLowerCase());
 
           if (
             !lowerWordsArray.includes(lowerItemValue) &&
