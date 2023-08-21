@@ -3,7 +3,7 @@ import path from 'path';
 
 export default async function handler(req, res) {
     try {
-      const directoryPath = 'C:\\Users\\Barqsol\\Documents\\cornish';
+      const directoryPath = 'https://weaver-seven.vercel.app/public/cornish-vault';
       console.log('path' , directoryPath)
       const fileNames = await fs.readdir(directoryPath);
       const filesData = await Promise.all(
