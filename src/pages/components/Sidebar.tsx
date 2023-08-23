@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Fzf, FzfOptions, byLengthAsc } from "fzf";
-import _, { replace } from "lodash";
+import _, { replace, result } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
-import AccordionItem from "react-bootstrap/esm/AccordionItem";
-import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
-import AccordionBody from "react-bootstrap/esm/AccordionBody";
 
 const Sidebar = () => {
   interface FileData {
@@ -17,19 +14,38 @@ const Sidebar = () => {
     name: string;
   }
 
+  interface SearchResult {
+    fileName: string;
+    content: string;
+    wordOccurence: number;
+    contentWithHighlightedWords: string;
+    fileNameWithHighlightedWords: string;
+  }
+
+  interface OpenedResult {
+    fileName: string;
+    content: string;
+  }
+
   const [filesData, setFilesData] = useState([]);
   const [filtersFileData, setFiltersFileData] = useState<FileData[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
   const [shouldShowDivs, setShouldShowDivs] = useState(true);
   const [themeChangericon, setThemeChangerIcon] = useState(true);
+  const [graphOrTextView, setgraphOrTextView] = useState(true);
+  const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
+  const [allData, setAllData] = useState([]);
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
-  console.log("current categories", allCheckboxes);
+  // console.log("searchResults", searchResults);
+  // console.log("currentCategories: ", allCheckboxes);
+  // console.log("openedResults: ", openedResults);
+  console.log("allData: ", allData);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -37,82 +53,88 @@ const Sidebar = () => {
         const response = await fetch("/api");
         if (!response.ok) {
           throw new Error("Failed to fetch files data.");
-        }
-        let data = await response.json();
-        data = data.map((item: any) => {
-          const fileNameWithoutExtension = item.fileName.split(".")[0];
-          return {
-            ...item,
-            fileName: fileNameWithoutExtension,
-          };
-        });
-        const filtersFile = data.filter(
-          (item: any) => item.fileName !== "filters"
-        );
-        setFilesData(filtersFile);
-        const filtersObject = data.find(
-          (item: any) => item.fileName === "filters"
-        );
-        let filteredData = filtersObject ? [filtersObject] : [];
+        } else {
+          let data = await response.json();
 
-        filteredData = filteredData[0].content
-          .split("\n")
-          .filter((word: any) => word.trim() !== "");
+          const modifiedData = data.map((item: any) => {
+            return {
+              ...item,
+              fileName: item.fileName.split(".").slice(0, -1).join("."),
+            };
+          });
 
-        setFiltersFileData(filteredData);
+          setAllData(modifiedData);
 
-        const categories: any = [];
-        let currentCategories = null;
+          // remove .md extension from Filenames
+          data = data.map((item: any) => {
+            const fileNameWithoutExtension = item.fileName.split(".")[0];
+            return {
+              ...item,
+              fileName: fileNameWithoutExtension,
+            };
+          });
 
-        for (const item of filteredData) {
-          if (item.startsWith("# ") && item.length > 2) {
-            currentCategories = item.slice(2);
-            categories.push({
-              category: currentCategories,
-              items: [],
-            });
-          } else if (currentCategories) {
-            const categoryIndex = categories.length - 1;
-            categories[categoryIndex].items.push({
-              id: categories[categoryIndex].items.length + 1,
-              state: "unchecked",
-              status: "neutral",
-              value: item,
-            });
+          // separating data and filters file
+          const filtersFile = data.filter(
+            (item: any) => item.fileName !== "filters"
+          );
+          setFilesData(filtersFile);
+
+          const filtersObject = data.find(
+            (item: any) => item.fileName === "filters"
+          );
+          let filteredData = filtersObject ? [filtersObject] : [];
+
+          filteredData = filteredData[0].content
+            .split("\n")
+            .filter((word: any) => word.trim() !== "");
+
+          setFiltersFileData(filteredData);
+
+          const categories: any = [];
+          let currentCategories = null;
+
+          for (const item of filteredData) {
+            if (item.startsWith("# ") && item.length > 2) {
+              currentCategories = item.slice(2);
+              categories.push({
+                category: currentCategories,
+                items: [],
+              });
+            } else if (currentCategories) {
+              const categoryIndex = categories.length - 1;
+              categories[categoryIndex].items.push({
+                id: categories[categoryIndex].items.length + 1,
+                state: "unchecked",
+                status: "neutral",
+                value: item,
+              });
+            }
           }
+
+          setAllCheckboxes(categories);
+
+          // const checkboxes: any = [];
+
+          // let currentCategory = null;
+
+          // for (const word of filteredData) {
+          //   if (word.startsWith("#")) {
+          //     currentCategory = word.substring(2);
+          //   } else {
+          //     checkboxes.push({
+          //       id: checkboxes.length + 1,
+          //       state: "unchecked",
+          //       status: "neutral",
+          //       value: word,
+          //       category: currentCategory,
+          //     });
+          //   }
+          // }
+
+          // // console.log("newcheckboxes", checkboxes);
+          // setCheckboxes(checkboxes);
         }
-
-        setAllCheckboxes(categories);
-
-        const checkboxes: any = [];
-
-        let currentCategory = null;
-
-        for (const word of filteredData) {
-          if (word.startsWith("#")) {
-            currentCategory = word.substring(2);
-          } else {
-            checkboxes.push({
-              id: checkboxes.length + 1,
-              state: "unchecked",
-              status: "neutral",
-              value: word,
-              category: currentCategory,
-            });
-          }
-        }
-
-        // console.log("newcheckboxes", checkboxes);
-        setCheckboxes(checkboxes);
-
-        // searchWords.forEach((word, index) => {
-        //   checkboxes.push({
-        //     id: checkboxes.length + 1,
-        //     state: "unchecked",
-        //     value: "neutral",
-        //     content: word,
-        //   });
-        // });
       } catch (error) {
         console.error("Error fetching files data:", error);
       }
@@ -176,17 +198,17 @@ const Sidebar = () => {
       } else if (!word.startsWith("-")) {
         for (const category of allCheckboxes as any[]) {
           for (const item of category.items) {
-            console.log("item: ", item);
+            // console.log("item: ", item);
             if (item.value.toLowerCase() === word.toLowerCase()) {
               const categoryTitle = category.category;
               const itemId = item.id;
               item.state = "checked";
               item.status = "include";
-              console.log("item: ", item);
+              // console.log("item: ", item);
 
-              console.log(`Word: ${word}`);
-              console.log(`Category: ${categoryTitle}`);
-              console.log(`Item ID: ${itemId}`);
+              // console.log(`Word: ${word}`);
+              // console.log(`Category: ${categoryTitle}`);
+              // console.log(`Item ID: ${itemId}`);
             }
           }
         }
@@ -194,7 +216,9 @@ const Sidebar = () => {
       for (const category of allCheckboxes as any[]) {
         for (const item of category.items) {
           const lowerItemValue = item.value.toLowerCase();
-          const lowerWordsArray = wordsArray.map((word:any) => word.toLowerCase());
+          const lowerWordsArray = wordsArray.map((word: any) =>
+            word.toLowerCase()
+          );
 
           if (
             !lowerWordsArray.includes(lowerItemValue) &&
@@ -350,6 +374,7 @@ const Sidebar = () => {
       .replace(/true/g, "1")
       .replace(/false/g, "0")
       .replace(/-0/g, "1")
+      .replace(/-1/g, "0")
       .replace(/(\d)\s*(?=\d)/g, "$1 & ")
       .replace(/OR/g, "|")
       .replace(/AND/g, "&")
@@ -408,9 +433,12 @@ const Sidebar = () => {
   function handleThemeChangerClick() {
     setThemeChangerIcon(!themeChangericon);
     const sideNav = document.querySelector(`.${"side-nav"}`);
-    if (sideNav) {
+    const mainPanel = document.querySelector(`.${"main"}`);
+    if (sideNav && mainPanel) {
       sideNav.classList.toggle("night-mode");
+      mainPanel.classList.toggle("night-mode");
     }
+    // onThemeChange();
   }
 
   const handleCheckboxClick = (category: any, id: any) => {
@@ -506,168 +534,262 @@ const Sidebar = () => {
     setShouldShowDivs(!shouldShowDivs);
   };
 
+  const handleGraphOrTextView = () => {
+    setgraphOrTextView(!graphOrTextView);
+  };
+
+  const removeSearchResults = (resultToRemove: any) => {
+    // console.log("search Results: ", searchResults);
+    const newResult = searchResults.filter(
+      (result) => result.fileName !== resultToRemove.fileName
+    );
+    console.log("newResult:  ", newResult);
+    setSearchResults(newResult);
+  };
+
+  const openSearchResult = (resultToOpen: any) => {
+    console.log("resultToOpen: ", resultToOpen);
+    const matchingFile: any = allData.find(
+      (file: any) => file.fileName === resultToOpen.fileName
+    );
+
+    const regex = /\[\[([^[\]]+)\]\]/g;
+
+    if (matchingFile) {
+      const contentWithStyledWords = matchingFile.content.replace(
+        regex,
+        (match: any, word: any) =>
+          `<p style="text-decoration: underline; cursor: pointer;">${word}</p>`
+      );
+
+      const updatedResultToOpen = {
+        ...resultToOpen,
+        content: contentWithStyledWords,
+      };
+
+      const updatedOpenedResults = [...openedResults, updatedResultToOpen];
+      // const updatedOpenedResults = [...openedResults, resultToOpen];
+      setOpenedResults(updatedOpenedResults);
+    }
+  };
+
   return (
     <div>
       <div className="side-nav">
-        <div className="navVc">
-          <div className={"logoVc"}>
-            <div>
-              <p>TCM Weaver</p>
-            </div>
-            <div className={"icon-profile"}>
-              <div className={"themeChanger"}>
-                {themeChangericon ? (
-                  <img
-                    src="/mood.png"
-                    alt="img"
-                    onClick={handleThemeChangerClick}
-                  />
-                ) : (
-                  <img
-                    src="/light-mode.png"
-                    alt="img"
-                    onClick={handleThemeChangerClick}
-                  />
-                )}
-              </div>
-              <div className={"simpleIcon"}>
-                <img src="/logo.png" alt="img" />
-              </div>
-              <div className={"noteIcon"}>
-                <img src="/logo-2.png" alt="img" />
-              </div>
-            </div>
+        <div className={"logoVc"}>
+          <div>
+            <p>TCM Weaver</p>
           </div>
-          <div className={"menus"}>
-            <div className={"menuBtn"}>
-              <input
-                type="text"
-                className={"formControl"}
-                placeholder=" Smart search"
-                value={searchValue}
-                onChange={handleSearch}
-              />
-            </div>
-
-            <div
-              className={`search-results ${
-                !shouldShowDivs ? "results-height" : ""
-              }`}
-            >
-              {searchValue.length > 0 && (
-                <div>
-                  {searchResults.map((result, index) => (
-                    <div className="filter-data" key={index}>
-                      <div className="set set-1">
-                        <div>
-                          <h1
-                            dangerouslySetInnerHTML={{
-                              __html: (
-                                result as {
-                                  fileNameWithHighlightedWords: string;
-                                }
-                              ).fileNameWithHighlightedWords,
-                            }}
-                            // onClick={() => handleFileClick(result["item"])}
-                          />
-                          <p>
-                            {
-                              (result as { wordOccurence: number })
-                                .wordOccurence
-                            }
-                          </p>
-                        </div>
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: (
-                              result as { contentWithHighlightedWords: string }
-                            ).contentWithHighlightedWords,
-                          }}
-                          className="note"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className={"icon-profile"}>
+            <div className={"themeChanger"}>
+              {themeChangericon ? (
+                <img
+                  src="/dark-mode.png"
+                  alt="img"
+                  onClick={handleThemeChangerClick}
+                />
+              ) : (
+                <img
+                  src="/light-mode.png"
+                  alt="img"
+                  onClick={handleThemeChangerClick}
+                />
               )}
             </div>
-
-            <div className="menus-link">
-              {!shouldShowDivs && (
-                <div className="sub-accordion">
-                  <Accordion>
-                    {allCheckboxes.map((category: any, index: any) => (
-                      <Accordion.Item
-                        eventKey={index.toString()}
-                        key={category.category}
-                        title={category.category}
-                        className="accordion-item"
-                      >
-                        <Accordion.Header className="accordion-header">
-                          {category.category}
-                        </Accordion.Header>
-                        <Accordion.Body className="accordion-body">
-                          <div className="form-check form-check-inline">
-                            {category.items.map((item: any) => (
-                              <div
-                                className="form-check form-check-inline"
-                                key={item.id}
-                              >
-                                <input
-                                  className={`form-check-input ${
-                                    category.items[item.id - 1]["status"] ===
-                                    "exclude"
-                                      ? "customCheckBackground"
-                                      : ""
-                                  }`}
-                                  type="checkbox"
-                                  id={`checkbox${item.id}`}
-                                  checked={item.state === "checked"}
-                                  onChange={() =>
-                                    handleCheckboxClick(
-                                      category.category,
-                                      item.id
-                                    )
-                                  }
-                                  value={item.value}
-                                />
-                                <label
-                                  className="form-check-label"
-                                  htmlFor={`checkbox${item.id}`}
-                                >
-                                  {item.value}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </Accordion.Body>
-                      </Accordion.Item>
-                    ))}
-                  </Accordion>
+            <div>
+              {graphOrTextView ? (
+                <div className={"simpleIcon"}>
+                  <img
+                    src="/graph-logo.png"
+                    alt="img"
+                    onClick={handleGraphOrTextView}
+                  />
                 </div>
-              )}
-              {shouldShowDivs && (
-                <div className="filter-accordion">
-                  <Accordion>
-                    <Accordion.Item
-                      eventKey="0"
-                      key="0"
-                      title="filter"
-                      className="accordion-item"
-                    >
-                      <Accordion.Header
-                        className="accordion-header"
-                        onClick={handleAccordionClick}
-                      >
-                        Filters
-                      </Accordion.Header>
-                    </Accordion.Item>
-                  </Accordion>
+              ) : (
+                <div className={"note-icon"}>
+                  <img
+                    src="/text-logo.png"
+                    alt="img"
+                    onClick={handleGraphOrTextView}
+                  />
                 </div>
               )}
             </div>
           </div>
         </div>
+        <div className={"menuBtn"}>
+          <input
+            type="text"
+            className={"formControl"}
+            placeholder=" Smart search"
+            value={searchValue}
+            onChange={handleSearch}
+          />
+        </div>
+        <div
+          className={`search-results ${
+            !shouldShowDivs ? "results-height" : ""
+          }`}
+        >
+          {searchValue.length > 0 && (
+            <div>
+              {searchResults.map((result, index) => (
+                <div className="filter-data" key={index}>
+                  <div className="set set-1">
+                    <div>
+                      <div className="results-title">
+                        <span>
+                          {(result as { wordOccurence: number }).wordOccurence}
+                        </span>
+
+                        <h1
+                          dangerouslySetInnerHTML={{
+                            __html: (
+                              result as {
+                                fileNameWithHighlightedWords: string;
+                              }
+                            ).fileNameWithHighlightedWords,
+                          }}
+                          // onClick={() => handleFileClick(result["item"])}
+                        />
+                      </div>
+
+                      <img
+                        src="xmark.png"
+                        alt="img"
+                        className="remove-search-result"
+                        onClick={() => removeSearchResults(result)}
+                      />
+                    </div>
+                    <div>
+                      <div>
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: (
+                              result as {
+                                contentWithHighlightedWords: string;
+                              }
+                            ).contentWithHighlightedWords,
+                          }}
+                          className="note"
+                        />
+                      </div>
+                      <div>
+                        <img
+                          src="arrow-right.png"
+                          alt="img"
+                          className="remove-search-result"
+                          onClick={() => openSearchResult(result)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="menus">
+          <div className="menus-link">
+            {!shouldShowDivs && (
+              <div className="sub-accordion">
+                <Accordion>
+                  {allCheckboxes.map((category: any, index: any) => (
+                    <Accordion.Item
+                      eventKey={index.toString()}
+                      key={category.category}
+                      title={category.category}
+                      className="accordion-item"
+                    >
+                      <Accordion.Header className="accordion-header">
+                        {category.category}
+                      </Accordion.Header>
+                      <Accordion.Body className="accordion-body">
+                        <div className="form-check form-check-inline">
+                          {category.items.map((item: any) => (
+                            <div
+                              className="form-check form-check-inline"
+                              key={item.id}
+                            >
+                              <input
+                                className={`form-check-input ${
+                                  category.items[item.id - 1]["status"] ===
+                                  "exclude"
+                                    ? "customCheckBackground"
+                                    : ""
+                                }`}
+                                type="checkbox"
+                                id={`checkbox${item.id}`}
+                                checked={item.state === "checked"}
+                                onChange={() =>
+                                  handleCheckboxClick(
+                                    category.category,
+                                    item.id
+                                  )
+                                }
+                                value={item.value}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor={`checkbox${item.id}`}
+                              >
+                                {item.value}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  ))}
+                </Accordion>
+              </div>
+            )}
+            {shouldShowDivs && (
+              <div className="filter-accordion">
+                <Accordion>
+                  <Accordion.Item
+                    eventKey="0"
+                    key="0"
+                    title="filter"
+                    className="accordion-item"
+                  >
+                    <Accordion.Header
+                      className="accordion-header"
+                      onClick={handleAccordionClick}
+                    >
+                      Filters
+                    </Accordion.Header>
+                  </Accordion.Item>
+                </Accordion>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="main">
+        {openedResults.length > 0 ? (
+          openedResults.map((result, index) => (
+            <div key={index} className="opened-results">
+              {/* Render your result content here */}
+              <div className="view-panel-title">
+                <h4>{result.fileName}</h4>
+                <div className="view-panel-title-icons">
+                  <img src="/arrow-left.png" alt="img" className="" />
+                  <img src="/xmark.png" alt="img" />
+                </div>
+              </div>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: result.content,
+                }}
+              />
+            </div>
+          ))
+        ) : (
+          <p style={{ padding: "16px" }}>No results are open.</p>
+        )}
       </div>
     </div>
   );
