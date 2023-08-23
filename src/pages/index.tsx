@@ -45,7 +45,7 @@ const Page = () => {
   return (
     <LayoutWrapper layout={AdminLayout}>
       <div className="wrapper">
-        <Sidebar onThemeChange={handleThemeChange} />
+        <Sidebar />
         {/* <Main triggerChange={triggerChange} /> */}
       </div>
 
