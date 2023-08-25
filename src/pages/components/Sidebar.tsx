@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Fzf, FzfOptions, byLengthAsc } from "fzf";
-import _, { replace, result } from "lodash";
+import _, { replace, result, update } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
+import { marked } from "marked";
 
 const Sidebar = () => {
   interface FileData {
@@ -45,7 +46,7 @@ const Sidebar = () => {
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
   // console.log("openedResults: ", openedResults);
-  console.log("allData: ", allData);
+  // console.log("allData: ", allData);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -360,10 +361,11 @@ const Sidebar = () => {
     removeBrackets(newEntries, wordToSearch);
     highlightSearchWord(newEntries, wordToSearch);
 
-    console.log("newEntries: ", newEntries);
     newEntries = newEntries
       .slice()
       .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+    console.log("newEntries: ", newEntries);
 
     setSearchResults(newEntries);
   };
@@ -390,6 +392,7 @@ const Sidebar = () => {
   }
 
   function removeBrackets(newEntries: any, wordToSearch: any) {
+    // console.log("newEntries: ", newEntries);
     for (const entry of newEntries) {
       let textToConvert = entry.content;
       const regex = /\[\[([^[\]]+)\]\]/g;
@@ -538,38 +541,159 @@ const Sidebar = () => {
     setgraphOrTextView(!graphOrTextView);
   };
 
-  const removeSearchResults = (resultToRemove: any) => {
-    // console.log("search Results: ", searchResults);
+  const removeSearchResult = (resultToRemove: any) => {
+    // console.log("search Results: ", searchResults, resultToRemove);
     const newResult = searchResults.filter(
       (result) => result.fileName !== resultToRemove.fileName
     );
-    console.log("newResult:  ", newResult);
+    // console.log("newResult:  ", newResult);
     setSearchResults(newResult);
   };
 
   const openSearchResult = (resultToOpen: any) => {
-    console.log("resultToOpen: ", resultToOpen);
-    const matchingFile: any = allData.find(
+    // console.log("resultToOpen: ", resultToOpen);
+    let matchingFile: any = allData.find(
       (file: any) => file.fileName === resultToOpen.fileName
     );
 
-    const regex = /\[\[([^[\]]+)\]\]/g;
+    marked.setOptions({
+      breaks: true,
+    });
 
+    matchingFile.content = marked(matchingFile.content);
+    // console.log("markedContent", matchingFile);
+
+    const regex = /\[\[([^[\]]+)\]\]/g;
     if (matchingFile) {
       const contentWithStyledWords = matchingFile.content.replace(
         regex,
         (match: any, word: any) =>
-          `<p style="text-decoration: underline; cursor: pointer;">${word}</p>`
+          `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
       );
+      // console.log("contentwithstyledwords", contentWithStyledWords);
 
       const updatedResultToOpen = {
         ...resultToOpen,
         content: contentWithStyledWords,
       };
 
-      const updatedOpenedResults = [...openedResults, updatedResultToOpen];
-      // const updatedOpenedResults = [...openedResults, resultToOpen];
-      setOpenedResults(updatedOpenedResults);
+      const doesExist = openedResults.some(
+        (result) => result.fileName === updatedResultToOpen.fileName
+      );
+
+      if (!doesExist) {
+        const updatedOpenedResults = [...openedResults, updatedResultToOpen];
+        setOpenedResults(updatedOpenedResults);
+      } else {
+        console.log("An object with the same fileName already exists.");
+      }
+
+      // scroll to where the file is opened
+      setTimeout(() => {
+        const divElements = document.querySelectorAll(".view-panel-title");
+        // console.log("divElement", divElements);
+        divElements.forEach((div: any) => {
+          const h4Elements = div.querySelectorAll("h4");
+          h4Elements.forEach((h4: any) => {
+            if (h4.textContent === resultToOpen.fileName.toUpperCase()) {
+              h4.classList.add("highlighted-heading");
+              h4.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "center",
+              });
+
+              setTimeout(() => {
+                h4.classList.remove("highlighted-heading");
+              }, 3000);
+            }
+          });
+        });
+      }, 10);
+    }
+  };
+
+  const collapseOpenedResult = (resultToCollapse: any) => {
+    // console.log("resultToCollapse", resultToCollapse);
+    const collapsedResult = openedResults.filter(
+      (item: any) => item.fileName !== resultToCollapse.fileName
+    );
+    setOpenedResults(collapsedResult);
+  };
+
+  const removeBothSearchResults = (resultToRemove: any) => {
+    // console.log("resultToRemove", resultToRemove);
+    collapseOpenedResult(resultToRemove);
+    removeSearchResult(resultToRemove);
+  };
+
+  const handleLinkClick = (linkClickedFromFile: any, linkClicked: any) => {
+    console.log("linkClickedFromFile: ", linkClickedFromFile);
+    console.log("linkClicked: ", linkClicked);
+
+    const newDataObject: any = allData.find(
+      (item: any) => item.fileName === linkClicked
+    );
+    console.log("newDataObject", newDataObject);
+    const regex = /\[\[([^[\]]+)\]\]/g;
+    if (newDataObject) {
+      const contentWithStyledWords = newDataObject.content.replace(
+        regex,
+        (match: any, word: any) =>
+          `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+      );
+      console.log("contentwithstyledword", contentWithStyledWords);
+
+      const index = openedResults.findIndex(
+        (item: any) => item.fileName === linkClickedFromFile
+      );
+      if (index !== -1) {
+        const updatedResults = {
+          ...newDataObject,
+          content: contentWithStyledWords,
+        };
+
+        const doesExist = openedResults.some(
+          (result) => result.fileName === updatedResults.fileName
+        );
+
+        if (!doesExist) {
+          // Create a copy of the openedResults array
+          const updatedOpenedResults = [...openedResults];
+
+          // Insert the updatedResults object at index + 1
+          updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+          // Update the state with the new array
+          setOpenedResults(updatedOpenedResults);
+        } else {
+          console.log("An object with the same fileName already exists.");
+        }
+
+        // scroll to where the file is opened
+        setTimeout(() => {
+          const divElements = document.querySelectorAll(".view-panel-title");
+          // console.log("divElement", divElements);
+          divElements.forEach((div: any) => {
+            const h4Elements = div.querySelectorAll("h4");
+            console.log("h4", h4Elements);
+            h4Elements.forEach((h4: any) => {
+              if (h4.textContent === linkClicked.toUpperCase()) {
+                console.log("h4", h4);
+                h4.classList.add("highlighted-heading");
+                h4.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                  inline: "center",
+                });
+                setTimeout(() => {
+                  h4.classList.remove("highlighted-heading");
+                }, 3000);
+              }
+            });
+          });
+        }, 10);
+      }
     }
   };
 
@@ -658,7 +782,7 @@ const Sidebar = () => {
                         src="xmark.png"
                         alt="img"
                         className="remove-search-result"
-                        onClick={() => removeSearchResults(result)}
+                        onClick={() => removeSearchResult(result)}
                       />
                     </div>
                     <div>
@@ -766,6 +890,9 @@ const Sidebar = () => {
             )}
           </div>
         </div>
+        {/* <div className="height-check">
+
+        </div> */}
       </div>
 
       <div className="main">
@@ -774,17 +901,38 @@ const Sidebar = () => {
             <div key={index} className="opened-results">
               {/* Render your result content here */}
               <div className="view-panel-title">
-                <h4>{result.fileName}</h4>
+                <h4>{result.fileName.toUpperCase()}</h4>
                 <div className="view-panel-title-icons">
-                  <img src="/arrow-left.png" alt="img" className="" />
-                  <img src="/xmark.png" alt="img" />
+                  <img
+                    src="/arrow-left.png"
+                    alt="img"
+                    onClick={() => collapseOpenedResult(result)}
+                  />
+                  <img
+                    src="/xmark.png"
+                    alt="img"
+                    onClick={() => removeBothSearchResults(result)}
+                  />
                 </div>
               </div>
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: result.content,
-                }}
-              />
+
+              <div className="opened-result-detail">
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: result.content,
+                  }}
+                  className="opened-result-description"
+                  onClick={(e: any) => {
+                    if (
+                      e.target.tagName === "SPAN" &&
+                      e.target.style.textDecoration === "underline"
+                    ) {
+                      const clickedWord = e.target.textContent; // Get the clicked word
+                      handleLinkClick(result.fileName, clickedWord);
+                    }
+                  }}
+                />
+              </div>
             </div>
           ))
         ) : (

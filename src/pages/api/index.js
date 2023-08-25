@@ -3,12 +3,9 @@ import path from 'path';
 
 export default async function handler(req, res) {
     try {
+      // console.log('req: ' , req , 'res: ' , res)
       const directoryPath =`${process.cwd()}/public/cornish-vault`;
   
-      // console.log('path:' ,directoryPath)
-      // const response = await fetch('https://weaver-seven.vercel.app/public/cornish-vault/BLT.md');
-      // const content = await response.text();
-      // console.log('response: ' , content)
       const fileNames = await fs.readdir(directoryPath);
       const filesData = await Promise.all(
         fileNames.map(async (fileName) => {
@@ -17,6 +14,7 @@ export default async function handler(req, res) {
           return { fileName, content };
         })
       );
+      // console.log('filesData: ' , filesData)
   
       res.status(200).json(filesData);
     } catch (error) {

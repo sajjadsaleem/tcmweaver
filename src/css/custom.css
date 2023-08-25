@@ -58,6 +58,14 @@
     border-radius: 10px;
 }
 
+.opened-result-detail::-webkit-scrollbar-thumb {
+    background: transparent;
+    /* border-radius: 10px; */
+}
+
+.opened-result-detail::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+}
 ::-webkit-scrollbar-thumb:hover {
     background: #616161;
 }
@@ -141,8 +149,17 @@ src: url('/fonts/your-font-file.woff2') format('woff2'),
 margin-top: 1rem !important;
 width: 100%;
 /* margin: auto; */
+height: 225px;
 overflow-y: scroll;
 }
+
+.height-check{
+    height: 100px;
+    width: 300px;
+    background-color: red;
+}
+
+
 
 .menus-link{
     width: 284px;
@@ -169,6 +186,7 @@ overflow-y: scroll;
     text-align: center;
     outline: 0;
 }
+
 
 
 
@@ -247,6 +265,10 @@ overflow-y: scroll;
     font-weight: 400;
     margin-left: 17px;
     margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 280px;
+    white-space: nowrap;
     
 }
 
@@ -574,11 +596,13 @@ overflow-y: scroll;
 .view-panel-title{
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    /* align-items: center; */
 }
 
 .view-panel-title h4{
     margin: 0;
+    width: 84%;
+    font-size: 20px;
 }
 
 .view-panel-title-icons img{
@@ -587,6 +611,47 @@ overflow-y: scroll;
     cursor: pointer;
 
 }
+
+.opened-result-detail{
+    margin-top: 20px;
+    overflow-y: scroll;
+    width: 100%;
+    height: calc(100vh - 80px);
+
+}
+.opened-result-detail h1{
+    font-size: 2.2rem;
+}
+.opened-result-detail h2{
+    font-size: 2.0rem;
+}
+.opened-result-detail h3{
+    font-size: 1.7rem ;
+}
+.opened-result-detail h4{
+    font-size: 1.5rem ;
+}
+
+.highlighted-heading{
+    /* background-color: red; */
+    color: black;
+    animation: blink .7s 1;
+
+}
+@keyframes blink {
+    0% , 100%{color: transparent;}
+    50%{color: black;}
+    /* 100%{color: transparent} */
+    
+}
+
+
+
+
+
+
+
+
 /* 
 
 .main.active {
