@@ -24,6 +24,7 @@ const Sidebar = () => {
   }
 
   interface OpenedResult {
+    openedFromResults: any;
     fileName: string;
     content: string;
   }
@@ -38,15 +39,15 @@ const Sidebar = () => {
   const [themeChangericon, setThemeChangerIcon] = useState(true);
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
-  const [allData, setAllData] = useState([]);
+  const [filtersData, setFiltersData] = useState([]);
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
-  // console.log("openedResults: ", openedResults);
-  // console.log("allData: ", allData);
+  console.log("openedResults: ", openedResults);
+  // console.log("filtersData: ", filtersData);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -64,7 +65,7 @@ const Sidebar = () => {
             };
           });
 
-          setAllData(modifiedData);
+          setFiltersData(modifiedData);
 
           // remove .md extension from Filenames
           data = data.map((item: any) => {
@@ -112,29 +113,9 @@ const Sidebar = () => {
               });
             }
           }
+          console.log("categories", categories);
 
           setAllCheckboxes(categories);
-
-          // const checkboxes: any = [];
-
-          // let currentCategory = null;
-
-          // for (const word of filteredData) {
-          //   if (word.startsWith("#")) {
-          //     currentCategory = word.substring(2);
-          //   } else {
-          //     checkboxes.push({
-          //       id: checkboxes.length + 1,
-          //       state: "unchecked",
-          //       status: "neutral",
-          //       value: word,
-          //       category: currentCategory,
-          //     });
-          //   }
-          // }
-
-          // // console.log("newcheckboxes", checkboxes);
-          // setCheckboxes(checkboxes);
         }
       } catch (error) {
         console.error("Error fetching files data:", error);
@@ -145,6 +126,7 @@ const Sidebar = () => {
 
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
+
     setSearchValue(inputValue);
 
     let wordToSearch: any;
@@ -174,7 +156,9 @@ const Sidebar = () => {
 
     // console.log("wordToSearch before split:", wordToSearch);
 
-    const wordsArray = wordToSearch.split(" ");
+    const wordsArray = wordToSearch
+      .match(/(-?)"([^"]*)"|\S+/g)
+      .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
     console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -252,8 +236,6 @@ const Sidebar = () => {
       resultCalculateWithOR.push(currentPair);
     }
 
-    // console.log("resultCalculateWithOR: ", resultCalculateWithOR);
-
     for (let i = 0; i < wordsArray.length; i++) {
       const word = wordsArray[i];
       if (word.startsWith("-")) {
@@ -277,8 +259,6 @@ const Sidebar = () => {
     wordToSearch = wordsToSearch;
 
     console.log("word to search", wordToSearch);
-    // console.log("Words to exclude: ", wordsToExclude);
-    // console.log("gate word: ", orGateWord);
 
     const options: FzfOptions<File> = {
       selector: (item: any) => `${item.fileName} (${item.content})`,
@@ -294,102 +274,120 @@ const Sidebar = () => {
       entries = entries.concat(newResults); // Add new results to the entries array
     }
 
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+    try {
+      const encodedWords = encodeURIComponent(wordsArray.join(","));
+      const response = await fetch(`/api/search?q=${encodedWords}`);
+      responseJson = await response.json();
+      // console.log("responseJson: ", responseJson);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+
+    newEntries = responseJson;
+
     //===========New Code============
 
-    for (let i = 0; i < wordsArray.length; i++) {
-      if (wordsArray[i].startsWith("-")) {
-        wordsArray[i] = wordsArray[i].substring(1);
-      }
-    }
+    // for (let i = 0; i < wordsArray.length; i++) {
+    //   if (wordsArray[i].startsWith("-")) {
+    //     wordsArray[i] = wordsArray[i].substring(1);
+    //   }
+    // }
 
-    let newTestFiles: any = [];
-    let newEntries: any = [];
+    // let newTestFiles: any = [];
+    // let newEntries: any = [];
 
-    for (const file of filesData) {
-      let inputExpression = inputValue;
-      const fzf: any = new Fzf<File[]>([file], options);
-      for (const word of wordsArray) {
-        if (word === "OR" || word === "AND") {
-          continue;
-        } else {
-          newTestFiles = fzf.find(word);
-          const isFound = newTestFiles.length > 0;
-          if (isFound) {
-            if (word === "#") {
-              inputExpression = inputExpression.replace(
-                // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-                new RegExp(`#${word}|#`, "g"),
-                "true"
-              );
-            } else {
-              inputExpression = inputExpression.replace(
-                new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-                "true"
-              );
-            }
-          } else {
-            if (word === "#") {
-              inputExpression = inputExpression.replace(
-                // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-                new RegExp(`#${word}|#`, "g"),
-                "false"
-              );
-            } else {
-              inputExpression = inputExpression.replace(
-                new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-                "false"
-              );
-            }
-          }
-        }
-      }
-      // console.log(`${inputExpression} for ${file.fileName} `);
-      const expressionEvaluation = evaluateLogicalExpression(inputExpression);
-      // console.log(`${expressionEvaluation} for ${file.fileName} `);
-      if (expressionEvaluation === 1) {
-        newEntries.push(file);
-      }
-    }
+    // console.log("inputValue", inputValue);
+    // for (const file of filesData) {
+    //   let inputExpression = inputValue;
+    //   const fzf: any = new Fzf<File[]>([file], options);
+    //   for (const word of wordsArray) {
+    //     if (word === "OR" || word === "AND") {
+    //       continue;
+    //     } else {
+    //       newTestFiles = fzf.find(word);
+    //       const isFound = newTestFiles.length > 0;
+    //       if (isFound) {
+    //         if (word === "#") {
+    //           inputExpression = inputExpression.replace(
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
+    //             new RegExp(`#${word}|#`, "g"),
+    //             "true"
+    //           );
+    //         } else {
+    //           inputExpression = inputExpression.replace(
+    //             new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
+    //             "true"
+    //           );
+    //         }
+    //       } else {
+    //         if (word === "#") {
+    //           inputExpression = inputExpression.replace(
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
+    //             new RegExp(`#${word}|#`, "g"),
+    //             "false"
+    //           );
+    //         } else {
+    //           inputExpression = inputExpression.replace(
+    //             new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
+    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
+    //             "false"
+    //           );
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // console.log(`${inputExpression} for ${file.fileName} `);
+    //   const expressionEvaluation = evaluateLogicalExpression(inputExpression);
+    //   // console.log(`${expressionEvaluation} for ${file.fileName} `);
+    //   if (expressionEvaluation === 1) {
+    //     newEntries.push(file);
+    //   }
+    // }
 
     //===========New Code End============
 
     // Remove Brackets and Calculate Occurence of Words
+
     removeBrackets(newEntries, wordToSearch);
+
     highlightSearchWord(newEntries, wordToSearch);
 
     newEntries = newEntries
       .slice()
       .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-    console.log("newEntries: ", newEntries);
+    // console.log("newEntries: ", newEntries);
 
     setSearchResults(newEntries);
   };
 
-  function evaluateLogicalExpression(expression: any) {
-    // console.log("expression: ", expression);
-    const replacedExpression = expression
-      .replace(/true/g, "1")
-      .replace(/false/g, "0")
-      .replace(/-0/g, "1")
-      .replace(/-1/g, "0")
-      .replace(/(\d)\s*(?=\d)/g, "$1 & ")
-      .replace(/OR/g, "|")
-      .replace(/AND/g, "&")
-      .replace(/[|&]+\s*$/, "")
-      .replace(/^[|&]+\s*|[|&]+\s*$/g, "")
-      .replace(/-(?!\w)/g, "") // Remove minus sign not followed by a word
-      .replace(/#(?!\w)/g, ""); // Remove # sign not followed by a word
+  // this function now working on backend
+  // function evaluateLogicalExpression(expression: any) {
+  //   // console.log("expression: ", expression);
+  //   const replacedExpression = expression
+  //     .replace(/true/g, "1")
+  //     .replace(/false/g, "0")
+  //     .replace(/-0/g, "1")
+  //     .replace(/-1/g, "0")
+  //     .replace(/(\d)\s*(?=\d)/g, "$1 & ")
+  //     .replace(/OR/g, "|")
+  //     .replace(/AND/g, "&")
+  //     .replace(/[|&]+\s*$/, "")
+  //     .replace(/^[|&]+\s*|[|&]+\s*$/g, "")
+  //     .replace(/-(?!\w)/g, "") // Remove minus sign not followed by a word
+  //     .replace(/#(?!\w)/g, ""); // Remove # sign not followed by a word
 
-    // console.log("replacedExpression: ", replacedExpression);
+  //   // console.log("replacedExpression: ", replacedExpression);
 
-    let result = eval(replacedExpression);
-    return result;
-  }
+  //   let result = eval(replacedExpression);
+  //   return result;
+  // }
 
   function removeBrackets(newEntries: any, wordToSearch: any) {
     // console.log("newEntries: ", newEntries);
@@ -397,10 +395,16 @@ const Sidebar = () => {
       let textToConvert = entry.content;
       const regex = /\[\[([^[\]]+)\]\]/g;
 
-      entry.content = textToConvert.replace(
+      // entry.content = textToConvert.replace(
+      //   regex,
+      //   (match: any, word: any) => `${word}`
+      // );
+
+      const contentWithRemovedBrackets = textToConvert.replace(
         regex,
         (match: any, word: any) => `${word}`
       );
+      entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
 
       let wordOccurence = 0;
 
@@ -420,10 +424,11 @@ const Sidebar = () => {
 
   function highlightSearchWord(newEntries: any, wordToSearch: any) {
     for (const entry of newEntries) {
-      const contentWithHighlightedWords = entry.content.replace(
-        new RegExp(`(${wordToSearch.join("|")})`, "gi"),
-        (match: any) => `<span>${match}</span>`
-      );
+      const contentWithHighlightedWords =
+        entry.contentWithRemovedBrackets.replace(
+          new RegExp(`(${wordToSearch.join("|")})`, "gi"),
+          (match: any) => `<span>${match}</span>`
+        );
       const fileNameWithHighlightedWords = entry.fileName.replace(
         new RegExp(`(${wordToSearch.join("|")})`, "gi"),
         (match: any) => `<span>${match}</span>`
@@ -503,14 +508,16 @@ const Sidebar = () => {
     } else if (valueToCheck === "exclude") {
       const valueToAdd = valueToInclude;
       let updatedValue = currentValue;
-      // const updatedValue =
-      //   currentValue + " -" + updatedCheckboxes[id - 1]["value"];
       if (currentValue.includes(valueToAdd)) {
         updatedValue = currentValue
-          .replace(
-            new RegExp(`\\s*${valueToAdd}\\s*(?!.*\\s*${valueToAdd}\\s*)`),
-            ""
-          )
+          // .replace(
+          //   new RegExp(`\\s*${valueToAdd}\\s*(?!.*\\s*${valueToAdd}\\s*)`),
+          //   ""
+          // )
+          // .replace(/ +/g, " ") // Replace consecutive whitespace with a single space
+          // .trim();
+          .replace(new RegExp(`\\b${valueToAdd}\\b`, "g"), "") // Remove the specific word
+          .replace(/ +/g, " ") // Replace multiple consecutive spaces with a single space
           .trim();
         updatedValue += ` -${valueToAdd}`;
       } else {
@@ -552,7 +559,7 @@ const Sidebar = () => {
 
   const openSearchResult = (resultToOpen: any) => {
     // console.log("resultToOpen: ", resultToOpen);
-    let matchingFile: any = allData.find(
+    let matchingFile: any = searchResults.find(
       (file: any) => file.fileName === resultToOpen.fileName
     );
 
@@ -575,6 +582,7 @@ const Sidebar = () => {
       const updatedResultToOpen = {
         ...resultToOpen,
         content: contentWithStyledWords,
+        openedFromResults: true,
       };
 
       const doesExist = openedResults.some(
@@ -590,13 +598,13 @@ const Sidebar = () => {
 
       // scroll to where the file is opened
       setTimeout(() => {
-        const divElements = document.querySelectorAll(".view-panel-title");
+        const divElements = document.querySelectorAll(".opened-results");
         // console.log("divElement", divElements);
         divElements.forEach((div: any) => {
           const h4Elements = div.querySelectorAll("h4");
           h4Elements.forEach((h4: any) => {
             if (h4.textContent === resultToOpen.fileName.toUpperCase()) {
-              h4.classList.add("highlighted-heading");
+              div.classList.add("highlighted-heading");
               h4.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
@@ -604,9 +612,19 @@ const Sidebar = () => {
               });
 
               setTimeout(() => {
-                h4.classList.remove("highlighted-heading");
-              }, 3000);
+                div.classList.remove("highlighted-heading");
+              }, 1500);
             }
+
+            // const openedResultsDivs =
+            //   document.querySelectorAll(".opened-results");
+
+            // openedResultsDivs.forEach((div:any) => {
+            //   const h4Element = div.querySelector("h4");
+            //   if (h4Element && h4Element.textContent === "taimoor") {
+            //     div.classList.add("your-desired-class");
+            //   }
+            // });
           });
         });
       }, 10);
@@ -622,78 +640,105 @@ const Sidebar = () => {
   };
 
   const removeBothSearchResults = (resultToRemove: any) => {
-    // console.log("resultToRemove", resultToRemove);
+    console.log("resultToRemove", resultToRemove);
     collapseOpenedResult(resultToRemove);
     removeSearchResult(resultToRemove);
+    console.log("searchValue: ", searchValue);
+
+    const updatedSearchValue = `${searchValue} -"${resultToRemove.fileName}"`;
+
+    console.log("updatedSearchValue", updatedSearchValue);
+    setSearchValue(updatedSearchValue);
   };
 
-  const handleLinkClick = (linkClickedFromFile: any, linkClicked: any) => {
-    console.log("linkClickedFromFile: ", linkClickedFromFile);
-    console.log("linkClicked: ", linkClicked);
+  const handleLinkClick = async (
+    linkClickedFromFile: any,
+    linkClicked: any
+  ) => {
+    // console.log("linkClickedFromFile: ", linkClickedFromFile);
+    // console.log("linkClicked: ", linkClicked);
+    try {
+      const response = await fetch(`/api/linkFile?q=${linkClicked}`);
+      const newDataObject = await response.json();
+      // console.log("responseJson: ", responseJson);
 
-    const newDataObject: any = allData.find(
-      (item: any) => item.fileName === linkClicked
-    );
-    console.log("newDataObject", newDataObject);
-    const regex = /\[\[([^[\]]+)\]\]/g;
-    if (newDataObject) {
-      const contentWithStyledWords = newDataObject.content.replace(
-        regex,
-        (match: any, word: any) =>
-          `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-      );
-      console.log("contentwithstyledword", contentWithStyledWords);
-
-      const index = openedResults.findIndex(
-        (item: any) => item.fileName === linkClickedFromFile
-      );
-      if (index !== -1) {
-        const updatedResults = {
-          ...newDataObject,
-          content: contentWithStyledWords,
-        };
-
-        const doesExist = openedResults.some(
-          (result) => result.fileName === updatedResults.fileName
+      // console.log("newDataObject", newDataObject);
+      const regex = /\[\[([^[\]]+)\]\]/g;
+      if (newDataObject) {
+        const contentWithStyledWords = newDataObject.content.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
+        // console.log("contentwithstyledword", contentWithStyledWords);
 
-        if (!doesExist) {
-          // Create a copy of the openedResults array
-          const updatedOpenedResults = [...openedResults];
+        const index = openedResults.findIndex(
+          (item: any) => item.fileName === linkClickedFromFile
+        );
+        if (index !== -1) {
+          const updatedResults = {
+            ...newDataObject,
+            content: contentWithStyledWords,
+            openedFromResults: false,
+          };
 
-          // Insert the updatedResults object at index + 1
-          updatedOpenedResults.splice(index + 1, 0, updatedResults);
+          const doesExist = openedResults.some(
+            (result) => result.fileName === updatedResults.fileName
+          );
 
-          // Update the state with the new array
-          setOpenedResults(updatedOpenedResults);
-        } else {
-          console.log("An object with the same fileName already exists.");
-        }
+          if (!doesExist) {
+            // Create a copy of the openedResults array
+            const updatedOpenedResults = [...openedResults];
 
-        // scroll to where the file is opened
-        setTimeout(() => {
-          const divElements = document.querySelectorAll(".view-panel-title");
-          // console.log("divElement", divElements);
-          divElements.forEach((div: any) => {
-            const h4Elements = div.querySelectorAll("h4");
-            console.log("h4", h4Elements);
-            h4Elements.forEach((h4: any) => {
-              if (h4.textContent === linkClicked.toUpperCase()) {
-                console.log("h4", h4);
-                h4.classList.add("highlighted-heading");
-                h4.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                  inline: "center",
-                });
-                setTimeout(() => {
-                  h4.classList.remove("highlighted-heading");
-                }, 3000);
-              }
+            // Insert the updatedResults object at index + 1
+            updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+            // Update the state with the new array
+            setOpenedResults(updatedOpenedResults);
+          } else {
+            const resultsWithRemovedLink = openedResults.filter(
+              (item: any) => item.fileName !== updatedResults.fileName
+            );
+            const index = resultsWithRemovedLink.findIndex(
+              (item: any) => item.fileName === linkClickedFromFile
+            );
+
+            const updatedOpenedResults = [...resultsWithRemovedLink];
+
+            // Insert the updatedResults object at index + 1
+            updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+            // Update the state with the new array
+            setOpenedResults(updatedOpenedResults);
+          }
+
+          // scroll to where the file is opened
+          setTimeout(() => {
+            const divElements = document.querySelectorAll(".view-panel-title");
+            // console.log("divElement", divElements);
+            divElements.forEach((div: any) => {
+              const h4Elements = div.querySelectorAll("h4");
+              // console.log("h4", h4Elements);
+              h4Elements.forEach((h4: any) => {
+                if (h4.textContent === linkClicked.toUpperCase()) {
+                  // console.log("h4", h4);
+                  h4.classList.add("highlighted-heading");
+                  h4.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                    inline: "center",
+                  });
+                  setTimeout(() => {
+                    h4.classList.remove("highlighted-heading");
+                  }, 3000);
+                }
+              });
             });
-          });
-        }, 10);
+          }, 10);
+        }
       }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
     }
   };
 
@@ -782,7 +827,7 @@ const Sidebar = () => {
                         src="xmark.png"
                         alt="img"
                         className="remove-search-result"
-                        onClick={() => removeSearchResult(result)}
+                        onClick={() => removeBothSearchResults(result)}
                       />
                     </div>
                     <div>
@@ -902,18 +947,29 @@ const Sidebar = () => {
               {/* Render your result content here */}
               <div className="view-panel-title">
                 <h4>{result.fileName.toUpperCase()}</h4>
-                <div className="view-panel-title-icons">
-                  <img
-                    src="/arrow-left.png"
-                    alt="img"
-                    onClick={() => collapseOpenedResult(result)}
-                  />
-                  <img
-                    src="/xmark.png"
-                    alt="img"
-                    onClick={() => removeBothSearchResults(result)}
-                  />
-                </div>
+                {result.openedFromResults ? (
+                  <div className="view-panel-title-icons">
+                    <img
+                      src="/arrow-left.png"
+                      alt="img"
+                      onClick={() => collapseOpenedResult(result)}
+                    />
+                    <img
+                      src="/xmark.png"
+                      alt="img"
+                      onClick={() => removeBothSearchResults(result)}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <img
+                      src="/collapse.png"
+                      alt="img"
+                      onClick={() => collapseOpenedResult(result)}
+                      className="link-collapse-icon"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="opened-result-detail">

@@ -609,7 +609,12 @@ overflow-y: scroll;
     width: 13px;
     margin-left: 8px;
     cursor: pointer;
+}
 
+.link-collapse-icon{
+    width: 16px;
+    margin-left: 8px;
+    cursor: pointer;
 }
 
 .opened-result-detail{
@@ -633,20 +638,29 @@ overflow-y: scroll;
 }
 
 .highlighted-heading{
-    /* background-color: red; */
     color: black;
-    animation: blink .7s 1;
+    animation: blink .8s 1 ;
+}
+@keyframes blink {
+    0% , 100%{transform: scale(1);}
+    50%{transform: scale(0.9);}  
+}
+
+/* .highlighted-heading{
+
+    animation: blink 1.5s 1 ;
+    transition: all 5s ease;
 
 }
 @keyframes blink {
-    0% , 100%{color: transparent;}
-    50%{color: black;}
-    /* 100%{color: transparent} */
-    
-}
+    0%{  
+    opacity: .5;
+    transition: all 5s ease;}
 
-
-
+    100%{ 
+    opacity: 1;
+    transition: all 5s ease;}   
+} */
 
 
 

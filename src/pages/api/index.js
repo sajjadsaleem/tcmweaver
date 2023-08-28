@@ -14,9 +14,17 @@ export default async function handler(req, res) {
           return { fileName, content };
         })
       );
-      // console.log('filesData: ' , filesData)
-  
-      res.status(200).json(filesData);
+
+      // separate filters file and other data
+      const filtersIndex = filesData.findIndex(item => item.fileName === "filters.md");
+      const filtersObject = filtersIndex !== -1 ? filesData.splice(filtersIndex, 1)[0] : null;
+      const filesWithoutFilters = filesData;
+      const filesWithFilters = filtersObject ? [filtersObject] : [];
+      console.log("Files without filters:", filesWithoutFilters);
+      console.log("Files with filters:", filesWithFilters);
+
+
+      res.status(200).json(filesWithFilters);
     } catch (error) {
       console.error('Error reading files:', error);
       res.status(500).json({ error: 'Failed to read files.' });
