@@ -14,9 +14,15 @@
     "@types/react": "18.2.18",
     "@types/react-dom": "18.2.7",
     "bootstrap": "^5.3.1",
+    "cytoscape": "^3.26.0",
+    "cytoscape-cola": "^2.5.1",
+    "cytoscape-fcose": "^2.2.0",
+    "d3": "^7.8.5",
+    "echarts": "^5.4.3",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "flexsearch": "^0.7.31",
+    "force-graph": "^1.43.4",
     "fuse.js": "^6.6.2",
     "fuzzy-search": "^3.2.1",
     "fzf": "^0.5.2",
@@ -27,6 +33,7 @@
     "react": "18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "18.2.0",
+    "react-force-graph": "^1.43.0",
     "react-icons": "^4.10.1",
     "rehype-stringify": "^9.0.3",
     "remark": "^14.0.3",
@@ -38,6 +45,9 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.19.10",
+    "@types/cytoscape-fcose": "^2.2.1",
+    "@types/d3": "^7.4.0",
     "@types/showdown": "^2.0.1",
     "prettier": "^3.0.1"
   }

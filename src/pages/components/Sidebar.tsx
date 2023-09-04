@@ -3,6 +3,7 @@ import { Fzf, FzfOptions, byLengthAsc } from "fzf";
 import _, { replace, result, update } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
 import { marked } from "marked";
+import * as d3 from "d3";
 
 const Sidebar = () => {
   interface FileData {
@@ -27,6 +28,26 @@ const Sidebar = () => {
     openedFromResults: any;
     fileName: string;
     content: string;
+    contentWithRemovedBrackets: string;
+  }
+
+  interface Node {
+    id: string;
+    // Add other properties here as needed
+  }
+
+  interface Link {
+    source: string;
+    target: string;
+    // Add other properties here as needed
+  }
+
+  interface CustomNode extends d3.SimulationNodeDatum {
+    id: string;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
   }
 
   const [filesData, setFilesData] = useState([]);
@@ -40,14 +61,20 @@ const Sidebar = () => {
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
   const [filtersData, setFiltersData] = useState([]);
+  const [graphData, setGraphData] = useState([]);
+  const [graphDimension, setGraphDimension] = useState({
+    width: 0,
+    height: 0,
+  });
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
-  console.log("openedResults: ", openedResults);
+  // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
+  // console.log("graphData: ", graphData);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -113,7 +140,7 @@ const Sidebar = () => {
               });
             }
           }
-          console.log("categories", categories);
+          // console.log("categories", categories);
 
           setAllCheckboxes(categories);
         }
@@ -439,14 +466,18 @@ const Sidebar = () => {
   }
 
   function handleThemeChangerClick() {
+    console.log("themeChangerIcon: ", themeChangericon);
     setThemeChangerIcon(!themeChangericon);
     const sideNav = document.querySelector(`.${"side-nav"}`);
     const mainPanel = document.querySelector(`.${"main"}`);
+    const graphPanel = document.querySelector(`.${"graph-container"}`);
     if (sideNav && mainPanel) {
       sideNav.classList.toggle("night-mode");
       mainPanel.classList.toggle("night-mode");
+    } else if (sideNav && graphPanel) {
+      sideNav.classList.toggle("night-mode");
+      graphPanel.classList.toggle("night-mode");
     }
-    // onThemeChange();
   }
 
   const handleCheckboxClick = (category: any, id: any) => {
@@ -546,6 +577,546 @@ const Sidebar = () => {
 
   const handleGraphOrTextView = () => {
     setgraphOrTextView(!graphOrTextView);
+
+    if (graphOrTextView) {
+      const nodes: any = [];
+      const links: any = [];
+
+      const nodeExists = (id: any) => {
+        return nodes.some((node: any) => node.id === id);
+      };
+
+      // Iterate through each object in openedResults
+      openedResults.forEach((result) => {
+        // Create a node for the fileName
+        const nodeId = result.fileName;
+        const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+        const nodeTag = match ? match[0] : null;
+        if (!nodeExists(nodeId)) {
+          nodes.push({ id: nodeId, tag: nodeTag });
+        }
+
+        // Parse the content to extract underlined words
+        const underlinedWords = result.content.match(
+          /<span[^>]*>(.*?)<\/span>/g
+        );
+        if (underlinedWords) {
+          underlinedWords.forEach((word) => {
+            // Remove HTML tags from underlined word
+            const cleanWord = word.replace(/<\/?[^>]+(>|$)/g, "");
+            if (!nodeExists(cleanWord)) {
+              nodes.push({ id: cleanWord, tag: nodeTag });
+            }
+
+            // Create a link between fileName and underlined word
+            links.push({ source: nodeId, target: cleanWord, value: 1 });
+          });
+        }
+      });
+
+      // Create the final object in the desired format
+      const resultData = { nodes, links };
+      let graphNewData = resultData;
+
+      setTimeout(() => {
+        let element: any = document.getElementById("graph-div");
+
+        // Calculate the width and height
+        let graphWidth = element.offsetWidth;
+        let graphHeight = element.offsetHeight;
+
+        function ForceGraph(
+          { nodes, links }: { nodes: Node[]; links: Link[] },
+          {
+            nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
+            nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
+            nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
+            nodeTitle = null, // given d in nodes, a title string
+            nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
+            nodeStroke = "#fff", // node stroke color
+            nodeStrokeWidth = 0, // node stroke width, in pixels
+            nodeStrokeOpacity = 1, // node stroke opacity
+            nodeRadius = 5, // node radius, in pixels
+            nodeStrength = -30,
+            linkSource = ({ source }: { source: string }) => source, // Specify the type as string
+            linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
+            linkStroke = "#999", // link stroke color
+            linkStrokeOpacity = 0.6, // link stroke opacity
+            linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
+            linkStrokeLinecap = "round", // link stroke linecap
+            linkStrength = 0.3,
+            colors = d3.schemeTableau10, // an array of color strings, for the node groups
+            width = 640, // outer width, in pixels
+            height = 400, // outer height, in pixels
+            invalidation = undefined, // when this promise resolves, stop the simulation
+          } = {}
+        ) {
+          // Compute values.
+          const N = d3.map(nodes, nodeId).map(intern);
+          const LS = d3.map(links, linkSource).map(intern);
+          const LT = d3.map(links, linkTarget).map(intern);
+          if (nodeTitle === null) {
+            let nodeTitle = (_: any, i: any) => N[i];
+          }
+          const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+          const G =
+            nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+          const W =
+            typeof linkStrokeWidth !== "function"
+              ? null
+              : d3.map(links, linkStrokeWidth);
+          const L =
+            typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+          // Replace the input nodes and links with mutable objects for the simulation.
+          nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
+          links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+          // Compute default domains.
+          if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+          // Construct the scales.
+          const color =
+            nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+          // Construct the forces.
+          const forceNode = d3.forceManyBody();
+          const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+          if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+          if (linkStrength !== undefined) forceLink.strength(linkStrength);
+
+          // console.log("nodes ", nodes);
+          const customNodes: CustomNode[] = nodes as CustomNode[];
+
+          const simulation = d3
+            .forceSimulation(customNodes)
+            .force("link", forceLink)
+            .force("charge", forceNode)
+            .force("center", d3.forceCenter())
+            .on("tick", ticked);
+
+          const svg = d3
+            .create("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-width / 2, -height / 2, width, height])
+            .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+            .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+          const container = svg.append("g");
+
+          const link = container
+            .append("g")
+            .attr(
+              "stroke",
+              typeof linkStroke !== "function" ? linkStroke : null
+            )
+            .attr("stroke-opacity", linkStrokeOpacity)
+            .attr(
+              "stroke-width",
+              typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+            )
+            .attr("stroke-linecap", linkStrokeLinecap)
+            .selectAll("line")
+            .data(links)
+            .join("line");
+
+          const zoom: any = d3.zoom().on("zoom", zoomed);
+
+          // Apply zoom behavior to the container
+          svg.call(zoom);
+
+          function zoomed(event: any) {
+            // Update the transform of the container based on the zoom event
+            container.attr("transform", event.transform);
+          }
+
+          const node = container
+            .append("g")
+            .attr("fill", nodeFill)
+            .attr("stroke", nodeStroke)
+            .attr("stroke-opacity", nodeStrokeOpacity)
+            .attr("stroke-width", nodeStrokeWidth)
+            .selectAll("circle")
+            .data(nodes)
+            .join("circle")
+            .attr("r", nodeRadius)
+            .on("mouseover", handleMouseOver) // Add mouseover event listener
+            .on("mouseout", handleMouseOut)
+            .classed("node-pointer", true)
+            .call(drag(simulation) as any, drag(simulation));
+
+          // Append text labels to the container, positioned near the nodes
+          const nodeText = container
+            .append("g")
+            .selectAll("title")
+            .data(nodes)
+            .join("text")
+            // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+            // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+            .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+            .attr("y", (d: any) => d.y + nodeRadius + 12)
+            .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+            .style("font-size", "5px") // Adjust the font size based on your preference
+            .text((d) => d.id);
+
+          const nodeTitles = container
+            .append("g")
+            .selectAll("title")
+            .data(nodes)
+            .join("title")
+            .text((d) => d.id);
+
+          // In the ticked function, update the positions of text and title elements
+
+          // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+          // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+          if (W) link.attr("stroke-width", (d: Link, i: number) => `${W[i]}`);
+          if (L) link.attr("stroke", (d: Link, i: number) => `${L[i]}`);
+          if (G && color) {
+            node.attr("fill", (_, i) => color(G[i]));
+          }
+          if (T) {
+            node.append("title").text((d: Node, i: number) => String(T[i]));
+          }
+
+          if (invalidation != null) {
+            // invalidation.then(() => {
+            //   // Handle invalidation here
+            //   simulation.stop();
+            // });
+          }
+
+          function intern(value: any) {
+            return value !== null && typeof value === "object"
+              ? value.valueOf()
+              : value;
+          }
+
+          // function ticked() {
+          //   link
+          //     .attr("x1", (d: any) => d.source.x)
+          //     .attr("y1", (d: any) => d.source.y)
+          //     .attr("x2", (d: any) => d.target.x)
+          //     .attr("y2", (d: any) => d.target.y);
+
+          //   node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+          // }
+
+          function ticked() {
+            link
+              .attr("x1", (d: any) => d.source.x)
+              .attr("y1", (d: any) => d.source.y)
+              .attr("x2", (d: any) => d.target.x)
+              .attr("y2", (d: any) => d.target.y);
+            node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+            nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+            nodeTitles.text((d) => d.id);
+          }
+
+          // function handleMouseOver(event, d) {
+          //   // Find neighbors of the hovered node based on links
+          //   // const neighbors = links
+          //   //   .filter((link) => link.source === d || link.target === d)
+          //   //   .map((link) => (link.source === d ? link.target : link.source));
+
+          //   // // Add the hovered node and its neighbors to the array
+          //   // hoveredNodes = [d.id, ...neighbors.map((neighbor) => neighbor.id)];
+
+          //   d3.select(this)
+          //     .attr("fill", "red") // Change to your desired color
+          //     .attr("r", nodeRadius) // Optionally, increase the node size
+          //     .transition()
+          //     .duration(400); // Transition duration in milliseconds
+
+          //   // Change the color of the links directly connected to the hovered node
+          //   link
+          //     .transition()
+          //     .duration(400)
+          //     .attr("stroke", (linkData) => {
+          //       if (linkData.source === d || linkData.target === d) {
+          //         return linkStroke; // Change to your desired link color
+          //       } else {
+          //         return linkStroke;
+          //       }
+          //     });
+
+          //   // Reduce the opacity of nodes that are not directly connected
+          //   node
+          //     .transition()
+          //     .duration(600)
+          //     .attr("fill-opacity", (nodeData) => {
+          //       if (nodeData === d) {
+          //         return 1; // Opacity of the hovered node
+          //       } else if (areNodesConnected(nodeData, d)) {
+          //         return 1; // Opacity of directly connected nodes
+          //       } else {
+          //         return 0.1; // Opacity of other nodes
+          //       }
+          //     });
+
+          //   // Reduce the opacity of links that are not directly connected
+          //   link
+          //     .transition()
+          //     .duration(600)
+          //     .attr("stroke-opacity", (linkData) => {
+          //       if (linkData.source === d || linkData.target === d) {
+          //         return 1; // Opacity of links directly connected to the hovered node
+          //       } else {
+          //         return 0; // Opacity of other links
+          //       }
+          //     });
+
+          //   console.log("Hovered Nodes:", hoveredNodes);
+          // }
+
+          function handleMouseOver(this: any, event: any, d: any) {
+            // Set the initial state before transitioning
+            d3.select(this as SVGElement)
+              .attr("fill", "red") // Change to your desired color
+              .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+              .attr("fill-opacity", 1); // Set initial opacity to 1
+
+            // Initialize the links with their original stroke color and opacity
+            link
+              .attr("stroke", (linkData) => {
+                if (linkData.source === d || linkData.target === d) {
+                  return linkStroke; // Original link color
+                } else {
+                  return linkStroke;
+                }
+              })
+              .attr("stroke-opacity", linkStrokeOpacity);
+
+            // Initialize the nodes with their original fill color and opacity
+            node
+              .attr("fill", (nodeData) => {
+                if (nodeData === d) {
+                  return "red"; // Original node color
+                } else {
+                  return nodeFill;
+                }
+              })
+              .attr("fill-opacity", (nodeData) => {
+                if (nodeData === d) {
+                  return 1; // Opacity of the hovered node
+                } else if (areNodesConnected(nodeData, d)) {
+                  return 1; // Opacity of directly connected nodes
+                } else {
+                  return 0.1; // Opacity of other nodes
+                }
+              });
+
+            // Start the transition
+            d3.select(this as SVGElement)
+              .transition()
+              .duration(400) // Transition duration in milliseconds
+              .attr("r", nodeRadius); // Optionally, increase the node size
+
+            // Change the color of the links directly connected to the hovered node
+            link
+              .transition()
+              .duration(400)
+              .attr("stroke", (linkData) => {
+                if (linkData.source === d || linkData.target === d) {
+                  return "red"; // Change to your desired link color
+                } else {
+                  return linkStroke;
+                }
+              });
+
+            // Transition to reduce the opacity of nodes that are not directly connected
+            node
+              .transition()
+              .duration(600)
+              .attr("fill-opacity", (nodeData) => {
+                if (nodeData === d) {
+                  return 1; // Opacity of the hovered node
+                } else if (areNodesConnected(nodeData, d)) {
+                  return 1; // Opacity of directly connected nodes
+                } else {
+                  return 0.1; // Opacity of other nodes
+                }
+              });
+
+            // Transition to reduce the opacity of links that are not directly connected
+            link
+              .transition()
+              .duration(600)
+              .attr("stroke-opacity", (linkData) => {
+                if (linkData.source === d || linkData.target === d) {
+                  return 1; // Opacity of links directly connected to the hovered node
+                } else {
+                  return 0; // Opacity of other links
+                }
+              });
+
+            // console.log("Hovered Nodes:", hoveredNodes);
+          }
+
+          function handleMouseOut(this: any) {
+            d3.select(this)
+              .attr("fill", nodeFill) // Reset to the original node color
+              .attr("r", nodeRadius) // Reset to the original node size
+              .transition()
+              .duration(400) // Transition duration in milliseconds
+              .attr("fill-opacity", 1); // Reset opacity
+
+            // Reset the color and opacity of all links to their original values with a transition
+            link
+              .transition()
+              .duration(400)
+              .attr("stroke", linkStroke)
+              .attr("stroke-opacity", linkStrokeOpacity);
+
+            // Reset the opacity of all nodes to their original value with a transition
+            node.transition().duration(200).attr("fill-opacity", 1);
+          }
+
+          function areNodesConnected(node1: any, node2: any) {
+            // Check if two nodes are directly connected through a link
+            return links.some((linkData: any) => {
+              return (
+                (linkData.source === node1 && linkData.target === node2) ||
+                (linkData.source === node2 && linkData.target === node1)
+              );
+            });
+          }
+
+          function drag(simulation: any) {
+            function dragstarted(event: any) {
+              if (!event.active) simulation.alphaTarget(0.3).restart();
+              event.subject.fx = event.subject.x;
+              event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event: any) {
+              event.subject.fx = event.x;
+              event.subject.fy = event.y;
+            }
+
+            function dragended(event: any) {
+              if (!event.active) simulation.alphaTarget(0);
+              event.subject.fx = null;
+              event.subject.fy = null;
+            }
+
+            return d3
+              .drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended);
+          }
+          console.log("svg", svg);
+          const svgElement = svg.node() as SVGSVGElement; // Cast svg.node() to SVGSVGElement
+          const result = {
+            scales: { color },
+            svg: svgElement, // Assign the SVG element
+          };
+
+          return result;
+
+          // return Object.assign(svg.node(), { scales: { color } });
+        }
+
+        const options: any = {
+          nodeFill: "blue",
+          nodeStroke: "blue",
+          width: graphWidth,
+          height: graphHeight,
+        };
+        console.log("graphNewData: ", graphNewData);
+
+        let svgResult: any = ForceGraph(graphNewData, options);
+        console.log("svgResult", svgResult);
+
+        const graphDiv = document.getElementById("graph-div");
+
+        if (graphDiv) {
+          graphDiv.appendChild(svgResult.svg);
+        }
+      }, 400);
+
+      // setTimeout(() => {
+      //   const graphDiv: any = document.getElementById("graph-div");
+      //   const divWidth = graphDiv.offsetWidth;
+      //   const divHeight = graphDiv.offsetHeight;
+      //   <ForceGraph2D graphData={formattedGraphData} />;
+      //   // console.log(myGraph);
+      // }, 400);
+
+      // setTimeout(() => {
+      //   const graphDiv: any = document.getElementById("graph-div");
+      //   const divWidth = graphDiv.offsetWidth;
+      //   const divHeight = graphDiv.offsetHeight;
+
+      //   const myGraph = ForceGraph();
+      //   let forceGraph = myGraph(graphDiv)
+      //     .graphData(formattedGraphData)
+      //     .width(divWidth)
+      //     .height(divHeight)
+      //     .backgroundColor("#F4F4F4")
+      //     .nodeRelSize(4)
+      //     .onNodeHover((node: any) => {
+      //       console.log("Node hovered:", node);
+      //       if (node === null) {
+      //         const graphData = forceGraph.graphData();
+      //         console.log("graphData:", graphData);
+      //         const links = graphData.links;
+      //         const nodes = graphData.nodes;
+      //         console.log("Links:", links);
+      //         console.log("nodes", nodes);
+      //         nodes.forEach((node: any) => {
+      //           node.color = "#3082B9";
+      //         });
+      //       } else {
+      //         const neighbors = new Set(
+      //           formattedGraphData.links
+      //             .filter(
+      //               (link: any) => link.source === node || link.target === node
+      //             )
+      //             .map((link: any) =>
+      //               link.source === node ? link.target : link.source
+      //             )
+      //         );
+      //         const neighborsArray = Array.from(neighbors);
+      //         const neighborIds = neighborsArray.map((neighbor) => neighbor.id); // Extracting only the id values
+      //         neighborIds.push(node.id);
+      //         console.log("neighborsIds", neighborIds);
+      //         const graphData = forceGraph.graphData();
+      //         console.log("graphData:", graphData);
+      //         const links = graphData.links;
+
+      //         console.log("Links:", links);
+
+      //         // const filteredLinks = links.filter((link: any) => {
+      //         //   const sourceId = link.source.id;
+      //         //   const targetId = link.target.id;
+
+      //         //   return (
+      //         //     !neighborIds.includes(sourceId) &&
+      //         //     !neighborIds.includes(targetId)
+      //         //   );
+      //         // });
+
+      //         // console.log("filteredLinks", filteredLinks);
+
+      //         const nodes = graphData.nodes;
+      //         console.log("nodes", nodes);
+
+      //         nodes.forEach((node: any) => {
+      //           if (!neighborIds.includes(node.id)) {
+      //             // console.log("nodeid", node.id);
+      //             node.color = "#605C5C";
+      //           }
+      //         });
+
+      //         // Refresh the graph to apply the color changes
+      //         // forceGraph.graphData(graphData);
+      //       }
+      //     });
+      // }, 400);
+    }
   };
 
   const removeSearchResult = (resultToRemove: any) => {
@@ -571,8 +1142,15 @@ const Sidebar = () => {
     // console.log("markedContent", matchingFile);
 
     const regex = /\[\[([^[\]]+)\]\]/g;
+    const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
     if (matchingFile) {
-      const contentWithStyledWords = matchingFile.content.replace(
+      const contentWithoutHashtags = matchingFile.content.replace(
+        hashtagParagraphRegex,
+        ""
+      );
+      // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+      const contentWithStyledWords = contentWithoutHashtags.replace(
         regex,
         (match: any, word: any) =>
           `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
@@ -663,9 +1241,21 @@ const Sidebar = () => {
       // console.log("responseJson: ", responseJson);
 
       // console.log("newDataObject", newDataObject);
+      marked.setOptions({
+        breaks: true,
+      });
+
+      newDataObject.content = marked(newDataObject.content);
+
       const regex = /\[\[([^[\]]+)\]\]/g;
+      const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
       if (newDataObject) {
-        const contentWithStyledWords = newDataObject.content.replace(
+        console.log("newDataObject", newDataObject);
+        const contentWithoutHashtags = newDataObject.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+        const contentWithStyledWords = contentWithoutHashtags.replace(
           regex,
           (match: any, word: any) =>
             `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
@@ -771,7 +1361,9 @@ const Sidebar = () => {
                   <img
                     src="/graph-logo.png"
                     alt="img"
-                    onClick={handleGraphOrTextView}
+                    onClick={() => {
+                      handleGraphOrTextView();
+                    }}
                   />
                 </div>
               ) : (
@@ -779,7 +1371,9 @@ const Sidebar = () => {
                   <img
                     src="/text-logo.png"
                     alt="img"
-                    onClick={handleGraphOrTextView}
+                    onClick={() => {
+                      handleGraphOrTextView();
+                    }}
                   />
                 </div>
               )}
@@ -940,61 +1534,67 @@ const Sidebar = () => {
         </div> */}
       </div>
 
-      <div className="main">
-        {openedResults.length > 0 ? (
-          openedResults.map((result, index) => (
-            <div key={index} className="opened-results">
-              {/* Render your result content here */}
-              <div className="view-panel-title">
-                <h4>{result.fileName.toUpperCase()}</h4>
-                {result.openedFromResults ? (
-                  <div className="view-panel-title-icons">
-                    <img
-                      src="/arrow-left.png"
-                      alt="img"
-                      onClick={() => collapseOpenedResult(result)}
-                    />
-                    <img
-                      src="/xmark.png"
-                      alt="img"
-                      onClick={() => removeBothSearchResults(result)}
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <img
-                      src="/collapse.png"
-                      alt="img"
-                      onClick={() => collapseOpenedResult(result)}
-                      className="link-collapse-icon"
-                    />
-                  </div>
-                )}
-              </div>
+      {graphOrTextView ? (
+        <div className="main">
+          {openedResults.length > 0 ? (
+            openedResults.map((result, index) => (
+              <div key={index} className="opened-results">
+                {/* Render your result content here */}
+                <div className="view-panel-title">
+                  <h4>{result.fileName.toUpperCase()}</h4>
+                  {result.openedFromResults ? (
+                    <div className="view-panel-title-icons">
+                      <img
+                        src="/arrow-left.png"
+                        alt="img"
+                        onClick={() => collapseOpenedResult(result)}
+                      />
+                      <img
+                        src="/xmark.png"
+                        alt="img"
+                        onClick={() => removeBothSearchResults(result)}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <img
+                        src="/collapse.png"
+                        alt="img"
+                        onClick={() => collapseOpenedResult(result)}
+                        className="link-collapse-icon"
+                      />
+                    </div>
+                  )}
+                </div>
 
-              <div className="opened-result-detail">
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: result.content,
-                  }}
-                  className="opened-result-description"
-                  onClick={(e: any) => {
-                    if (
-                      e.target.tagName === "SPAN" &&
-                      e.target.style.textDecoration === "underline"
-                    ) {
-                      const clickedWord = e.target.textContent; // Get the clicked word
-                      handleLinkClick(result.fileName, clickedWord);
-                    }
-                  }}
-                />
+                <div className="opened-result-detail">
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: result.content,
+                    }}
+                    className="opened-result-description"
+                    onClick={(e: any) => {
+                      if (
+                        e.target.tagName === "SPAN" &&
+                        e.target.style.textDecoration === "underline"
+                      ) {
+                        const clickedWord = e.target.textContent; // Get the clicked word
+                        handleLinkClick(result.fileName, clickedWord);
+                      }
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p style={{ padding: "16px" }}>No results are open.</p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p style={{ padding: "16px" }}>No results are open.</p>
+          )}
+        </div>
+      ) : (
+        <div className="graph-container">
+          <div id="graph-div" className="graph-div"></div>
+        </div>
+      )}
     </div>
   );
 };

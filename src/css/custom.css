@@ -584,6 +584,46 @@ overflow-y: scroll;
     background-color: #242424;
 }
 
+.graph-container{
+    height: 100vh;
+    width: calc(100vw - 346px);
+    /* padding-left: 346px; */
+    margin-left: 346px;
+    position: relative;
+    display: flex;
+    /* background-color: #bfbfbf; */
+   
+    /* background-color: lightcoral; */
+    overflow-y: hidden;
+    overflow-x: scroll;
+    /* border: 1px solid red; */
+}
+.night-mode.graph-container {
+    background-color: #242424;
+}
+
+
+.graph-div{
+    /* border: 1px solid red; */
+    width: 100%;
+}
+
+/* .graph-tooltip{
+    color: rgb(48, 46, 46) !important;
+    background-color: transparent !important;
+    visibility: visible !important;
+} */
+
+.node-pointer {
+    cursor: pointer;
+  }
+
+.force-graph-container .graph-tooltip {
+    color: rgb(47, 46, 48) !important;
+    background-color: transparent !important;
+    visibility: visible !important;
+  }
+
 .opened-results{
     min-width: 300px;
     max-width: 300px;
