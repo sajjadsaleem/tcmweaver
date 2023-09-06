@@ -46,34 +46,7 @@ const Page = () => {
     <LayoutWrapper layout={AdminLayout}>
       <div className="wrapper">
         <Sidebar />
-        {/* <Main triggerChange={triggerChange} /> */}
       </div>
-
-      {/* <div className={"mainContainer"}>
-        <div className={"mainDiv"}>
-          
-          <section className={"rightSection"}>
-            {selectedFileContent ? (
-              <div>
-                <h3>{selectedFileContent[0].fileName}</h3>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: selectedFileContent[0].content,
-                  }}
-                  onClick={(e) => {
-                    if (e.target.tagName === "P") {
-                      const clickedWord = e.target.textContent; // Get the clicked word
-                      handleWordClick(clickedWord);
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <p>No file is open</p>
-            )}
-          </section>
-        </div>
-      </div> */}
     </LayoutWrapper>
   );
 };

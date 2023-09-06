@@ -4,7 +4,7 @@ import path from 'path';
 export default async function linkFile(req, res) {
     try{
         const inputValue = req.query.q
-        console.log('inputValue: ' , inputValue)
+        // console.log('inputValue: ' , inputValue)
 
         // reading all files
         const directoryPath =`${process.cwd()}/public/cornish-vault`;

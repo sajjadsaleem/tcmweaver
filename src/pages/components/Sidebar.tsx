@@ -4,6 +4,11 @@ import _, { replace, result, update } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
 import { marked } from "marked";
 import * as d3 from "d3";
+import router from "next/router";
+import { ToastContainer, toast } from "react-toastify";
+import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
+import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
+import axios from "axios";
 
 const Sidebar = () => {
   interface FileData {
@@ -33,6 +38,7 @@ const Sidebar = () => {
 
   interface Node {
     id: string;
+    tag: string;
     // Add other properties here as needed
   }
 
@@ -56,25 +62,31 @@ const Sidebar = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
-  const [shouldShowDivs, setShouldShowDivs] = useState(true);
+  const [shouldShowFilters, setShouldShowFilters] = useState(true);
   const [themeChangericon, setThemeChangerIcon] = useState(true);
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
+  const [isCopied, setIsCopied] = useState(false);
   const [filtersData, setFiltersData] = useState([]);
   const [graphData, setGraphData] = useState([]);
   const [graphDimension, setGraphDimension] = useState({
     width: 0,
     height: 0,
   });
+  const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
+  const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
+  const [graphNodeOpened, setGraphNodeOpened] = useState<any>({});
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
-  // console.log("openedResults: ", openedResults);
+  console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
+  // console.log("searchValue: ", searchValue);
+  console.log("fileopenedfromgraph", fileOpenedFromGraph);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -148,6 +160,22 @@ const Sidebar = () => {
         console.error("Error fetching files data:", error);
       }
     };
+    const showToast = router.query.dashboard === "true";
+
+    // If the showToast parameter is present, display the toast
+    if (showToast) {
+      toast("Login success", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        type: "success",
+        theme: "light",
+      });
+    }
     fetchFilesData();
   }, []);
 
@@ -183,9 +211,9 @@ const Sidebar = () => {
 
     // console.log("wordToSearch before split:", wordToSearch);
 
-    const wordsArray = wordToSearch
-      .match(/(-?)"([^"]*)"|\S+/g)
-      .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
+    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    );
     console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -394,27 +422,12 @@ const Sidebar = () => {
     setSearchResults(newEntries);
   };
 
-  // this function now working on backend
-  // function evaluateLogicalExpression(expression: any) {
-  //   // console.log("expression: ", expression);
-  //   const replacedExpression = expression
-  //     .replace(/true/g, "1")
-  //     .replace(/false/g, "0")
-  //     .replace(/-0/g, "1")
-  //     .replace(/-1/g, "0")
-  //     .replace(/(\d)\s*(?=\d)/g, "$1 & ")
-  //     .replace(/OR/g, "|")
-  //     .replace(/AND/g, "&")
-  //     .replace(/[|&]+\s*$/, "")
-  //     .replace(/^[|&]+\s*|[|&]+\s*$/g, "")
-  //     .replace(/-(?!\w)/g, "") // Remove minus sign not followed by a word
-  //     .replace(/#(?!\w)/g, ""); // Remove # sign not followed by a word
-
-  //   // console.log("replacedExpression: ", replacedExpression);
-
-  //   let result = eval(replacedExpression);
-  //   return result;
-  // }
+  const handleSiteNameClick = () => {
+    setSearchValue("");
+    setSearchResults([]);
+    setOpenedResults([]);
+    setShouldShowFilters(true);
+  };
 
   function removeBrackets(newEntries: any, wordToSearch: any) {
     // console.log("newEntries: ", newEntries);
@@ -572,13 +585,14 @@ const Sidebar = () => {
   };
 
   const handleAccordionClick = () => {
-    setShouldShowDivs(!shouldShowDivs);
+    setShouldShowFilters(!shouldShowFilters);
   };
 
   const handleGraphOrTextView = () => {
     setgraphOrTextView(!graphOrTextView);
 
     if (graphOrTextView) {
+      setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
 
@@ -586,33 +600,169 @@ const Sidebar = () => {
         return nodes.some((node: any) => node.id === id);
       };
 
-      // Iterate through each object in openedResults
-      openedResults.forEach((result) => {
-        // Create a node for the fileName
-        const nodeId = result.fileName;
-        const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-        const nodeTag = match ? match[0] : null;
-        if (!nodeExists(nodeId)) {
-          nodes.push({ id: nodeId, tag: nodeTag });
-        }
+      // Iterate through each object
+      if (openedResults.length > 0) {
+        // If files are open in workspace
+        openedResults.forEach((result) => {
+          // Create a node for the fileName
+          const nodeId = result.fileName;
+          // console.log("result", result);
+          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const nodeTag = match ? match[1] : null;
+          if (!nodeExists(nodeId)) {
+            nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+          }
 
-        // Parse the content to extract underlined words
-        const underlinedWords = result.content.match(
-          /<span[^>]*>(.*?)<\/span>/g
-        );
-        if (underlinedWords) {
-          underlinedWords.forEach((word) => {
-            // Remove HTML tags from underlined word
-            const cleanWord = word.replace(/<\/?[^>]+(>|$)/g, "");
-            if (!nodeExists(cleanWord)) {
-              nodes.push({ id: cleanWord, tag: nodeTag });
-            }
+          // Parse the content to extract underlined words
+          const underlinedWords: any = result.content.match(
+            /<span[^>]*>(.*?)<\/span>/g
+          );
+          // console.log("underlinedWords", underlinedWords);
+          let wordsArray: any = [];
+          if (underlinedWords && Array.isArray(underlinedWords)) {
+            wordsArray = underlinedWords.map((span: any) => {
+              // Use a regular expression to extract the text content between the <span> tags
+              const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+              // Check if a match was found and return the extracted text, or an empty string if not
+              return match ? match[1] : "";
+            });
 
-            // Create a link between fileName and underlined word
-            links.push({ source: nodeId, target: cleanWord, value: 1 });
+            // Now you can use wordsArray safely
+          } else {
+            // Handle the case where underlinedWords is null or undefined
+            console.error("underlinedWords is null or undefined");
+          }
+          // console.log("wordsArray: ", wordsArray);
+          axios
+            .post("/api/getTags?q=" + wordsArray.join(","))
+            .then((res) => {
+              // console.log(res.data);
+              const linkTags = Object.keys(res.data).map((key) => {
+                return {
+                  name: key,
+                  category: res.data[key],
+                };
+              });
+              if (res) {
+                // console.log("linkTags", linkTags);
+                linkTags.forEach((word: any) => {
+                  // Remove HTML tags from underlined word
+                  // console.log("word", word);
+                  if (!nodeExists(word.name)) {
+                    nodes.push({ id: word.name, group: 2, tag: word.category });
+                  }
+
+                  // Create a link between fileName and underlined word
+                  links.push({ source: nodeId, target: word.name, value: 1 });
+                });
+              }
+            })
+            .catch((err) => {
+              console.log("err=", err);
+            });
+        });
+      } else {
+        // If files are not open in workspace
+        // console.log("search Results", searchResults);
+
+        const updatedOpenedResults: any = openedResults.slice();
+
+        searchResults.forEach((result) => {
+          let matchingFile: any = result;
+          marked.setOptions({
+            breaks: true,
           });
-        }
-      });
+
+          matchingFile.content = marked(matchingFile.content);
+          // console.log("markedContent", matchingFile);
+
+          const regex = /\[\[([^[\]]+)\]\]/g;
+          const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+          if (matchingFile) {
+            const contentWithoutHashtags = matchingFile.content.replace(
+              hashtagParagraphRegex,
+              ""
+            );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            // console.log("contentwithstyledwords", contentWithStyledWords);
+
+            const updatedResultToOpen = {
+              ...result,
+              content: contentWithStyledWords,
+              openedFromResults: true,
+            };
+
+            // const doesExist = openedResults.some(
+            //   (result) => result.fileName === updatedResultToOpen.fileName
+            // );
+            const doesExist = updatedOpenedResults.some(
+              (result: any) => result.fileName === updatedResultToOpen.fileName
+            );
+
+            if (!doesExist) {
+              updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
+            } else {
+              console.log("An object with the same fileName already exists.");
+            }
+          }
+        });
+        // console.log("updatedOpenedResults: ", updatedOpenedResults);
+        updatedOpenedResults.forEach((result: any) => {
+          // Create a node for the fileName
+          const nodeId = result.fileName;
+          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const nodeTag = match ? match[0] : null;
+          if (!nodeExists(nodeId)) {
+            nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+          }
+
+          // Parse the content to extract underlined words
+          const underlinedWords = result.content.match(
+            /<span[^>]*>(.*?)<\/span>/g
+          );
+          const wordsArray = underlinedWords.map((span: any) => {
+            // Use a regular expression to extract the text content between the <span> tags
+            const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+            // Check if a match was found and return the extracted text, or an empty string if not
+            return match ? match[1] : "";
+          });
+          // console.log("wordsArray: ", wordsArray);
+          axios
+            .post("/api/getTags?q=" + wordsArray.join(","))
+            .then((res) => {
+              // console.log(res.data);
+              const linkTags = Object.keys(res.data).map((key) => {
+                return {
+                  name: key,
+                  category: res.data[key],
+                };
+              });
+              if (res) {
+                // console.log("linkTags", linkTags);
+                linkTags.forEach((word: any) => {
+                  // Remove HTML tags from underlined word
+                  // console.log("word", word);
+                  if (!nodeExists(word.name)) {
+                    nodes.push({ id: word.name, group: 2, tag: word.category });
+                  }
+
+                  // Create a link between fileName and underlined word
+                  links.push({ source: nodeId, target: word.name, value: 1 });
+                });
+              }
+            })
+            .catch((err) => {
+              console.log("err=", err);
+            });
+        });
+        setOpenedResults(updatedOpenedResults);
+      }
 
       // Create the final object in the desired format
       const resultData = { nodes, links };
@@ -669,8 +819,10 @@ const Sidebar = () => {
             typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
           // Replace the input nodes and links with mutable objects for the simulation.
-          nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
+          nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
           links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+          // console.log("nodes", nodes);
 
           // Compute default domains.
           if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
@@ -686,7 +838,7 @@ const Sidebar = () => {
           if (linkStrength !== undefined) forceLink.strength(linkStrength);
 
           // console.log("nodes ", nodes);
-          const customNodes: CustomNode[] = nodes as CustomNode[];
+          const customNodes: any = nodes;
 
           const simulation = d3
             .forceSimulation(customNodes)
@@ -722,14 +874,56 @@ const Sidebar = () => {
             .join("line");
 
           const zoom: any = d3.zoom().on("zoom", zoomed);
-
-          // Apply zoom behavior to the container
           svg.call(zoom);
 
           function zoomed(event: any) {
             // Update the transform of the container based on the zoom event
             container.attr("transform", event.transform);
           }
+
+          function getColorByTag(tag: string) {
+            // Define a mapping of tags to colors
+            const tagColors: Record<string, string> = {
+              sandwich: "blue",
+              meat: "red",
+              veg: "green",
+              sauce: "purple",
+              bread: "brown",
+              ferment: "yellow",
+              cheese: "orange",
+              // Add more tag-color mappings as needed
+            };
+
+            // Return the color based on the tag, or a default color if not found
+            return tagColors[tag] || nodeFill;
+          }
+
+          function handleNodeClick(event: any, d: any) {
+            console.log(event, d);
+            setFileOpenedFromGraph(d.id);
+            // Get the div element and set its content based on the clicked node
+            const nodeInfoDiv: any = document.getElementById("nodeInfo");
+            // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+            // Position the div over the clicked node
+            nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+            nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+            // Show the div
+            nodeInfoDiv.style.display = "block";
+
+            // Prevent the click event from propagating further (e.g., to zoom or drag)
+            event.stopPropagation();
+          }
+
+          function hideNodeInfo() {
+            const nodeInfoDiv: any = document.getElementById("nodeInfo");
+            if (nodeInfoDiv) {
+              nodeInfoDiv.style.display = "none";
+            }
+          }
+
+          document.addEventListener("click", hideNodeInfo);
 
           const node = container
             .append("g")
@@ -741,8 +935,17 @@ const Sidebar = () => {
             .data(nodes)
             .join("circle")
             .attr("r", nodeRadius)
+            .attr("fill", (d: any) => {
+              // console.log("d", d);
+              const color = getColorByTag(d.tag);
+              console.log(
+                `Setting fill for tag '${d.tag}' to color '${color}'`
+              );
+              return color;
+            })
             .on("mouseover", handleMouseOver) // Add mouseover event listener
             .on("mouseout", handleMouseOut)
+            .on("click", handleNodeClick)
             .classed("node-pointer", true)
             .call(drag(simulation) as any, drag(simulation));
 
@@ -792,16 +995,6 @@ const Sidebar = () => {
               ? value.valueOf()
               : value;
           }
-
-          // function ticked() {
-          //   link
-          //     .attr("x1", (d: any) => d.source.x)
-          //     .attr("y1", (d: any) => d.source.y)
-          //     .attr("x2", (d: any) => d.target.x)
-          //     .attr("y2", (d: any) => d.target.y);
-
-          //   node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-          // }
 
           function ticked() {
             link
@@ -873,7 +1066,7 @@ const Sidebar = () => {
           function handleMouseOver(this: any, event: any, d: any) {
             // Set the initial state before transitioning
             d3.select(this as SVGElement)
-              .attr("fill", "red") // Change to your desired color
+              // .attr("fill", "red") // Change to your desired color
               .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
               .attr("fill-opacity", 1); // Set initial opacity to 1
 
@@ -890,13 +1083,13 @@ const Sidebar = () => {
 
             // Initialize the nodes with their original fill color and opacity
             node
-              .attr("fill", (nodeData) => {
-                if (nodeData === d) {
-                  return "red"; // Original node color
-                } else {
-                  return nodeFill;
-                }
-              })
+              // .attr("fill", (nodeData) => {
+              //   if (nodeData === d) {
+              //     return "red"; // Original node color
+              //   } else {
+              //     return nodeFill;
+              //   }
+              // })
               .attr("fill-opacity", (nodeData) => {
                 if (nodeData === d) {
                   return 1; // Opacity of the hovered node
@@ -956,7 +1149,7 @@ const Sidebar = () => {
 
           function handleMouseOut(this: any) {
             d3.select(this)
-              .attr("fill", nodeFill) // Reset to the original node color
+              // .attr("fill", nodeFill) // Reset to the original node color
               .attr("r", nodeRadius) // Reset to the original node size
               .transition()
               .duration(400) // Transition duration in milliseconds
@@ -1007,7 +1200,7 @@ const Sidebar = () => {
               .on("drag", dragged)
               .on("end", dragended);
           }
-          console.log("svg", svg);
+          // console.log("svg", svg);
           const svgElement = svg.node() as SVGSVGElement; // Cast svg.node() to SVGSVGElement
           const result = {
             scales: { color },
@@ -1028,7 +1221,7 @@ const Sidebar = () => {
         console.log("graphNewData: ", graphNewData);
 
         let svgResult: any = ForceGraph(graphNewData, options);
-        console.log("svgResult", svgResult);
+        // console.log("svgResult", svgResult);
 
         const graphDiv = document.getElementById("graph-div");
 
@@ -1036,86 +1229,8 @@ const Sidebar = () => {
           graphDiv.appendChild(svgResult.svg);
         }
       }, 400);
-
-      // setTimeout(() => {
-      //   const graphDiv: any = document.getElementById("graph-div");
-      //   const divWidth = graphDiv.offsetWidth;
-      //   const divHeight = graphDiv.offsetHeight;
-      //   <ForceGraph2D graphData={formattedGraphData} />;
-      //   // console.log(myGraph);
-      // }, 400);
-
-      // setTimeout(() => {
-      //   const graphDiv: any = document.getElementById("graph-div");
-      //   const divWidth = graphDiv.offsetWidth;
-      //   const divHeight = graphDiv.offsetHeight;
-
-      //   const myGraph = ForceGraph();
-      //   let forceGraph = myGraph(graphDiv)
-      //     .graphData(formattedGraphData)
-      //     .width(divWidth)
-      //     .height(divHeight)
-      //     .backgroundColor("#F4F4F4")
-      //     .nodeRelSize(4)
-      //     .onNodeHover((node: any) => {
-      //       console.log("Node hovered:", node);
-      //       if (node === null) {
-      //         const graphData = forceGraph.graphData();
-      //         console.log("graphData:", graphData);
-      //         const links = graphData.links;
-      //         const nodes = graphData.nodes;
-      //         console.log("Links:", links);
-      //         console.log("nodes", nodes);
-      //         nodes.forEach((node: any) => {
-      //           node.color = "#3082B9";
-      //         });
-      //       } else {
-      //         const neighbors = new Set(
-      //           formattedGraphData.links
-      //             .filter(
-      //               (link: any) => link.source === node || link.target === node
-      //             )
-      //             .map((link: any) =>
-      //               link.source === node ? link.target : link.source
-      //             )
-      //         );
-      //         const neighborsArray = Array.from(neighbors);
-      //         const neighborIds = neighborsArray.map((neighbor) => neighbor.id); // Extracting only the id values
-      //         neighborIds.push(node.id);
-      //         console.log("neighborsIds", neighborIds);
-      //         const graphData = forceGraph.graphData();
-      //         console.log("graphData:", graphData);
-      //         const links = graphData.links;
-
-      //         console.log("Links:", links);
-
-      //         // const filteredLinks = links.filter((link: any) => {
-      //         //   const sourceId = link.source.id;
-      //         //   const targetId = link.target.id;
-
-      //         //   return (
-      //         //     !neighborIds.includes(sourceId) &&
-      //         //     !neighborIds.includes(targetId)
-      //         //   );
-      //         // });
-
-      //         // console.log("filteredLinks", filteredLinks);
-
-      //         const nodes = graphData.nodes;
-      //         console.log("nodes", nodes);
-
-      //         nodes.forEach((node: any) => {
-      //           if (!neighborIds.includes(node.id)) {
-      //             // console.log("nodeid", node.id);
-      //             node.color = "#605C5C";
-      //           }
-      //         });
-
-      //         // Refresh the graph to apply the color changes
-      //         // forceGraph.graphData(graphData);
-      //       }
-      //     });
-      // }, 400);
+    } else {
+      setShouldShowFilters(true);
     }
   };
 
@@ -1246,11 +1361,12 @@ const Sidebar = () => {
       });
 
       newDataObject.content = marked(newDataObject.content);
+      newDataObject.contentWithRemovedBrackets = marked(newDataObject.content);
 
       const regex = /\[\[([^[\]]+)\]\]/g;
       const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
       if (newDataObject) {
-        console.log("newDataObject", newDataObject);
+        // console.log("newDataObject", newDataObject);
         const contentWithoutHashtags = newDataObject.content.replace(
           hashtagParagraphRegex,
           ""
@@ -1282,6 +1398,8 @@ const Sidebar = () => {
 
             // Insert the updatedResults object at index + 1
             updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+            // console.log("updatedOpenedResults", updatedOpenedResults);
 
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
@@ -1332,11 +1450,157 @@ const Sidebar = () => {
     }
   };
 
+  const handleCopyText = () => {
+    const textarea = document.createElement("textarea");
+    textarea.value = searchValue;
+    document.body.appendChild(textarea);
+
+    // Select the text in the textarea element
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // For mobile devices
+
+    // Copy the selected text to the clipboard
+    document.execCommand("copy");
+
+    // Remove the temporary textarea element
+    document.body.removeChild(textarea);
+
+    // Optionally, provide user feedback
+    setIsCopied(true);
+
+    // Hide the tooltip after a short delay (e.g., 2 seconds)
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 1500);
+  };
+
+  const showNodeClickedFile = async () => {
+    console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    const matchingResult: any = openedResults.find(
+      (result: any) => result.fileName === fileOpenedFromGraph
+    );
+
+    if (matchingResult) {
+      // console.log("Matching Result:", matchingResult);
+      setGraphNodeOpened(matchingResult);
+    } else {
+      try {
+        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph}`);
+        const newDataObject = await response.json();
+        // console.log("responseJson: ", responseJson);
+
+        console.log("newDataObject", newDataObject);
+        marked.setOptions({
+          breaks: true,
+        });
+
+        newDataObject.content = marked(newDataObject.content);
+        newDataObject.contentWithRemovedBrackets = marked(
+          newDataObject.content
+        );
+
+        setGraphNodeOpened(newDataObject);
+
+        // const regex = /\[\[([^[\]]+)\]\]/g;
+        // const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+        // if (newDataObject) {
+        //   // console.log("newDataObject", newDataObject);
+        //   const contentWithoutHashtags = newDataObject.content.replace(
+        //     hashtagParagraphRegex,
+        //     ""
+        //   );
+        //   const contentWithStyledWords = contentWithoutHashtags.replace(
+        //     regex,
+        //     (match: any, word: any) =>
+        //       `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        //   );
+        //   // console.log("contentwithstyledword", contentWithStyledWords);
+
+        //   const index = openedResults.findIndex(
+        //     (item: any) => item.fileName === linkClickedFromFile
+        //   );
+        //   if (index !== -1) {
+        //     const updatedResults = {
+        //       ...newDataObject,
+        //       content: contentWithStyledWords,
+        //       openedFromResults: false,
+        //     };
+
+        //     const doesExist = openedResults.some(
+        //       (result) => result.fileName === updatedResults.fileName
+        //     );
+
+        //     if (!doesExist) {
+        //       // Create a copy of the openedResults array
+        //       const updatedOpenedResults = [...openedResults];
+
+        //       // Insert the updatedResults object at index + 1
+        //       updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+        //       // console.log("updatedOpenedResults", updatedOpenedResults);
+
+        //       // Update the state with the new array
+        //       setOpenedResults(updatedOpenedResults);
+        //     } else {
+        //       const resultsWithRemovedLink = openedResults.filter(
+        //         (item: any) => item.fileName !== updatedResults.fileName
+        //       );
+        //       const index = resultsWithRemovedLink.findIndex(
+        //         (item: any) => item.fileName === linkClickedFromFile
+        //       );
+
+        //       const updatedOpenedResults = [...resultsWithRemovedLink];
+
+        //       // Insert the updatedResults object at index + 1
+        //       updatedOpenedResults.splice(index + 1, 0, updatedResults);
+
+        //       // Update the state with the new array
+        //       setOpenedResults(updatedOpenedResults);
+        //     }
+
+        //     // scroll to where the file is opened
+        //     setTimeout(() => {
+        //       const divElements =
+        //         document.querySelectorAll(".view-panel-title");
+        //       // console.log("divElement", divElements);
+        //       divElements.forEach((div: any) => {
+        //         const h4Elements = div.querySelectorAll("h4");
+        //         // console.log("h4", h4Elements);
+        //         h4Elements.forEach((h4: any) => {
+        //           if (h4.textContent === linkClicked.toUpperCase()) {
+        //             // console.log("h4", h4);
+        //             h4.classList.add("highlighted-heading");
+        //             h4.scrollIntoView({
+        //               behavior: "smooth",
+        //               block: "start",
+        //               inline: "center",
+        //             });
+        //             setTimeout(() => {
+        //               h4.classList.remove("highlighted-heading");
+        //             }, 3000);
+        //           }
+        //         });
+        //       });
+        //     }, 10);
+        //   }
+        // }
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    }
+    sethideFiltersForPreview(false);
+  };
+
+  const collapseExpandedNode = () => {
+    sethideFiltersForPreview(true);
+    setGraphNodeOpened([]);
+  };
+
   return (
     <div>
       <div className="side-nav">
         <div className={"logoVc"}>
-          <div>
+          <div className="site-name" onClick={handleSiteNameClick}>
             <p>TCM Weaver</p>
           </div>
           <div className={"icon-profile"}>
@@ -1380,6 +1644,7 @@ const Sidebar = () => {
             </div>
           </div>
         </div>
+
         <div className={"menuBtn"}>
           <input
             type="text"
@@ -1388,127 +1653,198 @@ const Sidebar = () => {
             value={searchValue}
             onChange={handleSearch}
           />
+          <div className="copy-icon">
+            <ContentCopySharpIcon onClick={handleCopyText} />
+            {isCopied && <div className="copy-tooltip">Copied!</div>}
+          </div>
         </div>
-        <div
-          className={`search-results ${
-            !shouldShowDivs ? "results-height" : ""
-          }`}
-        >
-          {searchValue.length > 0 && (
-            <div>
-              {searchResults.map((result, index) => (
-                <div className="filter-data" key={index}>
-                  <div className="set set-1">
-                    <div>
-                      <div className="results-title">
-                        <span>
-                          {(result as { wordOccurence: number }).wordOccurence}
-                        </span>
-
-                        <h1
-                          dangerouslySetInnerHTML={{
-                            __html: (
-                              result as {
-                                fileNameWithHighlightedWords: string;
-                              }
-                            ).fileNameWithHighlightedWords,
-                          }}
-                          // onClick={() => handleFileClick(result["item"])}
-                        />
-                      </div>
-
-                      <img
-                        src="xmark.png"
-                        alt="img"
-                        className="remove-search-result"
-                        onClick={() => removeBothSearchResults(result)}
-                      />
-                    </div>
-                    <div>
+        {graphOrTextView ? (
+          <div
+            className={`search-results ${
+              !shouldShowFilters ? "results-height" : ""
+            }`}
+          >
+            {searchValue.length > 0 && (
+              <div>
+                {searchResults.map((result, index) => (
+                  <div className="filter-data" key={index}>
+                    <div className="set set-1">
                       <div>
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: (
-                              result as {
-                                contentWithHighlightedWords: string;
-                              }
-                            ).contentWithHighlightedWords,
-                          }}
-                          className="note"
-                        />
-                      </div>
-                      <div>
+                        <div className="results-title">
+                          <span>
+                            {
+                              (result as { wordOccurence: number })
+                                .wordOccurence
+                            }
+                          </span>
+
+                          <h1
+                            dangerouslySetInnerHTML={{
+                              __html: (
+                                result as {
+                                  fileNameWithHighlightedWords: string;
+                                }
+                              ).fileNameWithHighlightedWords,
+                            }}
+                            // onClick={() => handleFileClick(result["item"])}
+                          />
+                        </div>
+
                         <img
-                          src="arrow-right.png"
+                          src="xmark.png"
                           alt="img"
                           className="remove-search-result"
-                          onClick={() => openSearchResult(result)}
+                          onClick={() => removeBothSearchResults(result)}
                         />
+                      </div>
+                      <div>
+                        <div>
+                          <p
+                            dangerouslySetInnerHTML={{
+                              __html: (
+                                result as {
+                                  contentWithHighlightedWords: string;
+                                }
+                              ).contentWithHighlightedWords,
+                            }}
+                            className="note"
+                          />
+                        </div>
+                        <div>
+                          <img
+                            src="arrow-right.png"
+                            alt="img"
+                            className="remove-search-result"
+                            onClick={() => openSearchResult(result)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {!hideFiltersForPreview && (
+              <div className="node-preview">
+                <div className="node-preview-title">
+                  <h4>{graphNodeOpened.fileName.toUpperCase()}</h4>
+
+                  <div>
+                    <img
+                      src="/collapse.png"
+                      alt="img"
+                      onClick={() => collapseExpandedNode()}
+                      className="link-collapse-icon"
+                    />
+                  </div>
                 </div>
-              ))}
+
+                <div className="node-preview-detail">
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: graphNodeOpened.content,
+                    }}
+                    className="opened-result-description"
+                    // onClick={(e: any) => {
+                    //   if (
+                    //     e.target.tagName === "SPAN" &&
+                    //     e.target.style.textDecoration === "underline"
+                    //   ) {
+                    //     const clickedWord = e.target.textContent; // Get the clicked word
+                    //     handleLinkClick(result.fileName, clickedWord);
+                    //   }
+                    // }}
+                  />
+                </div>
+              </div>
+            )}
+            <div
+              id="nodeInfo"
+              className="node-click-options"
+              style={{
+                position: "absolute",
+                display: "none",
+                backgroundColor: "white",
+              }}
+            >
+              <img src="xmark.png" alt="img" className="node-remove-icon" />
+              <FormatAlignLeftIcon
+                className="node-text-icon"
+                onClick={showNodeClickedFile}
+              />
+              <img
+                src="/wander-icon.svg"
+                alt="img"
+                className="node-wander-icon"
+              />
             </div>
-          )}
-        </div>
+          </>
+        )}
 
         <div className="menus">
           <div className="menus-link">
-            {!shouldShowDivs && (
-              <div className="sub-accordion">
-                <Accordion>
-                  {allCheckboxes.map((category: any, index: any) => (
-                    <Accordion.Item
-                      eventKey={index.toString()}
-                      key={category.category}
-                      title={category.category}
-                      className="accordion-item"
-                    >
-                      <Accordion.Header className="accordion-header">
-                        {category.category}
-                      </Accordion.Header>
-                      <Accordion.Body className="accordion-body">
-                        <div className="form-check form-check-inline">
-                          {category.items.map((item: any) => (
-                            <div
-                              className="form-check form-check-inline"
-                              key={item.id}
-                            >
-                              <input
-                                className={`form-check-input ${
-                                  category.items[item.id - 1]["status"] ===
-                                  "exclude"
-                                    ? "customCheckBackground"
-                                    : ""
-                                }`}
-                                type="checkbox"
-                                id={`checkbox${item.id}`}
-                                checked={item.state === "checked"}
-                                onChange={() =>
-                                  handleCheckboxClick(
-                                    category.category,
-                                    item.id
-                                  )
-                                }
-                                value={item.value}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor={`checkbox${item.id}`}
-                              >
-                                {item.value}
-                              </label>
+            {!shouldShowFilters && (
+              <>
+                {hideFiltersForPreview && (
+                  <div className="sub-accordion">
+                    <Accordion>
+                      {allCheckboxes.map((category: any, index: any) => (
+                        <Accordion.Item
+                          eventKey={index.toString()}
+                          key={category.category}
+                          title={category.category}
+                          className="accordion-item"
+                        >
+                          <Accordion.Header className="accordion-header">
+                            {category.category}
+                          </Accordion.Header>
+                          <Accordion.Body className="accordion-body">
+                            <div className="form-check form-check-inline">
+                              {category.items.map((item: any) => (
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={item.id}
+                                >
+                                  <input
+                                    className={`form-check-input ${
+                                      category.items[item.id - 1]["status"] ===
+                                      "exclude"
+                                        ? "customCheckBackground"
+                                        : ""
+                                    }`}
+                                    type="checkbox"
+                                    id={`checkbox${category.category}-${item.id}`}
+                                    checked={item.state === "checked"}
+                                    onChange={() =>
+                                      handleCheckboxClick(
+                                        category.category,
+                                        item.id
+                                      )
+                                    }
+                                    value={item.value}
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor={`checkbox${category.category}-${item.id}`}
+                                  >
+                                    {item.value}
+                                    {item.category}
+                                  </label>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  ))}
-                </Accordion>
-              </div>
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      ))}
+                    </Accordion>
+                  </div>
+                )}
+              </>
             )}
-            {shouldShowDivs && (
+            {shouldShowFilters && (
               <div className="filter-accordion">
                 <Accordion>
                   <Accordion.Item
@@ -1529,9 +1865,6 @@ const Sidebar = () => {
             )}
           </div>
         </div>
-        {/* <div className="height-check">
-
-        </div> */}
       </div>
 
       {graphOrTextView ? (
@@ -1539,7 +1872,6 @@ const Sidebar = () => {
           {openedResults.length > 0 ? (
             openedResults.map((result, index) => (
               <div key={index} className="opened-results">
-                {/* Render your result content here */}
                 <div className="view-panel-title">
                   <h4>{result.fileName.toUpperCase()}</h4>
                   {result.openedFromResults ? (
@@ -1595,6 +1927,7 @@ const Sidebar = () => {
           <div id="graph-div" className="graph-div"></div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

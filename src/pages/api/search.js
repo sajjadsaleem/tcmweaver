@@ -5,9 +5,9 @@ import { Fzf } from 'fzf';
 export default async function search(req, res) {
     try {
         const inputValue = req.query.q.replace(/,/g, ' ');
-        console.log('req inputValue:', inputValue);
+        // console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
-        console.log('req wordsArray: ' , wordsArray)
+        // console.log('req wordsArray: ' , wordsArray)
 
 
         // reading all files
