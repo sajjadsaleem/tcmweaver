@@ -15,7 +15,7 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>The Mail Drop CRM</title>
+        <title>TCM Weaver</title>
         <meta name="description" content={`The Mail Drop CRM – Dashboard`} />
         <meta name="keywords" content="The Mail Drop CRM Next Js Template" />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
