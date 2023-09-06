@@ -145,6 +145,7 @@ const SignUpPage = () => {
                 <>Sign Up</>
               )}
             </button>
+            
           </div>
 
           <div className="mb-3 text-center">
