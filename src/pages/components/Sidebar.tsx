@@ -630,7 +630,7 @@ const Sidebar = () => {
             // Now you can use wordsArray safely
           } else {
             // Handle the case where underlinedWords is null or undefined
-            console.error("underlinedWords is null or undefined");
+            console.log("underlinedWords is null or undefined");
           }
           // console.log("wordsArray: ", wordsArray);
           axios
@@ -713,7 +713,7 @@ const Sidebar = () => {
           }
         });
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
-        updatedOpenedResults.forEach((result: any) => {
+        updatedOpenedResults.forEach(async (result: any) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
@@ -733,17 +733,21 @@ const Sidebar = () => {
             return match ? match[1] : "";
           });
           // console.log("wordsArray: ", wordsArray);
-          axios
-            .post("/api/getTags?q=" + wordsArray.join(","))
-            .then((res) => {
-              // console.log(res.data);
-              const linkTags = Object.keys(res.data).map((key) => {
+
+          try {
+            const response = await axios.post(
+              "/api/getTags?q=" + wordsArray.join(",")
+            );
+            // Handle the response data here
+
+            if (response) {
+              const linkTags = Object.keys(response.data).map((key) => {
                 return {
                   name: key,
-                  category: res.data[key],
+                  category: response.data[key],
                 };
               });
-              if (res) {
+              if (response) {
                 // console.log("linkTags", linkTags);
                 linkTags.forEach((word: any) => {
                   // Remove HTML tags from underlined word
@@ -756,10 +760,11 @@ const Sidebar = () => {
                   links.push({ source: nodeId, target: word.name, value: 1 });
                 });
               }
-            })
-            .catch((err) => {
-              console.log("err=", err);
-            });
+            }
+          } catch (error) {
+            // Handle errors here
+            console.log("Error:", error);
+          }
         });
         setOpenedResults(updatedOpenedResults);
       }
