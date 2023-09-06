@@ -1230,7 +1230,7 @@ const Sidebar = () => {
         if (graphDiv) {
           graphDiv.appendChild(svgResult.svg);
         }
-      }, 400);
+      }, 1000);
     } else {
       setShouldShowFilters(true);
     }
