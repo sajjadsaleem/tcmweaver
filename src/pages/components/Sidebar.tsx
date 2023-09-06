@@ -943,9 +943,6 @@ const Sidebar = () => {
             .attr("fill", (d: any) => {
               // console.log("d", d);
               const color = getColorByTag(d.tag);
-              console.log(
-                `Setting fill for tag '${d.tag}' to color '${color}'`
-              );
               return color;
             })
             .on("mouseover", handleMouseOver) // Add mouseover event listener
