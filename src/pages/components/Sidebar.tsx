@@ -747,19 +747,17 @@ const Sidebar = () => {
                   category: response.data[key],
                 };
               });
-              if (response) {
-                // console.log("linkTags", linkTags);
-                linkTags.forEach((word: any) => {
-                  // Remove HTML tags from underlined word
-                  // console.log("word", word);
-                  if (!nodeExists(word.name)) {
-                    nodes.push({ id: word.name, group: 2, tag: word.category });
-                  }
+              // console.log("linkTags", linkTags);
+              linkTags.forEach((word: any) => {
+                // Remove HTML tags from underlined word
+                // console.log("word", word);
+                if (!nodeExists(word.name)) {
+                  nodes.push({ id: word.name, group: 2, tag: word.category });
+                }
 
-                  // Create a link between fileName and underlined word
-                  links.push({ source: nodeId, target: word.name, value: 1 });
-                });
-              }
+                // Create a link between fileName and underlined word
+                links.push({ source: nodeId, target: word.name, value: 1 });
+              });
             }
           } catch (error) {
             // Handle errors here
@@ -1230,7 +1228,7 @@ const Sidebar = () => {
         if (graphDiv) {
           graphDiv.appendChild(svgResult.svg);
         }
-      }, 1000);
+      }, 400);
     } else {
       setShouldShowFilters(true);
     }
