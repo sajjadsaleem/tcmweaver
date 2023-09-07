@@ -595,7 +595,8 @@ const Sidebar = () => {
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
-
+      let count = 0;
+      let finalCount = 0;
       const nodeExists = (id: any) => {
         return nodes.some((node: any) => node.id === id);
       };
@@ -712,6 +713,7 @@ const Sidebar = () => {
             }
           }
         });
+        finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
         updatedOpenedResults.forEach(async (result: any) => {
           // Create a node for the fileName
@@ -735,29 +737,42 @@ const Sidebar = () => {
           // console.log("wordsArray: ", wordsArray);
 
           try {
+            // console.log("wordsArray", wordsArray);
             const response = await axios.post(
               "/api/getTags?q=" + wordsArray.join(",")
             );
+            // console.log("res", response);
             // Handle the response data here
 
             if (response) {
+              count = count + 1;
               const linkTags = Object.keys(response.data).map((key) => {
                 return {
                   name: key,
                   category: response.data[key],
                 };
               });
+              // let nodeArray = [];
               // console.log("linkTags", linkTags);
               linkTags.forEach((word: any) => {
                 // Remove HTML tags from underlined word
                 // console.log("word", word);
                 if (!nodeExists(word.name)) {
-                  nodes.push({ id: word.name, group: 2, tag: word.category });
+                  nodes.push({ id: word.name, tag: word.category });
+                  console.log("nodes:", nodes);
                 }
-
+                // console.log("nodes", nodes);
                 // Create a link between fileName and underlined word
                 links.push({ source: nodeId, target: word.name, value: 1 });
               });
+            }
+            console.log("finalCount", finalCount);
+            console.log("count", count);
+            if (finalCount == count) {
+              const resultData = { nodes, links };
+              let graphNewData = resultData;
+              makeGraphData(graphNewData);
+              // console.log("match count");
             }
           } catch (error) {
             // Handle errors here
@@ -768,469 +783,464 @@ const Sidebar = () => {
       }
 
       // Create the final object in the desired format
-      const resultData = { nodes, links };
-      let graphNewData = resultData;
 
-      setTimeout(() => {
-        let element: any = document.getElementById("graph-div");
-
-        // Calculate the width and height
-        let graphWidth = element.offsetWidth;
-        let graphHeight = element.offsetHeight;
-
-        function ForceGraph(
-          { nodes, links }: { nodes: Node[]; links: Link[] },
-          {
-            nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
-            nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
-            nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-            nodeTitle = null, // given d in nodes, a title string
-            nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
-            nodeStroke = "#fff", // node stroke color
-            nodeStrokeWidth = 0, // node stroke width, in pixels
-            nodeStrokeOpacity = 1, // node stroke opacity
-            nodeRadius = 5, // node radius, in pixels
-            nodeStrength = -30,
-            linkSource = ({ source }: { source: string }) => source, // Specify the type as string
-            linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
-            linkStroke = "#999", // link stroke color
-            linkStrokeOpacity = 0.6, // link stroke opacity
-            linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
-            linkStrokeLinecap = "round", // link stroke linecap
-            linkStrength = 0.3,
-            colors = d3.schemeTableau10, // an array of color strings, for the node groups
-            width = 640, // outer width, in pixels
-            height = 400, // outer height, in pixels
-            invalidation = undefined, // when this promise resolves, stop the simulation
-          } = {}
-        ) {
-          // Compute values.
-          const N = d3.map(nodes, nodeId).map(intern);
-          const LS = d3.map(links, linkSource).map(intern);
-          const LT = d3.map(links, linkTarget).map(intern);
-          if (nodeTitle === null) {
-            let nodeTitle = (_: any, i: any) => N[i];
-          }
-          const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-          const G =
-            nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-          const W =
-            typeof linkStrokeWidth !== "function"
-              ? null
-              : d3.map(links, linkStrokeWidth);
-          const L =
-            typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
-
-          // Replace the input nodes and links with mutable objects for the simulation.
-          nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-          links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-
-          // console.log("nodes", nodes);
-
-          // Compute default domains.
-          if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-          // Construct the scales.
-          const color =
-            nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
-          // Construct the forces.
-          const forceNode = d3.forceManyBody();
-          const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-          if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-          if (linkStrength !== undefined) forceLink.strength(linkStrength);
-
-          // console.log("nodes ", nodes);
-          const customNodes: any = nodes;
-
-          const simulation = d3
-            .forceSimulation(customNodes)
-            .force("link", forceLink)
-            .force("charge", forceNode)
-            .force("center", d3.forceCenter())
-            .on("tick", ticked);
-
-          const svg = d3
-            .create("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("viewBox", [-width / 2, -height / 2, width, height])
-            .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-            .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-          const container = svg.append("g");
-
-          const link = container
-            .append("g")
-            .attr(
-              "stroke",
-              typeof linkStroke !== "function" ? linkStroke : null
-            )
-            .attr("stroke-opacity", linkStrokeOpacity)
-            .attr(
-              "stroke-width",
-              typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-            )
-            .attr("stroke-linecap", linkStrokeLinecap)
-            .selectAll("line")
-            .data(links)
-            .join("line");
-
-          const zoom: any = d3.zoom().on("zoom", zoomed);
-          svg.call(zoom);
-
-          function zoomed(event: any) {
-            // Update the transform of the container based on the zoom event
-            container.attr("transform", event.transform);
-          }
-
-          function getColorByTag(tag: string) {
-            // Define a mapping of tags to colors
-            const tagColors: Record<string, string> = {
-              sandwich: "blue",
-              meat: "red",
-              veg: "green",
-              sauce: "purple",
-              bread: "brown",
-              ferment: "yellow",
-              cheese: "orange",
-              // Add more tag-color mappings as needed
-            };
-
-            // Return the color based on the tag, or a default color if not found
-            return tagColors[tag] || nodeFill;
-          }
-
-          function handleNodeClick(event: any, d: any) {
-            console.log(event, d);
-            setFileOpenedFromGraph(d.id);
-            // Get the div element and set its content based on the clicked node
-            const nodeInfoDiv: any = document.getElementById("nodeInfo");
-            // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
-
-            // Position the div over the clicked node
-            nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-            nodeInfoDiv.style.top = `${event.pageY - 35}px`;
-
-            // Show the div
-            nodeInfoDiv.style.display = "block";
-
-            // Prevent the click event from propagating further (e.g., to zoom or drag)
-            event.stopPropagation();
-          }
-
-          function hideNodeInfo() {
-            const nodeInfoDiv: any = document.getElementById("nodeInfo");
-            if (nodeInfoDiv) {
-              nodeInfoDiv.style.display = "none";
-            }
-          }
-
-          document.addEventListener("click", hideNodeInfo);
-
-          const node = container
-            .append("g")
-            .attr("fill", nodeFill)
-            .attr("stroke", nodeStroke)
-            .attr("stroke-opacity", nodeStrokeOpacity)
-            .attr("stroke-width", nodeStrokeWidth)
-            .selectAll("circle")
-            .data(nodes)
-            .join("circle")
-            .attr("r", nodeRadius)
-            .attr("fill", (d: any) => {
-              // console.log("d", d);
-              const color = getColorByTag(d.tag);
-              return color;
-            })
-            .on("mouseover", handleMouseOver) // Add mouseover event listener
-            .on("mouseout", handleMouseOut)
-            .on("click", handleNodeClick)
-            .classed("node-pointer", true)
-            .call(drag(simulation) as any, drag(simulation));
-
-          // Append text labels to the container, positioned near the nodes
-          const nodeText = container
-            .append("g")
-            .selectAll("title")
-            .data(nodes)
-            .join("text")
-            // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-            // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-            .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-            .attr("y", (d: any) => d.y + nodeRadius + 12)
-            .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-            .style("font-size", "5px") // Adjust the font size based on your preference
-            .text((d) => d.id);
-
-          const nodeTitles = container
-            .append("g")
-            .selectAll("title")
-            .data(nodes)
-            .join("title")
-            .text((d) => d.id);
-
-          // In the ticked function, update the positions of text and title elements
-
-          // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-          // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-          if (W) link.attr("stroke-width", (d: Link, i: number) => `${W[i]}`);
-          if (L) link.attr("stroke", (d: Link, i: number) => `${L[i]}`);
-          if (G && color) {
-            node.attr("fill", (_, i) => color(G[i]));
-          }
-          if (T) {
-            node.append("title").text((d: Node, i: number) => String(T[i]));
-          }
-
-          if (invalidation != null) {
-            // invalidation.then(() => {
-            //   // Handle invalidation here
-            //   simulation.stop();
-            // });
-          }
-
-          function intern(value: any) {
-            return value !== null && typeof value === "object"
-              ? value.valueOf()
-              : value;
-          }
-
-          function ticked() {
-            link
-              .attr("x1", (d: any) => d.source.x)
-              .attr("y1", (d: any) => d.source.y)
-              .attr("x2", (d: any) => d.target.x)
-              .attr("y2", (d: any) => d.target.y);
-            node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-            nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-            nodeTitles.text((d) => d.id);
-          }
-
-          // function handleMouseOver(event, d) {
-          //   // Find neighbors of the hovered node based on links
-          //   // const neighbors = links
-          //   //   .filter((link) => link.source === d || link.target === d)
-          //   //   .map((link) => (link.source === d ? link.target : link.source));
-
-          //   // // Add the hovered node and its neighbors to the array
-          //   // hoveredNodes = [d.id, ...neighbors.map((neighbor) => neighbor.id)];
-
-          //   d3.select(this)
-          //     .attr("fill", "red") // Change to your desired color
-          //     .attr("r", nodeRadius) // Optionally, increase the node size
-          //     .transition()
-          //     .duration(400); // Transition duration in milliseconds
-
-          //   // Change the color of the links directly connected to the hovered node
-          //   link
-          //     .transition()
-          //     .duration(400)
-          //     .attr("stroke", (linkData) => {
-          //       if (linkData.source === d || linkData.target === d) {
-          //         return linkStroke; // Change to your desired link color
-          //       } else {
-          //         return linkStroke;
-          //       }
-          //     });
-
-          //   // Reduce the opacity of nodes that are not directly connected
-          //   node
-          //     .transition()
-          //     .duration(600)
-          //     .attr("fill-opacity", (nodeData) => {
-          //       if (nodeData === d) {
-          //         return 1; // Opacity of the hovered node
-          //       } else if (areNodesConnected(nodeData, d)) {
-          //         return 1; // Opacity of directly connected nodes
-          //       } else {
-          //         return 0.1; // Opacity of other nodes
-          //       }
-          //     });
-
-          //   // Reduce the opacity of links that are not directly connected
-          //   link
-          //     .transition()
-          //     .duration(600)
-          //     .attr("stroke-opacity", (linkData) => {
-          //       if (linkData.source === d || linkData.target === d) {
-          //         return 1; // Opacity of links directly connected to the hovered node
-          //       } else {
-          //         return 0; // Opacity of other links
-          //       }
-          //     });
-
-          //   console.log("Hovered Nodes:", hoveredNodes);
-          // }
-
-          function handleMouseOver(this: any, event: any, d: any) {
-            // Set the initial state before transitioning
-            d3.select(this as SVGElement)
-              // .attr("fill", "red") // Change to your desired color
-              .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
-              .attr("fill-opacity", 1); // Set initial opacity to 1
-
-            // Initialize the links with their original stroke color and opacity
-            link
-              .attr("stroke", (linkData) => {
-                if (linkData.source === d || linkData.target === d) {
-                  return linkStroke; // Original link color
-                } else {
-                  return linkStroke;
-                }
-              })
-              .attr("stroke-opacity", linkStrokeOpacity);
-
-            // Initialize the nodes with their original fill color and opacity
-            node
-              // .attr("fill", (nodeData) => {
-              //   if (nodeData === d) {
-              //     return "red"; // Original node color
-              //   } else {
-              //     return nodeFill;
-              //   }
-              // })
-              .attr("fill-opacity", (nodeData) => {
-                if (nodeData === d) {
-                  return 1; // Opacity of the hovered node
-                } else if (areNodesConnected(nodeData, d)) {
-                  return 1; // Opacity of directly connected nodes
-                } else {
-                  return 0.1; // Opacity of other nodes
-                }
-              });
-
-            // Start the transition
-            d3.select(this as SVGElement)
-              .transition()
-              .duration(400) // Transition duration in milliseconds
-              .attr("r", nodeRadius); // Optionally, increase the node size
-
-            // Change the color of the links directly connected to the hovered node
-            link
-              .transition()
-              .duration(400)
-              .attr("stroke", (linkData) => {
-                if (linkData.source === d || linkData.target === d) {
-                  return "red"; // Change to your desired link color
-                } else {
-                  return linkStroke;
-                }
-              });
-
-            // Transition to reduce the opacity of nodes that are not directly connected
-            node
-              .transition()
-              .duration(600)
-              .attr("fill-opacity", (nodeData) => {
-                if (nodeData === d) {
-                  return 1; // Opacity of the hovered node
-                } else if (areNodesConnected(nodeData, d)) {
-                  return 1; // Opacity of directly connected nodes
-                } else {
-                  return 0.1; // Opacity of other nodes
-                }
-              });
-
-            // Transition to reduce the opacity of links that are not directly connected
-            link
-              .transition()
-              .duration(600)
-              .attr("stroke-opacity", (linkData) => {
-                if (linkData.source === d || linkData.target === d) {
-                  return 1; // Opacity of links directly connected to the hovered node
-                } else {
-                  return 0; // Opacity of other links
-                }
-              });
-
-            // console.log("Hovered Nodes:", hoveredNodes);
-          }
-
-          function handleMouseOut(this: any) {
-            d3.select(this)
-              // .attr("fill", nodeFill) // Reset to the original node color
-              .attr("r", nodeRadius) // Reset to the original node size
-              .transition()
-              .duration(400) // Transition duration in milliseconds
-              .attr("fill-opacity", 1); // Reset opacity
-
-            // Reset the color and opacity of all links to their original values with a transition
-            link
-              .transition()
-              .duration(400)
-              .attr("stroke", linkStroke)
-              .attr("stroke-opacity", linkStrokeOpacity);
-
-            // Reset the opacity of all nodes to their original value with a transition
-            node.transition().duration(200).attr("fill-opacity", 1);
-          }
-
-          function areNodesConnected(node1: any, node2: any) {
-            // Check if two nodes are directly connected through a link
-            return links.some((linkData: any) => {
-              return (
-                (linkData.source === node1 && linkData.target === node2) ||
-                (linkData.source === node2 && linkData.target === node1)
-              );
-            });
-          }
-
-          function drag(simulation: any) {
-            function dragstarted(event: any) {
-              if (!event.active) simulation.alphaTarget(0.3).restart();
-              event.subject.fx = event.subject.x;
-              event.subject.fy = event.subject.y;
-            }
-
-            function dragged(event: any) {
-              event.subject.fx = event.x;
-              event.subject.fy = event.y;
-            }
-
-            function dragended(event: any) {
-              if (!event.active) simulation.alphaTarget(0);
-              event.subject.fx = null;
-              event.subject.fy = null;
-            }
-
-            return d3
-              .drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended);
-          }
-          // console.log("svg", svg);
-          const svgElement = svg.node() as SVGSVGElement; // Cast svg.node() to SVGSVGElement
-          const result = {
-            scales: { color },
-            svg: svgElement, // Assign the SVG element
-          };
-
-          return result;
-
-          // return Object.assign(svg.node(), { scales: { color } });
-        }
-
-        const options: any = {
-          nodeFill: "blue",
-          nodeStroke: "blue",
-          width: graphWidth,
-          height: graphHeight,
-        };
-        console.log("graphNewData: ", graphNewData);
-
-        let svgResult: any = ForceGraph(graphNewData, options);
-        // console.log("svgResult", svgResult);
-
-        const graphDiv = document.getElementById("graph-div");
-
-        if (graphDiv) {
-          graphDiv.appendChild(svgResult.svg);
-        }
-      }, 400);
+      // setTimeout(() => {}, 400);
     } else {
       setShouldShowFilters(true);
+    }
+  };
+  const makeGraphData = (graphNewData: any) => {
+    let element: any = document.getElementById("graph-div");
+
+    // Calculate the width and height
+    let graphWidth = element.offsetWidth;
+    let graphHeight = element.offsetHeight;
+
+    function ForceGraph(
+      { nodes, links }: { nodes: Node[]; links: Link[] },
+      {
+        nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
+        nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
+        nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
+        nodeTitle = null, // given d in nodes, a title string
+        nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
+        nodeStroke = "#fff", // node stroke color
+        nodeStrokeWidth = 0, // node stroke width, in pixels
+        nodeStrokeOpacity = 1, // node stroke opacity
+        nodeRadius = 5, // node radius, in pixels
+        nodeStrength = -30,
+        linkSource = ({ source }: { source: string }) => source, // Specify the type as string
+        linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
+        linkStroke = "#999", // link stroke color
+        linkStrokeOpacity = 0.6, // link stroke opacity
+        linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
+        linkStrokeLinecap = "round", // link stroke linecap
+        linkStrength = 0.3,
+        colors = d3.schemeTableau10, // an array of color strings, for the node groups
+        width = 640, // outer width, in pixels
+        height = 400, // outer height, in pixels
+        invalidation = undefined, // when this promise resolves, stop the simulation
+      } = {}
+    ) {
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W =
+        typeof linkStrokeWidth !== "function"
+          ? null
+          : d3.map(links, linkStrokeWidth);
+      const L =
+        typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+      // console.log("nodes", nodes);
+
+      // Compute default domains.
+      if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      const color =
+        nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkStrength);
+
+      // console.log("nodes ", nodes);
+      const customNodes: any = nodes;
+
+      const simulation = d3
+        .forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", forceNode)
+        .force("center", d3.forceCenter())
+        .on("tick", ticked);
+
+      const svg = d3
+        .create("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [-width / 2, -height / 2, width, height])
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+        .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+      const container = svg.append("g");
+
+      const link = container
+        .append("g")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr(
+          "stroke-width",
+          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+        )
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      function zoomed(event: any) {
+        // Update the transform of the container based on the zoom event
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+        // Define a mapping of tags to colors
+        const tagColors: Record<string, string> = {
+          sandwich: "blue",
+          meat: "red",
+          veg: "green",
+          sauce: "purple",
+          bread: "brown",
+          ferment: "yellow",
+          cheese: "orange",
+          // Add more tag-color mappings as needed
+        };
+
+        // Return the color based on the tag, or a default color if not found
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        console.log(event, d);
+        setFileOpenedFromGraph(d.id);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+        // Show the div
+        nodeInfoDiv.style.display = "block";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
+        }
+      }
+
+      document.addEventListener("click", hideNodeInfo);
+
+      const node = container
+        .append("g")
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", nodeRadius)
+        .attr("fill", (d: any) => {
+          // console.log("d", d);
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // Append text labels to the container, positioned near the nodes
+      const nodeText = container
+        .append("g")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "5px") // Adjust the font size based on your preference
+        .text((d) => d.id);
+
+      const nodeTitles = container
+        .append("g")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d) => d.id);
+
+      // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: Link, i: number) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: Link, i: number) => `${L[i]}`);
+      if (G && color) {
+        node.attr("fill", (_, i) => color(G[i]));
+      }
+      if (T) {
+        node.append("title").text((d: Node, i: number) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        // invalidation.then(() => {
+        //   // Handle invalidation here
+        //   simulation.stop();
+        // });
+      }
+
+      function intern(value: any) {
+        return value !== null && typeof value === "object"
+          ? value.valueOf()
+          : value;
+      }
+
+      function ticked() {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
+        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+        nodeTitles.text((d) => d.id);
+      }
+
+      // function handleMouseOver(event, d) {
+      //   // Find neighbors of the hovered node based on links
+      //   // const neighbors = links
+      //   //   .filter((link) => link.source === d || link.target === d)
+      //   //   .map((link) => (link.source === d ? link.target : link.source));
+
+      //   // // Add the hovered node and its neighbors to the array
+      //   // hoveredNodes = [d.id, ...neighbors.map((neighbor) => neighbor.id)];
+
+      //   d3.select(this)
+      //     .attr("fill", "red") // Change to your desired color
+      //     .attr("r", nodeRadius) // Optionally, increase the node size
+      //     .transition()
+      //     .duration(400); // Transition duration in milliseconds
+
+      //   // Change the color of the links directly connected to the hovered node
+      //   link
+      //     .transition()
+      //     .duration(400)
+      //     .attr("stroke", (linkData) => {
+      //       if (linkData.source === d || linkData.target === d) {
+      //         return linkStroke; // Change to your desired link color
+      //       } else {
+      //         return linkStroke;
+      //       }
+      //     });
+
+      //   // Reduce the opacity of nodes that are not directly connected
+      //   node
+      //     .transition()
+      //     .duration(600)
+      //     .attr("fill-opacity", (nodeData) => {
+      //       if (nodeData === d) {
+      //         return 1; // Opacity of the hovered node
+      //       } else if (areNodesConnected(nodeData, d)) {
+      //         return 1; // Opacity of directly connected nodes
+      //       } else {
+      //         return 0.1; // Opacity of other nodes
+      //       }
+      //     });
+
+      //   // Reduce the opacity of links that are not directly connected
+      //   link
+      //     .transition()
+      //     .duration(600)
+      //     .attr("stroke-opacity", (linkData) => {
+      //       if (linkData.source === d || linkData.target === d) {
+      //         return 1; // Opacity of links directly connected to the hovered node
+      //       } else {
+      //         return 0; // Opacity of other links
+      //       }
+      //     });
+
+      //   console.log("Hovered Nodes:", hoveredNodes);
+      // }
+
+      function handleMouseOver(this: any, event: any, d: any) {
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
+
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
+          })
+          .attr("stroke-opacity", linkStrokeOpacity);
+
+        // Initialize the nodes with their original fill color and opacity
+        node
+          // .attr("fill", (nodeData) => {
+          //   if (nodeData === d) {
+          //     return "red"; // Original node color
+          //   } else {
+          //     return nodeFill;
+          //   }
+          // })
+          .attr("fill-opacity", (nodeData) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
+
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData) => {
+            if (linkData.source === d || linkData.target === d) {
+              return "red"; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
+
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition()
+          .duration(600)
+          .attr("fill-opacity", (nodeData) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0; // Opacity of other links
+            }
+          });
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+      function handleMouseOut(this: any) {
+        d3.select(this)
+          // .attr("fill", nodeFill) // Reset to the original node color
+          .attr("r", nodeRadius) // Reset to the original node size
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("fill-opacity", 1); // Reset opacity
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+      }
+
+      function areNodesConnected(node1: any, node2: any) {
+        // Check if two nodes are directly connected through a link
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+        function dragstarted(event: any) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event: any) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
+
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
+      // console.log("svg", svg);
+      const svgElement = svg.node() as SVGSVGElement; // Cast svg.node() to SVGSVGElement
+      const result = {
+        scales: { color },
+        svg: svgElement, // Assign the SVG element
+      };
+
+      return result;
+
+      // return Object.assign(svg.node(), { scales: { color } });
+    }
+
+    const options: any = {
+      nodeFill: "blue",
+      nodeStroke: "blue",
+      width: graphWidth,
+      height: graphHeight,
+    };
+    console.log("graphNewData: ", graphNewData);
+
+    let svgResult: any = ForceGraph(graphNewData, options);
+    // console.log("svgResult", svgResult);
+
+    const graphDiv = document.getElementById("graph-div");
+
+    if (graphDiv) {
+      graphDiv.appendChild(svgResult.svg);
     }
   };
 
