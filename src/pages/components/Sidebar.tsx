@@ -604,6 +604,7 @@ const Sidebar = () => {
       // Iterate through each object
       if (openedResults.length > 0) {
         // If files are open in workspace
+        finalCount = openedResults.length;
         openedResults.forEach((result) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
@@ -638,6 +639,7 @@ const Sidebar = () => {
             .post("/api/getTags?q=" + wordsArray.join(","))
             .then((res) => {
               // console.log(res.data);
+              count = count + 1;
               const linkTags = Object.keys(res.data).map((key) => {
                 return {
                   name: key,
@@ -656,6 +658,15 @@ const Sidebar = () => {
                   // Create a link between fileName and underlined word
                   links.push({ source: nodeId, target: word.name, value: 1 });
                 });
+              }
+              console.log("finalCount", finalCount);
+              console.log("count", count);
+              if (finalCount == count) {
+                const resultData = { nodes, links };
+                let graphNewData = resultData;
+                console.log("graphNewData: ", graphNewData);
+                makeGraph(graphNewData);
+                // console.log("match count");
               }
             })
             .catch((err) => {
@@ -771,7 +782,7 @@ const Sidebar = () => {
             if (finalCount == count) {
               const resultData = { nodes, links };
               let graphNewData = resultData;
-              makeGraphData(graphNewData);
+              makeGraph(graphNewData);
               // console.log("match count");
             }
           } catch (error) {
@@ -789,7 +800,7 @@ const Sidebar = () => {
       setShouldShowFilters(true);
     }
   };
-  const makeGraphData = (graphNewData: any) => {
+  const makeGraph = (graphNewData: any) => {
     let element: any = document.getElementById("graph-div");
 
     // Calculate the width and height
