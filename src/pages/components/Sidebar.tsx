@@ -2111,7 +2111,7 @@ const Sidebar = () => {
   };
 
   const generateGraphfromSearch = (searchResultsForGraph: any) => {
-    // console.log("search results: ", searchResultsForGraph);
+    console.log("search results: ", searchResultsForGraph);
     if (!graphOrTextView && searchResultsForGraph.length>0) {
       setShouldShowFilters(false);
 
@@ -2342,7 +2342,7 @@ const Sidebar = () => {
           console.log("Error:", error);
         }
       });
-      // console.log('searchresultsforgraph: ' , searchResultsForGraph)
+      console.log('searchresultsforgraph: ' , searchResultsForGraph)
       setOpenedResults(searchResultsForGraph);
 
     } else {
@@ -2353,7 +2353,10 @@ const Sidebar = () => {
         // console.log('resultData: ' , resultData)
         // let graphNewData = resultData;
         setGraphData(resultData);
-        makeGraph(resultData);
+        const graphDiv:any = document.getElementById('graph-div');
+        const svgElement = graphDiv.querySelector('svg');
+        graphDiv.removeChild(svgElement);
+        // makeGraph(resultData);
         setOpenedResults(searchResultsForGraph);
 
     }
@@ -2997,25 +3000,24 @@ const Sidebar = () => {
                         </div> */}
                   
                     </div>
-
-                  <div className="opened-result-detail">
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: filtersData && filtersData.length>0 ? filtersData[0].content : '',
-                      }}
-                      className="opened-result-description"
-                      // onClick={(e: any) => {
-                      //   if (
-                      //     e.target.tagName === "SPAN" &&
-                      //     e.target.style.textDecoration === "underline"
-                      //   ) {
-                      //     const clickedWord = e.target.textContent; // Get the clicked word
-                      //     handleLinkClick(result.fileName, clickedWord);
-                      //   }
-                      // }}
-                    />
+                    <div className="opened-result-detail">
+                      <p
+                        dangerouslySetInnerHTML={{
+                          __html: filtersData && filtersData.length>0 ? filtersData[0].content : '',
+                        }}
+                        className="opened-result-description"
+                        // onClick={(e: any) => {
+                        //   if (
+                        //     e.target.tagName === "SPAN" &&
+                        //     e.target.style.textDecoration === "underline"
+                        //   ) {
+                        //     const clickedWord = e.target.textContent; // Get the clicked word
+                        //     handleLinkClick(result.fileName, clickedWord);
+                        //   }
+                        // }}
+                      />
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
             ) : (
