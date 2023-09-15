@@ -4,6 +4,9 @@ import axios from "axios";
 import router, { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LayoutWrapper from "../components/LayoutWrapper";
+import AuthLayout from '../components/AuthLayout';
+import * as Helpers from '../../util/Helpers'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,10 +26,13 @@ const Login = () => {
     };
 
     axios
-      .post("/api/login", payload)
+      .post("/api/auth/login", payload)
       .then((res) => {
+        console.log('res: ' , res.data)
         setBtnLoading(false);
-        router.push("/?dashboard=true");
+        Helpers.setAccessToken(res.data.token)
+        Helpers.setUser(res.data.user)
+        router.push("/?dashboard");
       })
       .catch((err) => {
         console.log("err=", err.response.data);
@@ -42,68 +48,71 @@ const Login = () => {
           progress: undefined,
           theme: "light",
         });
+        
       });
   };
 
   return (
-    <div className="account-page">
-      <div className="logo">
+    <LayoutWrapper layout={AuthLayout}>
+      <div className="account-page">
+        <div className="logo">
+          <div>
+            <img src="/graph-logo.png" alt="img" />
+          </div>
+          <p>TCM Weaver</p>
+        </div>
         <div>
-          <img src="/graph-logo.png" alt="img" />
-        </div>
-        <p>TCM Weaver</p>
-      </div>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <div className="sign-input">
-            <input
-              type="email"
-              className="form-control"
-              aria-describedby="emailHelp"
-              placeholder="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              className="form-control"
-              aria-describedby="emailHelp"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div className="forgot-psd">
-              <Link className="forgot-password" href={`/forgotPassword`}>
-                Password Reset
-              </Link>
+          <form onSubmit={handleSubmit}>
+            <div className="sign-input">
+              <input
+                type="email"
+                className="form-control"
+                aria-describedby="emailHelp"
+                placeholder="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                className="form-control"
+                aria-describedby="emailHelp"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div className="forgot-psd">
+                <Link className="forgot-password" href={`/forgotPassword`}>
+                  Password Reset
+                </Link>
+              </div>
             </div>
-          </div>
-          <div className="sign-btn">
-            {/* <button type="submit">Sign in</button> */}
-            <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
-              {btnLoading ? (
-                <>
-                  Please Wait{" "}
-                  <span
-                    className="spinner-grow spinner-grow-sm ml-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </>
-              ) : (
-                <>Sign in</>
-              )}
-            </button>
-          </div>
-        </form>
+            <div className="sign-btn">
+              {/* <button type="submit">Sign in</button> */}
+              <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+                {btnLoading ? (
+                  <>
+                    Please Wait{" "}
+                    <span
+                      className="spinner-grow spinner-grow-sm ml-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                  </>
+                ) : (
+                  <>Sign in</>
+                )}
+              </button>
+            </div>
+          </form>
 
-        <div className="sign-up">
-          <p>or</p>
-          <button type="submit">Sign up</button>
+          <div className="sign-up">
+            <p>or</p>
+            <button type="submit">Sign up</button>
+          </div>
         </div>
+        <ToastContainer />
       </div>
-      <ToastContainer />
-    </div>
+    </LayoutWrapper>
   );
 };
 

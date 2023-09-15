@@ -3,10 +3,12 @@ import Link from "next/link";
 // import axios from 'axios';
 // import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/router";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 // import LayoutWrapper from './components/global/LayoutWrapper';
 // import AuthLayout from './components/global/AuthLayout';
-// import * as Helpers from '../util/Helpers';
+import * as Helpers from '../../util/Helpers';
 // import appLogo from '../images/logo.gif';
 
 const LoginPage = () => {
@@ -15,28 +17,34 @@ const LoginPage = () => {
   const [btnLoading, setBtnLoading] = useState(false);
 
   const [get_email, set_email] = useState("");
+  console.log(get_email)
 
   const submitBtn = () => {
     setBtnLoading(true);
     let payload = {
       email: get_email,
     };
-    //   axios.post('/api/auth/forgot-password', payload)
-    //       .then((res) => {
-    //           setBtnLoading(false)
-    //           toast.success(res.data.message, Helpers.toastSettings());
-    //       })
-    //       .catch(err => {
-    //           console.log('err=',err.response.data)
-    //           setBtnLoading(false)
-    //           Helpers.catchFunction(err)
-    //       });
+      axios.post('/api/auth/forgot-password', payload)
+          .then((res) => {
+              setBtnLoading(false)
+              toast.success(res.data.message, {
+                position: "top-right",
+                autoClose: 1500,
+                pauseOnHover: true,
+                theme: "colored",
+              });
+          })
+          .catch(err => {
+              console.log('err=',err.response.data)
+              setBtnLoading(false)
+              // Helpers.catchFunction(err)
+          });
   };
 
   return (
     <>
       {/* <LayoutWrapper layout={AuthLayout} > */}
-      <div className="container">
+      <div className="forget-password-container">
         <div className="authForm">
           <div className="mb-40 text-center">
             <Link href="/" className="logo">
@@ -89,6 +97,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
       {/* </LayoutWrapper> */}
     </>
   );

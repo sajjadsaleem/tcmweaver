@@ -1,8 +1,4 @@
-
-
-
-
-.wrapper{
+.wrapper {
     display: flex;
 }
 
@@ -41,11 +37,12 @@
  
     margin-right: 21px;
 } */
-.main::-webkit-scrollbar{
+.main::-webkit-scrollbar {
     height: 10px;
 }
+
 ::-webkit-scrollbar {
-      width: 10px;
+    width: 10px;
 }
 
 
@@ -58,14 +55,17 @@
     border-radius: 10px;
 }
 
+.node-preview-detail::-webkit-scrollbar-thumb,
 .opened-result-detail::-webkit-scrollbar-thumb {
     background: transparent;
     /* border-radius: 10px; */
 }
 
+.node-preview-detail::-webkit-scrollbar-thumb:hover,
 .opened-result-detail::-webkit-scrollbar-thumb:hover {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #616161;
 }
@@ -85,7 +85,7 @@
 
 
 .logoVc {
-    width: 284px;
+    width: 300px;
     margin: auto;
     display: flex;
     align-items: center;
@@ -128,36 +128,38 @@
 }
 
 @font-face {
-font-family: 'YourFontName'; /* Use your desired font name */
-src: url('/fonts/your-font-file.woff2') format('woff2'),
+    font-family: 'YourFontName';
+    /* Use your desired font name */
+    src: url('/fonts/your-font-file.woff2') format('woff2'),
         url('/fonts/your-font-file.woff') format('woff');
-/* Add more src declarations for different font formats if needed */
-/* Other font properties such as font-weight and font-style can be added here */
+    /* Add more src declarations for different font formats if needed */
+    /* Other font properties such as font-weight and font-style can be added here */
 }
 
 @font-face {
-    font-family: 'inter'; /* Use your desired font name */
+    font-family: 'inter';
+    /* Use your desired font name */
     src: url('/public/fonts/Inter-Bold.ttf') format('ttf');
     /* Add more src declarations for different font formats if needed */
     /* Other font properties such as font-weight and font-style can be added here */
-    }
+}
 
 @font-face {
     font-family: 'Inter';
     font-style: normal;
     font-weight: 300;
     src: url('/public/fonts/Inter.ttf') format('ttf');
-    }
-
-.menus {
-margin-top: 1rem !important;
-width: 100%;
-/* margin: auto; */
-height: 225px;
-overflow-y: scroll;
 }
 
-.height-check{
+.menus {
+    margin-top: 1rem !important;
+    width: 100%;
+    /* margin: auto; */
+    height: 225px;
+    overflow-y: scroll;
+}
+
+.height-check {
     height: 100px;
     width: 300px;
     background-color: red;
@@ -165,12 +167,12 @@ overflow-y: scroll;
 
 
 
-.menus-link{
+.menus-link {
     width: 284px;
     margin: auto;
 }
 
-.menuBtn{
+.menuBtn {
     display: flex;
     align-items: center;
     width: 284px;
@@ -178,7 +180,8 @@ overflow-y: scroll;
     margin-top: 2rem;
     gap: 10px;
 }
-.menuBtn .copy-icon{
+
+.menuBtn .copy-icon {
     margin-right: -20px;
     width: 35px;
     height: 35px;
@@ -200,14 +203,15 @@ overflow-y: scroll;
     padding: 3px 10px;
     position: absolute;
     z-index: 1;
-    top: -35px; /* Adjust the distance above the icon */
+    top: -35px;
+    /* Adjust the distance above the icon */
     left: -35px;
     /* opacity: 0.8; */
     /* transition: opacity 0.3s ease-in-out; */
-    
-  }
 
-.menuBtn .copy-icon svg{
+}
+
+.menuBtn .copy-icon svg {
     opacity: 0.8;
     transform: scale(0.85);
 }
@@ -260,18 +264,20 @@ overflow-y: scroll;
     margin-bottom: 20px;
 }
 
-.set-1 div:first-child{
+.set-1 div:first-child {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-.set-1 div:last-child{
+
+.set-1 div:last-child {
     display: flex;
     /* align-items: center; */
     justify-content: space-between;
 }
-.set-1 div:last-child img{
-  
+
+.set-1 div:last-child img {
+
     margin-top: 5px;
 }
 
@@ -291,6 +297,7 @@ overflow-y: scroll;
     font-weight: 700;
     margin-left: 9px;
 }
+
 /* 
 .filter-data p {
     font-size: 1rem;
@@ -309,12 +316,12 @@ overflow-y: scroll;
     text-overflow: ellipsis;
     width: 280px;
     white-space: nowrap;
-    
+
 }
 
 .night-mode .filter-data h1 {
     color: #fff;
-    
+
 }
 
 .night-mode .filter-data p {
@@ -327,13 +334,13 @@ overflow-y: scroll;
 
 }
 
-.filter-data h1 span ,
+.filter-data h1 span,
 .filter-data .note span {
     background-color: #d4cece;
 }
 
-.night-mode .filter-data h1 span ,
-    .night-mode .filter-data .note span {
+.night-mode .filter-data h1 span,
+.night-mode .filter-data .note span {
     background-color: #666262;
 }
 
@@ -354,17 +361,17 @@ overflow-y: scroll;
 
 
 
-.accordion-header button{
+.accordion-header button {
     background-color: transparent;
     padding: 6px;
 }
 
-.night-mode .accordion-header button{
+.night-mode .accordion-header button {
     color: #fff;
     transition: none !important;
 }
 
-.accordion-header button:focus{
+.accordion-header button:focus {
     box-shadow: none;
     background-color: transparent;
 }
@@ -472,15 +479,16 @@ overflow-y: scroll;
 }
 
 
-.accordion-button:not(.collapsed){
+.accordion-button:not(.collapsed) {
     background-color: transparent !important;
 }
-.night-mode .accordion-button:not(.collapsed){
+
+.night-mode .accordion-button:not(.collapsed) {
     background-color: transparent !important;
     filter: brightness(10);
 }
 
-.customCheckBackground{
+.customCheckBackground {
     /* pointer-events: none; */
     /* filter: none; */
     opacity: 1 !important;
@@ -541,7 +549,8 @@ overflow-y: scroll;
 }
 
 
-.sub-accordion, .filter-accordion{
+.sub-accordion,
+.filter-accordion {
     padding-bottom: 1px;
 }
 
@@ -551,7 +560,7 @@ overflow-y: scroll;
     width: 100%;
 }  */
 
-.search-results{
+.search-results {
     margin-top: 30px !important;
     margin-bottom: 6px;
     min-height: 66.6vh;
@@ -564,7 +573,7 @@ overflow-y: scroll;
     padding-left: 10px;
 }
 
-.node-preview{
+.node-preview {
     margin-top: 30px !important;
     margin-bottom: 6px;
     min-height: 66.6vh;
@@ -577,24 +586,24 @@ overflow-y: scroll;
     padding-left: 10px;
 }
 
-.node-preview-title{
+.node-preview-title {
     display: flex;
     justify-content: space-between;
     margin: auto;
     width: 95%;
 }
 
-.node-preview-detail{
+.node-preview-detail {
     padding-top: 20px;
     overflow-y: scroll;
     width: 95%;
-    height: calc(100vh - 80px);
+    height: 66.6vh;
     margin: auto;
 
 }
 
 
-.results-height{
+.results-height {
     min-height: 36.6vh;
     max-height: 36.6vh;
     overflow-y: scroll;
@@ -607,29 +616,57 @@ overflow-y: scroll;
     filter: invert(1) !important;
 }
 
-.remove-search-result{
+.remove-search-result {
     height: 15px;
     cursor: pointer;
 }
-.results-title{
+
+.results-title {
     margin-bottom: 5px;
 
 }
-.results-title span{
+
+.results-title span {
     /* transform: translateX(-17px); */
     font-weight: 700;
     /* margin-left: -10px; */
-   
-    
+
+
 }
-.night-mode img{
+
+.night-mode img {
     filter: invert(1);
 }
+
 .night-mode span,
 .night-mode p,
 .night-mode h4,
-.night-mode h1{
+.night-mode h1 {
     color: #fff;
+}
+
+.forces-container {
+    width: 284px;
+    margin-left: 26px;
+}
+
+.custom-slider-track {
+    background-color: #C2C2C2;
+    /* Change this to the color you desire */
+}
+
+
+.custom-slider-thumb {
+    color: grey;
+}
+
+.custom-slider-rail {
+    background-color: #C2C2C2;
+    /* Change this to the color you desire for the rail */
+}
+
+.css-53tbrc-MuiSlider-root {
+    color: #C2C2C2 !important;
 }
 
 
@@ -642,18 +679,18 @@ overflow-y: scroll;
     margin-left: 346px;
     position: relative;
     display: flex;
-   
+
     /* background-color: lightcoral; */
     overflow-y: hidden;
     overflow-x: scroll;
-    
+
 }
 
-.night-mode.main {
+.workspace-content.night-mode .main {
     background-color: #242424;
 }
 
-.graph-container{
+.graph-container {
     height: 100vh;
     width: calc(100vw - 346px);
     /* padding-left: 346px; */
@@ -661,18 +698,19 @@ overflow-y: scroll;
     position: relative;
     display: flex;
     /* background-color: #bfbfbf; */
-   
+
     /* background-color: lightcoral; */
     overflow-y: hidden;
     overflow-x: scroll;
     /* border: 1px solid red; */
 }
-.night-mode.graph-container {
+
+.workspace-content.night-mode .graph-container {
     background-color: #242424;
 }
 
 
-.graph-div{
+.graph-div {
     /* border: 1px solid red; */
     width: 100%;
 }
@@ -685,74 +723,91 @@ overflow-y: scroll;
 
 .node-pointer {
     cursor: pointer;
-  }
+}
 
 .force-graph-container .graph-tooltip {
     color: rgb(47, 46, 48) !important;
     background-color: transparent !important;
     visibility: visible !important;
-  }
+}
 
-.opened-results{
+.opened-results {
     min-width: 300px;
     max-width: 300px;
     padding: 16px;
     border-right: 1px solid rgb(223, 214, 214);
     /* margin-left: 16px; */
-
 }
 
-.view-panel-title{
+.homepage-opened-file {
+    min-width: 300px;
+    max-width: 300px;
+    padding: 16px;
+}
+
+.view-panel-title {
     display: flex;
     justify-content: space-between;
     /* align-items: center; */
 }
 
-.view-panel-title h4{
+.view-panel-title h4 {
     margin: 0;
     width: 84%;
     font-size: 20px;
 }
 
-.view-panel-title-icons img{
+.view-panel-title-icons img {
     width: 13px;
     margin-left: 8px;
     cursor: pointer;
 }
 
-.link-collapse-icon{
+.link-collapse-icon {
     width: 16px;
     margin-left: 8px;
     cursor: pointer;
 }
 
-.opened-result-detail{
+.opened-result-detail {
     margin-top: 20px;
     overflow-y: scroll;
     width: 100%;
     height: calc(100vh - 80px);
 
 }
-.opened-result-detail h1{
+
+.opened-result-detail h1 {
     font-size: 2.2rem;
 }
-.opened-result-detail h2{
+
+.opened-result-detail h2 {
     font-size: 2.0rem;
 }
-.opened-result-detail h3{
-    font-size: 1.7rem ;
-}
-.opened-result-detail h4{
-    font-size: 1.5rem ;
+
+.opened-result-detail h3 {
+    font-size: 1.7rem;
 }
 
-.highlighted-heading{
-    color: black;
-    animation: blink .8s 1 ;
+.opened-result-detail h4 {
+    font-size: 1.5rem;
 }
+
+.highlighted-heading {
+    color: black;
+    animation: blink .8s 1;
+}
+
 @keyframes blink {
-    0% , 100%{transform: scale(1);}
-    50%{transform: scale(0.9);}  
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.9);
+    }
 }
 
 /* .highlighted-heading{
@@ -771,15 +826,17 @@ overflow-y: scroll;
     transition: all 5s ease;}   
 } */
 
-.node-click-options{
+.node-click-options {
     width: 60px;
     height: 25px;
 }
+
 .node-remove-icon,
 .node-text-icon,
-.node-wander-icon{
+.node-wander-icon {
     width: 17px;
     cursor: pointer;
+    margin-right: 1px;
 }
 
 
@@ -895,8 +952,19 @@ overflow-y: scroll;
     margin: 0px;
 }
 
-.signup-logo{
+.signup-logo {
     margin-top: 30px;
     width: 60px;
 }
 
+.page-loading {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.forget-password-container {
+    margin-top: 20px;
+}

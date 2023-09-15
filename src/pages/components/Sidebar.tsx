@@ -7,8 +7,10 @@ import * as d3 from "d3";
 import router from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
-import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import axios from "axios";
+import { Slider } from "@mui/material";
+import * as Helpers from '../../util/Helpers'
+import Link from "next/link";
 
 const Sidebar = () => {
   interface FileData {
@@ -59,6 +61,7 @@ const Sidebar = () => {
   const [filesData, setFilesData] = useState([]);
   const [filtersFileData, setFiltersFileData] = useState<FileData[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [graphSearchValue, setGraphSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
@@ -67,7 +70,7 @@ const Sidebar = () => {
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
   const [isCopied, setIsCopied] = useState(false);
-  const [filtersData, setFiltersData] = useState([]);
+  const [filtersData, setFiltersData] = useState<any>([]);
   const [graphData, setGraphData] = useState([]);
   const [graphDimension, setGraphDimension] = useState({
     width: 0,
@@ -76,17 +79,20 @@ const Sidebar = () => {
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>({});
+  const [textColorForNode , setTextColorForNode] = useState('black')
+  const [sliderValue, setSliderValue] = useState(-40)
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
-  console.log("openedResults: ", openedResults);
+  // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
   // console.log("searchValue: ", searchValue);
-  console.log("fileopenedfromgraph", fileOpenedFromGraph);
+  // console.log("fileopenedfromgraph", fileOpenedFromGraph);
+  // console.log("graphNodeOpened", graphNodeOpened);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -104,7 +110,7 @@ const Sidebar = () => {
             };
           });
 
-          setFiltersData(modifiedData);
+          // setFiltersData(modifiedData);
 
           // remove .md extension from Filenames
           data = data.map((item: any) => {
@@ -114,6 +120,18 @@ const Sidebar = () => {
               fileName: fileNameWithoutExtension,
             };
           });
+          marked.setOptions({
+            breaks: true,
+            headerIds: false,
+            mangle: false
+          });
+          console.log('data' , data)
+          let homepageFile = _.cloneDeep(data); // Deep clone the array
+
+          homepageFile[0].content = marked(homepageFile[0].content);
+
+          setFiltersData(homepageFile)
+
 
           // separating data and filters file
           const filtersFile = data.filter(
@@ -160,10 +178,10 @@ const Sidebar = () => {
         console.error("Error fetching files data:", error);
       }
     };
-    const showToast = router.query.dashboard === "true";
+    // const showToast = router.query.dashboard === "true";
 
     // If the showToast parameter is present, display the toast
-    if (showToast) {
+    // if (showToast) {
       toast("Login success", {
         position: "top-right",
         autoClose: 1500,
@@ -175,14 +193,30 @@ const Sidebar = () => {
         type: "success",
         theme: "light",
       });
-    }
+    // }
     fetchFilesData();
   }, []);
 
+  useEffect(()=> {
+    const syntheticEvent = {
+      target: { value: graphSearchValue },
+    };
+    if(graphSearchValue.length > 0){
+      handleGraphSearch(syntheticEvent)
+    }
+    else {
+      sliderNewGraph()
+    }
+
+
+  }, [sliderValue])
+
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
+    // console.log("input value: ", inputValue);
 
     setSearchValue(inputValue);
+    setGraphSearchValue(inputValue)
 
     let wordToSearch: any;
 
@@ -481,16 +515,23 @@ const Sidebar = () => {
   function handleThemeChangerClick() {
     console.log("themeChangerIcon: ", themeChangericon);
     setThemeChangerIcon(!themeChangericon);
-    const sideNav = document.querySelector(`.${"side-nav"}`);
-    const mainPanel = document.querySelector(`.${"main"}`);
-    const graphPanel = document.querySelector(`.${"graph-container"}`);
-    if (sideNav && mainPanel) {
-      sideNav.classList.toggle("night-mode");
-      mainPanel.classList.toggle("night-mode");
-    } else if (sideNav && graphPanel) {
-      sideNav.classList.toggle("night-mode");
-      graphPanel.classList.toggle("night-mode");
+    const sideNav:any = document.querySelector(`.${"side-nav"}`);
+    // const mainPanel = document.querySelector(`.${"main"}`);
+    const workspacePanel:any = document.querySelector(`.${"workspace-content"}`); 
+   
+    sideNav.classList.toggle("night-mode");
+    // mainPanel.classList.toggle("night-mode");
+  
+    // sideNav.classList.toggle("night-mode");
+    workspacePanel.classList.toggle("night-mode");
+
+    if(themeChangericon){
+      setTextColorForNode('white')
+    } else {
+      setTextColorForNode('black')
     }
+      
+   
   }
 
   const handleCheckboxClick = (category: any, id: any) => {
@@ -549,6 +590,7 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
+      handleGraphSearch(syntheticEvent)
     } else if (valueToCheck === "exclude") {
       const valueToAdd = valueToInclude;
       let updatedValue = currentValue;
@@ -572,6 +614,7 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
+      handleGraphSearch(syntheticEvent)
     } else {
       const valueToRemove = valueToInclude;
       const regex = new RegExp(`\\s*-?${valueToRemove}\\s*`, "gi");
@@ -580,6 +623,7 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
+      handleGraphSearch(syntheticEvent)
     }
     setAllCheckboxes(updatedCheckboxes);
   };
@@ -630,9 +674,6 @@ const Sidebar = () => {
             });
 
             // Now you can use wordsArray safely
-          } else {
-            // Handle the case where underlinedWords is null or undefined
-            console.log("underlinedWords is null or undefined");
           }
           // console.log("wordsArray: ", wordsArray);
           axios
@@ -659,13 +700,12 @@ const Sidebar = () => {
                   links.push({ source: nodeId, target: word.name, value: 1 });
                 });
               }
-              console.log("finalCount", finalCount);
-              console.log("count", count);
+              // console.log("finalCount", finalCount);
+              // console.log("count", count);
               if (finalCount == count) {
-                const resultData = { nodes, links };
-                let graphNewData = resultData;
-                console.log("graphNewData: ", graphNewData);
-                makeGraph(graphNewData);
+                const resultData: any = { nodes, links };
+                setGraphData(resultData);
+                makeGraph(resultData);
                 // console.log("match count");
               }
             })
@@ -739,12 +779,21 @@ const Sidebar = () => {
           const underlinedWords = result.content.match(
             /<span[^>]*>(.*?)<\/span>/g
           );
-          const wordsArray = underlinedWords.map((span: any) => {
-            // Use a regular expression to extract the text content between the <span> tags
-            const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-            // Check if a match was found and return the extracted text, or an empty string if not
-            return match ? match[1] : "";
-          });
+          console.log("underlinedWords", underlinedWords);
+          let wordsArray
+          if(underlinedWords){
+            wordsArray = underlinedWords.map((span: any) => {
+              // Use a regular expression to extract the text content between the <span> tags
+              const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+              // Check if a match was found and return the extracted text, or an empty string if not
+              return match ? match[1] : "";
+            });
+          } else if (underlinedWords === null) {
+            wordsArray = [result.fileName];
+  
+            // Handle the case where underlinedWords is null or undefined
+          }
+          
           // console.log("wordsArray: ", wordsArray);
 
           try {
@@ -764,25 +813,27 @@ const Sidebar = () => {
                 };
               });
               // let nodeArray = [];
-              // console.log("linkTags", linkTags);
+              console.log("linkTags", linkTags);
               linkTags.forEach((word: any) => {
-                // Remove HTML tags from underlined word
-                // console.log("word", word);
-                if (!nodeExists(word.name)) {
+                const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
+                if (existingNodeIndex !== -1) {
+                  // Node already exists, update its tag
+                  nodes[existingNodeIndex].tag = word.category;
+                } else {
+                  // Node doesn't exist, create a new one
                   nodes.push({ id: word.name, tag: word.category });
-                  console.log("nodes:", nodes);
                 }
-                // console.log("nodes", nodes);
                 // Create a link between fileName and underlined word
                 links.push({ source: nodeId, target: word.name, value: 1 });
               });
             }
-            console.log("finalCount", finalCount);
-            console.log("count", count);
+            // console.log("finalCount", finalCount);
+            // console.log("count", count);
             if (finalCount == count) {
-              const resultData = { nodes, links };
-              let graphNewData = resultData;
-              makeGraph(graphNewData);
+              const resultData: any = { nodes, links };
+              // let graphNewData = resultData;
+              setGraphData(resultData);
+              makeGraph(resultData);
               // console.log("match count");
             }
           } catch (error) {
@@ -800,8 +851,15 @@ const Sidebar = () => {
       setShouldShowFilters(true);
     }
   };
+
   const makeGraph = (graphNewData: any) => {
     let element: any = document.getElementById("graph-div");
+
+    if (element) {
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+    }
 
     // Calculate the width and height
     let graphWidth = element.offsetWidth;
@@ -874,7 +932,7 @@ const Sidebar = () => {
       const simulation = d3
         .forceSimulation(customNodes)
         .force("link", forceLink)
-        .force("charge", forceNode)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
         .force("center", d3.forceCenter())
         .on("tick", ticked);
 
@@ -928,7 +986,7 @@ const Sidebar = () => {
 
       function handleNodeClick(event: any, d: any) {
         console.log(event, d);
-        setFileOpenedFromGraph(d.id);
+        setFileOpenedFromGraph(d);
         // Get the div element and set its content based on the clicked node
         const nodeInfoDiv: any = document.getElementById("nodeInfo");
         // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
@@ -985,8 +1043,9 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "5px") // Adjust the font size based on your preference
-        .text((d) => d.id);
+        .style("font-size", "7px") // Adjust the font size based on your preference
+        .text((d) => d.id)
+        .attr('fill' , textColorForNode);
 
       const nodeTitles = container
         .append("g")
@@ -1032,62 +1091,6 @@ const Sidebar = () => {
         nodeTitles.text((d) => d.id);
       }
 
-      // function handleMouseOver(event, d) {
-      //   // Find neighbors of the hovered node based on links
-      //   // const neighbors = links
-      //   //   .filter((link) => link.source === d || link.target === d)
-      //   //   .map((link) => (link.source === d ? link.target : link.source));
-
-      //   // // Add the hovered node and its neighbors to the array
-      //   // hoveredNodes = [d.id, ...neighbors.map((neighbor) => neighbor.id)];
-
-      //   d3.select(this)
-      //     .attr("fill", "red") // Change to your desired color
-      //     .attr("r", nodeRadius) // Optionally, increase the node size
-      //     .transition()
-      //     .duration(400); // Transition duration in milliseconds
-
-      //   // Change the color of the links directly connected to the hovered node
-      //   link
-      //     .transition()
-      //     .duration(400)
-      //     .attr("stroke", (linkData) => {
-      //       if (linkData.source === d || linkData.target === d) {
-      //         return linkStroke; // Change to your desired link color
-      //       } else {
-      //         return linkStroke;
-      //       }
-      //     });
-
-      //   // Reduce the opacity of nodes that are not directly connected
-      //   node
-      //     .transition()
-      //     .duration(600)
-      //     .attr("fill-opacity", (nodeData) => {
-      //       if (nodeData === d) {
-      //         return 1; // Opacity of the hovered node
-      //       } else if (areNodesConnected(nodeData, d)) {
-      //         return 1; // Opacity of directly connected nodes
-      //       } else {
-      //         return 0.1; // Opacity of other nodes
-      //       }
-      //     });
-
-      //   // Reduce the opacity of links that are not directly connected
-      //   link
-      //     .transition()
-      //     .duration(600)
-      //     .attr("stroke-opacity", (linkData) => {
-      //       if (linkData.source === d || linkData.target === d) {
-      //         return 1; // Opacity of links directly connected to the hovered node
-      //       } else {
-      //         return 0; // Opacity of other links
-      //       }
-      //     });
-
-      //   console.log("Hovered Nodes:", hoveredNodes);
-      // }
-
       function handleMouseOver(this: any, event: any, d: any) {
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
@@ -1107,15 +1110,7 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Initialize the nodes with their original fill color and opacity
-        node
-          // .attr("fill", (nodeData) => {
-          //   if (nodeData === d) {
-          //     return "red"; // Original node color
-          //   } else {
-          //     return nodeFill;
-          //   }
-          // })
-          .attr("fill-opacity", (nodeData) => {
+        node.attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
             } else if (areNodesConnected(nodeData, d)) {
@@ -1243,25 +1238,16 @@ const Sidebar = () => {
       width: graphWidth,
       height: graphHeight,
     };
-    console.log("graphNewData: ", graphNewData);
+    // console.log("graphData: ", graphData);
+    // console.log("graphNewData", graphNewData);
 
     let svgResult: any = ForceGraph(graphNewData, options);
-    // console.log("svgResult", svgResult);
 
     const graphDiv = document.getElementById("graph-div");
 
     if (graphDiv) {
       graphDiv.appendChild(svgResult.svg);
     }
-  };
-
-  const removeSearchResult = (resultToRemove: any) => {
-    // console.log("search Results: ", searchResults, resultToRemove);
-    const newResult = searchResults.filter(
-      (result) => result.fileName !== resultToRemove.fileName
-    );
-    // console.log("newResult:  ", newResult);
-    setSearchResults(newResult);
   };
 
   const openSearchResult = (resultToOpen: any) => {
@@ -1329,20 +1315,19 @@ const Sidebar = () => {
                 div.classList.remove("highlighted-heading");
               }, 1500);
             }
-
-            // const openedResultsDivs =
-            //   document.querySelectorAll(".opened-results");
-
-            // openedResultsDivs.forEach((div:any) => {
-            //   const h4Element = div.querySelector("h4");
-            //   if (h4Element && h4Element.textContent === "taimoor") {
-            //     div.classList.add("your-desired-class");
-            //   }
-            // });
           });
         });
       }, 10);
     }
+  };
+
+  const removeSearchResult = (resultToRemove: any) => {
+    // console.log("search Results: ", searchResults, resultToRemove);
+    const newResult = searchResults.filter(
+      (result) => result.fileName !== resultToRemove.fileName
+    );
+    // console.log("newResult:  ", newResult);
+    setSearchResults(newResult);
   };
 
   const collapseOpenedResult = (resultToCollapse: any) => {
@@ -1354,15 +1339,19 @@ const Sidebar = () => {
   };
 
   const removeBothSearchResults = (resultToRemove: any) => {
-    console.log("resultToRemove", resultToRemove);
+    // console.log("resultToRemove", resultToRemove);
     collapseOpenedResult(resultToRemove);
     removeSearchResult(resultToRemove);
-    console.log("searchValue: ", searchValue);
+    // console.log("searchValue: ", searchValue);
 
     const updatedSearchValue = `${searchValue} -"${resultToRemove.fileName}"`;
 
-    console.log("updatedSearchValue", updatedSearchValue);
+    // console.log("updatedSearchValue", updatedSearchValue);
     setSearchValue(updatedSearchValue);
+    const syntheticEvent = {
+      target: { value: updatedSearchValue },
+    };
+    handleSearch(syntheticEvent);
   };
 
   const handleLinkClick = async (
@@ -1498,7 +1487,7 @@ const Sidebar = () => {
   const showNodeClickedFile = async () => {
     console.log("fileOpenedFromGraph", fileOpenedFromGraph);
     const matchingResult: any = openedResults.find(
-      (result: any) => result.fileName === fileOpenedFromGraph
+      (result: any) => result.fileName === fileOpenedFromGraph.id
     );
 
     if (matchingResult) {
@@ -1506,11 +1495,10 @@ const Sidebar = () => {
       setGraphNodeOpened(matchingResult);
     } else {
       try {
-        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph}`);
+        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
         const newDataObject = await response.json();
         // console.log("responseJson: ", responseJson);
 
-        console.log("newDataObject", newDataObject);
         marked.setOptions({
           breaks: true,
         });
@@ -1520,91 +1508,21 @@ const Sidebar = () => {
           newDataObject.content
         );
 
+        const regex = /\[\[([^[\]]+)\]\]/g;
+        const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+        newDataObject.content = newDataObject.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+
+        newDataObject.content = newDataObject.content.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        );
+        console.log("newDataObject", newDataObject);
+
         setGraphNodeOpened(newDataObject);
-
-        // const regex = /\[\[([^[\]]+)\]\]/g;
-        // const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
-        // if (newDataObject) {
-        //   // console.log("newDataObject", newDataObject);
-        //   const contentWithoutHashtags = newDataObject.content.replace(
-        //     hashtagParagraphRegex,
-        //     ""
-        //   );
-        //   const contentWithStyledWords = contentWithoutHashtags.replace(
-        //     regex,
-        //     (match: any, word: any) =>
-        //       `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-        //   );
-        //   // console.log("contentwithstyledword", contentWithStyledWords);
-
-        //   const index = openedResults.findIndex(
-        //     (item: any) => item.fileName === linkClickedFromFile
-        //   );
-        //   if (index !== -1) {
-        //     const updatedResults = {
-        //       ...newDataObject,
-        //       content: contentWithStyledWords,
-        //       openedFromResults: false,
-        //     };
-
-        //     const doesExist = openedResults.some(
-        //       (result) => result.fileName === updatedResults.fileName
-        //     );
-
-        //     if (!doesExist) {
-        //       // Create a copy of the openedResults array
-        //       const updatedOpenedResults = [...openedResults];
-
-        //       // Insert the updatedResults object at index + 1
-        //       updatedOpenedResults.splice(index + 1, 0, updatedResults);
-
-        //       // console.log("updatedOpenedResults", updatedOpenedResults);
-
-        //       // Update the state with the new array
-        //       setOpenedResults(updatedOpenedResults);
-        //     } else {
-        //       const resultsWithRemovedLink = openedResults.filter(
-        //         (item: any) => item.fileName !== updatedResults.fileName
-        //       );
-        //       const index = resultsWithRemovedLink.findIndex(
-        //         (item: any) => item.fileName === linkClickedFromFile
-        //       );
-
-        //       const updatedOpenedResults = [...resultsWithRemovedLink];
-
-        //       // Insert the updatedResults object at index + 1
-        //       updatedOpenedResults.splice(index + 1, 0, updatedResults);
-
-        //       // Update the state with the new array
-        //       setOpenedResults(updatedOpenedResults);
-        //     }
-
-        //     // scroll to where the file is opened
-        //     setTimeout(() => {
-        //       const divElements =
-        //         document.querySelectorAll(".view-panel-title");
-        //       // console.log("divElement", divElements);
-        //       divElements.forEach((div: any) => {
-        //         const h4Elements = div.querySelectorAll("h4");
-        //         // console.log("h4", h4Elements);
-        //         h4Elements.forEach((h4: any) => {
-        //           if (h4.textContent === linkClicked.toUpperCase()) {
-        //             // console.log("h4", h4);
-        //             h4.classList.add("highlighted-heading");
-        //             h4.scrollIntoView({
-        //               behavior: "smooth",
-        //               block: "start",
-        //               inline: "center",
-        //             });
-        //             setTimeout(() => {
-        //               h4.classList.remove("highlighted-heading");
-        //             }, 3000);
-        //           }
-        //         });
-        //       });
-        //     }, 10);
-        //   }
-        // }
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -1616,6 +1534,1064 @@ const Sidebar = () => {
     sethideFiltersForPreview(true);
     setGraphNodeOpened([]);
   };
+
+  const removeClickedNode = (event: any) => {
+    console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    // console.log("graphData: ", graphData);
+    console.log("openedResults", openedResults);
+
+    // removeing nodes
+    // Usage:
+    const updatedGraphData = removeNodeAndConnected(
+      graphData,
+      fileOpenedFromGraph.id
+    );
+    // console.log("updatedGraphData", updatedGraphData);
+    // console.log("graphData: ", graphData);
+    makeGraph(updatedGraphData);
+
+    console.log({ fileName: fileOpenedFromGraph.id });
+
+    removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
+
+    // const updatedOpenedResults = openedResults.filter(
+    //   (result) => result.fileName !== fileOpenedFromGraph
+    // );
+
+    // // Update the state with the new openedResults
+    // setOpenedResults(updatedOpenedResults);
+  };
+
+  const removeNodeAndConnected = (graphData: any, nodeId: any) => {
+    // Create a copy of the graphData object
+    const updatedGraphData = { ...graphData };
+    // console.log("updatedGraphData", updatedGraphData);
+
+    // Find the index of the node to remove
+    const nodeIndexToRemove = updatedGraphData.nodes.findIndex(
+      (node: any) => node.id === nodeId
+    );
+    // console.log("nodeIndexToRemove", nodeIndexToRemove);
+
+    if (nodeIndexToRemove !== -1) {
+      // Get the ID of the node to be removed
+      const nodeToRemove = updatedGraphData.nodes[nodeIndexToRemove].id;
+      // console.log("nodeToRemove", nodeToRemove);
+
+      // Find links connected to the node to remove
+      const connectedLinks = updatedGraphData.links.filter(
+        (link: any) =>
+          link.source === nodeToRemove || link.target === nodeToRemove
+      );
+
+      // console.log("connectedLinks", connectedLinks);
+
+      // // Remove the node and connected links from the graphData object
+      updatedGraphData.nodes.splice(nodeIndexToRemove, 1);
+      // console.log("updatedGraphData", updatedGraphData);
+
+      // // Create a set to keep track of nodes that should not be removed
+      const nodesToKeep = new Set();
+
+      // // Iterate over connected links
+      connectedLinks.forEach((link: any) => {
+        // Check if the connected nodes are not connected to any other nodes
+        const sourceLinks = updatedGraphData.links.filter(
+          (l: any) => l.source === link.source
+        );
+        const targetLinks = updatedGraphData.links.filter(
+          (l: any) => l.target === link.target
+        );
+
+        // Check if the source node is not connected to any other nodes
+        if (sourceLinks.length === 1) {
+          nodesToKeep.add(link.source);
+        }
+
+        // Check if the target node is not connected to any other nodes
+        if (targetLinks.length === 1) {
+          nodesToKeep.add(link.target);
+        }
+      });
+      const nodesToKeepUpdate = updatedGraphData.nodes.filter(
+        (node: any) => !nodesToKeep.has(node.id)
+      );
+
+      // console.log("nodesToKeep", nodesToKeepUpdate);
+      updatedGraphData.links = updatedGraphData.links.filter(
+        (link: any) => link.source !== nodeId && link.target !== nodeId
+      );
+      updatedGraphData.nodes = nodesToKeepUpdate;
+      // console.log("updatedGraphData", updatedGraphData);
+
+      // // Remove nodes that are not in the nodesToKeep set
+      // updatedGraphData.nodes = updatedGraphData.nodes.filter((node) =>
+      //   nodesToKeep.has(node.id)
+      // );
+    }
+    setGraphData(updatedGraphData);
+
+    return updatedGraphData;
+  };
+
+  const previewNodeLink = (node: any) => {
+    console.log("link to preview", node);
+    axios
+      .post(`/api/linkFile?q=${node}`)
+      .then((res) => {
+        console.log("res", res.data);
+        const newDataObject = res.data;
+
+        marked.setOptions({
+          breaks: true,
+        });
+
+        newDataObject.content = marked(newDataObject.content);
+        newDataObject.contentWithRemovedBrackets = marked(
+          newDataObject.content
+        );
+
+        const regex = /\[\[([^[\]]+)\]\]/g;
+        const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+        newDataObject.content = newDataObject.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+
+        newDataObject.content = newDataObject.content.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        );
+        console.log("newDataObject", newDataObject);
+
+        setGraphNodeOpened(newDataObject);
+      })
+      .catch((err) => {
+        console.log("err=", err);
+      });
+  };
+
+  const wanderClickedNode = () => {
+    console.log("node clicked: ", fileOpenedFromGraph);
+    console.log("openedResult: ", openedResults);
+    const updatedGraphData: any = { ...graphData };
+    const matchingResult = openedResults.find(
+      (result) => result.fileName === fileOpenedFromGraph.id
+    );
+    const nodeExists = (id: any) => {
+      return updatedGraphData.nodes.some((node: any) => node.id === id);
+    };
+
+    if (matchingResult && fileOpenedFromGraph.tag === '#sandwich') {
+      console.log("Matching result found:", matchingResult);
+      console.log("updatedGraphData: ", updatedGraphData);
+      const underlinedWords: any = matchingResult.content.match(
+        /<span[^>]*>(.*?)<\/span>/g
+      );
+
+      let count = 0;
+      let finalCount = 1;
+      let wordsArray
+      if(underlinedWords){
+        wordsArray = underlinedWords.map((span: any) => {
+          // Use a regular expression to extract the text content between the <span> tags
+          const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+          // Check if a match was found and return the extracted text, or an empty string if not
+          return match ? match[1] : "";
+        });
+      } else if(underlinedWords === null){
+        wordsArray = [matchingResult.fileName];
+
+      }
+      
+
+      try {
+        // console.log("wordsArray", wordsArray);
+        axios
+          .post("/api/getTags?q=" + wordsArray.join(","))
+          .then((response) => {
+            count = count + 1;
+            // console.log("res", response);
+            // Handle the response data here
+
+            console.log("response: ", response.data);
+            const linkTags = Object.keys(response.data).map((key) => {
+              return {
+                name: key,
+                category: response.data[key],
+              };
+            });
+
+            // console.log("linkTags", linkTags);
+
+            const searchWords = (
+              searchValue.match(/(-?)"([^"]*)"|\S+/g) || []
+            ).map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
+            // console.log("searchWords", searchWords);
+
+            // Use filter to remove objects that match any word in searchWords with a hyphen
+            const filteredData = linkTags.filter((item: any) => {
+              return !searchWords.includes(`-${item.name}`);
+            });
+
+            filteredData.forEach((word: any) => {
+              // Remove HTML tags from underlined word
+              console.log("word", word);
+              if (!nodeExists(word.name)) {
+                updatedGraphData.nodes.push({
+                  id: word.name,
+                  tag: word.category,
+                });
+                openedResults.forEach((result) => {
+                  // Check if the name exists in the content
+                  if (result.content.includes(word.name)) {
+                    // Add a link to newLinks
+                    console.log(result, word);
+                    updatedGraphData.links.push({
+                      source: result.fileName,
+                      target: word.name,
+                      value: 1,
+                    });
+                  }
+                });
+                // console.log("nodes:", nodes);
+              }
+              // console.log("nodes", nodes);
+              // Create a link between fileName and underlined word
+            });
+
+            console.log("updatedGraphData: ", updatedGraphData);
+            if (finalCount == count) {
+              // let graphNewData = resultData;
+              setGraphData(updatedGraphData);
+              makeGraph(updatedGraphData);
+              // console.log("match count");
+            }
+          });
+        // console.log("finalCount", finalCount);
+        // console.log("count", count);
+      } catch (error) {
+        // Handle errors here
+        console.log("Error:", error);
+      }
+    } else {
+      console.log("No matching result found.");
+      axios.post(`/api/search?q=${fileOpenedFromGraph.id}`).then((response) => {
+        console.log("response:", response.data);
+        // console.log("searchValue", searchValue);
+        const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+          (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+        );
+        // console.log("searchWords", searchWords);
+
+        // Use filter to remove objects that match any word in searchWords with a hyphen
+        const filteredData = response.data.filter((item: any) => {
+          return !searchWords.includes(`-${item.fileName}`);
+        });
+        // console.log("filteredData", filteredData);
+        filteredData.forEach((result: any) => {
+          result.contentWithRemovedBrackets = marked(result.content);
+          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const nodeTag = match ? match[0] : null;
+          // console.log("nodeTag", nodeTag, result.fileName);
+
+          let count = 0;
+          let finalCount = 1;
+
+          // Check if fileName is not present in updatedGraphData.nodes
+          if (!nodeExists(result.fileName)) {
+            // Add fileName to nodes
+            // console.log("filename to add: ", result.fileName);
+            updatedGraphData.nodes.push({
+              id: result.fileName,
+              tag: nodeTag, // You may set the tag value if needed
+            });
+
+            // console.log("updatedGraphData: ", updatedGraphData);
+            // console.log(result.content);
+            const regex = /\[\[([^[\]]+)\]\]/g;
+            const styledContent = result.content.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+
+            const underlinedWords: any = styledContent.match(
+              /<span[^>]*>(.*?)<\/span>/g
+            );
+            let wordsArray
+            if (underlinedWords) {
+              wordsArray = underlinedWords.map((span: any) => {
+                // Use a regular expression to extract the text content between the <span> tags
+                const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+                // Check if a match was found and return the extracted text, or an empty string if not
+                return match ? match[1] : "";
+              });
+            } else if (underlinedWords === null){
+              wordsArray = [result.fileName]
+            }
+              // console.log("wordsArray: ", wordsArray);
+
+              try {
+                // console.log("wordsArray", wordsArray);
+                axios
+                  .post("/api/getTags?q=" + wordsArray.join(","))
+                  .then((response) => {
+                    // console.log("res", response);
+                    // Handle the response data here
+
+                    count = count + 1;
+                    const linkTags = Object.keys(response.data).map((key) => {
+                      return {
+                        name: key,
+                        category: response.data[key],
+                      };
+                    });
+                    // let nodeArray = [];
+                    // console.log("linkTags", linkTags);
+                    linkTags.forEach((word: any) => {
+                      // Remove HTML tags from underlined word
+                      // console.log("word", word);
+                      if (!nodeExists(word.name)) {
+                        updatedGraphData.nodes.push({
+                          id: word.name,
+                          tag: word.category,
+                        });
+                        // console.log("nodes:", nodes);
+                      }
+                      // console.log("nodes", nodes);
+                      // Create a link between fileName and underlined word
+                      updatedGraphData.links.push({
+                        source: result.fileName,
+                        target: word.name,
+                        value: 1,
+                      });
+                    });
+
+                    // console.log("finalCount", finalCount);
+                    // console.log("count", count);
+                    if (finalCount == count) {
+                      // let graphNewData = resultData;
+                      setGraphData(updatedGraphData);
+                      makeGraph(updatedGraphData);
+                      // console.log("match count");
+                    }
+                  });
+              } catch (error) {
+                // Handle errors here
+                console.log("Error:", error);
+              }
+          }
+        });
+        // console.log("response", response.data);
+        const updatedOpenedResults = [...openedResults];
+
+        // Iterate through response.data
+        filteredData.forEach((item: any) => {
+          // Check if the item's fileName is not already in openedResults and its content contains #sandwich
+          const isNotPresentInOpenedResults = !updatedOpenedResults.some(
+            (result) => result.fileName === item.fileName
+          );
+          const hasSandwichInContent = item.content.includes("#sandwich");
+
+          if (isNotPresentInOpenedResults && hasSandwichInContent) {
+            // Add the item to updatedOpenedResults
+            marked.setOptions({
+              breaks: true,
+            });
+
+            item.content = marked(item.content);
+            // console.log("markedContent", matchingFile);
+
+            const regex = /\[\[([^[\]]+)\]\]/g;
+            const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+
+            const contentWithoutHashtags = item.content.replace(
+              hashtagParagraphRegex,
+              ""
+            );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            const updatedResultToOpen = {
+              ...item,
+              content: contentWithStyledWords,
+              openedFromResults: true,
+            };
+
+            updatedOpenedResults.push(updatedResultToOpen);
+          }
+        });
+
+        // Update the openedResults state with the new array
+        setOpenedResults(updatedOpenedResults);
+
+        // console.log("Updated openedResults:", openedResults);
+      });
+    }
+  };
+
+  const handleGraphSearch = async (event: any) => {
+    // console.log("event", event.target.value);
+    const inputValue = event.target.value;
+    setGraphSearchValue(inputValue);
+    setSearchValue(inputValue)
+
+    let wordToSearch: any;
+
+    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
+      wordToSearch = inputValue.trim();
+      wordToSearch = wordToSearch.replace(/^\s+/, "");
+    } else {
+      wordToSearch = inputValue;
+    }
+
+    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
+
+    // Remove extra spaces within words
+    wordToSearch = wordToSearch.replace(/\s+/g, " ");
+
+    // Remove single '-' followed by a space
+    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
+
+    // Remove trailing '-' at the end of the search query
+    wordToSearch = wordToSearch.replace(/-$/g, "");
+
+    // Remove all spaces if the query consists only of spaces
+    if (/^\s*$/.test(wordToSearch)) {
+      wordToSearch = "";
+    }
+
+    // console.log("wordToSearch before split:", wordToSearch);
+
+    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    );
+    // console.log("words array: ", wordsArray);
+
+    //changing filter status for each word in search bar
+    wordsArray.forEach((word: any) => {
+      if (word.startsWith("-")) {
+        word = word.replace("-", "");
+        for (const category of allCheckboxes as any[]) {
+          for (const item of category.items) {
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              item.state = "checked";
+              item.status = "exclude";
+              console.log("item: ", item);
+
+              console.log(`Word: ${word}`);
+              console.log(`Category: ${categoryTitle}`);
+              console.log(`Item ID: ${itemId}`);
+            }
+          }
+        }
+      } else if (!word.startsWith("-")) {
+        for (const category of allCheckboxes as any[]) {
+          for (const item of category.items) {
+            // console.log("item: ", item);
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              item.state = "checked";
+              item.status = "include";
+            }
+          }
+        }
+      }
+      for (const category of allCheckboxes as any[]) {
+        for (const item of category.items) {
+          const lowerItemValue = item.value.toLowerCase();
+          const lowerWordsArray = wordsArray.map((word: any) =>
+            word.toLowerCase()
+          );
+
+          if (
+            !lowerWordsArray.includes(lowerItemValue) &&
+            !lowerWordsArray.includes(`-${lowerItemValue}`)
+          ) {
+            item.state = "unchecked";
+            item.status = "neutral";
+          }
+        }
+      }
+    });
+
+    const resultCalculateWithOR: any = [];
+    let currentPair = [];
+    const wordsToSearch = [];
+    const wordsToExclude: any[] = [];
+    const orGateWord: any[] = [];
+
+    for (const word of wordsArray) {
+      if (word === "OR") {
+        if (currentPair.length > 0) {
+          resultCalculateWithOR.push([...currentPair]);
+        }
+        currentPair = [];
+      } else {
+        currentPair.push(word);
+      }
+    }
+    if (currentPair.length > 0) {
+      resultCalculateWithOR.push(currentPair);
+    }
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      if (word.startsWith("-")) {
+        const wordToExclude = word.substring(1);
+        wordsToExclude.push(wordToExclude);
+      } else if (word === "OR" || word === "or") {
+        if (word === "OR") {
+          if (i > 0) {
+            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
+          }
+          orGateWord.push("OR"); // Capture "OR"
+          if (i < wordsArray.length - 1) {
+            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
+          }
+        }
+      } else {
+        wordsToSearch.push(word);
+      }
+    }
+
+    wordToSearch = wordsToSearch;
+
+    // console.log("word to search", wordToSearch);
+
+    const options: FzfOptions<File> = {
+      selector: (item: any) => `${item.fileName} (${item.content})`,
+      casing: "case-insensitive",
+      fuzzy: false,
+    };
+    const fzf: any = new Fzf<File[]>(filesData, options);
+
+    let entries: any = []; // Initialize the array to store results
+
+    for (const word of wordToSearch) {
+      const newResults = fzf.find(word); // Perform search for the current word
+      entries = entries.concat(newResults); // Add new results to the entries array
+    }
+
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+    try {
+      const encodedWords = encodeURIComponent(wordsArray.join(","));
+      const response = await fetch(`/api/search?q=${encodedWords}`);
+      responseJson = await response.json();
+      // console.log("responseJson: ", responseJson);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+
+    newEntries = responseJson;
+
+    removeBrackets(newEntries, wordToSearch);
+
+    highlightSearchWord(newEntries, wordToSearch);
+
+    newEntries = newEntries
+      .slice()
+      .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+    // console.log("newEntries: ", newEntries);
+
+    setSearchResults(newEntries);
+    generateGraphfromSearch(newEntries);
+  };
+
+  const generateGraphfromSearch = (searchResultsForGraph: any) => {
+    // console.log("search results: ", searchResultsForGraph);
+    if (!graphOrTextView && searchResultsForGraph.length>0) {
+      setShouldShowFilters(false);
+
+      const nodes: any = [];
+      const links: any = [];
+      let count = 0;
+      let finalCount = 0;
+      const nodeExists = (id: any) => {
+        return nodes.some((node: any) => node.id === id);
+      };
+
+      // Iterate through each object
+      // if (openedResults.length > 0) {
+      //   console.log("hellllllo");
+      //   // If files are open in workspace
+      //   finalCount = openedResults.length;
+      //   openedResults.forEach((result) => {
+      //     // Create a node for the fileName
+      //     const nodeId = result.fileName;
+      //     // console.log("result", result);
+      //     const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+      //     const nodeTag = match ? match[1] : null;
+      //     if (!nodeExists(nodeId)) {
+      //       nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+      //     }
+
+      //     // Parse the content to extract underlined words
+      //     const underlinedWords: any = result.content.match(
+      //       /<span[^>]*>(.*?)<\/span>/g
+      //     );
+      //     // console.log("underlinedWords", underlinedWords);
+      //     let wordsArray: any = [];
+      //     if (underlinedWords && Array.isArray(underlinedWords)) {
+      //       wordsArray = underlinedWords.map((span: any) => {
+      //         // Use a regular expression to extract the text content between the <span> tags
+      //         const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+      //         // Check if a match was found and return the extracted text, or an empty string if not
+      //         return match ? match[1] : "";
+      //       });
+
+      //       // Now you can use wordsArray safely
+      //     } else {
+      //       // Handle the case where underlinedWords is null or undefined
+      //       console.log("underlinedWords is null or undefined");
+      //     }
+      //     // console.log("wordsArray: ", wordsArray);
+      //     axios
+      //       .post("/api/getTags?q=" + wordsArray.join(","))
+      //       .then((res) => {
+      //         // console.log(res.data);
+      //         count = count + 1;
+      //         const linkTags = Object.keys(res.data).map((key) => {
+      //           return {
+      //             name: key,
+      //             category: res.data[key],
+      //           };
+      //         });
+      //         if (res) {
+      //           // console.log("linkTags", linkTags);
+      //           linkTags.forEach((word: any) => {
+      //             // Remove HTML tags from underlined word
+      //             // console.log("word", word);
+      //             if (!nodeExists(word.name)) {
+      //               nodes.push({ id: word.name, group: 2, tag: word.category });
+      //             }
+
+      //             // Create a link between fileName and underlined word
+      //             links.push({ source: nodeId, target: word.name, value: 1 });
+      //           });
+      //         }
+      //         // console.log("finalCount", finalCount);
+      //         // console.log("count", count);
+      //         if (finalCount == count) {
+      //           const resultData: any = { nodes, links };
+      //           setGraphData(resultData);
+      //           makeGraph(resultData);
+      //           // console.log("match count");
+      //         }
+      //       })
+      //       .catch((err) => {
+      //         console.log("err=", err);
+      //       });
+      //   });
+      // }
+
+      // If files are not open in workspace
+      // console.log("search Results now", searchResultsForGraph);
+
+      // const updatedOpenedResults: any = openedResults.slice();
+
+      searchResultsForGraph.forEach((result: any) => {
+        let matchingFile: any = result;
+        marked.setOptions({
+          breaks: true,
+        });
+
+        matchingFile.content = marked(matchingFile.content);
+        // console.log("markedContent", matchingFile);
+
+        const regex = /\[\[([^[\]]+)\]\]/g;
+        const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+        if (matchingFile) {
+          const contentWithoutHashtags = matchingFile.content.replace(
+            hashtagParagraphRegex,
+            ""
+          );
+          // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+          const contentWithStyledWords = contentWithoutHashtags.replace(
+            regex,
+            (match: any, word: any) =>
+              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+          );
+          // console.log("contentwithstyledwords", contentWithStyledWords);
+
+          const updatedResultToOpen = {
+            ...result,
+            content: contentWithStyledWords,
+            openedFromResults: true,
+          };
+
+          // const doesExist = openedResults.some(
+          //   (result) => result.fileName === updatedResultToOpen.fileName
+          // );
+          const doesExist = searchResultsForGraph.some(
+            (item: any, index: any) => {
+              if (item.fileName === updatedResultToOpen.fileName) {
+                searchResultsForGraph[index] = updatedResultToOpen; // Replace the existing object
+                return true; // Set doesExist to true
+              }
+              return false; // Continue searching
+            }
+          );
+
+          if (!doesExist) {
+            searchResultsForGraph.push(updatedResultToOpen); // Add the updated object to the copy
+          }
+        }
+      });
+      finalCount = searchResultsForGraph.length;
+      // console.log("updatedOpenedResults: ", searchResultsForGraph);
+      searchResultsForGraph.forEach(async (result: any) => {
+        // Create a node for the fileName
+        const nodeId = result.fileName;
+        const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+        const nodeTag = match ? match[0] : null;
+        if (!nodeExists(nodeId)) {
+          nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+        }
+
+        // Parse the content to extract underlined words
+        const underlinedWords = result.content.match(
+          /<span[^>]*>(.*?)<\/span>/g
+        );
+        // console.log("underlinedWords", underlinedWords);
+        let wordsArray;
+
+        if (underlinedWords) {
+          wordsArray = underlinedWords.map((span: any) => {
+            // Use a regular expression to extract the text content between the <span> tags
+            const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+            // Check if a match was found and return the extracted text, or an empty string if not
+            return match ? match[1] : "";
+          });
+          // Now you can use wordsArray
+        } else if (underlinedWords === null) {
+          wordsArray = [result.fileName];
+
+          // Handle the case where underlinedWords is null or undefined
+        }
+
+        // console.log("wordsArray: ", wordsArray);
+
+        try {
+          // console.log("wordsArray", wordsArray);
+          const response = await axios.post(
+            "/api/getTags?q=" + wordsArray.join(",")
+          );
+          // console.log("res", response);
+          // Handle the response data here
+
+          if (response) {
+            // console.log("response.data----------", response.data);
+            count = count + 1;
+            const linkTags = Object.keys(response.data).map((key) => {
+              return {
+                name: key,
+                category: response.data[key],
+              };
+            });
+            let nodeArray = [];
+            const filteredLinkTags = linkTags.filter((word) =>
+              searchResultsForGraph.some(
+                (result: any) => result.fileName === word.name
+              )
+            );
+            // console.log("linkTags", linkTags);
+            filteredLinkTags.forEach((word: any) => {
+              // Remove HTML tags from underlined word
+              // console.log("word", word);
+              const existingNode = nodes.find(
+                (node: any) => node.id === word.name
+              );
+              if (existingNode) {
+                existingNode.tag = word.category; // Update the tag of the existing node
+              } else {
+                // Node doesn't exist, create a new one
+                nodes.push({ id: word.name, tag: word.category });
+              }
+              // Create a link between fileName and underlined word
+              links.push({ source: nodeId, target: word.name, value: 1 });
+            });
+          }
+          // console.log("finalCount", finalCount);
+          // console.log("count", count);
+
+          // console.log("count", count);
+          if (finalCount == count) {
+            const resultData: any = { nodes, links };
+            // console.log('resultData: ' , resultData)
+            // let graphNewData = resultData;
+            setGraphData(resultData);
+            makeGraph(resultData);
+            // console.log("match count");
+          }
+        } catch (error) {
+          // Handle errors here
+          console.log("Error:", error);
+        }
+      });
+      // console.log('searchresultsforgraph: ' , searchResultsForGraph)
+      setOpenedResults(searchResultsForGraph);
+
+    } else {
+        setShouldShowFilters(false);
+        const nodes: any = [];
+        const links: any = [];
+        const resultData: any = { nodes, links };
+        // console.log('resultData: ' , resultData)
+        // let graphNewData = resultData;
+        setGraphData(resultData);
+        makeGraph(resultData);
+        setOpenedResults(searchResultsForGraph);
+
+    }
+  };
+
+  const handleSliderChange = (event:any, newValue:any) => {
+    // console.log('newvalue: ' , newValue)
+    const mappedValue = mapValueToState(newValue);
+    // console.log('mappedvalue: ' , mappedValue)
+    setSliderValue(mappedValue);
+  };
+
+  const sliderNewGraph = () => {
+    if (!graphOrTextView) {
+      setShouldShowFilters(false);
+      const nodes: any = [];
+      const links: any = [];
+      let count = 0;
+      let finalCount = 0;
+      const nodeExists = (id: any) => {
+        return nodes.some((node: any) => node.id === id);
+      };
+
+      // Iterate through each object
+      if (openedResults.length > 0) {
+        // If files are open in workspace
+        finalCount = openedResults.length;
+        openedResults.forEach((result) => {
+          // Create a node for the fileName
+          const nodeId = result.fileName;
+          // console.log("result", result);
+          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const nodeTag = match ? match[1] : null;
+          if (!nodeExists(nodeId)) {
+            nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+          }
+
+          // Parse the content to extract underlined words
+          const underlinedWords: any = result.content.match(
+            /<span[^>]*>(.*?)<\/span>/g
+          );
+          // console.log("underlinedWords", underlinedWords);
+          let wordsArray: any = [];
+          if (underlinedWords && Array.isArray(underlinedWords)) {
+            wordsArray = underlinedWords.map((span: any) => {
+              // Use a regular expression to extract the text content between the <span> tags
+              const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+              // Check if a match was found and return the extracted text, or an empty string if not
+              return match ? match[1] : "";
+            });
+
+            // Now you can use wordsArray safely
+          }
+          // console.log("wordsArray: ", wordsArray);
+          axios
+            .post("/api/getTags?q=" + wordsArray.join(","))
+            .then((res) => {
+              // console.log(res.data);
+              count = count + 1;
+              const linkTags = Object.keys(res.data).map((key) => {
+                return {
+                  name: key,
+                  category: res.data[key],
+                };
+              });
+              if (res) {
+                // console.log("linkTags", linkTags);
+                linkTags.forEach((word: any) => {
+                  // Remove HTML tags from underlined word
+                  // console.log("word", word);
+                  if (!nodeExists(word.name)) {
+                    nodes.push({ id: word.name, group: 2, tag: word.category });
+                  }
+
+                  // Create a link between fileName and underlined word
+                  links.push({ source: nodeId, target: word.name, value: 1 });
+                });
+              }
+              // console.log("finalCount", finalCount);
+              // console.log("count", count);
+              if (finalCount == count) {
+                const resultData: any = { nodes, links };
+                setGraphData(resultData);
+                makeGraph(resultData);
+                // console.log("match count");
+              }
+            })
+            .catch((err) => {
+              console.log("err=", err);
+            });
+        });
+      } else {
+        // If files are not open in workspace
+        // console.log("search Results", searchResults);
+
+        const updatedOpenedResults: any = openedResults.slice();
+
+        searchResults.forEach((result) => {
+          let matchingFile: any = result;
+          marked.setOptions({
+            breaks: true,
+          });
+
+          matchingFile.content = marked(matchingFile.content);
+          // console.log("markedContent", matchingFile);
+
+          const regex = /\[\[([^[\]]+)\]\]/g;
+          const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+          if (matchingFile) {
+            const contentWithoutHashtags = matchingFile.content.replace(
+              hashtagParagraphRegex,
+              ""
+            );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            // console.log("contentwithstyledwords", contentWithStyledWords);
+
+            const updatedResultToOpen = {
+              ...result,
+              content: contentWithStyledWords,
+              openedFromResults: true,
+            };
+
+            // const doesExist = openedResults.some(
+            //   (result) => result.fileName === updatedResultToOpen.fileName
+            // );
+            const doesExist = updatedOpenedResults.some(
+              (result: any) => result.fileName === updatedResultToOpen.fileName
+            );
+
+            if (!doesExist) {
+              updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
+            }
+          }
+        });
+        finalCount = updatedOpenedResults.length;
+        // console.log("updatedOpenedResults: ", updatedOpenedResults);
+        updatedOpenedResults.forEach(async (result: any) => {
+          // Create a node for the fileName
+          const nodeId = result.fileName;
+          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const nodeTag = match ? match[0] : null;
+          if (!nodeExists(nodeId)) {
+            nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+          }
+
+          // Parse the content to extract underlined words
+          const underlinedWords = result.content.match(
+            /<span[^>]*>(.*?)<\/span>/g
+          );
+          // console.log("underlinedWords", underlinedWords);
+          let wordsArray
+          if(underlinedWords){
+            wordsArray = underlinedWords.map((span: any) => {
+              // Use a regular expression to extract the text content between the <span> tags
+              const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+              // Check if a match was found and return the extracted text, or an empty string if not
+              return match ? match[1] : "";
+            });
+          } else if (underlinedWords === null) {
+            wordsArray = [result.fileName];
+  
+            // Handle the case where underlinedWords is null or undefined
+          }
+          
+          // console.log("wordsArray: ", wordsArray);
+
+          try {
+            // console.log("wordsArray", wordsArray);
+            const response = await axios.post(
+              "/api/getTags?q=" + wordsArray.join(",")
+            );
+            // console.log("res", response);
+            // Handle the response data here
+
+            if (response) {
+              count = count + 1;
+              const linkTags = Object.keys(response.data).map((key) => {
+                return {
+                  name: key,
+                  category: response.data[key],
+                };
+              });
+              // let nodeArray = [];
+              // console.log("linkTags", linkTags);
+              linkTags.forEach((word: any) => {
+                const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
+                if (existingNodeIndex !== -1) {
+                  // Node already exists, update its tag
+                  nodes[existingNodeIndex].tag = word.category;
+                } else {
+                  // Node doesn't exist, create a new one
+                  nodes.push({ id: word.name, tag: word.category });
+                }
+                // Create a link between fileName and underlined word
+                links.push({ source: nodeId, target: word.name, value: 1 });
+              });
+            }
+            // console.log("finalCount", finalCount);
+            // console.log("count", count);
+            if (finalCount == count) {
+              const resultData: any = { nodes, links };
+              // let graphNewData = resultData;
+              setGraphData(resultData);
+              makeGraph(resultData);
+              // console.log("match count");
+            }
+          } catch (error) {
+            // Handle errors here
+            console.log("Error:", error);
+          }
+        });
+        setOpenedResults(updatedOpenedResults);
+      }
+
+      // Create the final object in the desired format
+
+      // setTimeout(() => {}, 400);
+    } else {
+      setShouldShowFilters(true);
+    }
+  };
+
+  const mapValueToState = (value:any) => {
+    const minStateValue = -300;
+    const maxStateValue = -50;
+    return minStateValue + (maxStateValue - minStateValue) * value;
+  };
+
+  const handleLogout = () => {
+    Helpers.logout()
+  }
+
 
   return (
     <div>
@@ -1663,17 +2639,38 @@ const Sidebar = () => {
                 </div>
               )}
             </div>
+            <div>
+              <Link href="/login">
+                <img
+                  src="/logout.svg"
+                  alt="img"
+                  onClick={() => {
+                    handleLogout();
+                  }}
+                />
+              </Link>
+            </div>
           </div>
         </div>
 
         <div className={"menuBtn"}>
-          <input
-            type="text"
-            className={"formControl"}
-            placeholder=" Smart search"
-            value={searchValue}
-            onChange={handleSearch}
-          />
+          {graphOrTextView ? (
+            <input
+              type="text"
+              className={"formControl"}
+              placeholder=" Smart search"
+              value={searchValue}
+              onChange={handleSearch}
+            />
+          ) : (
+            <input
+              type="text"
+              className={"formControl"}
+              placeholder=" Graph search"
+              value={graphSearchValue}
+              onChange={handleGraphSearch}
+            />
+          )}
           <div className="copy-icon">
             <ContentCopySharpIcon onClick={handleCopyText} />
             {isCopied && <div className="copy-tooltip">Copied!</div>}
@@ -1769,15 +2766,15 @@ const Sidebar = () => {
                       __html: graphNodeOpened.content,
                     }}
                     className="opened-result-description"
-                    // onClick={(e: any) => {
-                    //   if (
-                    //     e.target.tagName === "SPAN" &&
-                    //     e.target.style.textDecoration === "underline"
-                    //   ) {
-                    //     const clickedWord = e.target.textContent; // Get the clicked word
-                    //     handleLinkClick(result.fileName, clickedWord);
-                    //   }
-                    // }}
+                    onClick={(e: any) => {
+                      if (
+                        e.target.tagName === "SPAN" &&
+                        e.target.style.textDecoration === "underline"
+                      ) {
+                        const clickedWord = e.target.textContent; // Get the clicked word
+                        previewNodeLink(clickedWord);
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -1791,15 +2788,27 @@ const Sidebar = () => {
                 backgroundColor: "white",
               }}
             >
-              <img src="xmark.png" alt="img" className="node-remove-icon" />
-              <FormatAlignLeftIcon
+              <img
+                src="xmark.png"
+                alt="img"
+                className="node-remove-icon"
+                onClick={removeClickedNode}
+              />
+              <img
+                src="node-text.svg"
+                alt="img"
                 className="node-text-icon"
                 onClick={showNodeClickedFile}
               />
+              {/* <FormatAlignLeftIcon
+                className="node-text-icon"
+                onClick={showNodeClickedFile}
+              /> */}
               <img
                 src="/wander-icon.svg"
                 alt="img"
                 className="node-wander-icon"
+                onClick={wanderClickedNode}
               />
             </div>
           </>
@@ -1869,7 +2878,7 @@ const Sidebar = () => {
               <div className="filter-accordion">
                 <Accordion>
                   <Accordion.Item
-                    eventKey="0"
+                  eventKey="0"
                     key="0"
                     title="filter"
                     className="accordion-item"
@@ -1886,68 +2895,137 @@ const Sidebar = () => {
             )}
           </div>
         </div>
+        {graphOrTextView ? (<></>):(
+          <>
+            <div className="forces-container">
+              <Slider
+              size="small"
+              min={0}
+              max={1}
+              step={0.01}// Set the maximum value
+              defaultValue={1}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={handleSliderChange}
+              classes={{ track: 'custom-slider-track',
+                        thumb: 'custom-slider-thumb',
+                      rail: 'custom-slider-rail', }}
+              />
+            </div>
+          </>
+        )}
       </div>
 
+      <div className="workspace-content">
       {graphOrTextView ? (
-        <div className="main">
-          {openedResults.length > 0 ? (
-            openedResults.map((result, index) => (
-              <div key={index} className="opened-results">
-                <div className="view-panel-title">
-                  <h4>{result.fileName.toUpperCase()}</h4>
-                  {result.openedFromResults ? (
-                    <div className="view-panel-title-icons">
-                      <img
-                        src="/arrow-left.png"
-                        alt="img"
-                        onClick={() => collapseOpenedResult(result)}
-                      />
-                      <img
-                        src="/xmark.png"
-                        alt="img"
-                        onClick={() => removeBothSearchResults(result)}
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <img
-                        src="/collapse.png"
-                        alt="img"
-                        onClick={() => collapseOpenedResult(result)}
-                        className="link-collapse-icon"
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="main">
+                {openedResults.length > 0 ? (
+                  openedResults.map((result, index) => (
+                    <div key={index} className="opened-results">
+                      <div className="view-panel-title">
+                        <h4>{result.fileName.toUpperCase()}</h4>
+                        {result.openedFromResults ? (
+                          <div className="view-panel-title-icons">
+                            <img
+                              src="/arrow-left.png"
+                              alt="img"
+                              onClick={() => collapseOpenedResult(result)}
+                            />
+                            <img
+                              src="/xmark.png"
+                              alt="img"
+                              onClick={() => removeBothSearchResults(result)}
+                            />
+                          </div>
+                        ) : (
+                          <div>
+                            <img
+                              src="/collapse.png"
+                              alt="img"
+                              onClick={() => collapseOpenedResult(result)}
+                              className="link-collapse-icon"
+                            />
+                          </div>
+                        )}
+                      </div>
 
-                <div className="opened-result-detail">
-                  <p
-                    dangerouslySetInnerHTML={{
-                      __html: result.content,
-                    }}
-                    className="opened-result-description"
-                    onClick={(e: any) => {
-                      if (
-                        e.target.tagName === "SPAN" &&
-                        e.target.style.textDecoration === "underline"
-                      ) {
-                        const clickedWord = e.target.textContent; // Get the clicked word
-                        handleLinkClick(result.fileName, clickedWord);
-                      }
-                    }}
-                  />
+                      <div className="opened-result-detail">
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: result.content,
+                          }}
+                          className="opened-result-description"
+                          onClick={(e: any) => {
+                            if (
+                              e.target.tagName === "SPAN" &&
+                              e.target.style.textDecoration === "underline"
+                            ) {
+                              const clickedWord = e.target.textContent; // Get the clicked word
+                              handleLinkClick(result.fileName, clickedWord);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // <p style={{ padding: "16px" }}>No results are open.</p>
+                  <div className="homepage-opened-file">
+                    <div className="view-panel-title">
+                      <h4>{filtersData && filtersData.length>0 ? filtersData[0].fileName.toUpperCase() : ''}</h4>
+                    
+                        {/* <div className="view-panel-title-icons">
+                          <img
+                            src="/arrow-left.png"
+                            alt="img"
+                            onClick={() => collapseOpenedResult(result)}
+                          />
+                          <img
+                            src="/xmark.png"
+                            alt="img"
+                            onClick={() => removeBothSearchResults(result)}
+                          />
+                        </div>
+                    
+                        <div>
+                          <img
+                            src="/collapse.png"
+                            alt="img"
+                            onClick={() => collapseOpenedResult(result)}
+                            className="link-collapse-icon"
+                          />
+                        </div> */}
+                  
+                    </div>
+
+                  <div className="opened-result-detail">
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: filtersData && filtersData.length>0 ? filtersData[0].content : '',
+                      }}
+                      className="opened-result-description"
+                      // onClick={(e: any) => {
+                      //   if (
+                      //     e.target.tagName === "SPAN" &&
+                      //     e.target.style.textDecoration === "underline"
+                      //   ) {
+                      //     const clickedWord = e.target.textContent; // Get the clicked word
+                      //     handleLinkClick(result.fileName, clickedWord);
+                      //   }
+                      // }}
+                    />
+                  </div>
                 </div>
+                )}
               </div>
-            ))
-          ) : (
-            <p style={{ padding: "16px" }}>No results are open.</p>
-          )}
-        </div>
-      ) : (
-        <div className="graph-container">
-          <div id="graph-div" className="graph-div"></div>
-        </div>
-      )}
+            ) : (
+              <div className="graph-container">
+                <div id="graph-div" className="graph-div"></div>
+              </div>
+            )}
+
+      </div>
+    
       <ToastContainer />
     </div>
   );

@@ -16,31 +16,8 @@ const Page = () => {
     setTriggerChange(!triggerChange);
     // handleThemeChangeInMain();
   };
-  // const handleWordClick = (word: string) => {
-  //   console.log("word link: ", word);
-  //   const matchedFile = filesData.find((file) => file.fileName === word);
 
-  //   if (matchedFile) {
-  //     console.log("Matched File Object:", matchedFile);
-  //   } else {
-  //     console.log("File not found: ", word);
-  //   }
-  //   handleFileClick(matchedFile);
-  // };
-
-  // const handleFileClick = async (content: any) => {
-  //   let clickedTitle = [content];
-  //   const regex = /\[\[([^[\]]+)\]\]/g;
-
-  //   clickedTitle[0]["content"] = clickedTitle[0]["content"].replace(
-  //     regex,
-  //     (match, word) =>
-  //       `<p style="text-decoration: underline; color: blue; cursor: pointer;">${word}</p>`
-  //   );
-  //   // console.log("clicked title: ", clickedTitle);
-
-  //   setSelectedFileContent(clickedTitle);
-  // };
+  
 
   return (
     <LayoutWrapper layout={AdminLayout}>
