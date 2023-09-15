@@ -12,6 +12,7 @@ import { Slider } from "@mui/material";
 import * as Helpers from '../../util/Helpers'
 import Link from "next/link";
 
+
 const Sidebar = () => {
   interface FileData {
     fileName: string;
@@ -125,7 +126,7 @@ const Sidebar = () => {
             headerIds: false,
             mangle: false
           });
-          console.log('data' , data)
+          // console.log('data' , data)
           let homepageFile = _.cloneDeep(data); // Deep clone the array
 
           homepageFile[0].content = marked(homepageFile[0].content);
@@ -2595,6 +2596,25 @@ const Sidebar = () => {
     Helpers.logout()
   }
 
+  const synchronizeFiles = (accessToken:any) => {
+    console.log(accessToken)
+    let payload = {
+      token: accessToken
+    }
+    axios
+      .post("/api/googleDriveFiles" , payload)
+      .then((res) => {
+        console.log('res: ' , res.data)
+        // setBtnLoading(false);
+        // Helpers.setAccessToken(res.data.token)
+        // Helpers.setUser(res.data.user)
+        // router.push("/?dashboard");
+      })
+      .catch((err) => {
+        console.log("err=", err.response.data);
+      })
+  }
+
 
   return (
     <div>
@@ -2652,6 +2672,25 @@ const Sidebar = () => {
                   }}
                 />
               </Link>
+            </div>
+            <div>
+              <img
+                src="/sync.svg"
+                alt="img"
+                onClick={() => {
+                  // Check if the user is authenticated (has a valid JWT token)
+                  const accessToken = localStorage.getItem("ACCESS_TOKEN");
+                  if (!accessToken) {
+                    // Handle unauthenticated user, maybe show a login prompt
+                    console.log("User is not authenticated.");
+                    return;
+                  }
+            
+                  // User is authenticated, initiate synchronization
+                  synchronizeFiles(accessToken);
+                }}
+              />
+
             </div>
           </div>
         </div>
