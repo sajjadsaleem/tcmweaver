@@ -87,13 +87,14 @@ export default async function handler(req, res) {
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
             const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
+            console.log('tempFilePath ', tempFilePath)
             fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
 
             // console.log('.env', process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
             // Authenticating the service account here
             // console.log("keyFile:' ")
             const auth = new google.auth.GoogleAuth({
-                keyFile: tempFilePath,
+                keyFile: `${process.cwd()}/temp-credentials.json`,
                 scopes: ["https://www.googleapis.com/auth/drive"],
             });
 
