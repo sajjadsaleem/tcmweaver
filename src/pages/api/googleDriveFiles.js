@@ -85,7 +85,7 @@ export default async function handler(req, res) {
             };
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
-            const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
+            const tempFilePath = 'https://tcm-weaver.vercel.app/temp-credentials.json';
             console.log('tempFilePath ', tempFilePath)
             fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
 
