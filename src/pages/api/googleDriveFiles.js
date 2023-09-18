@@ -42,20 +42,6 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
         try {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             const GOOGLE_TYPE = process.env.GOOGLE_TYPE;
             const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
             const GOOGLE_PRIVATE_KEY_ID = process.env.GOOGLE_PRIVATE_KEY_ID;
@@ -100,7 +86,7 @@ export default async function handler(req, res) {
             // console.log('serviceAccountJson ', serviceAccountJson)
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
-            const tempFilePath = path.join(__dirname, 'temp-credentials.json');
+            const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
             fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
 
             // console.log('.env', process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
