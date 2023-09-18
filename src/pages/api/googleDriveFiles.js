@@ -85,13 +85,13 @@ export default async function handler(req, res) {
             };
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
-            const tempFilePath = 'https://tcm-weaver.vercel.app/temp-credentials.json';
-            console.log('tempFilePath ', tempFilePath)
-            fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
+            // const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
+            // console.log('tempFilePath ', tempFilePath)
+            // fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
 
 
             const auth = new google.auth.GoogleAuth({
-                keyFile: `https://tcm-weaver.vercel.app/temp-credentials.json`,
+                credentials: serviceAccountJson,
                 scopes: ["https://www.googleapis.com/auth/drive"],
             });
 
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
                 });
             }
 
-            fs.unlinkSync(tempFilePath);
+            // fs.unlinkSync(tempFilePath);
 
         } catch (error) {
             console.error("Error fetching files:", error.message);
