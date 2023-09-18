@@ -43,17 +43,30 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
         try {
 
-            const GOOGLE_type = process.env.GOOGLE_type;
-            const GOOGLE_project_id = process.env.GOOGLE_project_id;
-            const GOOGLE_private_key_id = process.env.GOOGLE_private_key_id;
-            const GOOGLE_private_key = process.env.GOOGLE_private_key;
-            const GOOGLE_client_email = process.env.GOOGLE_client_email;
-            const GOOGLE_client_id = process.env.GOOGLE_client_id;
-            const GOOGLE_auth_uri = process.env.GOOGLE_auth_uri;
-            const GOOGLE_token_uri = process.env.GOOGLE_token_uri;
-            const GOOGLE_auth_provider_x509_cert_url = process.env.GOOGLE_auth_provider_x509_cert_url;
-            const GOOGLE_client_x509_cert_url = process.env.GOOGLE_client_x509_cert_url;
-            const GOOGLE_universe_domain = process.env.GOOGLE_universe_domain;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            const GOOGLE_TYPE = process.env.GOOGLE_TYPE;
+            const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
+            const GOOGLE_PRIVATE_KEY_ID = process.env.GOOGLE_PRIVATE_KEY_ID;
+            const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
+            const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
+            const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+            const GOOGLE_AUTH_URI = process.env.GOOGLE_AUTH_URI;
+            const GOOGLE_TOKEN_URI = process.env.GOOGLE_TOKEN_URI;
+            const GOOGLE_AUTH_PROVIDER_X509_CERT_URL = process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL;
+            const GOOGLE_CLIENT_X509_CERT_URL = process.env.GOOGLE_CLIENT_X509_CERT_URL;
+            const GOOGLE_UNIVERSE_DOMAIN = process.env.GOOGLE_UNIVERSE_DOMAIN;
 
             // const serviceAccountJson = {
             //     "type": "service_account",
@@ -72,19 +85,19 @@ export default async function handler(req, res) {
 
             // Construct the service account JSON object
             const serviceAccountJson = {
-                "type": GOOGLE_type,
-                "project_id": GOOGLE_project_id,
-                "private_key_id": GOOGLE_private_key_id,
-                "private_key": GOOGLE_private_key,
-                "client_email": GOOGLE_client_email,
-                "client_id": GOOGLE_client_id,
-                "auth_uri": GOOGLE_auth_uri,
-                "token_uri": GOOGLE_token_uri,
-                "auth_provider_x509_cert_url": GOOGLE_auth_provider_x509_cert_url,
-                "client_x509_cert_url": GOOGLE_client_x509_cert_url,
-                "universe_domain": GOOGLE_universe_domain,
+                "type": GOOGLE_TYPE,
+                "project_id": GOOGLE_PROJECT_ID,
+                "private_key_id": GOOGLE_PRIVATE_KEY_ID,
+                "private_key": GOOGLE_PRIVATE_KEY,
+                "client_email": GOOGLE_CLIENT_EMAIL,
+                "client_id": GOOGLE_CLIENT_ID,
+                "auth_uri": GOOGLE_AUTH_URI,
+                "token_uri": GOOGLE_TOKEN_URI,
+                "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+                "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
+                "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
             };
-            console.log('serviceAccountJson ', serviceAccountJson)
+            // console.log('serviceAccountJson ', serviceAccountJson)
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
             const tempFilePath = path.join(__dirname, 'temp-credentials.json');
