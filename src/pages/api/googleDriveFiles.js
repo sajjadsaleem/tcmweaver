@@ -42,6 +42,19 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
         try {
+
+            const GOOGLE_type = process.env.GOOGLE_type;
+            const GOOGLE_project_id = process.env.GOOGLE_project_id;
+            const GOOGLE_private_key_id = process.env.GOOGLE_private_key_id;
+            const GOOGLE_private_key = process.env.GOOGLE_private_key;
+            const GOOGLE_client_email = process.env.GOOGLE_client_email;
+            const GOOGLE_client_id = process.env.GOOGLE_client_id;
+            const GOOGLE_auth_uri = process.env.GOOGLE_auth_uri;
+            const GOOGLE_token_uri = process.env.GOOGLE_token_uri;
+            const GOOGLE_auth_provider_x509_cert_url = process.env.GOOGLE_auth_provider_x509_cert_url;
+            const GOOGLE_client_x509_cert_url = process.env.GOOGLE_client_x509_cert_url;
+            const GOOGLE_universe_domain = process.env.GOOGLE_universe_domain;
+
             // const serviceAccountJson = {
             //     "type": "service_account",
             //     "project_id": "tcm-weaver",
@@ -56,32 +69,22 @@ export default async function handler(req, res) {
             //     "universe_domain": "googleapis.com"
             // }
 
-            const type = process.env.type;
-            const project_id = process.env.project_id;
-            const private_key_id = process.env.private_key_id;
-            const private_key = process.env.private_key;
-            const client_email = process.env.client_email;
-            const client_id = process.env.client_id;
-            const auth_uri = process.env.auth_uri;
-            const token_uri = process.env.token_uri;
-            const auth_provider_x509_cert_url = process.env.auth_provider_x509_cert_url;
-            const client_x509_cert_url = process.env.client_x509_cert_url;
-            const universe_domain = process.env.universe_domain;
 
             // Construct the service account JSON object
             const serviceAccountJson = {
-                type,
-                project_id,
-                private_key_id,
-                private_key,
-                client_email,
-                client_id,
-                auth_uri,
-                token_uri,
-                auth_provider_x509_cert_url,
-                client_x509_cert_url,
-                universe_domain,
+                "type": GOOGLE_type,
+                "project_id": GOOGLE_project_id,
+                "private_key_id": GOOGLE_private_key_id,
+                "private_key": GOOGLE_private_key,
+                "client_email": GOOGLE_client_email,
+                "client_id": GOOGLE_client_id,
+                "auth_uri": GOOGLE_auth_uri,
+                "token_uri": GOOGLE_token_uri,
+                "auth_provider_x509_cert_url": GOOGLE_auth_provider_x509_cert_url,
+                "client_x509_cert_url": GOOGLE_client_x509_cert_url,
+                "universe_domain": GOOGLE_universe_domain,
             };
+            console.log('serviceAccountJson ', serviceAccountJson)
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
             const tempFilePath = path.join(__dirname, 'temp-credentials.json');
