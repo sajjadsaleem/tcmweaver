@@ -13,6 +13,7 @@ import * as Helpers from '../../util/Helpers'
 import Link from "next/link";
 
 
+
 const Sidebar = () => {
   interface FileData {
     fileName: string;
@@ -2596,15 +2597,16 @@ const Sidebar = () => {
     Helpers.logout()
   }
 
-  const synchronizeFiles = (accessToken:any) => {
+  const synchronizeFiles = async (accessToken:any) => {
     console.log(accessToken)
     let payload = {
       token: accessToken
     }
+
     axios
-      .post("/api/googleDriveFiles" , payload)
+      .get("/api/googleDriveFiles")
       .then((res) => {
-        console.log('res: ' , res.data)
+        console.log('res: ' , res)
         // setBtnLoading(false);
         // Helpers.setAccessToken(res.data.token)
         // Helpers.setUser(res.data.user)
