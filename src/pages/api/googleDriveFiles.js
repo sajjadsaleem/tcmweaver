@@ -83,18 +83,15 @@ export default async function handler(req, res) {
                 "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
                 "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
             };
-            // console.log('serviceAccountJson ', serviceAccountJson)
 
             // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
             const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
             console.log('tempFilePath ', tempFilePath)
             fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
 
-            // console.log('.env', process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
-            // Authenticating the service account here
-            // console.log("keyFile:' ")
+
             const auth = new google.auth.GoogleAuth({
-                keyFile: `${process.cwd()}/temp-credentials.json`,
+                keyFile: `https://tcm-weaver.vercel.app/temp-credentials.json`,
                 scopes: ["https://www.googleapis.com/auth/drive"],
             });
 
@@ -140,32 +137,6 @@ export default async function handler(req, res) {
 
             fs.unlinkSync(tempFilePath);
 
-            // const fileId = '1uk0UUcWeyzAPf8ZPWl6qXgAshA3fT2lZ'; // Replace with the actual file ID
-
-            // // Fetch the file's content from Google Drive
-            // const fileResponse = await drive.files.get({ fileId, alt: 'media' }, { responseType: 'stream' });
-
-            // console.log('fileResponse ', fileResponse)
-
-            // Read the file content and store it in a buffer
-            // const chunks = [];
-            // fileResponse.data.on('data', (chunk) => {
-            //     chunks.push(chunk);
-            // });
-
-            // fileResponse.data.on('end', () => {
-            //     const fileContent = Buffer.concat(chunks).toString();
-
-            //     // Send the file's content as a response
-            //     res.status(200).send(fileContent);
-            // });
-
-
-
-            // console.log('response = ', res)
-
-            // console.log('files', files)
-            // res.status(200).json(files);
         } catch (error) {
             console.error("Error fetching files:", error.message);
             res.status(500).json({ error: "Internal Server Error" });
