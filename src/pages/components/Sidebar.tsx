@@ -274,6 +274,8 @@ const Sidebar = () => {
         .then((res) => {
           // Handle the list of files from the Google Drive API response
           console.log('Files:', res.data.files);
+          window.history.replaceState({}, document.title, window.location.pathname);
+
         })
         .catch((err) => {
           console.error("Error fetching files from Google Drive:", err.response);
