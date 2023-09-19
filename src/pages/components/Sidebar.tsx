@@ -8,7 +8,7 @@ import router from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
 import axios from "axios";
-import { Slider } from "@mui/material";
+import { List, ListItem, ListItemText, Slider } from "@mui/material";
 import * as Helpers from '../../util/Helpers'
 import Link from "next/link";
 import Button from '@mui/material/Button';
@@ -92,6 +92,9 @@ const Sidebar = () => {
   const [accessToken, setAccessToken] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [syncPopup, setSyncPopup] = useState(false);
+  const [folders, setFolders] = useState([]);
+  const [foldersPopup, setFoldersPopup] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState(null);
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -285,6 +288,8 @@ const Sidebar = () => {
         .then((res) => {
           // Handle the list of files from the Google Drive API response
           console.log('Files:', res.data.files);
+          setFolders(res.data.files);
+          setFoldersPopup(true)
          
 
         })
@@ -2709,6 +2714,15 @@ const Sidebar = () => {
       })
   }
 
+  const handlerFolderPopupClose = async () => {
+    setFoldersPopup(false)
+  }
+
+  const handleFolderSelection = (folder:any) => {
+    setSelectedFolder(folder);
+    setFoldersPopup(false)
+  };
+
 
   return (
     <div>
@@ -2805,6 +2819,27 @@ const Sidebar = () => {
                 </DialogActions>
               </Dialog>
             </div>): (<></>)}
+
+
+            {foldersPopup && (
+             <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
+             <DialogTitle>Select a Folder</DialogTitle>
+             <DialogContent>
+               <List>
+                 {folders.map((folder:any) => (
+                   <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
+                     <ListItemText primary={folder.name} />
+                   </ListItem>
+                 ))}
+               </List>
+             </DialogContent>
+             <DialogActions>
+               <Button onClick={ handlerFolderPopupClose} color="primary">
+                 Cancel
+               </Button>
+             </DialogActions>
+           </Dialog>
+            )}
           </div>
         </div>
 
