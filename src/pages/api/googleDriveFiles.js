@@ -5,9 +5,17 @@ import axios from 'axios';
 const fs = require('fs');
 const path = require('path');
 import { OAuth2Client } from 'google-auth-library';
+import cors from 'cors';
+
+const corsMiddleware = cors({
+    origin: '*', // You can specify your frontend's origin instead of '*' for added security
+    methods: ['GET'], // Add other HTTP methods as needed
+});
 
 
 export default async function handler(req, res) {
+
+    await corsMiddleware(req, res);
 
     if (req.method === "GET") {
         try {
