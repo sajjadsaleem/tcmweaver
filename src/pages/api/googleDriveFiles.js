@@ -15,7 +15,14 @@ const corsMiddleware = cors({
 
 export default async function handler(req, res) {
 
-    await corsMiddleware(req, res);
+    await new Promise((resolve, reject) => {
+        corsMiddleware(req, res, (err) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
     console.log('hellllllo')
 
     if (req.method === "GET") {
