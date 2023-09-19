@@ -2606,7 +2606,7 @@ const Sidebar = () => {
     axios
       .get("/api/googleDriveFiles")
       .then((res) => {
-        console.log('res: ' , res)
+        console.log('res: ' , res) 
         // setBtnLoading(false);
         // Helpers.setAccessToken(res.data.token)
         // Helpers.setUser(res.data.user)
