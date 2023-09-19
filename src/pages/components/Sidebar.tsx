@@ -213,6 +213,28 @@ const Sidebar = () => {
 
   }, [sliderValue])
 
+  useEffect(() => {
+    // Check if the URL contains the 'code' parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const authorizationCode = urlParams.get("code");
+
+    if (authorizationCode) {
+      // Authorization code is present in the URL, send it to your backend
+      console.log('authorizationCode', authorizationCode)
+      axios
+        .post("/api/exchangeCodeForToken", { code: authorizationCode })
+        .then((res) => {
+          // Handle the response from the backend, which may contain the access token
+          const accessToken = res.data.accessToken;
+          console.log('accessToken ', accessToken)
+          // Now you can use the accessToken to make authenticated requests to Google Drive API.
+        })
+        .catch((err) => {
+          console.error("Error exchanging authorization code:", err.response);
+        });
+    } 
+  }, []);
+
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
     // console.log("input value: ", inputValue);
