@@ -83,6 +83,7 @@ const Sidebar = () => {
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>({});
   const [textColorForNode , setTextColorForNode] = useState('black')
   const [sliderValue, setSliderValue] = useState(-40)
+  const [accessToken, setAccessToken] = useState('');
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -227,6 +228,8 @@ const Sidebar = () => {
           // Handle the response from the backend, which may contain the access token
           const accessToken = res.data.accessToken;
           console.log('accessToken ', accessToken)
+          setAccessToken(accessToken);
+       
           // Now you can use the accessToken to make authenticated requests to Google Drive API.
         })
         .catch((err) => {
@@ -234,6 +237,27 @@ const Sidebar = () => {
         });
     } 
   }, []);
+
+  useEffect(() => {
+    // Check if accessToken is available
+    if (accessToken) {
+      // Use the accessToken to make authenticated requests to Google Drive API
+      console.log('hellllo')
+      axios
+        .get("https://www.googleapis.com/drive/v3/files", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then((res) => {
+          // Handle the list of files from the Google Drive API response
+          console.log('Files:', res.data.files);
+        })
+        .catch((err) => {
+          console.error("Error fetching files from Google Drive:", err.response);
+        });
+    }
+  }, [accessToken]);
 
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
