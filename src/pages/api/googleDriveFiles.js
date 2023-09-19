@@ -32,7 +32,8 @@ export default async function handler(req, res) {
                 // Generate the URL for the user to authorize the app
                 authUrl = oAuth2Client.generateAuthUrl({
                     access_type: 'offline', // 'offline' allows you to receive a refresh token
-                    scope: ['https://www.googleapis.com/auth/drive'], // Specify the required scopes
+                    scope: ['https://www.googleapis.com/auth/drive',
+                        'https://www.googleapis.com/auth/people.readonly',],
                 });
                 console.log('authUrl', authUrl)
 
