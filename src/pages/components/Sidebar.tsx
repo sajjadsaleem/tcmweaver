@@ -11,6 +11,12 @@ import axios from "axios";
 import { Slider } from "@mui/material";
 import * as Helpers from '../../util/Helpers'
 import Link from "next/link";
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 
@@ -85,6 +91,7 @@ const Sidebar = () => {
   const [sliderValue, setSliderValue] = useState(-40)
   const [accessToken, setAccessToken] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [syncPopup, setSyncPopup] = useState(false);
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -220,6 +227,8 @@ const Sidebar = () => {
     // Check if the URL contains the 'code' parameter
     const urlParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlParams.get("code");
+    window.history.replaceState({}, document.title, window.location.pathname);
+
 
     if (authorizationCode) {
       // Authorization code is present in the URL, send it to your backend
@@ -264,7 +273,6 @@ const Sidebar = () => {
     // Check if accessToken is available
     if (accessToken) {
       // Use the accessToken to make authenticated requests to Google Drive API
-      console.log('hellllo')
       axios
         .get("https://www.googleapis.com/drive/v3/files", {
           headers: {
@@ -274,7 +282,7 @@ const Sidebar = () => {
         .then((res) => {
           // Handle the list of files from the Google Drive API response
           console.log('Files:', res.data.files);
-          window.history.replaceState({}, document.title, window.location.pathname);
+         
 
         })
         .catch((err) => {
@@ -2667,11 +2675,15 @@ const Sidebar = () => {
     Helpers.logout()
   }
 
-  const synchronizeFiles = async (accessToken:any) => {
-    console.log(accessToken)
-    let payload = {
-      token: accessToken
-    }
+  const openSyncDialog = () => {
+    setSyncPopup(true)
+  }
+
+  const handleCloseDialog = () => {
+    setSyncPopup(false);
+  };
+
+  const synchronizeFiles = async () => {
 
     axios
       .get("/api/googleDriveFiles")
@@ -2766,11 +2778,30 @@ const Sidebar = () => {
                   }
             
                   // User is authenticated, initiate synchronization
-                  synchronizeFiles(accessToken);
+                  // setSyncPopup(true)
+                  openSyncDialog()
                 }}
               />
 
             </div>
+            {syncPopup ? (<div>
+              <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                <DialogTitle>Authorization Required</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                  You will be redirected to the Google consent page to grant this app access to your Google Drive
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog} color="primary">
+                    Cancel
+                  </Button>
+                  <Button onClick={synchronizeFiles} color="primary">
+                    Proceed
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </div>): (<></>)}
           </div>
         </div>
 
