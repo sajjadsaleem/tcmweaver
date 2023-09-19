@@ -84,6 +84,7 @@ const Sidebar = () => {
   const [textColorForNode , setTextColorForNode] = useState('black')
   const [sliderValue, setSliderValue] = useState(-40)
   const [accessToken, setAccessToken] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -96,6 +97,7 @@ const Sidebar = () => {
   // console.log("searchValue: ", searchValue);
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
+  console.log('userEmail ', userEmail)
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -228,6 +230,26 @@ const Sidebar = () => {
           // Handle the response from the backend, which may contain the access token
           const accessToken = res.data.accessToken;
           console.log('accessToken ', accessToken)
+          axios
+          .get("https://people.googleapis.com/v1/people/me", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              personFields: 'emailAddresses',
+            },
+          })
+          .then((userRes) => {
+            const primaryEmail = userRes.data.emailAddresses.find(
+              (email:any) => email.metadata.primary
+            );
+            if (primaryEmail) {
+              setUserEmail(primaryEmail.value);
+            }
+          })
+          .catch((userErr) => {
+            console.error("Error fetching user email:", userErr.response);
+          })
           setAccessToken(accessToken);
        
           // Now you can use the accessToken to make authenticated requests to Google Drive API.
