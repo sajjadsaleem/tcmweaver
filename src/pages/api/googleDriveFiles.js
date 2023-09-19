@@ -1,151 +1,68 @@
-// utils/googleDrive.js
 
-// import { getData } from "../../../googleDrive"
-
-// Load your client credentials from a JSON file or secure environment variable
-// const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-// const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-// const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
-
-// const oAuth2Client = new google.auth.OAuth2(
-//     CLIENT_ID,
-//     CLIENT_SECRET,
-//     REDIRECT_URI
-// );
-
-// async function refreshTokenIfNeeded(accessToken, refreshToken, callback) {
-//     oAuth2Client.setCredentials({
-//         access_token: accessToken,
-//         refresh_token: refreshToken,
-//     });
-
-//     if (oAuth2Client.isTokenExpiring()) {
-//         try {
-//             const { tokens } = await oAuth2Client.refreshAccessToken();
-//             callback(tokens.access_token);
-//         } catch (error) {
-//             console.error('Error refreshing access token:', error);
-//             callback(null);
-//         }
-//     } else {
-//         callback(accessToken);
-//     }
-// }
 
 import { google } from 'googleapis';
 import axios from 'axios';
 const fs = require('fs');
 const path = require('path');
+import { OAuth2Client } from 'google-auth-library';
 
 
 export default async function handler(req, res) {
 
     if (req.method === "GET") {
         try {
-            const GOOGLE_TYPE = process.env.GOOGLE_TYPE;
-            const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
-            const GOOGLE_PRIVATE_KEY_ID = process.env.GOOGLE_PRIVATE_KEY_ID;
-            const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
-            const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
-            const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-            const GOOGLE_AUTH_URI = process.env.GOOGLE_AUTH_URI;
-            const GOOGLE_TOKEN_URI = process.env.GOOGLE_TOKEN_URI;
-            const GOOGLE_AUTH_PROVIDER_X509_CERT_URL = process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL;
-            const GOOGLE_CLIENT_X509_CERT_URL = process.env.GOOGLE_CLIENT_X509_CERT_URL;
-            const GOOGLE_UNIVERSE_DOMAIN = process.env.GOOGLE_UNIVERSE_DOMAIN;
 
-            // const serviceAccountJson = {
-            //     "type": "service_account",
-            //     "project_id": "tcm-weaver",
-            //     "private_key_id": "***REMOVED***",
-            //     "private_key": "***REMOVED_PRIVATE_KEY***\n",
-            //     "client_email": "tcm-weaver@tcm-weaver.iam.gserviceaccount.com",
-            //     "client_id": "112629832940370460393",
-            //     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            //     "token_uri": "https://oauth2.googleapis.com/token",
-            //     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            //     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tcm-weaver%40tcm-weaver.iam.gserviceaccount.com",
-            //     "universe_domain": "googleapis.com"
-            // }
+            // const oAuth2Client = new google.auth.OAuth2(
+            //     process.env.CLIENT_ID,
+            //     process.env.CLIENT_SECRET,
+            //     process.env.REDIRECT_URI
+            // )
 
+            const CLIENT_ID = process.env.CLIENT_ID
+            const CLIENT_SECRET = process.env.CLIENT_SECRET
+            const REDIRECT_URI = process.env.REDIRECT_URI
 
-            // Construct the service account JSON object
-            const serviceAccountJson = {
-                "type": GOOGLE_TYPE,
-                "project_id": GOOGLE_PROJECT_ID,
-                "private_key_id": GOOGLE_PRIVATE_KEY_ID,
-                "private_key": GOOGLE_PRIVATE_KEY,
-                "client_email": GOOGLE_CLIENT_EMAIL,
-                "client_id": GOOGLE_CLIENT_ID,
-                "auth_uri": GOOGLE_AUTH_URI,
-                "token_uri": GOOGLE_TOKEN_URI,
-                "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
-                "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
-                "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
-            };
+            const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
-            // fs.writeFileSync('temp-credentials.json', JSON.stringify(serviceAccountJson));
-            // const tempFilePath = path.join(process.cwd(), 'temp-credentials.json');
-            // console.log('tempFilePath ', tempFilePath)
-            // fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccountJson));
-
-
-            const auth = new google.auth.GoogleAuth({
-                credentials: {
-                    type: GOOGLE_TYPE,
-                    project_id: GOOGLE_PROJECT_ID,
-                    private_key_id: GOOGLE_PRIVATE_KEY_ID,
-                    private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Replace escaped line breaks
-                    client_email: GOOGLE_CLIENT_EMAIL,
-                    client_id: GOOGLE_CLIENT_ID,
-                    auth_uri: GOOGLE_AUTH_URI,
-                    token_uri: GOOGLE_TOKEN_URI,
-                    auth_provider_x509_cert_url: GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
-                    client_x509_cert_url: GOOGLE_CLIENT_X509_CERT_URL,
-                    universe_domain: GOOGLE_UNIVERSE_DOMAIN,
-                },
-                scopes: ["https://www.googleapis.com/auth/drive"],
-            });
-
-            // Create a Google Drive client
-            const drive = google.drive({ version: "v3", auth });
-
-            // Fetch files from Google Drive
-            // const DriveResults = await drive.files.list()
-            // const response = await drive.files.list({
-            //     pageSize: 10, // Adjust the pageSize as needed to fetch all files
-            // });
-
-            const response = await drive.files.list({
-                pageSize: 1000, // Adjust the pageSize as needed
-                fields: 'files(id, name, mimeType)', // Specify the fields you want to retrieve
-            });
-            const files = response.data.files;
-
-            console.log('files', files)
-            const filesWithContent = [];
-
-            for (const file of files) {
-                const fileId = file.id;
-                const fileResponse = await drive.files.get({ fileId, alt: 'media' }, { responseType: 'stream' });
-
-                // Read the file content and store it in a buffer
-                const chunks = [];
-                fileResponse.data.on('data', (chunk) => {
-                    chunks.push(chunk);
+            if (!req.query.code) {
+                // Generate the URL for the user to authorize the app
+                const authUrl = oAuth2Client.generateAuthUrl({
+                    access_type: 'offline', // 'offline' allows you to receive a refresh token
+                    scope: ['https://www.googleapis.com/auth/drive'], // Specify the required scopes
                 });
+                console.log('authUrl', authUrl)
 
-                fileResponse.data.on('end', () => {
-                    const fileContent = Buffer.concat(chunks).toString();
-                    filesWithContent.push({ ...file, content: fileContent });
-
-                    // Check if all files have been processed
-                    if (filesWithContent.length === files.length) {
-                        // Send the list of files with their content as a response
-                        res.status(200).json(filesWithContent);
-                    }
-                });
+                // Redirect the user to the auth URL
+                return res.redirect(authUrl);
             }
+
+            const code = req.query.code;
+
+            const { tokens } = await oAuth2Client.getToken(code);
+
+            const accessToken = tokens.access_token;
+            const refreshToken = tokens.refresh_token;
+
+            // const authUrl = oAuth2Client.generateAuthUrl({
+            //     access_type: 'offline', // 'offline' allows you to receive a refresh token
+            //     scope: ['https://www.googleapis.com/auth/drive'], // Specify the required scopes
+            //   });
+
+
+            // const drive = google.drive({ version: "v3", auth });
+
+            // const response = await drive.files.list({
+            //     pageSize: 1000,
+            //     fields: 'files(id, name, mimeType)', // Specify the fields you want to retrieve
+            // });
+            // const files = response.data.files;
+
+            // console.log('files', files)
+            // const filesWithContent = [];
+            // console.log('files length: ', files.length)
+
+
+            return res.status(200).json({ accessToken, refreshToken });
 
             // fs.unlinkSync(tempFilePath);
 
@@ -157,37 +74,3 @@ export default async function handler(req, res) {
         res.status(405).end(); // Method Not Allowed
     }
 }
-// if (req.method === 'POST') {
-//     const { token } = req.body;
-//     // console.log('token: ', token)
-
-//     refreshTokenIfNeeded(token, null, async (accessToken) => {
-//         if (!accessToken) {
-//             return res.status(401).json({ error: 'Unauthorized' });
-//         }
-
-//         // Initialize the Google Drive API client
-//         const drive = google.drive({
-//             version: 'v3',
-//             auth: oAuth2Client,
-//         });
-
-//         try {
-//             // Fetch files from Google Drive
-//             const response = await drive.files.list({
-//                 pageSize: 10, // Number of files to retrieve
-//                 fields: 'files(id, name)', // Fields to include in the response
-//             });
-
-//             const files = response.data.files;
-
-//             // You can do something with the fetched files here
-//             res.status(200).json({ files });
-//         } catch (error) {
-//             console.error('Error fetching files from Google Drive:', error);
-//             res.status(500).json({ error: 'Internal Server Error' });
-//         }
-//     });
-// } else {
-//     res.status(405).end(); // Method Not Allowed
-// }

@@ -2613,7 +2613,7 @@ const Sidebar = () => {
         // router.push("/?dashboard");
       })
       .catch((err) => {
-        console.log("err=", err.response.data);
+        console.log("err=", err.response);
       })
   }
 
