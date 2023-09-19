@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                 authUrl = oAuth2Client.generateAuthUrl({
                     access_type: 'offline', // 'offline' allows you to receive a refresh token
                     scope: ['https://www.googleapis.com/auth/drive',
-                        'https://www.googleapis.com/auth/people.readonly',],
+                        'https://www.googleapis.com/auth/userinfo.email',],
                 });
                 console.log('authUrl', authUrl)
 
