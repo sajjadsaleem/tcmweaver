@@ -5,25 +5,11 @@ import axios from 'axios';
 const fs = require('fs');
 const path = require('path');
 import { OAuth2Client } from 'google-auth-library';
-import cors from 'cors';
-
-const corsMiddleware = cors({
-    origin: '*', // You can specify your frontend's origin instead of '*' for added security
-    methods: ['GET'], // Add other HTTP methods as needed
-});
 
 
 export default async function handler(req, res) {
 
-    await new Promise((resolve, reject) => {
-        corsMiddleware(req, res, (err) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
-    });
-    console.log('hellllllo')
+
 
     if (req.method === "GET") {
         try {
@@ -40,24 +26,26 @@ export default async function handler(req, res) {
 
             const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
+            let authUrl
+
             if (!req.query.code) {
                 // Generate the URL for the user to authorize the app
-                const authUrl = oAuth2Client.generateAuthUrl({
+                authUrl = oAuth2Client.generateAuthUrl({
                     access_type: 'offline', // 'offline' allows you to receive a refresh token
                     scope: ['https://www.googleapis.com/auth/drive'], // Specify the required scopes
                 });
                 console.log('authUrl', authUrl)
 
                 // Redirect the user to the auth URL
-                return res.redirect(authUrl);
+                // return res.redirect(authUrl);
             }
 
-            const code = req.query.code;
+            // const code = req.query.code;
 
-            const { tokens } = await oAuth2Client.getToken(code);
+            // const { tokens } = await oAuth2Client.getToken(code);
 
-            const accessToken = tokens.access_token;
-            const refreshToken = tokens.refresh_token;
+            // const accessToken = tokens.access_token;
+            // const refreshToken = tokens.refresh_token;
 
             // const authUrl = oAuth2Client.generateAuthUrl({
             //     access_type: 'offline', // 'offline' allows you to receive a refresh token
@@ -78,7 +66,7 @@ export default async function handler(req, res) {
             // console.log('files length: ', files.length)
 
 
-            return res.status(200).json({ accessToken, refreshToken });
+            return res.status(200).json({ authUrl });
 
             // fs.unlinkSync(tempFilePath);
 

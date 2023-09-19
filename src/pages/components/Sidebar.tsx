@@ -2606,7 +2606,14 @@ const Sidebar = () => {
     axios
       .get("/api/googleDriveFiles")
       .then((res) => {
-        console.log('res: ' , res) 
+        console.log('res: ' , res)
+        if (res.data && res.data.authUrl) {
+          // Redirect the user to the Google OAuth authorization page
+          window.location.href = res.data.authUrl;
+        } else {
+          console.error("No 'authUrl' found in the response.");
+        }
+
         // setBtnLoading(false);
         // Helpers.setAccessToken(res.data.token)
         // Helpers.setUser(res.data.user)
