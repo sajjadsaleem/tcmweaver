@@ -104,7 +104,7 @@ const Sidebar = () => {
   // console.log("searchValue: ", searchValue);
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
-  console.log('userEmail ', userEmail)
+  // console.log('userEmail ', userEmail)
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -277,6 +277,9 @@ const Sidebar = () => {
         .get("https://www.googleapis.com/drive/v3/files", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            q: "mimeType='application/vnd.google-apps.folder'",
           },
         })
         .then((res) => {
