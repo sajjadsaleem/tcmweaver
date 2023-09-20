@@ -80,10 +80,10 @@ const Sidebar = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [filtersData, setFiltersData] = useState<any>([]);
   const [graphData, setGraphData] = useState([]);
-  const [graphDimension, setGraphDimension] = useState({
-    width: 0,
-    height: 0,
-  });
+  // const [graphDimension, setGraphDimension] = useState({
+  //   width: 0,
+  //   height: 0,
+  // });
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>({});
@@ -193,10 +193,11 @@ const Sidebar = () => {
         console.error("Error fetching files data:", error);
       }
     };
-    // const showToast = router.query.dashboard === "true";
+    const showToast = router.query.dashboard === "true";
+    
 
     // If the showToast parameter is present, display the toast
-    // if (showToast) {
+    if (showToast) {
       toast("Login success", {
         position: "top-right",
         autoClose: 1500,
@@ -208,7 +209,7 @@ const Sidebar = () => {
         type: "success",
         theme: "light",
       });
-    // }
+    }
     fetchFilesData();
   }, []);
 
@@ -242,26 +243,26 @@ const Sidebar = () => {
           // Handle the response from the backend, which may contain the access token
           const accessToken = res.data.accessToken;
           console.log('accessToken ', accessToken)
-          axios
-          .get("https://people.googleapis.com/v1/people/me", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              personFields: 'emailAddresses',
-            },
-          })
-          .then((userRes) => {
-            const primaryEmail = userRes.data.emailAddresses.find(
-              (email:any) => email.metadata.primary
-            );
-            if (primaryEmail) {
-              setUserEmail(primaryEmail.value);
-            }
-          })
-          .catch((userErr) => {
-            console.error("Error fetching user email:", userErr.response);
-          })
+          // axios
+          // .get("https://people.googleapis.com/v1/people/me", {
+          //   headers: {
+          //     Authorization: `Bearer ${accessToken}`,
+          //   },
+          //   params: {
+          //     personFields: 'emailAddresses',
+          //   },
+          // })
+          // .then((userRes) => {
+          //   const primaryEmail = userRes.data.emailAddresses.find(
+          //     (email:any) => email.metadata.primary
+          //   );
+          //   if (primaryEmail) {
+          //     setUserEmail(primaryEmail.value);
+          //   }
+          // })
+          // .catch((userErr) => {
+          //   console.error("Error fetching user email:", userErr.response);
+          // })
           setAccessToken(accessToken);
        
           // Now you can use the accessToken to make authenticated requests to Google Drive API.
@@ -282,7 +283,7 @@ const Sidebar = () => {
             Authorization: `Bearer ${accessToken}`,
           },
           params: {
-            q: "mimeType='application/vnd.google-apps.folder'",
+            q: "mimeType='application/vnd.google-apps.folder' and not trashed",
           },
         })
         .then((res) => {
@@ -2719,10 +2720,52 @@ const Sidebar = () => {
   }
 
   const handleFolderSelection = (folder:any) => {
-    setSelectedFolder(folder);
-    setFoldersPopup(false)
-  };
+    console.log(folder)
 
+    if (folder.id) {
+
+      axios.get("api/downloadFiles", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          folderId: folder.id,
+        },
+      }).then((res)=> {
+        console.log('res: ' ,res.data)
+
+      }).catch((err)=> {
+
+      })
+
+      // axios.get('https://www.googleapis.com/drive/v3/files', {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      //   params: {
+      //     q: `'${folder.id}' in parents  and fileExtension='md'`,
+      //   },
+      // }).then((response) => {
+      //   // Handle the list of files and subfolders within the selected folder
+      //   console.log('Contents of selected folder:', response);
+      //   // response.data.files.forEach((file:any) => {
+      //   //   // Save each file to the 'public' directory
+      //   //   const fileStream = fs.createWriteStream(`./public/${file.name}`);
+      //   //   response.data.pipe(fileStream);
+
+      //   //   fileStream.on('finish', () => {
+      //   //     console.log(`File ${file.name} downloaded and saved.`);
+      //   //   });
+      //   // });
+      // })
+      // .catch((error) => {
+      //   console.error('Error fetching folder contents:', error.response);
+      // });
+    }
+
+    // setFoldersPopup(false)
+  };
+ 
 
   return (
     <div>

@@ -32,7 +32,10 @@ const Login = () => {
         setBtnLoading(false);
         Helpers.setAccessToken(res.data.token)
         Helpers.setUser(res.data.user)
-        router.push("/?dashboard");
+        router.push({
+          pathname: "/",
+          query: { dashboard: true }, // Add 'dashboard: true' as a query parameter
+        });
       })
       .catch((err) => {
         console.log("err=", err.response.data);
