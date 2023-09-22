@@ -965,6 +965,21 @@
     justify-content: center;
 }
 
+.page-loading img {
+    animation: loading-rotate 5s infinite;
+}
+
+@keyframes loading-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
 .forget-password-container {
     margin-top: 20px;
 }

@@ -46,23 +46,13 @@ export default async function handler(req, res) {
                 });
 
                 // Save the file to a local directory (e.g., 'public/cornish-vault')
-                const publicFolderPath = path.join(process.cwd(), 'public/cornish-vault');
 
-                const filePath = `${publicFolderPath}/${fileName}`;
 
-                const writableStream = fs.createWriteStream(filePath);
-
-                response.data.pipe(writableStream);
-
-                await new Promise((resolve, reject) => {
-                    writableStream.on('finish', resolve);
-                    writableStream.on('error', reject);
-                });
-
-                console.log(`File saved: ${filePath}`);
+                console.log("response", response);
             }
+            // console.log(`${files.length} files syncronized successfully`)
 
-            return res.status(200).json({ message: 'Files downloaded successfully' });
+            return res.status(200).json({ message: `${files.length} files syncronized successfully` });
 
             // const fileId = '1MM9n72XWn0VdlIwoqb55PdjX1iqn9TGh';
 

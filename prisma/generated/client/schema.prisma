@@ -1,0 +1,44 @@
+model users {
+  id                    Int      @id @default(autoincrement())
+  role_id               Int
+  email                 String   
+  password              String  
+  verification_token    String   
+  forgot_password_token String   
+}
+
+model permission {
+  id            Int       @id @default(autoincrement()) @map(name: "id")
+  role_id       Int
+  permission_id   Int 
+}
+
+model roles {
+  id            Int           @id @default(autoincrement()) @map(name: "id")
+  label          String       
+  name   String?   
+}
+
+model RolePermission {
+  id            Int      @id @default(autoincrement()) @map(name: "id")
+  role_id       Int     
+  permission_id  Int     
+}
+
+
+model Dataset {
+  id       Int       @id @default(autoincrement())
+  filename String
+  content  String
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client" // You can specify the output directory for the generated Prisma client
+}
