@@ -18,12 +18,15 @@ export default async function handler(req, res) {
 
             return res.status(401).json({ message: 'Token verification failed' });
         }
+        console.log('tokenResult:', tokenResult)
 
         const user = await prisma.users.findUnique({
             where: {
                 id: tokenResult.id,
             },
         });
+
+        console.log('user', user)
 
 
         if (!user) {
