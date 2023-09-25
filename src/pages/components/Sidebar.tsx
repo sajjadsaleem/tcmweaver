@@ -3160,7 +3160,7 @@ const Sidebar = () => {
                 />
               </Link>
             </div>
-            <div>
+            {/* <div>
               <img
                 src="/sync.svg"
                 alt="img"
@@ -3179,7 +3179,7 @@ const Sidebar = () => {
                 }}
               />
 
-            </div>
+            </div> */}
             {syncPopup ? (<div>
               <Dialog open={syncPopup} onClose={handleCloseDialog}>
                 <DialogTitle>Authorization Required</DialogTitle>
