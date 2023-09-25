@@ -19,6 +19,7 @@ export default async function login(req, res) {
         { email: ['required', 'email'] },
         { password: ['required'] },
       ]
+      console.log(process.env.DATABASE_URL);
 
       const { errors, isValid } = Validation.validateSignupData(req.body, rules);
       if (!isValid || errors.length > 0) {
