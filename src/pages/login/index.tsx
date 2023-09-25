@@ -71,7 +71,7 @@ const Login = () => {
                 type="email"
                 className="form-control"
                 aria-describedby="emailHelp"
-                placeholder="email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />

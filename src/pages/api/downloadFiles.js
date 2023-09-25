@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require('fs');
 import { Readable } from 'stream';
 import axios from 'axios';
+import { sql } from "@vercel/postgres";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
 
@@ -29,59 +33,78 @@ export default async function handler(req, res) {
 
             const files = filesResponse.data.files;
             console.log('files: ', files)
+            async function downloadFiles(files) {
+                const downloadedFiles = [];
 
+                for (const file of files) {
+                    const fileId = file.id;
+                    const fileName = file.name;
 
-            for (const file of files) {
-                const fileId = file.id;
-                const fileName = file.name;
+                    try {
+                        const response = await axios({
+                            method: 'get',
+                            url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                            responseType: 'stream',
+                            headers: {
+                                Authorization: `Bearer ${ACCESS_TOKEN}`,
+                            },
+                        });
 
-                // Download the file
-                const response = await axios({
-                    method: 'get',
-                    url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-                    responseType: 'stream',
-                    headers: {
-                        Authorization: `Bearer ${ACCESS_TOKEN}`,
-                    },
-                });
+                        let content = '';
 
-                // Save the file to a local directory (e.g., 'public/cornish-vault')
+                        response.data.on('data', (chunk) => {
+                            content += chunk.toString();
+                        });
 
+                        await new Promise((resolve) => {
+                            response.data.on('end', async () => {
+                                console.log(`Downloaded file ${fileName}. File Content:`, content);
 
-                console.log("response", response);
+                                // const data = await prisma.someModel.findMany();
+
+                                // console.log('data', data)
+
+                                const insertedFile = await prisma.dataset.upsert({
+                                    where: {
+                                        filename: fileName, // Unique identifier
+                                    },
+                                    update: {
+                                        content: content,
+                                    },
+                                    create: {
+                                        filename: fileName,
+                                        content: content,
+                                    },
+                                });
+
+                                downloadedFiles.push({
+                                    id: insertedFile.id,
+                                    // fileName,
+                                    content: content,
+                                });
+                                resolve();
+                            });
+                        });
+                    } catch (error) {
+                        console.error('Error fetching file:', error);
+                    }
+                }
+
+                return downloadedFiles; // Return an array of downloaded files
             }
-            // console.log(`${files.length} files syncronized successfully`)
 
-            return res.status(200).json({ message: `${files.length} files syncronized successfully` });
 
-            // const fileId = '1MM9n72XWn0VdlIwoqb55PdjX1iqn9TGh';
-
-            // const response = await axios({
-            //     method: 'get',
-            //     url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-            //     responseType: 'stream', // Important: Set the responseType to 'stream'
-            //     headers: {
-            //         Authorization: `Bearer ${ACCESS_TOKEN}`,
-            //     },
-            // });
-
-            // const publicFolderPath = path.join(process.cwd(), 'public/cornish-vault');
-            // const filePath = path.join(publicFolderPath, 'Tuna Melt.md');
-
-            // const writableStream = fs.createWriteStream(filePath);
-
-            // response.data.pipe(writableStream);
-
-            // response.data.on('end', () => {
-            //     console.log("File saved:", filePath);
-            //     return res.status(200).json({ filePath });
-            // });
-
-            // response.data.on('error', (error) => {
-            //     console.error("Error fetching files:", error.message);
-            //     res.status(500).json({ error: "Internal Server Error" });
-            // });
-            // return res.status(200).json({ response });
+            try {
+                const downloadedFiles = await downloadFiles(files);
+                console.log('downloadedFiles = ', downloadedFiles.length)
+                res.status(200).json({
+                    message: `${downloadedFiles.length} files synchronized successfully`,
+                    data: downloadedFiles
+                });
+            } catch (error) {
+                console.error('Error during file download:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
 
         } catch (error) {
             console.error("Error fetching files:", error.message);
