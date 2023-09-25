@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import * as jwt from '../../../util/jwt';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -8,6 +8,8 @@ export default async function handler(req, res) {
         if (req.method !== 'POST') {
             return res.status(500).end();
         }
+
+
 
         const { token } = req.body;
 
