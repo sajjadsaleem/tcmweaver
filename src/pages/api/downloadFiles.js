@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             const folderId = req.query.folderId;
 
             const filesResponse = await drive.files.list({
-                q: `'${folderId}' in parents`,
+                q: `'${folderId}' in parents and mimeType='text/markdown'`,
             });
 
             const files = filesResponse.data.files;

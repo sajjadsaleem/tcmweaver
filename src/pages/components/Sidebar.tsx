@@ -466,70 +466,6 @@ const Sidebar = () => {
 
     newEntries = responseJson;
 
-    //===========New Code============
-
-    // for (let i = 0; i < wordsArray.length; i++) {
-    //   if (wordsArray[i].startsWith("-")) {
-    //     wordsArray[i] = wordsArray[i].substring(1);
-    //   }
-    // }
-
-    // let newTestFiles: any = [];
-    // let newEntries: any = [];
-
-    // console.log("inputValue", inputValue);
-    // for (const file of filesData) {
-    //   let inputExpression = inputValue;
-    //   const fzf: any = new Fzf<File[]>([file], options);
-    //   for (const word of wordsArray) {
-    //     if (word === "OR" || word === "AND") {
-    //       continue;
-    //     } else {
-    //       newTestFiles = fzf.find(word);
-    //       const isFound = newTestFiles.length > 0;
-    //       if (isFound) {
-    //         if (word === "#") {
-    //           inputExpression = inputExpression.replace(
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-    //             new RegExp(`#${word}|#`, "g"),
-    //             "true"
-    //           );
-    //         } else {
-    //           inputExpression = inputExpression.replace(
-    //             new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-    //             "true"
-    //           );
-    //         }
-    //       } else {
-    //         if (word === "#") {
-    //           inputExpression = inputExpression.replace(
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-    //             new RegExp(`#${word}|#`, "g"),
-    //             "false"
-    //           );
-    //         } else {
-    //           inputExpression = inputExpression.replace(
-    //             new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-    //             // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
-    //             "false"
-    //           );
-    //         }
-    //       }
-    //     }
-    //   }
-    //   // console.log(`${inputExpression} for ${file.fileName} `);
-    //   const expressionEvaluation = evaluateLogicalExpression(inputExpression);
-    //   // console.log(`${expressionEvaluation} for ${file.fileName} `);
-    //   if (expressionEvaluation === 1) {
-    //     newEntries.push(file);
-    //   }
-    // }
-
-    //===========New Code End============
-
     // Remove Brackets and Calculate Occurence of Words
 
     removeBrackets(newEntries, wordToSearch);
@@ -2230,16 +2166,18 @@ const Sidebar = () => {
     // console.log("newEntries: ", newEntries);
 
     setSearchResults(newEntries);
-    generateGraphfromSearch(newEntries);
+    generateGraphfromSearch(newEntries , inputValue);
   };
 
-  const generateGraphfromSearch = (searchResultsForGraph: any) => {
+  const generateGraphfromSearch = (searchResultsForGraph: any , searchValueForGraph: any) => {
+    // console.log('searchResultsforGraph' , searchResultsForGraph)
 
     // Graph Search including links
     if (!graphOrTextView && searchResultsForGraph.length>0) {
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
+      let tempNodes: any = []
       let count = 0;
       let finalCount = 0;
       const nodeExists = (id: any) => {
@@ -2247,15 +2185,15 @@ const Sidebar = () => {
       };
 
       // Iterate through each object
-      if (searchResultsForGraph.length > 0) {
-        console.log("search results for graph: ", searchResultsForGraph);
+      if (searchResultsForGraph.length > 0 ) {
+        // console.log("search results for graph: ", searchResultsForGraph);
         // If search bar has words
         
           // If files are not open in workspace
           // console.log("search Results", searchResults);
   
           const updatedOpenedResults: any = []
-          console.log('updatedOpenedResults ', updatedOpenedResults)
+          // console.log('updatedOpenedResults ', updatedOpenedResults)
   
           searchResultsForGraph.forEach((result:any) => {
             let matchingFile: any = result;
@@ -2269,7 +2207,7 @@ const Sidebar = () => {
             const regex = /\[\[([^[\]]+)\]\]/g;
             const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
             if (matchingFile) {
-              console.log('matching file: ' , matchingFile)
+              // console.log('matching file: ' , matchingFile)
               const contentWithoutHashtags = matchingFile.content.replace(
                 hashtagParagraphRegex,
                 ""
@@ -2303,6 +2241,7 @@ const Sidebar = () => {
               }
             }
           });
+
           finalCount = updatedOpenedResults.length;
           // console.log("updatedOpenedResults: ", updatedOpenedResults);
           updatedOpenedResults.forEach(async (result: any) => {
@@ -2311,36 +2250,88 @@ const Sidebar = () => {
             const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
             const nodeTag = match ? match[0] : null;
             if (!nodeExists(nodeId)) {
-              nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+              nodes.push({ id: nodeId, tag: nodeTag });
             }
+            let wordsArray = []
+            let underlinedWords = null
+
+            if (new RegExp(searchValueForGraph, 'i').test(nodeId)) {
   
             // Parse the content to extract underlined words
-            const underlinedWords = result.content.match(
-              /<span[^>]*>(.*?)<\/span>/g
-            );
-            console.log("underlinedWords", underlinedWords);
-            let wordsArray
-            if(underlinedWords){
-              wordsArray = underlinedWords.map((span: any) => {
-                // Use a regular expression to extract the text content between the <span> tags
-                const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-                // Check if a match was found and return the extracted text, or an empty string if not
-                return match ? match[1] : "";
-              });
-            } else if (underlinedWords === null) {
-              wordsArray = [result.fileName];
-    
-              // Handle the case where underlinedWords is null or undefined
+              underlinedWords = result.content.match(
+                /<span[^>]*>(.*?)<\/span>/g
+              );
+              // console.log("result" , result.fileName , "underlinedWords1 ", underlinedWords);
+              
+              if(underlinedWords){
+                wordsArray = underlinedWords.map((span: any) => {
+                  // Use a regular expression to extract the text content between the <span> tags
+                  const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+                  // Check if a match was found and return the extracted text, or an empty string if not
+                  return match ? match[1] : "";
+                });
+              } else if (underlinedWords === null) {
+                wordsArray = [result.fileName];
+      
+                // Handle the case where underlinedWords is null or undefined
+              }
+              for (const word of wordsArray) {
+                // Check if the word is not already in tempNodes
+                if (!tempNodes.includes(word)) {
+                  // Add the word to tempNodes
+                  tempNodes.push(word);
+                }
+              }
+            } else {
+              underlinedWords = result.content.match(
+                /<span[^>]*>(.*?)<\/span>/g
+              );
+              // console.log("result" , result.fileName , "underlinedWords2 ", underlinedWords);
+              
+              if(underlinedWords){
+                wordsArray = underlinedWords.map((span: any) => {
+                  // Use a regular expression to extract the text content between the <span> tags
+                  const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+                  // Check if a match was found and return the extracted text, or an empty string if not
+                  return match ? match[1] : "";
+                });
+                // console.log('wordsarray now' , wordsArray)
+                wordsArray= wordsArray.filter((word:any) => {
+                  // Check if the word matches searchValueForGraph or if it's in the nodes array
+                  const matchesSearch = new RegExp(searchValueForGraph, "i").test(word);
+                  // console.log('matchesSearch' , matchesSearch)
+                  const inNodesArray = tempNodes.some((node:any) => {
+                    // Check if any node in tempNodes meets a specific condition
+                    return node === word; // Adjust the condition as needed
+                });
+                  // console.log('inNodesArray' , inNodesArray)
+                  return matchesSearch || inNodesArray;
+                });
+                // console.log('wordsarraynowafter' , wordsArray)
+              } else if (underlinedWords === null) {
+                wordsArray = [result.fileName];
+      
+                // Handle the case where underlinedWords is null or undefined
+              }
+              for (const word of wordsArray) {
+                // Check if the word is not already in tempNodes
+                if (!tempNodes.includes(word)) {
+                  // Add the word to tempNodes
+                  tempNodes.push(word);
+                }
+              }
+
             }
             
             // console.log("wordsArray: ", wordsArray);
   
             try {
+              // console.log('nodes' , nodes)
               // console.log("wordsArray", wordsArray);
               const response = await axios.post(
                 "/api/getTags?q=" + wordsArray.join(",")
               );
-              // console.log("res", response);
+              console.log("res", response);
               // Handle the response data here
   
               if (response) {
@@ -2355,6 +2346,7 @@ const Sidebar = () => {
                 console.log("linkTags", linkTags);
                 linkTags.forEach((word: any) => {
                   const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
+                  console.log('existingNodeIndex' ,existingNodeIndex )
                   if (existingNodeIndex !== -1) {
                     // Node already exists, update its tag
                     nodes[existingNodeIndex].tag = word.category;
@@ -3160,7 +3152,7 @@ const Sidebar = () => {
                 />
               </Link>
             </div>
-            {/* <div>
+            <div>
               <img
                 src="/sync.svg"
                 alt="img"
@@ -3179,7 +3171,7 @@ const Sidebar = () => {
                 }}
               />
 
-            </div> */}
+            </div>
             {syncPopup ? (<div>
               <Dialog open={syncPopup} onClose={handleCloseDialog}>
                 <DialogTitle>Authorization Required</DialogTitle>

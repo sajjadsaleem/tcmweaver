@@ -1,13 +1,16 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Fzf } from 'fzf';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default async function search(req, res) {
     try {
         const inputValue = req.query.q.replace(/,/g, ' ');
-        // console.log('req inputValue:', inputValue);
+        console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
-        // console.log('req wordsArray: ' , wordsArray)
+        console.log('req wordsArray: ', wordsArray)
 
 
         // reading all files
@@ -21,6 +24,18 @@ export default async function search(req, res) {
             })
         );
 
+        // console.log('filesData', filesData)
+
+        // const datasets = await prisma.dataset.findMany({
+        //     select: {
+        //         filename: true,
+        //         content: true,
+        //         // Add other columns you want to include here
+        //     },
+        // });
+
+        // console.log('dataset:', datasets)
+
         // Remove ".md" extension
         const extensionRemovedData = filesData.map(item => {
             return {
@@ -29,8 +44,12 @@ export default async function search(req, res) {
             };
         });
 
+        // console.log('extensionRemovedData', extensionRemovedData)
+
         // remove filters file from other data
         const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "filters");
+
+        // console.log('filesWithoutFilters', filesWithoutFilters)
 
 
         // filter the data
@@ -60,33 +79,28 @@ export default async function search(req, res) {
                 } else {
                     newTestFiles = fzf.find(word);
                     const isFound = newTestFiles.length > 0;
+                    // console.log(isFound)
                     if (isFound) {
                         if (word === "#") {
                             inputExpression = inputExpression.replace(
-                                // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
                                 new RegExp(`#${word}|#`, "g"),
                                 "true"
                             );
                         } else {
                             inputExpression = inputExpression.replace(
                                 new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
                                 "true"
                             );
                         }
                     } else {
                         if (word === "#") {
                             inputExpression = inputExpression.replace(
-                                // new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
                                 new RegExp(`#${word}|#`, "g"),
                                 "false"
                             );
                         } else {
                             inputExpression = inputExpression.replace(
                                 new RegExp(`(\\b|\\B)#?${word}\\b`, "g"),
-                                // new RegExp(`(\\b|\\B)#?${word}\\b|\\B#\\b`, "g"),
                                 "false"
                             );
                         }
@@ -100,7 +114,20 @@ export default async function search(req, res) {
                 newEntries.push(file);
             }
         }
-        // console.log('newEntries: ' , newEntries)
+        // console.log('newEntries: ', newEntries)
+
+        // const datasets = await prisma.dataset.findMany({
+        //     where: {
+        //         OR: wordsArray.map((word) => ({
+        //             OR: [
+        //                 { filename: { contains: word } }, // Match word in filename
+        //                 { content: { contains: word } },  // Match word in content
+        //             ],
+        //         })),
+        //     },
+        // });
+
+        // console.log('datasets = ', datasets)
 
         res.status(200).json(newEntries);
     } catch (error) {
