@@ -47,7 +47,7 @@ export default async function search(req, res) {
         // console.log('extensionRemovedData', extensionRemovedData)
 
         // remove filters file from other data
-        const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "filters");
+        const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "SAMPLE FILTERS");
 
         // console.log('filesWithoutFilters', filesWithoutFilters)
 
