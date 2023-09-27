@@ -14,33 +14,33 @@ export default async function search(req, res) {
 
 
         // reading all files
-        const directoryPath = `${process.cwd()}/public/cornish-vault`;
-        const fileNames = await fs.readdir(directoryPath);
-        const filesData = await Promise.all(
-            fileNames.map(async (fileName) => {
-                const filePath = path.join(directoryPath, fileName);
-                const content = await fs.readFile(filePath, 'utf-8');
-                return { fileName, content };
-            })
-        );
+        // const directoryPath = `${process.cwd()}/public/cornish-vault`;
+        // const fileNames = await fs.readdir(directoryPath);
+        // const filesData = await Promise.all(
+        //     fileNames.map(async (fileName) => {
+        //         const filePath = path.join(directoryPath, fileName);
+        //         const content = await fs.readFile(filePath, 'utf-8');
+        //         return { fileName, content };
+        //     })
+        // );
 
         // console.log('filesData', filesData)
 
-        // const datasets = await prisma.dataset.findMany({
-        //     select: {
-        //         filename: true,
-        //         content: true,
-        //         // Add other columns you want to include here
-        //     },
-        // });
+        const datasets = await prisma.dataset.findMany({
+            select: {
+                filename: true,
+                content: true,
+                // Add other columns you want to include here
+            },
+        });
 
         // console.log('dataset:', datasets)
 
         // Remove ".md" extension
-        const extensionRemovedData = filesData.map(item => {
+        const extensionRemovedData = datasets.map(item => {
             return {
                 ...item,
-                fileName: item.fileName.replace(/\.md$/, '')
+                fileName: item.filename.replace(/\.md$/, '')
             };
         });
 

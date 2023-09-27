@@ -18,10 +18,6 @@ export default async function handler(req, res) {
             const CLIENT_SECRET = process.env.CLIENT_SECRET
             const REDIRECT_URI = process.env.REDIRECT_URI
 
-            console.log('CLIENT_ID', CLIENT_ID)
-            console.log('CLIENT_SECRET', CLIENT_SECRET)
-            console.log('REDIRECT_URI', REDIRECT_URI)
-
             const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
             let authUrl
