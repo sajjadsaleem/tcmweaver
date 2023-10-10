@@ -8,7 +8,7 @@ import router from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
 import axios from "axios";
-import { List, ListItem, ListItemText, Slider } from "@mui/material";
+import { FormControl, Grid, IconButton, InputAdornment, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Slider, TextField } from "@mui/material";
 import * as Helpers from '../../util/Helpers'
 import Link from "next/link";
 import Button from '@mui/material/Button';
@@ -17,10 +17,18 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useDispatch, useSelector } from 'react-redux'
+import {stAccessTokenVerify} from '../../store/apps/auth'
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 
 
 const Sidebar = () => {
+  
+  const dispatch = useDispatch()
+  const getStAuth = useSelector((state:any) => state.stAuth)
+
   interface FileData {
     fileName: string;
     content: string;
@@ -95,6 +103,28 @@ const Sidebar = () => {
   const [folders, setFolders] = useState([]);
   const [foldersPopup, setFoldersPopup] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState(null);
+  const [searchQueue , setSearchQueue] = useState([])
+  const [showAccountOptions, setShowAccountOptions] = useState(false);
+  const [getUser, setUser] = useState<any>({})
+  const [getPermissions , setPermissions] = useState([])
+  const [userLogoutPopup , setUserLogoutPopup] = useState(false)
+  const [showEditUserDialog , setShowEditUserDialog] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    role: 'User',
+    status: '',
+  });
+  const [editUserLoader , setEditUserLoader] = useState(false)
+  const [showChangePasswordDialog , setShowChangePasswordDialog] = useState(false)
+  const [newPasswordData, setNewPasswordData] = useState({
+    newPassword: '',
+    confirmPassword:''
+  });
+  const [showSetPasswordToggle , setShowSetPasswordToggle] = useState(false)
+  const [showConfirmPasswordToggle , setShowConfirmPasswordToggle] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -108,6 +138,19 @@ const Sidebar = () => {
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
   // console.log('userEmail ', userEmail)
+  console.log('getUser' , getUser , 'getpermissions' , getPermissions)
+
+  
+
+  const getInit = () => {
+    setUser(getStAuth.stAccessTokenVerify)
+    setPermissions(getStAuth.stAccessTokenVerify.user_permissions)
+    // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify)
+  }
+
+  useEffect(() => {
+    getInit()
+  }, [getUser, getPermissions, getStAuth]);
 
   useEffect(() => {
     const fetchFilesData = async () => {
@@ -117,6 +160,7 @@ const Sidebar = () => {
           throw new Error("Failed to fetch files data.");
         } else {
           let data = await response.json();
+          console.log('data' , data)
 
           const modifiedData = data.map((item: any) => {
             return {
@@ -143,19 +187,23 @@ const Sidebar = () => {
           // console.log('data' , data)
           let homepageFile = _.cloneDeep(data); // Deep clone the array
 
+
+
           homepageFile[0].content = marked(homepageFile[0].content);
+
+         
 
           setFiltersData(homepageFile)
 
 
           // separating data and filters file
           const filtersFile = data.filter(
-            (item: any) => item.fileName !== "filters"
+            (item: any) => item.fileName !== "SAMPLE FILTERS"
           );
           setFilesData(filtersFile);
 
           const filtersObject = data.find(
-            (item: any) => item.fileName === "filters"
+            (item: any) => item.fileName === "SAMPLE FILTERS"
           );
           let filteredData = filtersObject ? [filtersObject] : [];
 
@@ -193,9 +241,8 @@ const Sidebar = () => {
         console.error("Error fetching files data:", error);
       }
     };
-    const showToast = router.query.dashboard === "true";
-    
 
+    const showToast = router.query.dashboard === "true";
     // If the showToast parameter is present, display the toast
     if (showToast) {
       toast("Login success", {
@@ -226,79 +273,6 @@ const Sidebar = () => {
 
 
   }, [sliderValue])
-
-  useEffect(() => {
-    // Check if the URL contains the 'code' parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get("code");
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-
-    if (authorizationCode) {
-      // Authorization code is present in the URL, send it to your backend
-      console.log('authorizationCode', authorizationCode)
-      axios
-        .post("/api/exchangeCodeForToken", { code: authorizationCode })
-        .then((res) => {
-          // Handle the response from the backend, which may contain the access token
-          const accessToken = res.data.accessToken;
-          console.log('accessToken ', accessToken)
-          // axios
-          // .get("https://people.googleapis.com/v1/people/me", {
-          //   headers: {
-          //     Authorization: `Bearer ${accessToken}`,
-          //   },
-          //   params: {
-          //     personFields: 'emailAddresses',
-          //   },
-          // })
-          // .then((userRes) => {
-          //   const primaryEmail = userRes.data.emailAddresses.find(
-          //     (email:any) => email.metadata.primary
-          //   );
-          //   if (primaryEmail) {
-          //     setUserEmail(primaryEmail.value);
-          //   }
-          // })
-          // .catch((userErr) => {
-          //   console.error("Error fetching user email:", userErr.response);
-          // })
-          setAccessToken(accessToken);
-       
-          // Now you can use the accessToken to make authenticated requests to Google Drive API.
-        })
-        .catch((err) => {
-          console.error("Error exchanging authorization code:", err.response);
-        });
-    } 
-  }, []);
-
-  useEffect(() => {
-    // Check if accessToken is available
-    if (accessToken) {
-      // Use the accessToken to make authenticated requests to Google Drive API
-      axios
-        .get("https://www.googleapis.com/drive/v3/files", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: {
-            q: "mimeType='application/vnd.google-apps.folder' and not trashed",
-          },
-        })
-        .then((res) => {
-          // Handle the list of files from the Google Drive API response
-          console.log('Files:', res.data.files);
-          setFolders(res.data.files);
-          setFoldersPopup(true)
-         
-
-        })
-        .catch((err) => {
-          console.error("Error fetching files from Google Drive:", err.response);
-        });
-    }
-  }, [accessToken]);
 
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
@@ -627,7 +601,9 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
-      handleGraphSearch(syntheticEvent)
+      if(!graphOrTextView){
+        handleGraphSearch(syntheticEvent)
+      }
     } else if (valueToCheck === "exclude") {
       const valueToAdd = valueToInclude;
       let updatedValue = currentValue;
@@ -656,7 +632,9 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
-      handleGraphSearch(syntheticEvent)
+      if(!graphOrTextView){
+        handleGraphSearch(syntheticEvent)
+      }
     } else {
       const valueToRemove = valueToInclude;
       const regex = new RegExp(`\\s*(-?["']?${valueToRemove}["']?)\\s*`, "gi");
@@ -666,7 +644,9 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
       handleSearch(syntheticEvent);
-      handleGraphSearch(syntheticEvent)
+      if(!graphOrTextView){
+        handleGraphSearch(syntheticEvent)
+      }
     }
     setAllCheckboxes(updatedCheckboxes);
   };
@@ -1402,10 +1382,7 @@ const Sidebar = () => {
     handleSearch(syntheticEvent);
   };
 
-  const handleLinkClick = async (
-    linkClickedFromFile: any,
-    linkClicked: any
-  ) => {
+  const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any) => {
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
     try {
@@ -1413,7 +1390,7 @@ const Sidebar = () => {
       const newDataObject = await response.json();
       // console.log("responseJson: ", responseJson);
 
-      // console.log("newDataObject", newDataObject);
+      console.log("newDataObject", newDataObject);
       marked.setOptions({
         breaks: true,
       });
@@ -2518,11 +2495,15 @@ const Sidebar = () => {
         // let graphNewData = resultData;
         setGraphData(resultData);
         const graphDiv:any = document.getElementById('graph-div');
-        const svgElement = graphDiv.querySelector('svg');
-        if(svgElement){
-          graphDiv.removeChild(svgElement);
+        if (graphDiv) {
+          const svgElement = graphDiv.querySelector('svg');
+          if (svgElement) {
+            graphDiv.removeChild(svgElement);
+          } else {
+            console.log('SVG element not found or already removed.');
+          }
         } else {
-          console.log('SVG element not found or already removed.');
+          console.log('Element with ID "graph-div" not found.');
         }
         setOpenedResults(searchResultsForGraph);
         // makeGraph(resultData);
@@ -3093,6 +3074,180 @@ const Sidebar = () => {
 
     // setFoldersPopup(false)
   };
+
+  const toggleAccountOptions = () => {
+    setShowAccountOptions(!showAccountOptions);
+  };
+
+  const handleUserManagementClick = (itemName:any) => {
+    const queryParams = { usermanagement: itemName };
+    
+    router.push({
+      pathname: "/dashboard",
+      query: queryParams,
+    });
+  };
+
+  const handleUserOptions = (itemName:any)=>{
+    console.log('itemname' , itemName)
+    if(itemName === 'profile'){
+      console.log('getuser' , getUser)
+      setFormData((prevData) => ({
+        ...prevData,
+        email: getUser.user.email,
+        fullName: getUser.user.full_name,
+        role: getUser.user_role,
+        status: getUser.user.status
+
+      }));
+      setShowEditUserDialog(true)
+    }
+    if(itemName === 'changepassword'){
+      setShowChangePasswordDialog(true)
+
+    }
+    if(itemName === 'billing'){
+
+    }
+    if(itemName === 'logout'){
+      setUserLogoutPopup(true)
+    }
+  }
+
+  const handleUserLogoutPopupClose = () => {
+    toggleAccountOptions()
+    setUserLogoutPopup(false)
+  }
+
+  const userLogout = () => {
+      Helpers.logout()
+    router.push('/login')
+
+  }
+
+  const closeEditUserDailog = () => {
+    setShowEditUserDialog(false)
+    setShowAccountOptions(false)
+    setFormData({
+      fullName: '',
+      email: '',
+      role: '',
+      status: '',
+    });
+  }
+
+  const handleUserProfileChange = (e:any) => {
+    const { name, value } = e.target;
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+  }
+
+  const handleEditUser = async () => {
+    setEditUserLoader(true)
+    // console.log('emailtoudpatedata' , getUser.user.email)
+    // console.log('formData' , formData)
+    // setUpdatePasswordLoader(true)
+    await axios.post('/api/editUser', {
+      email: getUser.user.email,
+      data: formData
+    })
+    .then(async (res)=>{
+      console.log('user updated successfully' , res.data);
+      // await fetchUsers()
+      // setOriginalUsers(res.data.allUsers);
+      // setSearchedUsers(res.data.allUsers)
+      // closeAddUserDialog()
+      setShowEditUserDialog(false)
+      toggleAccountOptions()
+      setEditUserLoader(false)
+      toast.success('Account updated successfully!');
+      setFormData({
+        fullName: '',
+        email: '',
+        role: '',
+        status: '',
+      });
+
+      dispatch(stAccessTokenVerify({
+        user: res.data.allUsers[0],
+        user_permssions: res.data.getPermissions ,
+        user_role: res.data.getRole
+      }))
+      
+    setUser(res.data.allUsers[0])
+    setPermissions(res.data.getPermissions)
+    })
+    .catch((error:any)=>{
+      console.log('Error calling editUser api:', error);
+      setEditUserLoader(false)
+      // setIsLoading(false);
+      toast.error('Failed to updated account data');
+    })
+  }
+
+  const closeSetPasswordDialog = () => {
+    setShowChangePasswordDialog(false)
+    setNewPasswordData({
+      newPassword: '',
+      confirmPassword:''
+    });
+    setShowAccountOptions(false)
+    setShowSetPasswordToggle(false)
+    setShowConfirmPasswordToggle(false)
+
+  }
+
+  const handleSetNewPasswordToggle = (e:any) =>{
+    const { name, value } = e.target;
+    setNewPasswordData({
+      ...newPasswordData,
+      [name]: value,
+    });
+  }
+
+  const handleSetPassword = async () => {
+    // const emailToUpdatePassword:any = originalUsers[indexToChangePassword].email;
+    if (newPasswordData.newPassword !== newPasswordData.confirmPassword) {
+      toast.error('Passwords do not match!', { autoClose: 2000 });
+      return;
+    } else {
+      setUpdatePasswordLoader(true)
+      // console.log('getuser' , getUser.user.email)
+      await axios.post('/api/updatePassword', {
+        email: getUser.user.email,
+        password: newPasswordData.newPassword
+      })
+      .then((res)=>{
+        console.log('set password successfully' , res.data);
+        // closeAddUserDialog()
+        // setShowSetPassword(false)
+        setShowChangePasswordDialog(false)
+        toggleAccountOptions()
+        setUpdatePasswordLoader(false)
+        toast.success('Password updated successfully!', { autoClose: 1500 });
+        setNewPasswordData({
+          newPassword: '',
+          confirmPassword: '',
+        });
+
+
+      })
+      .catch((error:any)=>{
+        console.log('Error calling addUser api:', error);
+        setUpdatePasswordLoader(false)
+        toast.error('Failed to set password');
+      })
+    }
+
+
+
+
+    //clear fields after updating password
+    
+
+  }
  
 
   return (
@@ -3154,24 +3309,49 @@ const Sidebar = () => {
             </div>
             <div>
               <img
-                src="/sync.svg"
+                src="/users.svg"
                 alt="img"
-                onClick={() => {
-                  // Check if the user is authenticated (has a valid JWT token)
-                  const accessToken = localStorage.getItem("ACCESS_TOKEN");
-                  if (!accessToken) {
-                    // Handle unauthenticated user, maybe show a login prompt
-                    console.log("User is not authenticated.");
-                    return;
-                  }
-            
-                  // User is authenticated, initiate synchronization
-                  // setSyncPopup(true)
-                  openSyncDialog()
-                }}
+                onClick={toggleAccountOptions}
+                style={{ cursor: "pointer" }}
               />
-
+              {showAccountOptions && (
+                <div className="account-options-container">
+                  <List>
+                    {
+                      _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
+                        <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
+                          <ListItemText primary="Vault Management" />
+                        </ListItem>
+                      )
+                    }
+                    {
+                      _.every(['user_management'], value => _.includes(getPermissions, value)) && (
+                        <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
+                          <ListItemText primary="User Management" />
+                        </ListItem>
+                      )
+                    }
+                    {getUser.user_role === 'User' && (
+                      <>
+                      <ListItem button onClick={() => handleUserOptions("profile")} dense>
+                        <ListItemText primary="Profile" />
+                      </ListItem>
+                      <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
+                        <ListItemText primary="Change Password" />
+                      </ListItem>
+                      <ListItem button onClick={() => handleUserOptions("billing")} dense>
+                        <ListItemText primary="Billing" />
+                      </ListItem>
+                      <ListItem button onClick={() => handleUserOptions("logout")} dense>
+                        <ListItemText primary="Logout" />
+                      </ListItem>
+                      </>
+                    )}
+                  </List>
+                </div>
+              )}
             </div>
+
             {syncPopup ? (<div>
               <Dialog open={syncPopup} onClose={handleCloseDialog}>
                 <DialogTitle>Authorization Required</DialogTitle>
@@ -3210,6 +3390,127 @@ const Sidebar = () => {
              </DialogActions>
            </Dialog>
             )}
+
+            {userLogoutPopup && (
+              <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose}>
+                <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                <DialogActions>
+                  <Button onClick={handleUserLogoutPopupClose} color="primary">
+                    Cancel
+                  </Button>
+                  <Button onClick={userLogout} color="primary">
+                    Logout
+                  </Button>
+                </DialogActions>
+
+              </Dialog>
+            )}
+
+            {showEditUserDialog && (
+              <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
+                <DialogTitle>Edit Profile</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please enter the details:
+                  </DialogContentText>
+                  <Grid container spacing={2} sx={{paddingTop:1}}>
+                    <Grid item xs={12}>
+                      <TextField
+                          label="Full Name"
+                          name="fullName"
+                          value={formData.fullName}
+                          onChange={handleUserProfileChange}
+                          fullWidth
+                          margin="normal"
+                          size='small'
+                      />
+                      
+                      <TextField
+                        label="Email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleUserProfileChange}
+                        fullWidth
+                        margin="normal"
+                        size='small'
+                      />
+
+                    </Grid> 
+                  </Grid>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={closeEditUserDailog} color="primary">
+                    Cancel
+                  </Button>
+                  <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                    {editUserLoader ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            )}
+
+            {showChangePasswordDialog && (
+              <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
+              <DialogTitle>Set Password</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Please enter the new password:
+                </DialogContentText>
+                <TextField
+                  type={showSetPasswordToggle ? 'text' : 'password'}
+                  label="New Password"
+                  name="newPassword"
+                  value={newPasswordData.newPassword}
+                  onChange={handleSetNewPasswordToggle}
+                  fullWidth
+                  margin="normal"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                          edge="end"
+                        >
+                          {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  type={showConfirmPasswordToggle ? 'text' : 'password'}
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  value={newPasswordData.confirmPassword}
+                  onChange={handleSetNewPasswordToggle}
+                  fullWidth
+                  margin="normal"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                          edge="end"
+                        >
+                          {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeSetPasswordDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                  {updatePasswordLoader ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogActions>
+              </Dialog>
+            )}
+
+
           </div>
         </div>
 
@@ -3532,7 +3833,7 @@ const Sidebar = () => {
                   // <p style={{ padding: "16px" }}>No results are open.</p>
                   <div className="homepage-opened-file">
                     <div className="view-panel-title">
-                      <h4>{filtersData && filtersData.length>0 ? filtersData[0].fileName.toUpperCase() : ''}</h4>
+                      <h3>Homepage</h3>
                     
                         {/* <div className="view-panel-title-icons">
                           <img

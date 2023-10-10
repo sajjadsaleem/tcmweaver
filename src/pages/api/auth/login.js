@@ -2,12 +2,11 @@ import { db } from '@vercel/postgres';
 import * as Validation from '../../../util/Validation'
 import * as jwt from '../../../util/jwt'
 import bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
+import { sql } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { users } from '../../../db/schema/users'
+import { eq, lt, gte, ne } from "drizzle-orm";
 
-const prisma = new PrismaClient();
-
-
-// const { Client } = require('pg');
 
 export default async function login(req, res) {
   if (req.method !== 'POST') {
@@ -19,7 +18,6 @@ export default async function login(req, res) {
         { email: ['required', 'email'] },
         { password: ['required'] },
       ]
-      console.log(process.env.DATABASE_URL);
 
       const { errors, isValid } = Validation.validateSignupData(req.body, rules);
       if (!isValid || errors.length > 0) {
@@ -31,26 +29,14 @@ export default async function login(req, res) {
         });
       }
 
-      // const client = new Client({
-      //   connectionString: process.env.DATABASE_URL,
-      //   ssl: {
-      //     rejectUnauthorized: false,
-      //   },
-      // });
 
-      // await client.connect();
+      const db = drizzle(sql)
+      const userArray = await db.select().from(users).where(eq(users.email, email));
+      const user = userArray[0] || null;
 
-      // // Query the database to find a user with the provided email
-      // const getUsers = await client.query(
-      //   "SELECT * FROM users WHERE username = $1",
-      //   [email]
-      // );
+      console.log('user', user)
 
-      const user = await prisma.users.findUnique({
-        where: {
-          email: email,
-        },
-      });
+
 
       if (!user) {
         errors.push({ email: 'User does not exist' });
@@ -89,7 +75,8 @@ export default async function login(req, res) {
         message: 'You have logged in successfully',
         token: signedToken,
         user: {
-          email: user.email
+          email: user.email,
+          role: user.role_id
         },
       });
     } catch (error) {

@@ -1,166 +1,223 @@
 // pages/dashboard/index.js (Dashboard page)
 
-import React, { useContext, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import axios from "axios";
+import React, { useState } from "react";
+import Link from 'next/link';
+import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
+
 import { useRouter } from "next/router";
 
-// import LayoutWrapper from './components/global/LayoutWrapper';
-// import AuthLayout from './components/global/AuthLayout';
-// import * as Helpers from '../util/Helpers';
-// import appLogo from "../images/logo.gif";
+import LayoutWrapper from "@/pages/components/LayoutWrapper";
+import AuthLayout from "@/pages/components/AuthLayout";
+import * as Helpers from '../../util/Helpers'
+import { FullPageComponentLoading } from '../../util/FullPageComponentLoading'
+import { TextField, InputAdornment, IconButton, Icon, Button, Grid, Paper, Typography } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const SignUpPage = () => {
-  const router = useRouter();
-  const [btnLoading, setBtnLoading] = useState(false);
+const UserVerificationPage = () => {
+    const router = useRouter()
+    const { user_id, verification_token } = router.query;
+    const [btnLoading, setBtnLoading] = useState(false)
+    const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(false);
+    
+    const [get_full_name, set_full_name] = useState("");
+    const [get_phone_number, set_phone_number] = useState("");
+    const [get_password, set_password] = useState("");
+    const [get_confirm_password, set_confirm_password] = useState("");
 
-  const [get_full_name, set_full_name] = useState("");
-  const [get_phone_number, set_phone_number] = useState("");
-  const [get_email, set_email] = useState("");
-  const [get_password, set_password] = useState("");
-  const [get_confirm_password, set_confirm_password] = useState("");
+    const [get_password_type, set_password_type] = useState(false)
+    const [get_confirm_password_type, set_confirm_password_type] = useState(false)
 
-  //   const phoneNumber = (txt) => {
-  //     set_phone_number(Helpers.phoneFormat(txt));
-  //   };
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        showPassword: false,
+        showConfirmPassword: false,
+      });
+    const [showRedirection , setShowRedirection] = useState(false)
+    // console.log('formData' , formData)
 
-  const submitBtn = () => {
-    setBtnLoading(true);
-    // let payload = {
-    //   full_name: get_full_name,
-    //   phone_number: get_phone_number,
-    //   email: get_email,
-    //   password: get_password,
-    //   confirm_password: get_confirm_password,
-    // };
-    // axios
-    //   .post("/api/auth/signup", payload)
-    //   .then((res) => {
-    //     setBtnLoading(false);
-    //     toast.success(res.data.message, Helpers.toastSettings());
-    //     router.push("/login");
-    //   })
-    //   .catch((err) => {
-    //     console.log("err=", err.response.data);
-    //     setBtnLoading(false);
-    //     Helpers.catchFunction(err);
-    //   });
-  };
 
-  return (
-    <>
-      {/* <LayoutWrapper layout={AuthLayout} > */}
-      <div className="container">
-        <div className="authForm">
-          <div className="mb-40 text-center">
-            <Link href="/" className="logo">
-              <img src="/graph-logo.png" alt="img" className="signup-logo" />
-            </Link>
-          </div>
+    const handleChange = (e:any) => {
+    const { name, value } = e.target;
+    setFormData({
+        ...formData,
+        [name]: value,
+    });
+    };
 
-          <div className="mb-3">
-            <label htmlFor="full_name" className="form-label">
-              Full Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="full_name"
-              value={get_full_name}
-              onChange={(e) => set_full_name(e.target.value)}
-            />
-          </div>
+    const handleShowPassword = () => {
+        setFormData({
+          ...formData,
+          showPassword: !formData.showPassword,
+        });
+    };
 
-          <div className="mb-3">
-            <label htmlFor="phone_number" className="form-label">
-              Phone Number
-            </label>
-            {/* <input type="text" className="form-control" id="phone_number" value={get_phone_number} onChange={e => set_phone_number(e.target.value)} /> */}
-            <input
-              type="text"
-              className="form-control"
-              id="phone_number"
-              value={get_phone_number}
-              // onChange={(e) => phoneNumber(e.target.value)}
-            />
-          </div>
+    const handleShowConfirmPassword = () => {
+        setFormData({
+          ...formData,
+          showConfirmPassword: !formData.showConfirmPassword,
+        });
+    };
+    
+    const handleSubmit = (e:any) => {
+        e.preventDefault()
+        setBtnLoading(true)
+        let payload = {
+            full_name: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+            confirm_password: formData.confirmPassword,
+        }
 
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              Email
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              value={get_email}
-              onChange={(e) => set_email(e.target.value)}
-            />
-          </div>
+        console.log('payload' , payload)
+        axios.post('/api/auth/signUp', payload)
+            .then((res) => {
+                // setFullPageComponentLoading(false)
+                setBtnLoading(false)
+                toast.success(res.data.message);
+                setFormData({
+                    fullName: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    showPassword: false,
+                    showConfirmPassword: false,
+                  });
+                setShowRedirection(true)
+                const timer = setTimeout(() => {
+                    router.push('/login');
+                  }, 5000);
+            })
+            .catch(err => {
+                console.log('err=',err.response.data.message)
+                // setFullPageComponentLoading(false)
+                setBtnLoading(false)
+                toast.error(err.response.data.message);
+            });
+    };
 
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              value={get_password}
-              onChange={(e) => set_password(e.target.value)}
-            />
-          </div>
+    return ( 
+        <LayoutWrapper layout={AuthLayout} >
+            <div>
+                <div>
+                    <Link href="/login" style={{ textDecoration: 'none' }}>
+                        <div className="user-invitation-heading">
+                            <div>
+                                <img src="/graph-logo.png" alt="img" />
+                            </div>
+                            <p>TCM Weaver</p>
+                        </div>
+                    </Link>
 
-          <div className="mb-3">
-            <label htmlFor="confirm_password" className="form-label">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="confirm_password"
-              value={get_confirm_password}
-              onChange={(e) => set_confirm_password(e.target.value)}
-            />
-          </div>
+                    <Grid container justifyContent="center" alignItems="center" style={{ height: '70vh' }}>
+                        <Grid item>
+                            <Paper elevation={3} style={{ padding: '20px', maxWidth: '400px' }}>
+                                <Typography variant="h5" gutterBottom>
+                                    Sign Up
+                                </Typography>
+                                <form onSubmit={handleSubmit}>
+                                    <TextField
+                                      label="Full Name"
+                                      name="fullName"
+                                      value={formData.fullName}
+                                      onChange={handleChange}
+                                      fullWidth
+                                      margin="normal"
+                                      size="small"
+                                      required
+                                    />
 
-          <div className="d-grid mb-4">
-            <button
-              type="submit"
-              className="btn btn-primary btn-block"
-              disabled={btnLoading}
-              onClick={submitBtn}
-            >
-              {btnLoading ? (
-                <>
-                  Please Wait{" "}
-                  <span
-                    className="spinner-grow spinner-grow-sm ml-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </>
-              ) : (
-                <>Sign Up</>
-              )}
-            </button>
-            
-          </div>
+                                    <TextField
+                                      label="Email"
+                                      name="email"
+                                      value={formData.email}
+                                      onChange={handleChange}
+                                      fullWidth
+                                      margin="normal"
+                                      size="small"
+                                      required
+                                    />
 
-          <div className="mb-3 text-center">
-            <p>
-              Already have an account?{" "}
-              <Link className="text-base" href={`/login`}>
-                Login
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-      {/* </LayoutWrapper> */}
-    </>
-  );
+                                    <TextField
+                                        label="Password"
+                                        name="password"
+                                        type={formData.showPassword ? 'text' : 'password'} // Toggle password visibility
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        margin="normal"
+                                        size="small"
+                                        required
+                                        InputProps={{
+                                            endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={handleShowPassword}>
+                                                {formData.showPassword ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+
+                                    <TextField
+                                        label="Confirm Password"
+                                        name="confirmPassword"
+                                        type={formData.showConfirmPassword ? 'text' : 'password'} // Toggle confirm password visibility
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        margin="normal"
+                                        size="small"
+                                        required
+                                        InputProps={{
+                                            endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={handleShowConfirmPassword}>
+                                                {formData.showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                    <div className="d-grid mb-4 mt-4">
+                                        <button type="submit" className="btn btn-primary btn-block" disabled={btnLoading} >
+                                            {
+                                                btnLoading ?
+                                                (
+                                                    <>Please Wait <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span></>
+                                                ) : (
+                                                    <>Submit</>
+                                                )
+                                            }
+                                        </button>
+                                    </div>
+                                </form>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+
+                    {showRedirection ?
+                        (<div style={{textAlign: 'center'}}>
+                            <p>You will be redirected to login page ...</p>
+                        </div>): (<></>
+                    )}
+                </div> 
+                                             
+                <div className="mb-3 text-center">
+                    <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
+                </div>
+
+                
+                
+            </div>
+            <ToastContainer autoClose={1500} />
+        </LayoutWrapper>
+    );
 };
 
-export default SignUpPage;
+export default UserVerificationPage;

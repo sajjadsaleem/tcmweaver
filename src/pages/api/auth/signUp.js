@@ -1,0 +1,104 @@
+import { db } from '@vercel/postgres';
+import * as Validation from '../../../util/Validation'
+import * as jwt from '../../../util/jwt'
+import bcrypt from 'bcrypt';
+import { sql } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { users } from '../../../db/schema/users'
+
+
+export default async function signup(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(500).end();
+    } else {
+        try {
+            const { full_name, email, password, confirm_password } = req.body;
+            // console.log('req.body', req.body)
+            const rules = [
+                { full_name: ['required'] },
+                { email: ['required', 'email'] },
+                { password: ['required'] },
+                { confirm_password: ['required'] },
+
+            ]
+
+            const { errors, isValid } = Validation.validateSignupData(req.body, rules);
+
+            if (!isValid || errors.length > 0) {
+                return res.status(500).send({
+                    success: false,
+                    status: "error",
+                    errors: errors,
+                    message: 'Internal Server Error'
+                });
+            }
+
+            if (password != confirm_password) {
+                errors.push({ confirm_password: 'password and confirm password must be the same' })
+                return res.status(500).json({
+                    success: false,
+                    status: "error",
+                    errors: errors,
+                    message: 'password and confirm password must be the same'
+                });
+            }
+
+            const saltRounds = 12;
+            const salt = await bcrypt.genSalt(saltRounds);
+            // Hash the password using bcrypt
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            console.log('hashed password', hashedPassword)
+
+            // const newUsers = await prisma.users.create({
+            //     data: {
+            //         role_id: 2,
+            //         email: email,
+            //         password: hashedPassword,
+            //         verification_token: '',
+            //         forgot_password_token: '',
+            //         full_name: full_name,
+            //         username: email,
+            //         status: 'Active',
+            //     },
+            // });
+
+
+            const db = drizzle(sql)
+            let newUser = await db.insert(users).values({
+                role_id: 2,
+                email: email,
+                password: hashedPassword,
+                verification_token: '',
+                forgot_password_token: '',
+                full_name: full_name,
+                username: email,
+                status: 'Active',
+            });
+            // console.log('new user', newUser)
+            // let datasetFilter = newUser[0] || null;
+
+
+
+            return res.status(200).send({
+                success: true,
+                status: "success",
+                // errors: [],
+                message: 'Account created successfully',
+                // token: signedToken,
+                // user: {
+                //     email: user.email
+                // },
+            });
+        } catch (error) {
+            console.error('Error creating user:', error);
+
+            return res.status(500).send({
+                success: false,
+                status: "error",
+                errors: [{ error: error }],
+                message: 'Internal Server Error catch'
+            });
+        }
+    }
+}

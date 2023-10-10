@@ -9,9 +9,16 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 
 /* query to insert users
-INSERT INTO users (role_id, email, password, verification_token, forgot_password_token, username)
+INSERT INTO users (role_id, email, password, verification_token, forgot_password_token, username , full_name , status)
 VALUES
-  (1, 'demo@gmail.com', '$2a$12$TdnrQwHn64D0Wg3amFyrDuLyqLJjCjhhCEQthBpQHFvpDDnx5TQ6.', 'abcdefghijklmnopqrstuvwxyz1234567890', 'abcdefghijklmnopqrstuvwxyz1234567890', 'demo@gmail.com'),
-  (2, 'client@barqsol.com', '$2a$12$0JN54Fuul8C.sI9w0/VXWed4WmOOgsFycOYX7mUuTPcn7f9EqwYHW', 'abcdefghijklmnopqrstuvwxyz1234567890', 'abcdefghijklmnopqrstuvwxyz1234567890', 'client@barqsol.com');
-
+  (1, 'demo@gmail.com', '$2a$12$TdnrQwHn64D0Wg3amFyrDuLyqLJjCjhhCEQthBpQHFvpDDnx5TQ6.', 'abcdefghijklmnopqrstuvwxyz1234567890', 'abcdefghijklmnopqrstuvwxyz1234567890', 'demo@gmail.com', 'Demo' , 'active'),
+  (2, 'client@barqsol.com', '$2a$12$0JN54Fuul8C.sI9w0/VXWed4WmOOgsFycOYX7mUuTPcn7f9EqwYHW', 'abcdefghijklmnopqrstuvwxyz1234567890', 'abcdefghijklmnopqrstuvwxyz1234567890', 'client@barqsol.com' , 'Tcm Weaver' , 'active');
 */
+
+/* querty to insert roles
+INSERT INTO roles (label, name)
+VALUES
+  ('Admin', 'Admin'),
+  ('User', 'User');
+  
+  */

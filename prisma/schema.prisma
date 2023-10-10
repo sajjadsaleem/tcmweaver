@@ -28,24 +28,34 @@ model users {
   verification_token    String
   forgot_password_token String
   username              String? @db.VarChar(255)
+  role                  roles   @relation(fields: [role_id], references: [id])
+  full_name             String
+  status                String
 }
 
-model permission {
-  id            Int @id @default(autoincrement()) @map("id")
-  role_id       Int
-  permission_id Int
+
+model permissions {
+  id    Int     @id @default(autoincrement()) @map("id")
+  label String
+  name  String?
+  rolePermission rolePermission[]
 }
 
 model roles {
   id    Int     @id @default(autoincrement()) @map("id")
   label String
   name  String?
+  users users[] // Define the opposite relation field here
+  rolePermission rolePermission[]
+  
 }
 
-model RolePermission {
+model rolePermission {
   id            Int @id @default(autoincrement()) @map("id")
   role_id       Int
   permission_id Int
+  permission    permissions   @relation(fields: [permission_id], references: [id])
+  role          roles   @relation(fields: [role_id], references: [id])
 }
 
 model Dataset {

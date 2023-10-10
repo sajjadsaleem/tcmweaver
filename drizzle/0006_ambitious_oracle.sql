@@ -1,0 +1,1 @@
+ALTER TABLE "dataset" RENAME TO "Dataset";

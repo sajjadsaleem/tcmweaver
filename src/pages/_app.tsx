@@ -7,6 +7,8 @@ import "../css/custom.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { Provider } from 'react-redux';
+import { store } from '../store/index';
 
 interface DashboardProps {
   Component: React.ComponentType;
@@ -23,7 +25,9 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
 
+      <Provider store={store}>
       <Component {...pageProps} />
+    </Provider>
     </>
   );
 };

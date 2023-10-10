@@ -12,13 +12,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [btnLoading, setBtnLoading] = useState(false);
+  const [signUpBtnLoading , setSignUpBtnLoading] = useState(false)
 
   const handleSubmit = async (e: any) => {
     setBtnLoading(true);
     e.preventDefault();
 
-    console.log("Email:", email);
-    console.log("Password:", password);
 
     let payload = {
       email: email,
@@ -54,6 +53,10 @@ const Login = () => {
         
       });
   };
+
+  const handleSignUpBtn = async () => {
+    setSignUpBtnLoading(true)
+  }
 
   return (
     <LayoutWrapper layout={AuthLayout}>
@@ -110,7 +113,18 @@ const Login = () => {
 
           <div className="sign-up">
             <p>or</p>
-            <button type="submit">Sign up</button>
+            <Link href={'/signUp'}>
+              <button type="submit" disabled={signUpBtnLoading} onClick={handleSignUpBtn}>
+                {signUpBtnLoading ? (
+                  <>
+                    Please Wait{" "}
+                    <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                  </>
+                ): (
+                  <>Sign up</>
+                )}
+              </button>
+            </Link>
           </div>
         </div>
         <ToastContainer />

@@ -4,10 +4,13 @@ const path = require('path');
 const fs = require('fs');
 import { Readable } from 'stream';
 import axios from 'axios';
-import { sql } from "@vercel/postgres";
-import { PrismaClient } from '@prisma/client';
+import { sql } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { dataset } from '../../db/schema/dataset'
 
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+
+// const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
 
@@ -64,18 +67,25 @@ export default async function handler(req, res) {
 
                                 // console.log('data', data)
 
-                                const insertedFile = await prisma.dataset.upsert({
-                                    where: {
-                                        filename: fileName, // Unique identifier
-                                    },
-                                    update: {
-                                        content: content,
-                                    },
-                                    create: {
-                                        filename: fileName,
-                                        content: content,
-                                    },
-                                });
+                                // console.log('prisma.dataset', prisma.Dataset)
+
+                                // const insertedFile = await prisma.Dataset.upsert({
+                                //     where: {
+                                //         filename: fileName, // Use fileName here
+                                //     },
+                                //     update: {
+                                //         content: content,
+                                //     },
+                                //     create: {
+                                //         filename: fileName, // Use fileName here
+                                //         content: content,
+                                //     },
+                                // });
+
+                                const db = drizzle(sql)
+                                const insertedFile = await db.insert(dataset)
+                                    .values({ filename: fileName, content: content })
+                                    .onConflictDoUpdate({ target: dataset.filename, set: { content: content } });
 
                                 downloadedFiles.push({
                                     id: insertedFile.id,

@@ -23,6 +23,12 @@ import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from 'next/router';
 
+import { useDispatch, useSelector } from 'react-redux'
+
+import {
+  stAccessTokenVerify
+} from '../../store/apps/auth'
+
 import LayoutWrapper from './LayoutWrapper';
 // import * as Helpers from '../../../util/Helpers'
 // import { ComponentLoading } from '../../../util/ComponentLoading'
@@ -41,6 +47,7 @@ import { FullPageComponentLoading } from '../../util/FullPageComponentLoading'
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const router = useRouter();
+  const dispatch = useDispatch()
 
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
 
@@ -54,15 +61,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         .then((res) => {
             if(!res.data.tokenResult){
               router.push('/login');
-            } else {
+            } 
+            else {
               setFullPageComponentLoading(false)
             }
+            dispatch(stAccessTokenVerify({
+              user: res.data.user,
+              user_permissions: res.data.user_permissions,
+              user_role: res.data.user_role,
+            }))
            
         })
         .catch(err => {
             console.log('err=',err.response.data)
             router.push('/login');
-            setFullPageComponentLoading(false)
+            // setFullPageComponentLoading(false)
             // Helpers.catchFunction(err)
         });
   }

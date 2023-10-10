@@ -1,9 +1,13 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { sql } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { dataset } from '../../db/schema/dataset'
+import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 export default async function search(req, res) {
     try {
@@ -26,15 +30,18 @@ export default async function search(req, res) {
 
         // console.log('filesData', filesData)
 
-        const datasets = await prisma.dataset.findMany({
-            select: {
-                filename: true,
-                content: true,
-                // Add other columns you want to include here
-            },
-        });
+        // const datasets = await prisma.dataset.findMany({
+        //     select: {
+        //         filename: true,
+        //         content: true,
+        //         // Add other columns you want to include here
+        //     },
+        // });
 
-        // console.log('dataset:', datasets)
+        const db = drizzle(sql)
+        const datasets = await db.select().from(dataset);
+
+        // console.log('datasets =', datasets)
 
         // Remove ".md" extension
         const extensionRemovedData = datasets.map(item => {
@@ -127,7 +134,7 @@ export default async function search(req, res) {
         //     },
         // });
 
-        // console.log('datasets = ', datasets)
+        // console.log('newEntries = ', newEntries)
 
         res.status(200).json(newEntries);
     } catch (error) {
