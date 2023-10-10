@@ -4,7 +4,7 @@ import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { dataset } from '../../db/schema/dataset'
 
-import { eq, lt, gte, ne } from "drizzle-orm";
+import { eq, lt, gte, ne, or } from "drizzle-orm";
 
 // import { PrismaClient } from '@prisma/client';
 
@@ -39,7 +39,12 @@ export default async function handler(req, res) {
     const db = drizzle(sql)
     let datasetArray = await db.select({
       filename: dataset.filename, content: dataset.content,
-    }).from(dataset).where(eq(dataset.filename, 'SAMPLE FILTERS.md'));
+    }).from(dataset).where(
+      or(
+        eq(dataset.filename, 'SAMPLE FILTERS.md'),
+        eq(dataset.filename, 'Home.md')
+      )
+    );
 
     const updatedDatasetArray = datasetArray.map(obj => {
       return {
@@ -48,6 +53,8 @@ export default async function handler(req, res) {
         // Add other properties here if any
       };
     });
+
+    console.log('udpatedarray', updatedDatasetArray)
 
     // console.log('updatedDatasetArray', updatedDatasetArray)
     // let datasetFilter = datasetArray[0] || null;

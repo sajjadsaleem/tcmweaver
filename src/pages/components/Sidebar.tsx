@@ -139,7 +139,7 @@ const Sidebar = () => {
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
   // console.log('userEmail ', userEmail)
-  console.log('getUser' , getUser , 'getpermissions' , getPermissions)
+  // console.log('getUser' , getUser , 'getpermissions' , getPermissions)
 
   
 

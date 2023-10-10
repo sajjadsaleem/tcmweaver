@@ -56,6 +56,11 @@ const Dashboard = () => {
     const [showEditUserDialog , setShowEditUserDialog] = useState(false)
     const [editUserLoader , setEditUserLoader] = useState(false)
     const [currentUser , setCurrentUser] = useState('')
+    const [proccedBtnLoading , setProceedBtnLoading] = useState(false)
+    const [folderSelectedLoader , setFolderSelectedLoader] = useState(false)
+    const [clickedFolder, setClickedFolder] = useState(null);
+    const [taskCompleted, setTaskCompleted] = useState(false);
+    const [selectedFolder, setSelectedFolder] = useState<any>(null);
     
 
     // console.log('original vault' , originalVault)
@@ -236,15 +241,18 @@ const Dashboard = () => {
       };
 
       const synchronizeFiles = async () => {
+        setProceedBtnLoading(true)
         axios
           .get("/api/googleDriveFiles")
           .then((res) => {
             console.log('res: ' , res)
+            
             if (res.data && res.data.authUrl) {
               // Redirect the user to the Google OAuth authorization page
               window.location.href = res.data.authUrl;
             } else {
               console.error("No 'authUrl' found in the response.");
+              setProceedBtnLoading(false)
             }
     
             // setBtnLoading(false);
@@ -263,6 +271,10 @@ const Dashboard = () => {
 
       const handleFolderSelection = (folder:any) => {
         // console.log(folder)
+        // setFolderSelectedLoader(true)
+        setClickedFolder(folder.id);
+        setTaskCompleted(false)
+        setSelectedFolder(folder);
     
         if (folder.id) {
     
@@ -274,16 +286,14 @@ const Dashboard = () => {
               folderId: folder.id,
             },
           }).then((res)=> {
+            setTaskCompleted(true);
             console.log('res: ' ,res.data)
     
           }).catch((err)=> {
     
           })
-    
-        
         }
-    
-        setFoldersPopup(false)
+        // setFoldersPopup(false)
       };
 
       const handleItemClick = (index:any) => {
@@ -587,7 +597,18 @@ const Dashboard = () => {
                         Cancel
                       </Button>
                       <Button onClick={synchronizeFiles} color="primary">
-                        Proceed
+                        {proccedBtnLoading ? (
+                            <>
+                              Please Wait {" "}
+                              <span
+                                className="spinner-grow spinner-grow-sm ml-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                            </>
+                          ) : (
+                            <>Proceed</>
+                          )}
                       </Button>
                     </DialogActions>
                   </Dialog>
@@ -595,19 +616,43 @@ const Dashboard = () => {
                 
                 {foldersPopup && (
                   <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
-                    <DialogTitle>Select a Folder</DialogTitle>
+                    <DialogTitle>
+                      {taskCompleted ? 'Data Sync' : 'Select a Folder'}
+                    </DialogTitle>
                     <DialogContent>
-                      <List>
-                        {folders.map((folder:any) => (
-                          <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
-                            <ListItemText primary={folder.name} />
-                          </ListItem>
-                        ))}
-                      </List>
+                    {taskCompleted ? (
+                        // Show a message indicating synchronization completion
+                        <div>{selectedFolder.name} has been synchronized!</div>
+                      ) : selectedFolder ? (
+                        // Show the selected folder's synchronization message while syncing is in progress
+                        <div>
+                          {selectedFolder.name} is synchronizing data{' '}
+                          <span
+                            className="spinner-grow spinner-grow-sm ml-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        </div>
+                      ) : (
+                        // Show the list of folders when no folder is selected
+                        <List>
+                          {folders.map((folder:any) => (
+                            <ListItem
+                              button
+                              key={folder.id}
+                              onClick={() => handleFolderSelection(folder)}
+                            >
+                              <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight:'15px' }}/>
+                              {folder.name}
+                            </ListItem>
+                          ))}
+                        </List>
+                      )}
+                    
                     </DialogContent>
                     <DialogActions>
                       <Button onClick={ handlerFolderPopupClose} color="primary">
-                        Cancel
+                      {taskCompleted ? 'Done' : 'cancel'}
                       </Button>
                     </DialogActions>
                   </Dialog>
@@ -879,7 +924,7 @@ const Dashboard = () => {
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 1 ? 'selected-dashboard-navigation-list' : ''}`}
                  onClick={() => handleItemClick(1)}>
                 <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
-                  <ListItemText primary="My Vault" />
+                  <ListItemText primary="Admin Vault" />
                 </ListItem>
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
                  onClick={() => handleItemClick(2)}>
