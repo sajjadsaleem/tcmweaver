@@ -125,6 +125,7 @@ const Sidebar = () => {
   const [showConfirmPasswordToggle , setShowConfirmPasswordToggle] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
   const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
+  const [homepageFile , setHomepageFile] = useState([])
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -3296,7 +3297,7 @@ const Sidebar = () => {
                 </div>
               )}
             </div>
-            <div>
+            {/* <div>
               <Link href="/login">
                 <img
                   src="/logout.svg"
@@ -3306,7 +3307,7 @@ const Sidebar = () => {
                   }}
                 />
               </Link>
-            </div>
+            </div> */}
             <div>
               <img
                 src="/users.svg"
@@ -3859,21 +3860,16 @@ const Sidebar = () => {
                   
                     </div>
                     <div className="opened-result-detail">
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: filtersData && filtersData.length>0 ? filtersData[0].content : '',
-                        }}
-                        className="opened-result-description"
-                        // onClick={(e: any) => {
-                        //   if (
-                        //     e.target.tagName === "SPAN" &&
-                        //     e.target.style.textDecoration === "underline"
-                        //   ) {
-                        //     const clickedWord = e.target.textContent; // Get the clicked word
-                        //     handleLinkClick(result.fileName, clickedWord);
-                        //   }
-                        // }}
-                      />
+                      {homepageFile.length === 0 ? (
+                        <p className="opened-result-description">Home.md not found</p>
+                      ) : (
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: filtersData && filtersData.length > 0 ? filtersData[0].content : '',
+                          }}
+                          className="opened-result-description"
+                        />
+                      )}
                     </div>
                   </div>
                 )}
