@@ -1241,6 +1241,14 @@
     color: rgb(129, 123, 123);
 }
 
+.night-mode .options-div div {
+    color: rgb(104, 103, 103);
+}
+
+.night-mode .options-div div:hover {
+    color: rgb(129, 123, 123);
+}
+
 .user-invitation-heading {
     display: flex;
     justify-content: center;
