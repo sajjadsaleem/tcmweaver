@@ -266,6 +266,7 @@ const Dashboard = () => {
       }
 
       const handlerFolderPopupClose = async () => {
+        fetchFilenames()
         setFoldersPopup(false)
       }
 
@@ -975,15 +976,15 @@ const Dashboard = () => {
                   </div>
 
                   <div className="vault-table"> 
-                    <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-                      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} >
-                          <TableRow>
+                    <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                      <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                          <TableRow className='vault-table-row'>
                             <TableCell sx={{borderTopLeftRadius: '17px'}}>
-                              <Typography variant="subtitle1" fontWeight="bold">No#</Typography>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                             </TableCell>
                             <TableCell sx={{borderTopRightRadius: '17px'}}>
-                              <Typography variant="subtitle1" fontWeight="bold">Files</Typography>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Files</Typography>
                             </TableCell>
                           </TableRow>
                         </TableHead>
@@ -992,9 +993,10 @@ const Dashboard = () => {
                             <TableRow
                               key={row.fileName}
                               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                              className='vault-table-row'
                             >
-                              <TableCell component="th" scope="row">{index + 1}</TableCell>
-                              <TableCell>{row.fileName}</TableCell>
+                              <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                              <TableCell className='vault-table-body-row'>{row.fileName}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -1020,27 +1022,27 @@ const Dashboard = () => {
                 </div>
 
                 <div className="user-table">
-                  <TableContainer component={Paper} sx={{ boxShadow: 'none' , overflowX: 'inherit' }}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} >
-                        <TableRow>
+                  <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                      <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                        <TableRow className='vault-table-row'>
                           <TableCell sx={{borderTopLeftRadius: '17px'}}>
-                            <Typography variant="subtitle1" fontWeight="bold">No#</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                           </TableCell>
                           <TableCell>
-                            <Typography variant="subtitle1" fontWeight="bold">Name</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                           </TableCell>
                           <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold">Email</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
                           </TableCell>
                           <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold">Role</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
                           </TableCell>
                           <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold">Status</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
                           </TableCell>
                           <TableCell sx={{borderTopRightRadius: '17px'}}>
-                            <Typography variant="subtitle1" fontWeight="bold">Action</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -1049,13 +1051,14 @@ const Dashboard = () => {
                           <TableRow
                             key={row.email}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            className='vault-table-row'
                           >
-                            <TableCell component="th" scope="row">{index + 1}</TableCell>
-                            <TableCell>{row.full_name}</TableCell>
-                            <TableCell>{row.email}</TableCell>
-                            <TableCell>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
-                            <TableCell>{row.status}</TableCell>
-                            <TableCell>
+                            <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                            <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
+                            <TableCell className='vault-table-body-row'>{row.email}</TableCell>
+                            <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
+                            <TableCell className='vault-table-body-row'>{row.status}</TableCell>
+                            <TableCell className='vault-table-body-row'>
                               <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
                                 <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
                                 {showOptions === index+1 && (

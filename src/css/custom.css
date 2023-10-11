@@ -639,6 +639,10 @@
     filter: invert(1);
 }
 
+.night-mode .profile-avatar img {
+    filter: invert(0) !important;
+}
+
 .night-mode span,
 .night-mode p,
 .night-mode h4,
@@ -1265,4 +1269,23 @@
     margin: 0px;
     padding: 3px 0px;
     color: #616161;
+}
+
+.night-mode .vault-table-container {
+    background-color: rgb(104, 101, 101);
+    border-radius: 16px 16px 0 0;
+}
+
+.night-mode .vault-table-head {
+    background-color: rgb(85, 84, 84);
+
+}
+
+.night-mode .vault-table-row {
+    border-bottom: 2px solid rgb(114, 114, 114);
+}
+
+.night-mode .vault-table-head-row,
+.night-mode .vault-table-body-row {
+    color: rgb(255, 255, 255);
 }
