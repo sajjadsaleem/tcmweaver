@@ -430,8 +430,13 @@ const Dashboard = () => {
         // console.log('emailtoudpatedata' , originalUsers[indexToChangePassword].email)
         // console.log('formData' , formData)
         // setUpdatePasswordLoader(true)
+        const storedUserJson:any = localStorage.getItem("user");
+        const storedUser = JSON.parse(storedUserJson)
+
+        console.log('storeduser' , storedUser.role)
         await axios.post('/api/editUser', {
           email: originalUsers[indexToChangePassword].email,
+          currentUser: storedUser.role,
           data: formData
         })
         .then(async (res)=>{
@@ -618,7 +623,7 @@ const Dashboard = () => {
                 {foldersPopup && (
                   <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
                     <DialogTitle>
-                      {taskCompleted ? 'Data Sync' : 'Select a Folder'}
+                      {taskCompleted ? 'Data Sync' : 'Select a folder to sync data'}
                     </DialogTitle>
                     <DialogContent>
                     {taskCompleted ? (
@@ -638,19 +643,15 @@ const Dashboard = () => {
                         // Show the list of folders when no folder is selected
                         <List>
                           {folders.map((folder:any) => (
-                            <ListItem
-                              button
-                              key={folder.id}
-                              onClick={() => handleFolderSelection(folder)}
-                            >
+                            <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
                               <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight:'15px' }}/>
                               {folder.name}
                             </ListItem>
                           ))}
                         </List>
                       )}
-                    
                     </DialogContent>
+
                     <DialogActions>
                       <Button onClick={ handlerFolderPopupClose} color="primary">
                       {taskCompleted ? 'Done' : 'cancel'}

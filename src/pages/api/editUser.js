@@ -5,11 +5,12 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 import { roles } from '../../db/schema/roles'
 import { permissions } from '../../db/schema/permissions'
 import { rolePermission } from '../../db/schema/rolePermissions'
+import _ from 'lodash'
 
 export default async function updateUser(req, res) {
     if (req.method === 'POST') {
         try {
-            const { email, data } = req.body;
+            const { email, currentUser, data } = req.body;
             console.log('Email:', email);
             console.log('Data:', data);
 
@@ -63,7 +64,7 @@ export default async function updateUser(req, res) {
                 }
             }
 
-            if (data.role === 'Admin') {
+            if (currentUser === 1) {
                 const allUsers = await db.select().from(users);
                 res.status(200).json({ message: 'User updated successfully', allUsers, getPermissions, getRole });
             } else {
