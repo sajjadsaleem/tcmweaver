@@ -875,8 +875,8 @@ const Dashboard = () => {
                         <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
                           <List>
                             {selectedFolders.map((folder:any , index:any) => (
-                              <div style={{display: 'flex' , alignItems: 'center'}}>
-                                <ListItem key={folder.id} >
+                              <div key={folder.id} style={{display: 'flex' , alignItems: 'center'}}>
+                                <ListItem >
                                   <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
                                   {folder.name}
                                 </ListItem>
