@@ -1,8 +1,8 @@
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { dataset } from '../../db/schema/dataset'
 import { vaultsTable } from '../../db/schema/vaults';
 import pg from 'pg';
+// import { dataset } from '../../db/schema/dataset'
 
 const { Pool } = pg;
 

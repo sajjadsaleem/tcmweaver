@@ -2,13 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { dataset } from '../../db/schema/dataset'
 import { filtersTable } from '../../db/schema/filters'
 import { packagesTable } from '../../db/schema/packages';
 import { vaultsTable } from '../..//db/schema/vaults'
 
 import { eq, lt, gte, ne, or } from "drizzle-orm";
 
+// import { dataset } from '../../db/schema/dataset'
 // import { PrismaClient } from '@prisma/client';
 
 // const prisma = new PrismaClient();
