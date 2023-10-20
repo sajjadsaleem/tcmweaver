@@ -4,7 +4,7 @@ import AuthLayout from '../components/AuthLayout'
 import { ToastContainer, toast } from "react-toastify";
 import Link from 'next/link';
 import * as Helpers from '../../util/Helpers'
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  FormControl,
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  FormControl,
     Grid,  IconButton,  Input,  InputAdornment,  InputLabel,  List, ListItem, ListItemText, MenuItem, Paper,
      Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
       Typography } from '@mui/material';
@@ -17,11 +17,12 @@ import { SwitchProps } from '@mui/material/Switch';
 
 
 const Dashboard = () => {
+
     const [themeChangericon, setThemeChangerIcon] = useState(true);
     const [graphOrTextView, setgraphOrTextView] = useState(true);
     const [syncPopup, setSyncPopup] = useState(false);
     const [foldersPopup, setFoldersPopup] = useState(false);
-    const [folders, setFolders] = useState([]);
+    const [folders, setFolders] = useState<any>([]);
     const [accessToken, setAccessToken] = useState('');
     const [selectedListItem, setSelectedListItem] = useState(1);
     const [originalVault , setOriginalVault] = useState([])
@@ -31,7 +32,7 @@ const Dashboard = () => {
     const [searchedUsers , setSearchedUsers] = useState([])
     const [userSearchValue , setUserSearchValue] = useState([])
     const [showAddUser , setShowAddUser] = useState(false)
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<any>({
       fullName: '',
       email: '',
       role: 'User',
@@ -60,27 +61,51 @@ const Dashboard = () => {
     const [folderSelectedLoader , setFolderSelectedLoader] = useState(false)
     const [clickedFolder, setClickedFolder] = useState(null);
     const [taskCompleted, setTaskCompleted] = useState(false);
-    const [selectedFolder, setSelectedFolder] = useState<any>(null);
-    
+    // const [selectedFolder, setSelectedFolder] = useState<any>(null);
+    const [showVaultFiles, setShowVaultFiles] = useState(false)
+    const [originalVaultFilesToShow , setOriginalVaultFilesToShow] = useState<any>([])
+    const [vaultFilesToShow , setVaultFilesToShow] = useState<any>([])
+    const [selectedFolders, setSelectedFolders] = useState<any>([]);
+    const [foldersSelectedNext , setFoldersSelectedNext] = useState<any>(false)    
+    const [showFolderComparison , setShowFolderComparison] = useState(false)
+    const [folderToCompare , setFoldersToCompare] = useState([])
+    const [notMatchDropdown , setNotMatchDropdown] = useState([
+      {
+        name: 'Vault does not exist'
+      }
+    ])
+    const [showVaultDelete , setShowVaultDelete] = useState(false)
+    const [vaultToDelete , setVaultToDelete] = useState('')
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
-    console.log('originalusers' , originalUsers)
+    // console.log('originalusers' , originalUsers)
     // console.log('searchedUsers' , searchedUsers)
     // console.log('formData' , formData)
     // console.log('showoption' , showOptions)
     // console.log('newpasswordData' ,newPasswordData)
     // console.log('edituserdialog' , showEditUserDialog)
     // console.log('indexToChangePassword' , indexToChangePassword)
+    // console.log('vaultfilestoshow' , vaultFilesToShow)
+    // console.log('folders' , folders)
+    // console.log('selectedfolders' , selectedFolders)
+    // console.log('foldertocompare'  , folderToCompare)
+    // console.log('vaulttodelete' , vaultToDelete)
+    // console.log('folderselectedloader' , folderSelectedLoader)
 
     async function fetchFilenames() {
       try {
         const response = await axios.get('/api/getFilenames'); // Replace with your API endpoint
-        // console.log('response.data' , response.data)
-        if (response.data && response.data.extensionRemovedData) {
-          // Assuming the response contains an array of filenames
-          setOriginalVault(response.data.extensionRemovedData);
-          setVaultFiles(response.data.extensionRemovedData)
+        console.log('response.data' , response.data)
+        if (response.data) {
+          const transformedData:any = Object.keys(response.data).map((vault_name) => ({
+            vault_name,
+            files: response.data[vault_name].filenames.map((item:any) => ({ filename: item.filename })),
+            vault_price: response.data[vault_name].vault_price
+          }));
+          transformedData.sort((a:any, b:any) => a.vault_name.localeCompare(b.vault_name));
+          setOriginalVault(transformedData);
+          setVaultFiles(transformedData)
         }
       } catch (error) {
         console.error('Error fetching filenames:', error);
@@ -106,8 +131,6 @@ const Dashboard = () => {
       }
 
     }
-
-    
 
     useEffect(()=> {
       const { usermanagement } = router.query;
@@ -238,6 +261,7 @@ const Dashboard = () => {
 
       const handleCloseDialog = () => {
         setSyncPopup(false);
+       
       };
 
       const synchronizeFiles = async () => {
@@ -245,7 +269,7 @@ const Dashboard = () => {
         axios
           .get("/api/googleDriveFiles")
           .then((res) => {
-            console.log('res: ' , res)
+            // console.log('res: ' , res)
             
             if (res.data && res.data.authUrl) {
               // Redirect the user to the Google OAuth authorization page
@@ -268,37 +292,86 @@ const Dashboard = () => {
       const handlerFolderPopupClose = async () => {
         fetchFilenames()
         setFoldersPopup(false)
+        setShowFolderComparison(false)
+        setSelectedFolders([])
       }
 
-      const handleFolderSelection = (folder:any) => {
-        // console.log(folder)
-        // setFolderSelectedLoader(true)
-        setClickedFolder(folder.id);
-        setTaskCompleted(false)
-        setSelectedFolder(folder);
+      // const handleFolderSelection = (folder:any) => {
+      //   // console.log(folder)
+      //   // setFolderSelectedLoader(true)
+      //   setClickedFolder(folder.id);
+      //   setTaskCompleted(false)
+      //   setSelectedFolder(folder);
     
-        if (folder.id) {
+      //   if (folder.id) {
     
-          axios.get("api/downloadFiles", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              folderId: folder.id,
-            },
-          }).then((res)=> {
-            setTaskCompleted(true);
-            console.log('res: ' ,res.data)
+      //     axios.get("api/downloadFiles", {
+      //       headers: {
+      //         Authorization: `Bearer ${accessToken}`,
+      //       },
+      //       params: {
+      //         folderId: folder.id,
+      //       },
+      //     }).then((res)=> {
+      //       setTaskCompleted(true);
+      //       console.log('res: ' ,res.data)
     
-          }).catch((err)=> {
+      //     }).catch((err)=> {
     
-          })
-        }
-        // setFoldersPopup(false)
+      //     })
+      //   }
+      //   // setFoldersPopup(false)
+      // };
+
+      const handleFolderSelection = (selectedFolder:any) => {
+       
+        const updatedFolders:any = folders.map((folder:any) =>
+          folder.id === selectedFolder.id
+            ? { ...folder, checked: !folder.checked }
+            : folder
+        );
+        setFolders(updatedFolders);
+    
+        const selected = updatedFolders.filter((folder:any) => folder.checked);
+        // console.log('selected' , selected)
+
+        const updatedSelected:any = selected.map((selectedItem:any) => {
+          const matchingVault:any = originalVault.find(
+            (vault:any) => vault.vault_name === selectedItem.name
+          );
+
+          // console.log('matchingvault' , matchingVault)
+        
+          if (matchingVault) {
+            return {
+              ...selectedItem,
+              option: matchingVault.vault_name,
+            };
+          }
+        
+          return selectedItem;
+        });
+
+        // console.log('folders in database' , originalVault)
+        const selectedNames = selected.map((item:any) => item.name);
+        // console.log('selectedNames', selectedNames);
+        const filteredVault = originalVault.filter((vault:any) =>
+        selectedNames.some((selectedName:any) =>
+          vault.vault_name === selectedName
+        )
+      );
+      
+        // console.log('filteredVault' , filteredVault);
+
+
+        setFoldersToCompare(filteredVault)
+        setSelectedFolders(updatedSelected);
       };
 
-      const handleItemClick = (index:any) => {
-        setSelectedListItem(index);
+      const handleFoldersNext = () => {
+        setFoldersPopup(false)
+        setShowFolderComparison(true)
+
       };
 
       const requestSearch = (event:any) => {
@@ -306,8 +379,9 @@ const Dashboard = () => {
         setSearched(event.target.value)
         const searchedVal = event.target.value
         const filteredRows = originalVault.filter((row:any) => {
-          return row.fileName.toLowerCase().includes(searchedVal.toLowerCase());
+          return row.vault_name.toLowerCase().includes(searchedVal.toLowerCase());
         });
+        filteredRows.sort((a:any, b:any) => a.vault_name.localeCompare(b.vault_name));
         setVaultFiles(filteredRows);
       };
 
@@ -349,27 +423,37 @@ const Dashboard = () => {
       };
 
       const handleAddUser = async () => {
-        if(formData.password !== formData.confirmPassword) {
-          toast.error('Passwords do not match!', { autoClose: 2000 });
+        const requiredFields = [ 'email','fullName', 'password', 'confirmPassword'];
+        let emptyField:any = requiredFields.find((field:any) => !formData[field]);
+
+        if (emptyField) {
+          emptyField = emptyField.charAt(0).toUpperCase() + emptyField.slice(1).toLowerCase();
+          toast.error(`${emptyField} is required!`, { autoClose: 2000 });
           return;
         } else {
-          setIsLoading(true);
-          await axios.post('/api/addUser', formData)
-          .then(async (res)=>{
-            console.log('user add response' , res.data);
-            setOriginalUsers(res.data.allUsers);
-            setSearchedUsers(res.data.allUsers)
-            closeAddUserDialog()
-            setIsLoading(false);
-            toast.success('User added successfully!');
+          if(formData.password !== formData.confirmPassword) {
+            toast.error('Passwords do not match!', { autoClose: 2000 });
+            return;
+          } else {
+            setIsLoading(true);
+            await axios.post('/api/addUser', formData)
+            .then(async (res)=>{
+              console.log('user add response' , res.data);
+              setOriginalUsers(res.data.allUsers);
+              setSearchedUsers(res.data.allUsers)
+              closeAddUserDialog()
+              setIsLoading(false);
+              toast.success('User added successfully!');
+  
+  
+            })
+            .catch((error)=>{
+              console.log('Error calling addUser api:', error);
+              setIsLoading(false);
+              toast.error('Failed to add user');
+            })
+          }
 
-
-          })
-          .catch((error)=>{
-            console.log('Error calling addUser api:', error);
-            setIsLoading(false);
-            toast.error('Failed to add user');
-          })
         }
       }
 
@@ -378,28 +462,38 @@ const Dashboard = () => {
       };
 
       const handleInviteUser = async () => {
-        setIsLoading(true)
-        await axios.post('/api/inviteUser' , formData)
-        .then(async (res)=>{
-          setOriginalUsers(res.data.allUsers);
-          setSearchedUsers(res.data.allUsers)
-          setShowAddUser(false)
-          setIsLoading(false)
-          toast.success(res.data.message);
-          setFormData({
-            fullName: '',
-            email: '',
-            role: 'User',
-            password: '',
-            confirmPassword: '',
-            status: ''
-          });
-        })
-        .catch((error)=>{
-          setIsLoading(false)
-          console.log('error' , error)
-          toast.error('Failed to invite user');
-        }) 
+        const requiredFields = [ 'email'];
+        let emptyField:any = requiredFields.find((field:any) => !formData[field]);
+        if (emptyField) {
+          emptyField = emptyField.charAt(0).toUpperCase() + emptyField.slice(1).toLowerCase();
+          toast.error(`${emptyField} is required!`, { autoClose: 2000 });
+          return;
+        } else {
+          setIsLoading(true)
+          await axios.post('/api/inviteUser' , formData)
+          .then(async (res)=>{
+            setOriginalUsers(res.data.allUsers);
+            setSearchedUsers(res.data.allUsers)
+            setShowAddUser(false)
+            setIsLoading(false)
+            toast.success(res.data.message);
+            setFormData({
+              fullName: '',
+              email: '',
+              role: 'User',
+              password: '',
+              confirmPassword: '',
+              status: ''
+            });
+          })
+          .catch((error)=>{
+            setIsLoading(false)
+            console.log('error' , error)
+            toast.error('Failed to invite user');
+          }) 
+
+        }
+        
 
       }
 
@@ -413,7 +507,7 @@ const Dashboard = () => {
         // console.log('usertoedit' , userToEdit)
         setIndexToChangePassword(index)
         // console.log('usertoedit' , userToEdit)
-        setFormData((prevData) => ({
+        setFormData((prevData:any) => ({
           ...prevData,
           role: userToEdit.role_id === 1 ? "Admin" : userToEdit.role_id === 2 ? "User" : "",
           email: userToEdit.email,
@@ -564,7 +658,85 @@ const Dashboard = () => {
           [name]: value,
         });
       }
-    
+
+      const handleVaultRowClick = (vault:any) => {
+        setShowVaultFiles(true)
+        console.log(vault)
+        setVaultFilesToShow(vault)
+        setOriginalVaultFilesToShow(vault)
+      }
+
+      const vaultFileSearch = (event:any ) => {
+        //  console.log(event.target.value)
+         setSearched(event.target.value)
+         const searchedVal = event.target.value
+         const filteredRows = originalVaultFilesToShow.files.filter((row:any) => {
+           return row.filename.toLowerCase().includes(searchedVal.toLowerCase());
+         });
+
+         console.log('filteredrows' , filteredRows)
+
+         setVaultFilesToShow({ ...originalVaultFilesToShow, files: filteredRows });
+
+      }
+
+      const handleDataSync = ()=> {
+        setTaskCompleted(true)
+        console.log('selectedfolders now' , selectedFolders)
+        const updatedSelectedFolders = selectedFolders.map((folder:any) => {
+          if (!folder.option || folder.option === 'Create new vault') {
+            return { ...folder, option: 'Create new vault' };
+          }
+          return folder;
+        });
+        console.log('Selected Folders:', updatedSelectedFolders);
+
+        axios.get("api/downloadFiles", {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                params: {
+                  folderId: updatedSelectedFolders,
+                },
+              }).then((res)=> {
+                fetchFilenames()
+                setTaskCompleted(false);
+                setFolderSelectedLoader(true)
+                // console.log('res: ' ,res.data)
+        
+              }).catch((err)=> {
+                setTaskCompleted(false)
+        
+              })
+
+
+      }
+
+      const handleDeleteVault = (vault:any) => {
+        setVaultToDelete(vault.vault_name)
+
+        setShowVaultDelete(true)
+        // console.log('vault' , vault)
+      }
+
+      const deleteVault = () => {
+        setProceedBtnLoading(true);
+      
+        axios.delete(`/api/deleteVault?vaultName=${vaultToDelete}`)
+          .then(async (response) => {
+            await fetchFilenames()
+            toast.success('Vault deleted successfully', { autoClose: 1500 });
+            setShowVaultDelete(false)
+            setProceedBtnLoading(false);
+            console.log("Vault deleted successfully");
+          })
+          .catch((error) => {
+            setProceedBtnLoading(false);
+            toast.error('Failed to delete vault', { autoClose: 1500 });
+            console.error("Error deleting vault:", error);
+          })
+      };
+      
 
     return (
       <LayoutWrapper layout={AdminLayout}>
@@ -590,7 +762,8 @@ const Dashboard = () => {
                     />
                   )}
                 </div>
-                {syncPopup ? (<div>
+
+                {syncPopup && (<div>
                   <Dialog open={syncPopup} onClose={handleCloseDialog}>
                     <DialogTitle>Authorization Required</DialogTitle>
                     <DialogContent>
@@ -618,9 +791,9 @@ const Dashboard = () => {
                       </Button>
                     </DialogActions>
                   </Dialog>
-                </div>): (<></>)}
+                </div>)}
                 
-                {foldersPopup && (
+                {/* {foldersPopup && (
                   <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
                     <DialogTitle>
                       {taskCompleted ? 'Data Sync' : 'Select a folder to sync data'}
@@ -658,6 +831,166 @@ const Dashboard = () => {
                       </Button>
                     </DialogActions>
                   </Dialog>
+                )} */}
+
+                {foldersPopup && (
+                  <Dialog open={foldersPopup} 
+                  // onClose={handlerFolderPopupClose}
+                  >
+                    <DialogTitle>
+                      {taskCompleted ? 'Data Sync' : 'Select folder to sync data'}
+                    </DialogTitle>
+                    <DialogContent sx={{paddingLeft: '6px'}}>
+                      <List>
+                        {folders.map((folder:any) => (
+                          <ListItem button key={folder.id} sx={{ paddingLeft: '0px'}}>
+                            <Checkbox
+                              checked={folder.checked}
+                              onChange={() => handleFolderSelection(folder)}
+                            />
+                            <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px' , marginLeft: '15px' }} />
+                            {folder.name}
+                          </ListItem>
+                        ))}
+                      </List>
+                    </DialogContent>
+
+                    <DialogActions>
+                      <Button onClick={handlerFolderPopupClose} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={handleFoldersNext} color="primary" variant="contained"
+                        disabled={!folders.some((folder:any) => folder.checked)}>
+                        Next
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+
+                {showFolderComparison && (
+                    <Dialog open={showFolderComparison} onClose={handlerFolderPopupClose}>
+                    <DialogTitle>Selected folders</DialogTitle>
+                    <DialogContent sx={{paddingLeft: '6px'}}>
+                      <div style={{ display: 'flex' }}>
+                        <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
+                          <List>
+                            {selectedFolders.map((folder:any , index:any) => (
+                              <div style={{display: 'flex' , alignItems: 'center'}}>
+                                <ListItem key={folder.id} >
+                                  <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
+                                  {folder.name}
+                                </ListItem>
+                                <ListItem key={folder.id + 1}>
+                                {folderToCompare.some((compareFolder:any) =>
+                                 compareFolder.vault_name === folder.name) ? (
+                                  <>
+                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
+                                    <select id={`vaultSelect`} value={folder.option}
+                                      disabled={folderSelectedLoader} 
+                                      defaultValue={folder.name}
+                                      onChange={(e:any) => {
+                                        console.log('e' , e.target)
+                                        setSelectedFolders((prevSelectedFolders:any) => {
+                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
+                                            console.log('prevfolder' , prevFolder , i , index)
+                                            if (i === index) {
+                                              return {
+                                                ...prevFolder,
+                                                option: e.target.value,
+                                              };
+                                            }
+                                            return prevFolder;
+                                          });
+                                        });
+                                      }}>
+                                      {originalVault.map((vault:any) => (
+                                          <option key={vault.vault_name} value={vault.vault_name}>
+                                              {`Overwrite ${vault.vault_name}`}
+                                          </option>
+                                      ))}
+                                      
+                                    </select>
+                                  </>
+                                ) : (
+                                  <>
+                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
+                                    <select id="vaultSelect"
+                                      disabled={folderSelectedLoader} 
+                                      onChange={(e:any) => {
+                                        console.log('e change' , e.target)
+                                        setSelectedFolders((prevSelectedFolders:any) => {
+                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
+                                            if (i === index) {
+                                              return {
+                                                ...prevFolder,
+                                                option: e.target.value,
+                                              };
+                                            }
+                                            return prevFolder;
+                                          });
+                                        });
+                                      }}>
+                                      <option value="Create new vault" selected>Create new vault</option>
+                                      {originalVault.map((vault:any) => (
+                                          <option key={vault.vault_name} value={vault.vault_name}>
+                                              {`Overwrite ${vault.vault_name}`}
+                                          </option>
+                                      ))}
+                                    </select>
+                                  </>
+                                )}
+                                </ListItem>
+                                </div>
+                            ))}
+                          </List>
+                        </div>
+                      </div>
+                      {folderSelectedLoader && (
+                        <div>
+                          <ListItem>Vaults syncronized successfully</ListItem>
+                        </div>
+                      )}
+                    </DialogContent>
+                    <DialogActions>
+                      {folderSelectedLoader ? (
+                        <>
+                          <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setSelectedFolders([])}} color="primary">
+                            Done
+                          </Button>
+                        </>):(
+                        <>
+                          <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setFoldersPopup(true)}} color="primary">
+                            Back
+                          </Button>
+                          {taskCompleted ? (
+                            <>
+                              <Button color="primary" variant="contained">
+                                Syncronizing
+                                <span
+                                className="spinner-grow spinner-grow-sm ml-2"
+                                role="status"
+                                aria-hidden="true"
+                                ></span>
+                              </Button> 
+                            </>
+                          ) : (
+                            <>
+                              <Button onClick={handleDataSync} color="primary" variant="contained">
+                              Sync
+                              </Button>
+                            </>
+                          )}
+                        </>
+                      )}
+                      
+                      
+                    </DialogActions>
+                  </Dialog>
+                  
                 )}
 
                 {showAddUser ? (<div>
@@ -689,6 +1022,7 @@ const Dashboard = () => {
                             fullWidth
                             margin="normal"
                             size='small'
+                            required
                           />
                           <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
                             <Typography variant="body1">
@@ -709,7 +1043,8 @@ const Dashboard = () => {
                                 onChange={handleChange}
                                 fullWidth
                                 margin="normal"
-                                size='small'/>
+                                size='small'
+                                required/>
                               <TextField
                                 type={showPassword ? 'text' : 'password'}
                                 label="Password"
@@ -719,6 +1054,7 @@ const Dashboard = () => {
                                 fullWidth
                                 margin="normal"
                                 size='small'
+                                required
                                 InputProps={{
                                   endAdornment: (
                                     <InputAdornment position="end">
@@ -741,6 +1077,7 @@ const Dashboard = () => {
                                 fullWidth
                                 margin="normal"
                                 size='small'
+                                required
                                 InputProps={{
                                   endAdornment: (
                                     <InputAdornment position="end">
@@ -911,6 +1248,37 @@ const Dashboard = () => {
                   </>): (<></>)
                 }
 
+                {showVaultDelete && (
+                  <Dialog open={showVaultDelete} onClose={() => setShowVaultDelete(false)}>
+                    <DialogTitle>Delete Vault</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        Are you sure you want to delete
+                        <strong style={{ fontWeight: 'bold' }}> {vaultToDelete}</strong> ?
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={() => setShowVaultDelete(false)} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={deleteVault} color="primary">
+                        {proccedBtnLoading ? (
+                            <>
+                              Deleting {" "}
+                              <span
+                                className="spinner-grow spinner-grow-sm ml-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                            </>
+                          ) : (
+                            <>Delete</>
+                          )}
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+
               </div>
             </div>
 
@@ -918,21 +1286,24 @@ const Dashboard = () => {
               <List>
                 <Link href="/">
                   <ListItem className={`dashboard-navigation-list ${selectedListItem === 0 ? 'selected-dashboard-navigation-list' : ''}`}
-                   onClick={() => handleItemClick(0)}>
+                    onClick={() => setSelectedListItem(0)}>
                       <img src='home.png' alt="Home" style={{ marginRight: '10px' }} />
                       <ListItemText primary="Home" />
                   </ListItem>
                 </Link>
+
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 1 ? 'selected-dashboard-navigation-list' : ''}`}
-                 onClick={() => handleItemClick(1)}>
-                <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
-                  <ListItemText primary="Admin Vault" />
+                  onClick={() => setSelectedListItem(1)}>
+                    <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
+                    <ListItemText primary="Vault Management" />
                 </ListItem>
+
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
-                 onClick={() => handleItemClick(2)}>
-                <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
-                  <ListItemText primary="User Management" />
+                  onClick={() => setSelectedListItem(2)}>
+                    <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    <ListItemText primary="User Management" />
                 </ListItem>
+
               </List>
             </div>
             
@@ -964,46 +1335,158 @@ const Dashboard = () => {
               {selectedListItem === 1 && (
                 <div className='main-vault'>
                   <div className="vault-breadcrumbs">
-                    <h5>My Vault/Files</h5>
+                    {showVaultFiles ? (
+                      <>
+                        <h5>
+                          <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
+                            Vault 
+                          </span>
+                          / {vaultFilesToShow.vault_name}
+                        </h5></>):(<>
+                        <h5>Vaults</h5>
+                      </>
+                      )}
+                    
                   </div>
 
                   <div className="vault-search">
-                    <input className='vault-searchbar' placeholder='Search file' value={searched}
-                    onChange={requestSearch} />
-                    <button className='vault-sync-btn' onClick={openSyncDialog}>
-                      Sync
-                      <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                    </button>
+                    <div>
+                    {showVaultFiles ? (
+                      <>
+                      <input className='vault-searchbar' placeholder='Search file' value={searched}
+                      onChange={vaultFileSearch} />
+                      </>
+                    ):(
+                      <input className='vault-searchbar' placeholder='Search file' value={searched}
+                      onChange={requestSearch} />
+                    )}
+                    </div>
+                    <div>
+                      {showVaultFiles ? (
+                        <button className='vault-sync-btn' onClick={() => {
+                          setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
+                        back
+                      </button>
+                      ):(
+                        <button className='vault-sync-btn' onClick={openSyncDialog}>
+                        Sync
+                        <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                      </button>
+                      )}
+                      
+                    </div>
                   </div>
 
-                  <div className="vault-table"> 
-                    <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                      <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                          <TableRow className='vault-table-row'>
-                            <TableCell sx={{borderTopLeftRadius: '17px'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                            </TableCell>
-                            <TableCell sx={{borderTopRightRadius: '17px'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Files</Typography>
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {vaultFiles.map((row:any , index) => (
-                            <TableRow
-                              key={row.fileName}
-                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                              className='vault-table-row'
-                            >
-                              <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.fileName}</TableCell>
+                  {showVaultFiles ? (
+                    <>
+                      <div className="vault-table"> 
+                        <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                          <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                            <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                              <TableRow className='vault-table-row'>
+                                <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                                </TableCell>
+                                <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {vaultFilesToShow.files.map((row:any , index:any) => (
+                                <TableRow
+                                  key={index}
+                                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                  className='vault-table-row vault-file-hover'
+                                >
+                                  <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                    </div>
+
+                    </>):(
+                    <div className="vault-table"> 
+                      <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                            <TableRow className='vault-table-row'>
+                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                  No#
+                                </Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '45%'}} >
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                  Vaults
+                                </Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '15%'}} >
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                  Price
+                                </Typography>
+                              </TableCell>
+
+                              <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
+                                  Actions
+                                </Typography>
+                              </TableCell>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </div>
+                          </TableHead>
+
+                          <TableBody>
+                            {vaultFiles.map((row:any , index) => (
+                              <TableRow
+                                key={index}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                className='vault-table-row hover-row'
+                                onDoubleClick={() => handleVaultRowClick(row)}
+                              >
+                                <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+
+                                <TableCell className='vault-table-body-row'>
+                                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                                    <img src="vault.svg" alt="Folder Icon"
+                                      style={{ width: '17px', height: '17px', marginRight: '10px' }} />
+                                    {row.vault_name}
+                                  </span>
+                                </TableCell>
+
+                                <TableCell className='vault-table-body-row'>
+                                  {row.vault_price}
+                                </TableCell>
+                                
+                                <TableCell scope="row" className='vault-table-body-row'>
+                                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                                      <img src="eye.png" alt="Folder Icon" 
+                                        style={{ width: '20px', height: '20px', marginRight: '10px' }}
+                                        onClick={() => handleVaultRowClick(row)}
+                                        className='vault-view-icon' />
+
+                                        <img src="delete.png" alt="Folder Icon" 
+                                        style={{ width: '18px', height: '18px', marginRight: '10px' }}
+                                        onClick={() => handleDeleteVault(row)}
+                                        className='vault-view-icon' />
+                                  </span>
+                                  
+                                  
+
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </div>
+                  )}
+
+                  
                 </div>
               )}
 
@@ -1013,74 +1496,78 @@ const Dashboard = () => {
                     <h5>User Management/Users</h5>
                   </div>
 
-                <div className="user-search">
-                  <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
-                  onChange={requestUserSearch} />
-                  <button className='add-user' onClick={showAddUserPopup}>
-                    Add User
-                    <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                  </button>
-                </div>
+                  <div className="user-search">
+                    <div>
+                      <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
+                      onChange={requestUserSearch} />
+                    </div>
+                    <div>
+                      <button className='add-user' onClick={showAddUserPopup}>
+                        Add User
+                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                      </button>
+                    </div>
+                  </div>
 
-                <div className="user-table">
-                  <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                      <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                        <TableRow className='vault-table-row'>
-                          <TableCell sx={{borderTopLeftRadius: '17px'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
-                          </TableCell>
-                          <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
-                          </TableCell>
-                          <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
-                          </TableCell>
-                          <TableCell sx={{}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
-                          </TableCell>
-                          <TableCell sx={{borderTopRightRadius: '17px'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {searchedUsers.map((row:any , index) => (
-                          <TableRow
-                            key={row.email}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            className='vault-table-row'
-                          >
-                            <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                            <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
-                            <TableCell className='vault-table-body-row'>{row.email}</TableCell>
-                            <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
-                            <TableCell className='vault-table-body-row'>{row.status}</TableCell>
-                            <TableCell className='vault-table-body-row'>
-                              <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
-                                <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
-                                {showOptions === index+1 && (
-                                  <div className='options-div'>
-                                    <div onClick={() => handleEditClick(index)}>Edit</div>
-                                    <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
-                                    <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
-                                      {isDeleting ? 'Deleting...' : 'Delete'}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                  <div className="user-table">
+                    <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                      <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                          <TableRow className='vault-table-row'>
+                            <TableCell sx={{borderTopLeftRadius: '17px'}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                             </TableCell>
-                        
+                            <TableCell>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
+                            </TableCell>
+                            <TableCell sx={{}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
+                            </TableCell>
+                            <TableCell sx={{}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
+                            </TableCell>
+                            <TableCell sx={{}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
+                            </TableCell>
+                            <TableCell sx={{borderTopRightRadius: '17px'}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
+                            </TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                          {searchedUsers.map((row:any , index) => (
+                            <TableRow
+                              key={row.email}
+                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                              className='vault-table-row user-row-hover'
+                            >
+                              <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                              <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
+                              <TableCell className='vault-table-body-row'>{row.email}</TableCell>
+                              <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
+                              <TableCell className='vault-table-body-row'>{row.status}</TableCell>
+                              <TableCell className='vault-table-body-row'>
+                                <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
+                                  <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
+                                  {showOptions === index+1 && (
+                                    <div className='options-div'>
+                                      <div onClick={() => handleEditClick(index)}>Edit</div>
+                                      <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
+                                      <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
+                                        {isDeleting ? 'Deleting...' : 'Delete'}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                          
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </div>
                 </div>
-              </div>
               )}
               
                

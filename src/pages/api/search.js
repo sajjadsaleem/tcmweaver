@@ -3,18 +3,24 @@ import path from 'path';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { dataset } from '../../db/schema/dataset'
+import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
-// import { PrismaClient } from '@prisma/client';
+import pg from 'pg';
 
-// const prisma = new PrismaClient();
+const { Pool } = pg;
+
+const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL + "?sslmode=require",
+})
+
 
 export default async function search(req, res) {
     try {
         const inputValue = req.query.q.replace(/,/g, ' ');
-        console.log('req inputValue:', inputValue);
+        // console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
-        console.log('req wordsArray: ', wordsArray)
+        // console.log('req wordsArray: ', wordsArray)
 
 
         // reading all files
@@ -39,7 +45,21 @@ export default async function search(req, res) {
         // });
 
         const db = drizzle(sql)
-        const datasets = await db.select().from(dataset);
+
+        const basicTableToSearch = await db.select({ basicVault: vaultsTable.reference_table }).from(vaultsTable)
+            .where(eq(vaultsTable.vault_name, 'Basic Vault'));
+        // console.log('basictabletosearch', basicTableToSearch)
+
+        const client = await pool.connect();
+
+        const selectQuery = `SELECT * FROM ${basicTableToSearch[0].basicVault}`;
+
+        const { rows } = await client.query(selectQuery);
+        const datasets = rows
+        // console.log('datasets', datasets)
+
+        // const datasets = await db.select().from(dataset);
+        // console.log('datasets', datasets)
 
         // console.log('datasets =', datasets)
 

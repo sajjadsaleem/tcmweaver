@@ -178,7 +178,7 @@
     align-items: center;
     width: 284px;
     margin: auto;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     gap: 10px;
 }
 
@@ -1123,7 +1123,8 @@
 /* Dashboard - My Vault  */
 
 .main-vault,
-.main-user-management {
+.main-user-management,
+.main-package-management {
     /* border: 1px solid red; */
     /* background-color: lightcoral; */
     padding-left: 20px;
@@ -1154,13 +1155,14 @@
     justify-content: space-between;
     margin-top: 30px;
     margin-bottom: 15px;
+    /* border: 1px solid red; */
 }
 
 .vault-searchbar,
 .user-searchbar {
     border: 1px solid #d6d3d3;
     padding: 8px 16px;
-    width: 25%;
+    width: 100%;
     border-radius: 8px;
 }
 
@@ -1289,6 +1291,35 @@
 
 }
 
+.hover-row:hover {
+    background-color: #f8f6f6;
+}
+
+.user-row-hover:hover {
+    background-color: #f8f6f6;
+}
+
+.night-mode .user-row-hover:hover {
+    background-color: #555454;
+}
+
+.vault-file-hover:hover {
+    background-color: #f8f6f6;
+}
+
+.night-mode .vault-file-hover:hover {
+    background-color: #555454;
+}
+
+.night-mode .hover-row:hover {
+    background-color: #555454;
+    /* cursor: pointer; */
+}
+
+.vault-view-icon {
+    cursor: pointer;
+}
+
 .night-mode .vault-table-row {
     border-bottom: 2px solid rgb(114, 114, 114);
 }
@@ -1296,4 +1327,46 @@
 .night-mode .vault-table-head-row,
 .night-mode .vault-table-body-row {
     color: rgb(255, 255, 255);
+}
+
+#vaultSelect {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 5px;
+    padding: 6px 7px;
+    outline: 0 !important;
+}
+
+#vaultSelect option {
+    background-color: #ffffff;
+    /* Background color of each option */
+    color: #333;
+    /* Text color of each option */
+    padding: 5px;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+}
+
+/* Style the selected option */
+#vaultSelect option:hover {
+    background-color: #007bff;
+    /* Background color of the selected option */
+    color: #fff;
+    /* Text color of the selected option */
+}
+
+.current-vault {
+    /* border: 1px solid red; */
+    width: 284px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+
+}
+
+.current-vault select {
+    border-radius: 6px;
+    background-color: #A8C3C3;
+    border: none;
+    outline: none;
 }

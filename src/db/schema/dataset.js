@@ -1,9 +1,9 @@
-import { integer, pgEnum, pgTable, serial, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { integer, pgEnum, pgTable, serial, uniqueIndex, text } from 'drizzle-orm/pg-core';
 
-export const dataset = pgTable('Dataset', {
+export const dataset = pgTable('dataset', {
     id: serial('id').primaryKey(),
-    filename: varchar('filename', { length: 256 }),
-    content: varchar('content', { length: 256 }),
+    filename: text('filename'), // Change to text
+    content: text('content'), // Change to text
 }, (dataset) => {
     return {
         filenameIndex: uniqueIndex('filename').on(dataset.filename),

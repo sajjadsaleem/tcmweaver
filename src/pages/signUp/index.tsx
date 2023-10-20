@@ -209,7 +209,7 @@ const UserVerificationPage = () => {
                 </div> 
                                              
                 <div className="mb-3 text-center">
-                    <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
+                    <p>Already have an account? <Link className='text-base' href={`/login`}>Sign in</Link></p>
                 </div>
 
                 

@@ -3,6 +3,9 @@ import path from 'path';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { dataset } from '../../db/schema/dataset'
+import { filtersTable } from '../../db/schema/filters'
+import { packagesTable } from '../../db/schema/packages';
+import { vaultsTable } from '../..//db/schema/vaults'
 
 import { eq, lt, gte, ne, or } from "drizzle-orm";
 
@@ -37,24 +40,33 @@ export default async function handler(req, res) {
 
     // Drizzle Command
     const db = drizzle(sql)
+
     let datasetArray = await db.select({
-      filename: dataset.filename, content: dataset.content,
-    }).from(dataset).where(
+      filename: filtersTable.filename, content: filtersTable.content,
+    }).from(filtersTable).where(
       or(
-        eq(dataset.filename, 'SAMPLE FILTERS.md'),
-        eq(dataset.filename, 'Home.md')
+        eq(filtersTable.filename, 'SAMPLE FILTERS.md'),
+        eq(filtersTable.filename, 'Home.md')
       )
     );
+
+    const allVaults = await db.select().from(vaultsTable)
+    // console.log('allVaults', allVaults)
 
     const updatedDatasetArray = datasetArray.map(obj => {
       return {
         fileName: obj.filename,
         content: obj.content
-        // Add other properties here if any
+
       };
     });
 
-    console.log('udpatedarray', updatedDatasetArray)
+    const updatedArrayWithPackages = [
+      ...updatedDatasetArray,
+      { allVaults },
+    ];
+
+    // console.log('udpatedarray', updatedArrayWithPackages)
 
     // console.log('updatedDatasetArray', updatedDatasetArray)
     // let datasetFilter = datasetArray[0] || null;
@@ -89,7 +101,7 @@ export default async function handler(req, res) {
     // console.log('datasetArray', datasetFilter)
 
 
-    res.status(200).json(updatedDatasetArray);
+    res.status(200).json(updatedArrayWithPackages);
   } catch (error) {
     console.error('Error reading files:', error);
     res.status(500).json({ error: 'Failed to read files.' });

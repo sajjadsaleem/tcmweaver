@@ -14,6 +14,8 @@ import { users } from '../../../db/schema/users'
 import { roles } from '../../../db/schema/roles'
 import { permissions } from '../../../db/schema/permissions'
 import { rolePermission } from '../../../db/schema/rolePermissions'
+import { userPackagesTable } from '../../../db/schema/userPackages';
+import { packagesTable } from '../../../db/schema/packages';
 
 import * as jwt from '../../../util/jwt'
 import _ from 'lodash'
@@ -39,12 +41,13 @@ export default async function handler(req, res) {
             user = await db.select().from(users).where(eq(users.id, userId));
             message = "Token has been expired, please login again"
 
-            console.log('user: ', user)
+            // console.log('user: ', user)
 
         }
 
         var getPermissions = [];
         var getRole = '';
+        var flatPackageData = []
 
         if (user.length > 0) {
             const roleResult = await db.select().from(roles).where(eq(roles.id, user[0]['role_id']));
@@ -61,9 +64,28 @@ export default async function handler(req, res) {
                     // console.log('permissionResult=',getPermissions,permissionResult['rows'])
                 }
             }
-        }
 
-        // console.log('pointsQuery--------------------------------',pointsQuery,pointsQuery.length)
+            const packageIds = await db.select({ packageIds: userPackagesTable.package_id }).from(userPackagesTable)
+                .where(eq(userPackagesTable.user_id, user[0].id))
+
+            const ids = packageIds.map(row => row.packageIds);
+            const packageData = [];
+
+            for (const id of ids) {
+                const packageNames = await db.select({ packageName: packagesTable.package_name })
+                    .from(packagesTable)
+                    .where(eq(packagesTable.id, id));
+
+                packageData.push({ id, packages: packageNames });
+            }
+
+
+            flatPackageData = packageData.map(item => ({
+                id: item.id,
+                packageName: item.packages.map(name => name.packageName)[0]
+            })).flat();
+
+        }
 
         if (!user.length > 0) {
             tokenResult = null
@@ -79,6 +101,7 @@ export default async function handler(req, res) {
             user: user && user.length > 0 ? user[0] : user,
             user_permissions: getPermissions,
             user_role: getRole,
+            package: flatPackageData
         });
 
     } catch (error) {

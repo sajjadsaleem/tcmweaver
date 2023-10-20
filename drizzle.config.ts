@@ -9,7 +9,6 @@ export default {
     driver: 'pg',
     dbCredentials: {
         connectionString: `postgres://default:***REMOVED***@ep-proud-mud-68868689-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require`,
-        // connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DATABASE}`,
     }
 } satisfies Config;
 

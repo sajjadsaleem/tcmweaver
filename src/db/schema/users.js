@@ -7,11 +7,11 @@ import {
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
     role_id: integer('role_id'),
-    full_name: varchar('full_name', { length: 255 }),
+    full_name: text('full_name'),
     username: varchar('username', { length: 255 }),
-    email: varchar('email', { length: 255 }),
-    password: varchar('password', { length: 255 }),
-    status: varchar('status', { length: 255 }),
+    email: text('email'), // Change to text
+    password: text('password'),
+    status: text('status'),
     verification_token: text('verification_token'),
     forgot_password_token: text('forgot_password_token'),
 }, (users) => {

@@ -1,0 +1,1 @@
+ALTER TABLE "vaults" ALTER COLUMN "price" SET DATA TYPE numeric;

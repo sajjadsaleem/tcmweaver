@@ -24,7 +24,7 @@ export default async function handler(req, res) {
                         'https://www.googleapis.com/auth/userinfo.email',
                         'https://www.googleapis.com/auth/userinfo.profile'],
                 });
-                console.log('authUrl', authUrl)
+                // console.log('authUrl', authUrl)
 
                 // Redirect the user to the auth URL
                 // return res.redirect(authUrl);

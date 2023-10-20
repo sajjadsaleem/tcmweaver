@@ -64,6 +64,104 @@
       "when": 1696869818557,
       "tag": "0008_far_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1697122867029,
+      "tag": "0009_smooth_night_nurse",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1697128030255,
+      "tag": "0010_rapid_pestilence",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1697130436503,
+      "tag": "0011_unique_living_mummy",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1697451287784,
+      "tag": "0012_mature_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1697646187064,
+      "tag": "0013_clean_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1697730315117,
+      "tag": "0014_fearless_hiroim",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1697731771866,
+      "tag": "0015_redundant_smasher",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1697733357793,
+      "tag": "0016_jazzy_red_ghost",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1697802085552,
+      "tag": "0017_reflective_ben_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1697802302448,
+      "tag": "0018_tough_white_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1697802453547,
+      "tag": "0019_yummy_ser_duncan",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1697808991645,
+      "tag": "0020_past_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1697811376427,
+      "tag": "0021_white_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1697812533328,
+      "tag": "0022_wet_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

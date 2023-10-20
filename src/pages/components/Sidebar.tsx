@@ -22,6 +22,8 @@ import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
+var internalId:any = 0
+
 
 
 const Sidebar = () => {
@@ -126,6 +128,10 @@ const Sidebar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
   const [homepageFile , setHomepageFile] = useState([])
+  const [allVaults , setAllVaults] = useState<any>([])
+  const [getPackage , setPackage] = useState([])
+  const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
+  const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -140,13 +146,16 @@ const Sidebar = () => {
   // console.log("graphNodeOpened", graphNodeOpened);
   // console.log('userEmail ', userEmail)
   // console.log('getUser' , getUser , 'getpermissions' , getPermissions)
+  // console.log('allVaults' , allVaults)
+  console.log('getpackage' , getPackage)
 
   
 
   const getInit = () => {
     setUser(getStAuth.stAccessTokenVerify)
     setPermissions(getStAuth.stAccessTokenVerify.user_permissions)
-    // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify)
+    setPackage(getStAuth.stAccessTokenVerify.user_package)
+    // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify.user_package)
   }
 
   useEffect(() => {
@@ -161,25 +170,33 @@ const Sidebar = () => {
           throw new Error("Failed to fetch files data.");
         } else {
           let data = await response.json();
-          console.log('data' , data)
+          // console.log('data' , data)
 
-          const modifiedData = data.map((item: any) => {
-            return {
-              ...item,
-              fileName: item.fileName.split(".").slice(0, -1).join("."),
-            };
-          });
+          const allVaults = data[1].allVaults;
+
+          setAllVaults(allVaults);
+
+          // const modifiedData = data.map((item: any) => {
+          //   return {
+          //     ...item,
+          //     fileName: item.fileName.split(".").slice(0, -1).join("."),
+          //   };
+          // });
 
           // setFiltersData(modifiedData);
 
           // remove .md extension from Filenames
           data = data.map((item: any) => {
-            const fileNameWithoutExtension = item.fileName.split(".")[0];
-            return {
-              ...item,
-              fileName: fileNameWithoutExtension,
-            };
+            if (item.fileName) {
+              const fileNameWithoutExtension = item.fileName.split(".")[0];
+              return {
+                ...item,
+                fileName: fileNameWithoutExtension,
+              };
+            }
+            return item; // Return the item unchanged if fileName is missing.
           });
+
           marked.setOptions({
             breaks: true,
             headerIds: false,
@@ -430,31 +447,46 @@ const Sidebar = () => {
     // getting search result data from backend
     let newEntries: any = [];
     let responseJson: any = [];
-    try {
-      const encodedWords = encodeURIComponent(wordsArray.join(","));
-      const response = await fetch(`/api/search?q=${encodedWords}`);
-      responseJson = await response.json();
-      // console.log("responseJson: ", responseJson);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
 
-    newEntries = responseJson;
+    if(internalId)
+      {
+          clearTimeout(internalId);
+      }
+            
+      internalId = setTimeout(async() => {
+        try {
+          const encodedWords = encodeURIComponent(wordsArray.join(","));
+          responseJson = await axios.get(`/api/search?q=${encodedWords}`);
+          console.log('responseJson' , responseJson)
+          // responseJson = await response.json();
+          // console.log("responseJson: ", responseJson);
+        } catch (error) {
+          console.log("Error fetching search results:", error);
+        }
 
-    // Remove Brackets and Calculate Occurence of Words
+        newEntries = responseJson.data;
+        console.log('newentries' , newEntries)
 
-    removeBrackets(newEntries, wordToSearch);
+        // Remove Brackets and Calculate Occurence of Words
+        removeBrackets(newEntries, wordToSearch);
 
-    highlightSearchWord(newEntries, wordToSearch);
+        highlightSearchWord(newEntries, wordToSearch);
 
-    newEntries = newEntries
-      .slice()
-      .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+        newEntries = newEntries
+          .slice()
+          .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-    // console.log("newEntries: ", newEntries);
+        // console.log("newEntries: ", newEntries);
 
-    setSearchResults(newEntries);
+        setSearchResults(newEntries);
+      }, 200);
+        
   };
+
+  const generateRandomId = () => {
+    // Generate a random ID here
+    return Math.random().toString(36).substring(7);
+  }
 
   const handleSiteNameClick = () => {
     setSearchValue("");
@@ -3007,7 +3039,7 @@ const Sidebar = () => {
     axios
       .get("/api/googleDriveFiles")
       .then((res) => {
-        console.log('res: ' , res)
+        // console.log('res: ' , res)
         if (res.data && res.data.authUrl) {
           // Redirect the user to the Google OAuth authorization page
           window.location.href = res.data.authUrl;
@@ -3042,7 +3074,7 @@ const Sidebar = () => {
           folderId: folder.id,
         },
       }).then((res)=> {
-        console.log('res: ' ,res.data)
+        // console.log('res: ' ,res.data)
 
       }).catch((err)=> {
 
@@ -3210,9 +3242,10 @@ const Sidebar = () => {
 
   const handleSetPassword = async () => {
     // const emailToUpdatePassword:any = originalUsers[indexToChangePassword].email;
-    if (newPasswordData.newPassword !== newPasswordData.confirmPassword) {
+    if (newPasswordData.newPassword.trim() === '' || newPasswordData.confirmPassword.trim() === '') {
+      toast.error('Password fields cannot be empty!', { autoClose: 2000 });
+    } else if (newPasswordData.newPassword !== newPasswordData.confirmPassword) {
       toast.error('Passwords do not match!', { autoClose: 2000 });
-      return;
     } else {
       setUpdatePasswordLoader(true)
       // console.log('getuser' , getUser.user.email)
@@ -3249,6 +3282,20 @@ const Sidebar = () => {
     
 
   }
+
+  const handleVaultChange = (event:any) => {
+    const selectedValue = event.target.value;
+    console.log('selectedvauule' , selectedValue)
+    const isOptionAvailable = getPackage.some((item:any) => `${item.packageName} Vault` === selectedValue);
+
+    if (isOptionAvailable) {
+      setSelectedVaultOption(selectedValue);
+    } else {
+      // alert('This option is not available in the package!');
+      setShowLockedVaultPopup(true)
+      
+    }
+  };
  
 
   return (
@@ -3297,17 +3344,7 @@ const Sidebar = () => {
                 </div>
               )}
             </div>
-            {/* <div>
-              <Link href="/login">
-                <img
-                  src="/logout.svg"
-                  alt="img"
-                  onClick={() => {
-                    handleLogout();
-                  }}
-                />
-              </Link>
-            </div> */}
+            
             <div>
               <img
                 src="/users.svg"
@@ -3452,67 +3489,138 @@ const Sidebar = () => {
 
             {showChangePasswordDialog && (
               <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
-              <DialogTitle>Set Password</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Please enter the new password:
-                </DialogContentText>
-                <TextField
-                  type={showSetPasswordToggle ? 'text' : 'password'}
-                  label="New Password"
-                  name="newPassword"
-                  value={newPasswordData.newPassword}
-                  onChange={handleSetNewPasswordToggle}
-                  fullWidth
-                  margin="normal"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                          edge="end"
-                        >
-                          {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <TextField
-                  type={showConfirmPasswordToggle ? 'text' : 'password'}
-                  label="Confirm Password"
-                  name="confirmPassword"
-                  value={newPasswordData.confirmPassword}
-                  onChange={handleSetNewPasswordToggle}
-                  fullWidth
-                  margin="normal"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                          edge="end"
-                        >
-                          {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={closeSetPasswordDialog} color="primary">
-                  Cancel
-                </Button>
-                <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                  {updatePasswordLoader ? 'Saving...' : 'Save'}
-                </Button>
-              </DialogActions>
+                <DialogTitle>Set Password</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please enter the new password:
+                  </DialogContentText>
+                  <TextField
+                    type={showSetPasswordToggle ? 'text' : 'password'}
+                    label="New Password"
+                    name="newPassword"
+                    value={newPasswordData.newPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                            edge="end"
+                          >
+                            {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    type={showConfirmPasswordToggle ? 'text' : 'password'}
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    value={newPasswordData.confirmPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                            edge="end"
+                          >
+                            {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={closeSetPasswordDialog} color="primary">
+                    Cancel
+                  </Button>
+                  <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                    {updatePasswordLoader ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogActions>
               </Dialog>
+            )}
+
+            {showLockedVaultPopup && (
+              <Dialog open={showLockedVaultPopup} onClose={() => setShowLockedVaultPopup(false)}>
+                <DialogTitle>Subscription</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Only Basic Vault is free. Buy Subscription to get full access.
+                  </DialogContentText>
+                  {/* <TextField
+                    type={showSetPasswordToggle ? 'text' : 'password'}
+                    label="New Password"
+                    name="newPassword"
+                    value={newPasswordData.newPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                            edge="end"
+                          >
+                            {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    type={showConfirmPasswordToggle ? 'text' : 'password'}
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    value={newPasswordData.confirmPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                            edge="end"
+                          >
+                            {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  /> */}
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
+                    Cancel
+                  </Button>
+                  {/* <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                    {updatePasswordLoader ? 'Saving...' : 'Save'}
+                  </Button> */}
+                </DialogActions>
+            </Dialog>
             )}
 
 
           </div>
+        </div>
+
+        <div className="current-vault">
+          <select value={selectedVaultOption} onChange={handleVaultChange}>
+              {allVaults.map((packageItem:any) => (
+                <option key={packageItem.id} value={packageItem.vault_name}>
+                  {packageItem.vault_name}
+                </option>
+              ))}
+            </select>
         </div>
 
         <div className={"menuBtn"}>
@@ -3538,6 +3646,7 @@ const Sidebar = () => {
             {isCopied && <div className="copy-tooltip">Copied!</div>}
           </div>
         </div>
+
         {graphOrTextView ? (
           <div
             className={`search-results ${
@@ -3779,106 +3888,106 @@ const Sidebar = () => {
       </div>
 
       <div className="workspace-content">
-      {graphOrTextView ? (
-              <div className="main">
-                {openedResults.length > 0 ? (
-                  openedResults.map((result, index) => (
-                    <div key={index} className="opened-results">
-                      <div className="view-panel-title">
-                        <h4>{result.fileName.toUpperCase()}</h4>
-                        {result.openedFromResults ? (
-                          <div className="view-panel-title-icons">
-                            <img
-                              src="/arrow-left.png"
-                              alt="img"
-                              onClick={() => collapseOpenedResult(result)}
-                            />
-                            <img
-                              src="/xmark.png"
-                              alt="img"
-                              onClick={() => removeBothSearchResults(result)}
-                            />
-                          </div>
-                        ) : (
-                          <div>
-                            <img
-                              src="/collapse.png"
-                              alt="img"
-                              onClick={() => collapseOpenedResult(result)}
-                              className="link-collapse-icon"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="opened-result-detail">
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: result.content,
-                          }}
-                          className="opened-result-description"
-                          onClick={(e: any) => {
-                            if (
-                              e.target.tagName === "SPAN" &&
-                              e.target.style.textDecoration === "underline"
-                            ) {
-                              const clickedWord = e.target.textContent; // Get the clicked word
-                              handleLinkClick(result.fileName, clickedWord);
-                            }
-                          }}
+        {graphOrTextView ? (
+          <div className="main">
+            {openedResults.length > 0 ? (
+              openedResults.map((result, index) => (
+                <div key={index} className="opened-results">
+                  <div className="view-panel-title">
+                    <h4>{result.fileName.toUpperCase()}</h4>
+                    {result.openedFromResults ? (
+                      <div className="view-panel-title-icons">
+                        <img
+                          src="/arrow-left.png"
+                          alt="img"
+                          onClick={() => collapseOpenedResult(result)}
+                        />
+                        <img
+                          src="/xmark.png"
+                          alt="img"
+                          onClick={() => removeBothSearchResults(result)}
                         />
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  // <p style={{ padding: "16px" }}>No results are open.</p>
-                  <div className="homepage-opened-file">
-                    <div className="view-panel-title">
-                      <h3>Homepage</h3>
-                    
-                        {/* <div className="view-panel-title-icons">
-                          <img
-                            src="/arrow-left.png"
-                            alt="img"
-                            onClick={() => collapseOpenedResult(result)}
-                          />
-                          <img
-                            src="/xmark.png"
-                            alt="img"
-                            onClick={() => removeBothSearchResults(result)}
-                          />
-                        </div>
-                    
-                        <div>
-                          <img
-                            src="/collapse.png"
-                            alt="img"
-                            onClick={() => collapseOpenedResult(result)}
-                            className="link-collapse-icon"
-                          />
-                        </div> */}
-                  
-                    </div>
-                    <div className="opened-result-detail">
-                      {homepageFile.length === 0 ? (
-                        <p className="opened-result-description">Home.md not found</p>
-                      ) : (
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: filtersData && filtersData.length > 0 ? filtersData[0].content : '',
-                          }}
-                          className="opened-result-description"
+                    ) : (
+                      <div>
+                        <img
+                          src="/collapse.png"
+                          alt="img"
+                          onClick={() => collapseOpenedResult(result)}
+                          className="link-collapse-icon"
                         />
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  <div className="opened-result-detail">
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: result.content,
+                      }}
+                      className="opened-result-description"
+                      onClick={(e: any) => {
+                        if (
+                          e.target.tagName === "SPAN" &&
+                          e.target.style.textDecoration === "underline"
+                        ) {
+                          const clickedWord = e.target.textContent; // Get the clicked word
+                          handleLinkClick(result.fileName, clickedWord);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
             ) : (
-              <div className="graph-container">
-                <div id="graph-div" className="graph-div"></div>
+              // <p style={{ padding: "16px" }}>No results are open.</p>
+              <div className="homepage-opened-file">
+                <div className="view-panel-title">
+                  <h3>Homepage</h3>
+                
+                    {/* <div className="view-panel-title-icons">
+                      <img
+                        src="/arrow-left.png"
+                        alt="img"
+                        onClick={() => collapseOpenedResult(result)}
+                      />
+                      <img
+                        src="/xmark.png"
+                        alt="img"
+                        onClick={() => removeBothSearchResults(result)}
+                      />
+                    </div>
+                
+                    <div>
+                      <img
+                        src="/collapse.png"
+                        alt="img"
+                        onClick={() => collapseOpenedResult(result)}
+                        className="link-collapse-icon"
+                      />
+                    </div> */}
+              
+                </div>
+                <div className="opened-result-detail">
+                  {homepageFile.length === 0 ? (
+                    <p className="opened-result-description">Home.md not found</p>
+                  ) : (
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: filtersData && filtersData.length > 0 ? filtersData[0].content : '',
+                      }}
+                      className="opened-result-description"
+                    />
+                  )}
+                </div>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="graph-container">
+            <div id="graph-div" className="graph-div"></div>
+          </div>
+        )}
 
       </div>
     
