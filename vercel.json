@@ -1,12 +1,8 @@
 {
     "functions": {
-        "api/downloadFiles.js": {
+        "pages/api/downloadFiles.js": {
             "memory": 3008,
-            "maxDuration": 300
-        },
-        "api/*.js": {
-            "memory": 3008,
-            "maxDuration": 300
+            "maxDuration": 60
         }
     }
 }
