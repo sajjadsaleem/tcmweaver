@@ -10,23 +10,23 @@ type LineItem = {
 
 const checkout = async ({ lineItems }: { lineItems: LineItem[] }) => {
 
-    let stripePromise:any = null
-    let getStripe = async () => {
-        if(!stripePromise){
-            if (process.env.NEXT_PUBLIC_API_KEY) {
-                stripePromise = loadStripe(process.env.NEXT_PUBLIC_API_KEY);
-                return stripePromise
-            }
-        }
-    }
+    // let stripePromise:any = null
+    // let getStripe = async () => {
+    //     if(!stripePromise){
+    //         if (process.env.NEXT_PUBLIC_API_KEY) {
+    //             stripePromise = loadStripe(process.env.NEXT_PUBLIC_API_KEY);
+    //             return stripePromise
+    //         }
+    //     }
+    // }
 
-    const stripe = await getStripe()
-    await stripe.redirectToCheckout({
-        mode: 'payment',
-        lineItems,
-        successUrl: `${window.location.origin}?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: window.location.origin
-    })
+    // const stripe = await getStripe()
+    // await stripe.redirectToCheckout({
+    //     mode: 'payment',
+    //     lineItems,
+    //     successUrl: `${window.location.origin}?session_id={CHECKOUT_SESSION_ID}`,
+    //     cancelUrl: window.location.origin
+    // })
             
         
     
