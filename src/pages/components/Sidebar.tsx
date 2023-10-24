@@ -3677,7 +3677,7 @@ const Sidebar = () => {
                     {updatePasswordLoader ? 'Saving...' : 'Buy Now'}
                   </Button> */}
 
-                  <Button color="primary">
+                  {/* <Button color="primary">
                     {updatePasswordLoader ? (
                         <>
                           Please Wait {" "}
@@ -3690,7 +3690,7 @@ const Sidebar = () => {
                       ) : (
                         <>buy now</>
                       )}
-                  </Button>
+                  </Button> */}
                 </DialogActions>
             </Dialog>
             )}

@@ -32,9 +32,10 @@ export default async function login(req, res) {
 
       const db = drizzle(sql)
       const userArray = await db.select().from(users).where(eq(users.email, email));
+      // console.log('userarray', userArray)
       const user = userArray[0] || null;
 
-      console.log('user', user)
+      // console.log('user', user)
 
 
 
