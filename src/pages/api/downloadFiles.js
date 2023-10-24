@@ -397,7 +397,7 @@ export default async function handler(req, res) {
             }
 
         } catch (error) {
-            console.error("Error fetching files:", error.message);
+            console.error("Error fetching file:", error.message);
             res.status(500).json({ error: "Internal Server Error" });
         }
     } else {
