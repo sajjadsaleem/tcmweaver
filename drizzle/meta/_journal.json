@@ -162,6 +162,20 @@
       "when": 1697812533328,
       "tag": "0022_wet_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1698068001313,
+      "tag": "0023_brainy_sasquatch",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1698069872644,
+      "tag": "0024_fat_raza",
+      "breakpoints": true
     }
   ]
 }

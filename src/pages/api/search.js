@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { dataset } from '../../db/schema/dataset'
 import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
@@ -22,32 +21,10 @@ export default async function search(req, res) {
         const wordsArray = req.query.q.split(',');
         // console.log('req wordsArray: ', wordsArray)
 
-
-        // reading all files
-        // const directoryPath = `${process.cwd()}/public/cornish-vault`;
-        // const fileNames = await fs.readdir(directoryPath);
-        // const filesData = await Promise.all(
-        //     fileNames.map(async (fileName) => {
-        //         const filePath = path.join(directoryPath, fileName);
-        //         const content = await fs.readFile(filePath, 'utf-8');
-        //         return { fileName, content };
-        //     })
-        // );
-
-        // console.log('filesData', filesData)
-
-        // const datasets = await prisma.dataset.findMany({
-        //     select: {
-        //         filename: true,
-        //         content: true,
-        //         // Add other columns you want to include here
-        //     },
-        // });
-
         const db = drizzle(sql)
 
         const basicTableToSearch = await db.select({ basicVault: vaultsTable.reference_table }).from(vaultsTable)
-            .where(eq(vaultsTable.vault_name, 'Basic Vault'));
+            .where(eq(vaultsTable.vault_name, 'CORE'));
         // console.log('basictabletosearch', basicTableToSearch)
 
         const client = await pool.connect();
@@ -61,7 +38,7 @@ export default async function search(req, res) {
         // const datasets = await db.select().from(dataset);
         // console.log('datasets', datasets)
 
-        // console.log('datasets =', datasets)
+
 
         // Remove ".md" extension
         const extensionRemovedData = datasets.map(item => {
@@ -76,7 +53,7 @@ export default async function search(req, res) {
         // remove filters file from other data
         const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "SAMPLE FILTERS");
 
-        // console.log('filesWithoutFilters', filesWithoutFilters)
+        // console.log('filesWithoutFilters', filesWithoutFilters[0])
 
 
         // filter the data

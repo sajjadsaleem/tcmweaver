@@ -5,5 +5,5 @@ import { vaultsTable } from './vaults';
 export const vaultPackagesTable = pgTable('vaultPackages', {
     id: serial('id').primaryKey(),
     package_id: integer('package_id').references(() => packagesTable.id),
-    vault_id: integer('user_id').references(() => vaultsTable.id),
+    vault_id: integer('vault_id').references(() => vaultsTable.id),
 });

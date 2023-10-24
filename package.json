@@ -18,6 +18,7 @@
     "@mui/material": "^5.14.7",
     "@prisma/client": "^5.3.1",
     "@reduxjs/toolkit": "^1.9.7",
+    "@stripe/stripe-js": "^2.1.9",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.4.5",
     "@types/react": "18.2.18",
@@ -68,6 +69,7 @@
     "remark-parse": "^10.0.2",
     "remark-rehype": "^10.1.0",
     "showdown": "^2.1.0",
+    "stripe": "^14.1.0",
     "typescript": "5.1.6",
     "validator": "^13.11.0"
   },

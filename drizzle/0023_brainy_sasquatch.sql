@@ -1,0 +1,1 @@
+ALTER TABLE "packages" ADD COLUMN "api_id" text;

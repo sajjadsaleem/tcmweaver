@@ -21,6 +21,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import checkout from "../checkout";
+import { loadStripe } from '@stripe/stripe-js';
 
 var internalId:any = 0
 
@@ -127,11 +129,12 @@ const Sidebar = () => {
   const [showConfirmPasswordToggle , setShowConfirmPasswordToggle] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
   const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
-  const [homepageFile , setHomepageFile] = useState([])
+  const [homepageFile , setHomepageFile] = useState<any>([])
   const [allVaults , setAllVaults] = useState<any>([])
   const [getPackage , setPackage] = useState([])
   const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
   const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
+  const [clickedVault , setClickedVault] = useState('') 
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -147,7 +150,9 @@ const Sidebar = () => {
   // console.log('userEmail ', userEmail)
   // console.log('getUser' , getUser , 'getpermissions' , getPermissions)
   // console.log('allVaults' , allVaults)
-  console.log('getpackage' , getPackage)
+  // console.log('getpackage' , getPackage)
+  // console.log('clickedvault' , clickedVault)
+  // console.log('homepagefile' , homepageFile)
 
   
 
@@ -167,7 +172,7 @@ const Sidebar = () => {
       try {
         const response = await fetch("/api");
         if (!response.ok) {
-          throw new Error("Failed to fetch files data.");
+          throw new Error("Failed to fetch filters, home and packages data.");
         } else {
           let data = await response.json();
           // console.log('data' , data)
@@ -205,11 +210,14 @@ const Sidebar = () => {
           // console.log('data' , data)
           let homepageFile = _.cloneDeep(data); // Deep clone the array
 
+          // console.log('homepagefile' , homepageFile[2])
+          homepageFile[2].content = marked(homepageFile[2].content);
+          setHomepageFile(homepageFile[2])
 
 
           homepageFile[0].content = marked(homepageFile[0].content);
 
-         
+          // setHomepageFile()
 
           setFiltersData(homepageFile)
 
@@ -275,7 +283,31 @@ const Sidebar = () => {
         theme: "light",
       });
     }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    if (sessionId) {
+      axios.get(`/api/verify-payment?sessionId=${sessionId}`)
+        .then((response) => {
+          const paymentStatus = response.data.paymentStatus;
+    
+          // if (paymentStatus === 'paid') {
+          //   // The payment was successful
+          //   console.log('Payment was successful');
+          //   // You can update your UI accordingly
+          // } else {
+          //   // The payment was not successful
+          //   console.log('Payment was not successful');
+          //   // Handle the failure or display an error message
+          // }
+        })
+        .catch((error) => {
+          console.error('Error verifying payment:', error);
+        });
+    }
+
     fetchFilesData();
+
   }, []);
 
   useEffect(()=> {
@@ -297,7 +329,7 @@ const Sidebar = () => {
     // console.log("input value: ", inputValue);
 
     setSearchValue(inputValue);
-    setGraphSearchValue(inputValue)
+    // setGraphSearchValue(inputValue)
 
     let wordToSearch: any;
 
@@ -465,7 +497,7 @@ const Sidebar = () => {
         }
 
         newEntries = responseJson.data;
-        console.log('newentries' , newEntries)
+        // console.log('newentries' , newEntries)
 
         // Remove Brackets and Calculate Occurence of Words
         removeBrackets(newEntries, wordToSearch);
@@ -479,7 +511,7 @@ const Sidebar = () => {
         // console.log("newEntries: ", newEntries);
 
         setSearchResults(newEntries);
-      }, 200);
+      }, 300);
         
   };
 
@@ -2009,7 +2041,7 @@ const Sidebar = () => {
     // console.log("event", event.target.value);
     const inputValue = event.target.value;
     setGraphSearchValue(inputValue);
-    setSearchValue(inputValue)
+    // setSearchValue(inputValue)
 
     let wordToSearch: any;
 
@@ -2154,29 +2186,36 @@ const Sidebar = () => {
     // getting search result data from backend
     let newEntries: any = [];
     let responseJson: any = [];
-    try {
-      const encodedWords = encodeURIComponent(wordsArray.join(","));
-      const response = await fetch(`/api/search?q=${encodedWords}`);
-      responseJson = await response.json();
-      // console.log("responseJson: ", responseJson);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
+
+    if(internalId){
+        clearTimeout(internalId);
     }
+    internalId = setTimeout(async() => {
 
-    newEntries = responseJson;
+      try {
+        const encodedWords = encodeURIComponent(wordsArray.join(","));
+        const response = await fetch(`/api/search?q=${encodedWords}`);
+        responseJson = await response.json();
+        // console.log("responseJson: ", responseJson);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
 
-    removeBrackets(newEntries, wordToSearch);
+      newEntries = responseJson;
 
-    highlightSearchWord(newEntries, wordToSearch);
+      removeBrackets(newEntries, wordToSearch);
 
-    newEntries = newEntries
-      .slice()
-      .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+      highlightSearchWord(newEntries, wordToSearch);
 
-    // console.log("newEntries: ", newEntries);
+      newEntries = newEntries
+        .slice()
+        .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-    setSearchResults(newEntries);
-    generateGraphfromSearch(newEntries , inputValue);
+      // console.log("newEntries: ", newEntries);
+
+      setSearchResults(newEntries);
+      generateGraphfromSearch(newEntries , inputValue);
+    }, 300);
   };
 
   const generateGraphfromSearch = (searchResultsForGraph: any , searchValueForGraph: any) => {
@@ -3285,17 +3324,92 @@ const Sidebar = () => {
 
   const handleVaultChange = (event:any) => {
     const selectedValue = event.target.value;
-    console.log('selectedvauule' , selectedValue)
+    // console.log('selectedvauule' , selectedValue)
     const isOptionAvailable = getPackage.some((item:any) => `${item.packageName} Vault` === selectedValue);
 
     if (isOptionAvailable) {
       setSelectedVaultOption(selectedValue);
     } else {
-      // alert('This option is not available in the package!');
       setShowLockedVaultPopup(true)
+      
+
+      setClickedVault(selectedValue)
       
     }
   };
+
+
+  const handleVaultCheckout = async () => {
+    setUpdatePasswordLoader(true)
+   
+    // await axios.get(`/api/getPackage?q=${clickedVault}`)
+    // .then(async (res)=>{
+    //   console.log('package selected' , res.data[0].packageApiId);
+
+    //   checkout({
+    //     lineItems: [{price: res.data[0].packageApiId , quantity: 1}]
+    //   })
+      
+      // await fetchUsers()
+      // setOriginalUsers(res.data.allUsers);
+      // setSearchedUsers(res.data.allUsers)
+      // closeAddUserDialog()
+    //   setShowEditUserDialog(false)
+    //   toggleAccountOptions()
+    //   setEditUserLoader(false)
+    //   toast.success('Account updated successfully!');
+    //   setFormData({
+    //     fullName: '',
+    //     email: '',
+    //     role: '',
+    //     status: '',
+    //   });
+
+    //   dispatch(stAccessTokenVerify({
+    //     user: res.data.allUsers[0],
+    //     user_permssions: res.data.getPermissions ,
+    //     user_role: res.data.getRole
+    //   }))
+      
+    // setUser(res.data.allUsers[0])
+    // setPermissions(res.data.getPermissions)
+    // })
+    // .catch((error:any)=>{
+    //   console.log('Error getting package name:', error);
+    //   setUpdatePasswordLoader(false)
+    //   toast.error('Failed to redirect. Try again');
+    // })
+
+    if (process.env.NEXT_PUBLIC_API_KEY) {
+      const stripe:any = await loadStripe(process.env.NEXT_PUBLIC_API_KEY);
+
+      await axios.get(`/api/getPackage?q=${clickedVault}`)
+    .then(async (res)=>{
+      console.log('package selected' , res.data[0].packageApiId);
+
+      checkout({
+        lineItems: [{price: res.data[0].packageApiId , quantity: 1}]
+      })
+    })
+
+      // Create a session with Stripe
+      const response = await axios.post('/api/create-checkout-session', {
+        lineItems: [{ price: 'your_price_id', quantity: 1 }],
+        successUrl: window.location.origin + '/success', // Set your success URL
+        cancelUrl: window.location.origin + '/cancel', // Set your cancel URL
+      });
+
+      // Redirect to the Stripe Checkout page
+      const { sessionId } = response.data;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId,
+      });
+    }
+
+
+   
+    
+  }
  
 
   return (
@@ -3555,56 +3669,29 @@ const Sidebar = () => {
                   <DialogContentText>
                     Only Basic Vault is free. Buy Subscription to get full access.
                   </DialogContentText>
-                  {/* <TextField
-                    type={showSetPasswordToggle ? 'text' : 'password'}
-                    label="New Password"
-                    name="newPassword"
-                    value={newPasswordData.newPassword}
-                    onChange={handleSetNewPasswordToggle}
-                    fullWidth
-                    margin="normal"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                            edge="end"
-                          >
-                            {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextField
-                    type={showConfirmPasswordToggle ? 'text' : 'password'}
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    value={newPasswordData.confirmPassword}
-                    onChange={handleSetNewPasswordToggle}
-                    fullWidth
-                    margin="normal"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                            edge="end"
-                          >
-                            {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  /> */}
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
                     Cancel
                   </Button>
-                  {/* <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                    {updatePasswordLoader ? 'Saving...' : 'Save'}
+                  {/* <Button color="primary" onClick={handleVaultCheckout} disabled={isLoading}>
+                    {updatePasswordLoader ? 'Saving...' : 'Buy Now'}
                   </Button> */}
+
+                  <Button onClick={handleVaultCheckout} color="primary">
+                    {updatePasswordLoader ? (
+                        <>
+                          Please Wait {" "}
+                          <span
+                            className="spinner-grow spinner-grow-sm ml-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        </>
+                      ) : (
+                        <>buy now</>
+                      )}
+                  </Button>
                 </DialogActions>
             </Dialog>
             )}
@@ -3974,7 +4061,7 @@ const Sidebar = () => {
                   ) : (
                     <p
                       dangerouslySetInnerHTML={{
-                        __html: filtersData && filtersData.length > 0 ? filtersData[0].content : '',
+                        __html: filtersData && filtersData.length > 0 ? homepageFile.content : '',
                       }}
                       className="opened-result-description"
                     />

@@ -695,6 +695,7 @@ const Dashboard = () => {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
                 },
+                timeout: 300000,
                 params: {
                   folderId: updatedSelectedFolders,
                 },
