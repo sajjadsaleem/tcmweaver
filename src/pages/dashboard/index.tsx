@@ -76,6 +76,9 @@ const Dashboard = () => {
     ])
     const [showVaultDelete , setShowVaultDelete] = useState(false)
     const [vaultToDelete , setVaultToDelete] = useState('')
+    const [packageSearchValue , setPackageSearchValue] = useState([])
+    const [stripePackages , setStripePackages] = useState<any>([])
+    const [searchedStripePackages , setSearchedStripePackages] = useState([])
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -92,11 +95,12 @@ const Dashboard = () => {
     // console.log('foldertocompare'  , folderToCompare)
     // console.log('vaulttodelete' , vaultToDelete)
     // console.log('folderselectedloader' , folderSelectedLoader)
+    console.log('searchedstripepackages' , searchedStripePackages)
 
     async function fetchFilenames() {
       try {
         const response = await axios.get('/api/getFilenames'); // Replace with your API endpoint
-        console.log('response.data' , response.data)
+        // console.log('response.data' , response.data)
         if (response.data) {
           const transformedData:any = Object.keys(response.data).map((vault_name) => ({
             vault_name,
@@ -736,6 +740,57 @@ const Dashboard = () => {
             console.error("Error deleting vault:", error);
           })
       };
+
+      const requestPackageSearch = (event:any) => {
+        // console.log(event.target.value)
+        setPackageSearchValue(event.target.value)
+        const searchedVal = event.target.value
+        const filteredRows = stripePackages.filter((row:any) => {
+          return row.name.toLowerCase().includes(searchedVal.toLowerCase());
+        });
+        setSearchedStripePackages(filteredRows);
+      };
+
+      const handleDashboardNavigation = (item:any) => {
+        setSelectedListItem(item)
+        axios.get(`/api/getProducts`)
+        .then((res)=> {
+          setStripePackages(res.data)
+          setSearchedStripePackages(res.data)
+          // console.log('getProducts response' , res.data)
+        })
+        .catch((err)=> {
+  
+        })
+
+
+      }
+
+      const convertUnixTimestampToDateTime = (timestamp:any) => {
+        // Convert the timestamp to milliseconds
+        const timestampInMilliseconds = timestamp * 1000;
+      
+        // Create a Date object
+        const date = new Date(timestampInMilliseconds);
+      
+        // Format the date and time as needed
+        const formattedDate = date.toLocaleString(); // Adjust the formatting as needed
+      
+        return formattedDate;
+      };
+
+      const getCurrencySign = (currency:any) => {
+        switch (currency) {
+          case 'usd':
+            return '$';
+          case 'eur':
+            return '€';
+          // Add more currency cases as needed
+          default:
+            return currency; // Return the currency name if not found
+        }
+      }
+      
       
 
     return (
@@ -1304,6 +1359,12 @@ const Dashboard = () => {
                     <ListItemText primary="User Management" />
                 </ListItem>
 
+                <ListItem className={`dashboard-navigation-list ${selectedListItem === 3 ? 'selected-dashboard-navigation-list' : ''}`}
+                  onClick={() => handleDashboardNavigation(3)}>
+                    <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    <ListItemText primary="Packages" />
+                </ListItem>
+
               </List>
             </div>
             
@@ -1514,22 +1575,22 @@ const Dashboard = () => {
                       <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
                         <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                           <TableRow className='vault-table-row'>
-                            <TableCell sx={{borderTopLeftRadius: '17px'}}>
+                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '8%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{width:'20%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                             </TableCell>
-                            <TableCell sx={{}}>
+                            <TableCell sx={{width: '25%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
                             </TableCell>
-                            <TableCell sx={{}}>
+                            <TableCell sx={{width: '10%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
                             </TableCell>
-                            <TableCell sx={{}}>
+                            <TableCell sx={{width: '10%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
                             </TableCell>
-                            <TableCell sx={{borderTopRightRadius: '17px'}}>
+                            <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                             </TableCell>
                           </TableRow>
@@ -1568,6 +1629,94 @@ const Dashboard = () => {
                     </TableContainer>
                   </div>
                 </div>
+              )}
+
+              {selectedListItem == 3 && (
+                <div className='main-user-management'>
+                  <div className="user-breadcrumbs">
+                    <h5>Packages</h5>
+                  </div>
+
+                  <div className="user-search">
+                    <div>
+                      <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
+                      onChange={requestPackageSearch} />
+                    </div>
+                    {/* <div>
+                      <button className='add-user' onClick={showAddUserPopup}>
+                        Add Package
+                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                      </button>
+                    </div> */}
+                  </div>
+
+                 <div className="user-table">
+                   <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                     <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                       <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                         <TableRow className='vault-table-row'>
+                           <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                           </TableCell>
+                           <TableCell sx={{width: '30%'}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
+                           </TableCell>
+                           <TableCell sx={{width: '10%'}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
+                           </TableCell>
+                           <TableCell sx={{width: '50%'}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
+                           </TableCell>
+                           {/* <TableCell sx={{}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
+                           </TableCell>
+                           <TableCell sx={{borderTopRightRadius: '17px'}}>
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
+                           </TableCell> */}
+                         </TableRow>
+                       </TableHead>
+
+                       <TableBody>
+                         {searchedStripePackages.map((row:any , index) => (
+                           <TableRow
+                             key={row.id}
+                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                             className='vault-table-row user-row-hover'
+                           >
+                              <TableCell component="th" scope="row" className='vault-table-body-row'>
+                                {index + 1}
+                              </TableCell>
+                              <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+                              <TableCell className='vault-table-body-row'>
+                                {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                              </TableCell>
+                              <TableCell className='vault-table-body-row'>
+                                {convertUnixTimestampToDateTime(row.created)}
+                              </TableCell>
+                             {/* <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+                             <TableCell className='vault-table-body-row'>
+                               <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
+                                 <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
+                                 {showOptions === index+1 && (
+                                   <div className='options-div'>
+                                     <div onClick={() => handleEditClick(index)}>Edit</div>
+                                     <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
+                                     <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
+                                       {isDeleting ? 'Deleting...' : 'Delete'}
+                                     </div>
+                                   </div>
+                                 )}
+                               </div>
+                             </TableCell> */}
+                         
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                   </TableContainer>
+                 </div>
+               </div>
+
               )}
               
                

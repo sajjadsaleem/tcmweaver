@@ -29,9 +29,9 @@ export default async function handler(req, res) {
         }
 
         const { token } = req.body;
-        console.log('token : ', token)
+        // console.log('token : ', token)
         var tokenResult = jwt.verify(token)
-        console.log('tokenResult:', tokenResult)
+        // console.log('tokenResult:', tokenResult)
         var message = "Token has been verified successfully"
         // console.log('tokenResult=',token,tokenResult)
 

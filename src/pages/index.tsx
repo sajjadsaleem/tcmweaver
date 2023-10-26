@@ -7,7 +7,6 @@ import LayoutWrapper from "./components/LayoutWrapper";
 import AdminLayout from "./components/AdminLayout";
 
 import Sidebar from "./components/Sidebar";
-import Main from "./components/Main";
 
 const Page = () => {
   const [triggerChange, setTriggerChange] = useState(false);

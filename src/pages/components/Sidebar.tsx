@@ -3701,12 +3701,12 @@ const Sidebar = () => {
 
         <div className="current-vault">
           <select value={selectedVaultOption} onChange={handleVaultChange}>
-              {allVaults.map((packageItem:any) => (
-                <option key={packageItem.id} value={packageItem.vault_name}>
-                  {packageItem.vault_name}
-                </option>
-              ))}
-            </select>
+            {allVaults.map((packageItem:any) => (
+              <option key={packageItem.id} value={packageItem.vault_name}>
+                {packageItem.vault_name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className={"menuBtn"}>

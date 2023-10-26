@@ -2,7 +2,6 @@ import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { vaultsTable } from '../../db/schema/vaults';
 import pg from 'pg';
-// import { dataset } from '../../db/schema/dataset'
 
 const { Pool } = pg;
 
@@ -15,6 +14,8 @@ export default async function getFilenames(req, res) {
     if (req.method === 'GET') {
         try {
             const db = drizzle(sql)
+
+
 
             const allVaults = await db.select({
                 vault_name: vaultsTable.vault_name,

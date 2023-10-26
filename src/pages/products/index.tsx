@@ -1,18 +1,145 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 
-const Products = () => {
-  return (
-    <div>
-        <div style={{display: 'flex', alignItems: 'center', padding: '20px', borderBottom: '1px solid #616161'}}>
-            <img src='graph-logo.png' alt='logo' style={{width: '50px'}}/>
-            <h3 style={{marginLeft: '12px' , color: '#616161'}}>TCM Weaver</h3>
-        </div>
-
-
-
-
-    </div>
-  )
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'stripe-pricing-table': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
 }
 
-export default Products
+
+
+
+
+
+const Products = () => {
+  const [productsData , setProductsData] = useState<any>([])
+
+  // console.log('getProducts response' , productsData)
+
+  useEffect(() => {
+    // Check to see if this is a redirect back from Checkout
+    const query = new URLSearchParams(window.location.search);
+    console.log('query' , query)
+    if (query.get('success')) {
+      console.log('Order placed! You will receive an email confirmation.');
+    }
+
+    if (query.get('canceled')) {
+      console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
+    }
+  }, []);
+
+  useEffect(()=> {
+    axios.get(`/api/getProducts`)
+        .then((res)=> {
+          setProductsData(res.data)
+          // console.log('getProducts response' , res.data)
+        })
+        .catch((err)=> {
+          console.log('error getting products' , err)
+        })
+
+  } , [])
+
+  const getStripe = (product:any)=> {
+    if(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY){
+      const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+    }
+
+    console.log('product' , product.default_price)
+
+    axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}`)
+    .then((res)=>{
+      console.log('res' , res.data)
+      window.location.href = res.data.url;
+
+    })
+    .catch((err)=>{
+      console.log('err' , err)
+    })
+
+    
+  }
+  
+
+  return (
+    <div>
+      <div className='product-page-body'>
+        <img src='graph-logo.png' alt='logo' style={{ width: '50px' }} />
+        <h3 style={{ marginLeft: '12px', color: '#616161' }}>TCM Weaver</h3>
+      </div>
+
+      {/* <div>
+      <stripe-pricing-table pricing-table-id="prctbl_1O5RycFD17P5ok9cTyPkAxVZ"
+        publishable-key="pk_test_51O2vx2FD17P5ok9cEi3ICZO4uHq4OF9GCZRwuxJ2emh8c475yE1GKZ0ZLjVSmmzt4v9TPP6EGLplh5sehpP5XFMx009w0LvZyz">
+      </stripe-pricing-table>
+      </div> */}
+
+      <div className='products-container'>
+        {productsData.map((product:any , index:any) => (
+          <div className='product-div' key={index}>
+            <div style={{marginBottom: '22px' , minHeight:'75px' }}>
+              <span className='product-name'>
+                {product.name}
+              </span>
+              <span className='product-description'>
+                {product.description}
+              </span>
+            </div>
+
+            <div style={{display: 'flex' , flexDirection: 'column' }}>
+                <p style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                  <span style={{fontWeight: '700' , fontSize:'32px'}}>
+                    ${(product.default_price.unit_amount)/100}
+                  </span>
+                  <span style={{ color: 'grey', fontSize: '14px', width:'50px' , lineHeight:'1'}}>
+                    {product.default_price.recurring.interval === 'month'
+                      ? 'per month'
+                      : product.default_price.recurring.interval === 'year'
+                      ? 'per year'
+                      : product.default_price.recurring.interval // Fallback to the original value
+                    }
+                  </span>
+                </p>
+                  
+                <button className='product-button' onClick={() => getStripe(product)}>
+                  {product.default_price.recurring.trial_period_days === null
+                    ? 'Subscribe'
+                    : `Start Trial`
+                  }
+                </button>
+            </div>
+
+            {product.features.length > 0 && (
+            <div>
+              <span className='product-features-heading'>
+                This includes:
+              </span>
+              {product.features.map((feature:any, index:any)=>(
+                <div key={index} className='product-features-div'>
+                  <div>
+                    <img src='tick-icon.jpg' alt='icon' width='13px'/>
+                  </div>
+                  <span>{feature.name}</span>
+                  
+                </div>
+                
+              ))}
+            </div>
+
+            )}
+          </div>
+        ))
+        }
+
+      </div>
+
+    </div>
+  );
+};
+
+export default Products;
