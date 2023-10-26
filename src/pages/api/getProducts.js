@@ -13,10 +13,10 @@ export default async function getProducts(req, res) {
     if (req.method === 'GET') {
         try {
             const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], });
-            // const stripePrices = await stripe.prices.list({
-            //     expand: ['data.product'], // 🎉 Give me the product data too!
-            // });
-            // console.log('stripeproducts', stripeProducts.data)
+            const stripePrices = await stripe.prices.list({
+                expand: ['data.product'],
+            });
+            console.log('stripeproducts', stripeProducts.data)
 
             res.status(200).json(stripeProducts.data);
         } catch (error) {
