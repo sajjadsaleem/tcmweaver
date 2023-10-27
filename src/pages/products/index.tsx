@@ -12,9 +12,6 @@ declare global {
 
 
 
-
-
-
 const Products = () => {
   const [productsData , setProductsData] = useState<any>([])
 
