@@ -27,10 +27,14 @@ export default async (req, res) => {
                 // console.log('event type', event.data, 'user_id', user_id)
             }
             if (event.type === 'product.updated') {
-                await db.insert(packagesTable)
-                    .values({ package_name: event.data.object.name, stripe_prod_id: event.data.object.id })
-                    .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { package_name: event.data.object.name } });
+                // console.log('event type', event)
+                const productId = event.data.object.id
+                const productName = event.data.object.name
+                // console.log('prod id', productId, event.data.object.name)
+                await db.insert(packagesTable).values({ name: productName, stripe_prod_id: productId })
+                    .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { name: productName } })
 
+                // console.log('Package update result:', packageUpdate);
             }
             // if (event.type === 'customer.subscription.deleted') {
             //     console.log('event type', event.type)

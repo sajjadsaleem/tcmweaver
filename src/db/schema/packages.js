@@ -7,6 +7,6 @@ export const packagesTable = pgTable('packages', {
     stripe_prod_id: text('stripe_prod_id')
 }, (packages) => {
     return {
-        uniquePackages: unique().on(packages.name),
+        uniquePackages: unique().on(packages.stripe_prod_id),
     }
 });
