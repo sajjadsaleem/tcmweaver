@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { users } from '../../db/schema/users'
+import { packagesTable } from '../../db/schema/packages';
 import { eq, lt, gte, ne } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -16,7 +17,6 @@ export default async (req, res) => {
         const buf = await buffer(req);
         const sig = req.headers['stripe-signature'];
         let event;
-        let user_id;
         try {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
             // console.log('event now', event)
@@ -25,18 +25,20 @@ export default async (req, res) => {
                     .where(eq(users.session_id, event.data.object.id));
 
                 // console.log('event type', event.data, 'user_id', user_id)
-
-                // const updatedSessionId = await db.update(users)
-                //     .set({ session_id: '' })
-                //     .where(eq(users.session_id, 'cs_test_a1GH7ju1AEQJxo7j2iPWrzkKiDFrqQgnGLF5hcAj9qIn2oz1RSkFVmrVqH'));
             }
-            if (event.type === 'customer.subscription.deleted') {
-                console.log('event type', event.type)
+            if (event.type === 'product.updated') {
+                await db.insert(packagesTable)
+                    .values({ package_name: event.data.object.name, stripe_prod_id: event.data.object.id })
+                    .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { package_name: event.data.object.name } });
 
             }
-            if (event.type === 'invoice.paid') {
-                // console.log('event type', event.type)
-            }
+            // if (event.type === 'customer.subscription.deleted') {
+            //     console.log('event type', event.type)
+
+            // }
+            // if (event.type === 'invoice.paid') {
+            //     // console.log('event type', event.type)
+            // }
 
             return res.status(200).json({ message: 'Webhook handled successfully.' });
         } catch (error) {

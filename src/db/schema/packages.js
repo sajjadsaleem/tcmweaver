@@ -2,12 +2,11 @@ import { integer, pgEnum, pgTable, serial, uniqueIndex, text, numeric, unique } 
 
 export const packagesTable = pgTable('packages', {
     id: serial('id').primaryKey(),
-    package_name: text('package_name'),
-    package_price: numeric('package_price'),
-    vault_name: text('vault_name'),
-    api_id: text('api_id')
+    name: text('name'),
+    price: numeric('price'),
+    stripe_prod_id: text('stripe_prod_id')
 }, (packages) => {
     return {
-        uniquePackages: unique().on(packages.package_name, packages.vault_name),
+        uniquePackages: unique().on(packages.name),
     }
 });

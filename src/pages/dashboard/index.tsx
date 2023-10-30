@@ -95,7 +95,7 @@ const Dashboard = () => {
     // console.log('foldertocompare'  , folderToCompare)
     // console.log('vaulttodelete' , vaultToDelete)
     // console.log('folderselectedloader' , folderSelectedLoader)
-    console.log('searchedstripepackages' , searchedStripePackages)
+    // console.log('searchedstripepackages' , searchedStripePackages)
 
     async function fetchFilenames() {
       try {

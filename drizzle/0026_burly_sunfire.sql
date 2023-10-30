@@ -1,0 +1,1 @@
+ALTER TABLE "packages" RENAME COLUMN "api_id" TO "stripe_prod_id";
