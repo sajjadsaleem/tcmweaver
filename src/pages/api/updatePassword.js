@@ -17,15 +17,6 @@ export default async function handler(req, res) {
         // console.log('hasedpass', hashedPassword)
 
         try {
-            // const updatedUser = await prisma.users.update({
-            //     where: {
-            //         email,
-            //     },
-            //     data: {
-            //         password: hashedPassword,
-            //     },
-            // });
-
             const db = drizzle(sql)
             const updatedUser = await db.update(users)
                 .set({ password: hashedPassword })

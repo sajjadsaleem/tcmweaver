@@ -1,3 +1,7 @@
+import { sql } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { users } from '../../db/schema/users'
+import { eq, lt, gte, ne } from "drizzle-orm";
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
@@ -7,6 +11,7 @@ export default async function createCheckoutSession(req, res) {
     }
 
     try {
+        const db = drizzle(sql)
         // const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: 'all' });
 
         // console.log('hello', req.query.trial_period_days)
@@ -23,7 +28,13 @@ export default async function createCheckoutSession(req, res) {
                 cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
             });
 
-            res.status(200).json(session);
+
+
+            console.log('session', session.id)
+
+
+
+            res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
         } else {
             const session = await stripe.checkout.sessions.create({
                 mode: 'subscription',
@@ -40,7 +51,7 @@ export default async function createCheckoutSession(req, res) {
                 cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
             });
 
-            res.status(200).json(session);
+            res.status(200).json(session.url);
 
         }
 

@@ -20,19 +20,26 @@ const Products = () => {
   useEffect(() => {
     // Check to see if this is a redirect back from Checkout
     const query = new URLSearchParams(window.location.search);
-    console.log('query' , query)
-    if (query.get('success')) {
-      console.log('Order placed! You will receive an email confirmation.');
-    }
+    if(query){
+      const sessionId = query.get('session_id');
+      // console.log('sessionid' , sessionId)
 
-    if (query.get('canceled')) {
-      console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
+    
+      // console.log('query' , query)
+      if (query.get('success')) {
+        console.log('Order placed! You will receive an email confirmation.');
+      }
+
+      if (query.get('canceled')) {
+        console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
+      }
     }
   }, []);
 
   useEffect(()=> {
     axios.get(`/api/getProducts`)
         .then((res)=> {
+          // console.log('res' , res)
           setProductsData(res.data)
           // console.log('getProducts response' , res.data)
         })
@@ -47,12 +54,26 @@ const Products = () => {
       const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
     }
 
-    console.log('product' , product.default_price)
+    // console.log('product' , product.default_price)
+    
+      const storedData:any = localStorage.getItem("user");
+      const userObject:any = JSON.parse(storedData)
+
+    
 
     axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}`)
     .then((res)=>{
-      console.log('res' , res.data)
-      window.location.href = res.data.url;
+     
+
+      axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
+      .then((res:any)=>{
+
+      })
+      .catch((err:any)=>{
+
+      })
+      // console.log('res' , res.data.sessionId)
+      window.location.href = res.data.sessionUrl;
 
     })
     .catch((err)=>{

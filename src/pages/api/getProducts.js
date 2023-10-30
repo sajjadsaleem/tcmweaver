@@ -3,8 +3,8 @@ import { drizzle } from 'drizzle-orm/vercel-postgres';
 // import { users } from '../../db/schema/users'
 // import { vaultsTable } from '../../db/schema/vaults'
 // import { vaultPackagesTable } from '../../db/schema/vaultPackages';
-// import { packagesTable } from '../../db/schema/packages';
-// import { eq, lt, gte, ne } from "drizzle-orm";
+import { packagesTable } from '../../db/schema/packages';
+import { eq, lt, gte, ne } from "drizzle-orm";
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
@@ -12,11 +12,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 export default async function getProducts(req, res) {
     if (req.method === 'GET') {
         try {
-            const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], });
-            // const stripePrices = await stripe.prices.list({
-            //     expand: ['data.product'],
-            // });
-            // console.log('stripeproducts', stripeProducts.data)
+            const db = drizzle(sql)
+            const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], active: true });
+            console.log('stripeProducts', stripeProducts)
+
+            // const updatePackages = await db.update(packagesTable)
+            //     .set({ password: hashedPassword })
+            //     .where(eq(users.email, email));
 
             res.status(200).json(stripeProducts.data);
         } catch (error) {
