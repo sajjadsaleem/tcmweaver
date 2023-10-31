@@ -50,6 +50,10 @@ export default async (req, res) => {
                 const userId = await db.select({ user_id: users.id }).from(users)
                     .where(eq(users.session_id, event.data.object.id));
 
+                const removeSessionId = await db.update(users)
+                    .set({ session_id: '' })
+                    .where(eq(users.id, userId));
+
                 console.log('userid', userId, 'packageid', packageId)
 
                 const checkUser = await db.select().from(userPackagesTable).where(
@@ -106,7 +110,7 @@ export default async (req, res) => {
             //     // console.log('event type', event.type)
             // }
 
-            return res.status(200).json({ message: 'Webhook handled successfully.' });
+            return res.status(200).json({ message: 'Stripe Webhook handled successfully.' });
         } catch (error) {
             res.status(400).send(error.message);
         }
