@@ -766,7 +766,7 @@ const Sidebar = () => {
           // console.log("wordsArray: ", wordsArray);
           axios
             .post("/api/getTags?q=" + wordsArray.join(","))
-            .then((res) => {
+            .then((res:any) => {
               // console.log(res.data);
               count = count + 1;
               const linkTags = Object.keys(res.data).map((key) => {

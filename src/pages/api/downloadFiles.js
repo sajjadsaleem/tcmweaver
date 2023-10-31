@@ -3,7 +3,6 @@ import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { dataset } from '../../db/schema/dataset'
 import { filtersTable } from '../../db/schema/filters'
 import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
@@ -15,29 +14,32 @@ const pool = new Pool({
     connectionString: process.env.POSTGRES_URL + "?sslmode=require",
 })
 
+export const config = {
+    maxDuration: 300,
+};
 
 
-export default async function handler(req, res) {
+export default async function handler(request, response) {
 
 
     // console.log('req', req.query)
 
     const reqData = [];
 
-    for (let i = 0; req.query[`folderId[${i}][kind]`]; i++) {
-        const folderId = req.query[`folderId[${i}][id]`]
-        const name = req.query[`folderId[${i}][name]`];
-        const option = req.query[`folderId[${i}][option]`];
-        reqData.push({ folderId, name, option });
+    for (let i = 0; request.query[`folderId[${i}][kind]`]; i++) {
+        const folderId = request.query[`folderId[${i}][id]`]
+        const name = request.query[`folderId[${i}][name]`];
+        const option = request.query[`folderId[${i}][option]`];
+        Data.push({ folderId, name, option });
     }
 
-    // console.log('reqData', reqData);
+    // console.log('Data', Data);
 
     async function downloadFilesInFolder(folderId) {
         const CLIENT_ID = process.env.CLIENT_ID
         const CLIENT_SECRET = process.env.CLIENT_SECRET
         const REDIRECT_URI = process.env.REDIRECT_URI
-        const ACCESS_TOKEN = req.headers.authorization.replace("Bearer ", "");
+        const ACCESS_TOKEN = request.headers.authorization.replace("Bearer ", "");
 
         const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
         oAuth2Client.setCredentials({ access_token: ACCESS_TOKEN });
@@ -55,13 +57,13 @@ export default async function handler(req, res) {
         return files;
     }
 
-    async function processFolders(reqData) {
+    async function processFolders(Data) {
         const results = [];
 
 
 
-        // console.log('folder', reqData)
-        for (const folder of reqData) {
+        // console.log('folder', Data)
+        for (const folder of Data) {
             // console.log('folder', folder)
             const folderId = folder.folderId;
 
@@ -77,18 +79,18 @@ export default async function handler(req, res) {
     }
 
 
-    if (req.method === "GET") {
+    if (request.method === "GET") {
         try {
             const db = drizzle(sql)
 
-            let results = await processFolders(reqData)
+            let results = await processFolders(Data)
 
 
             // console.log('results', results)
 
 
 
-            // const folderId = req.query.folderId;
+            // const folderId = .query.folderId;
 
             // const filesResponse = await drive.files.list({
             //     q: `'${folderId}' in parents and mimeType='text/markdown'`,
@@ -123,7 +125,7 @@ export default async function handler(req, res) {
                     const fileName = file.name;
                     // console.log('fileid', fileId, 'filename', fileName)
 
-                    const ACCESS_TOKEN = req.headers.authorization.replace("Bearer ", "");
+                    const ACCESS_TOKEN = request.headers.authorization.replace("Bearer ", "");
 
                     try {
                         const response = await axios({
@@ -236,7 +238,7 @@ export default async function handler(req, res) {
                 //         const fileName = file.name;
                 //         // console.log('fileid', fileId, 'filename', fileName)
 
-                //         const ACCESS_TOKEN = req.headers.authorization.replace("Bearer ", "");
+                //         const ACCESS_TOKEN = .headers.authorization.replace("Bearer ", "");
 
                 //         try {
                 //             const response = await axios({
@@ -320,7 +322,7 @@ export default async function handler(req, res) {
                     const fileName = file.name;
                     // console.log('fileid', fileId, 'filename', fileName)
 
-                    const ACCESS_TOKEN = req.headers.authorization.replace("Bearer ", "");
+                    const ACCESS_TOKEN = request.headers.authorization.replace("Bearer ", "");
 
                     try {
                         const response = await axios({
@@ -387,21 +389,21 @@ export default async function handler(req, res) {
 
                 // console.log('downloadedfiles', downloadedFiles)
                 console.log('downloadedFiles = ', downloadedFiles.length)
-                res.status(200).json({
+                response.status(200).json({
                     message: `${downloadedFiles.length} files synchronized successfully`,
                     data: downloadedFiles
                 });
             } catch (error) {
                 console.error('Error during file download:', error);
-                res.status(500).json({ message: 'Internal server error' });
+                response.status(500).json({ message: 'Internal server error' });
             }
 
         } catch (error) {
             console.error("Error fetching file:", error.message);
-            res.status(500).json({ error: "Internal Server Error" });
+            response.status(500).json({ error: "Internal Server Error" });
         }
     } else {
-        res.status(405).end(); // Method Not Allowed
+        response.status(405).end(); // Method Not Allowed
     }
 }
 

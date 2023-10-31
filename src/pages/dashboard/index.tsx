@@ -161,7 +161,7 @@ const Dashboard = () => {
         console.log('authorizationCode', authorizationCode)
         axios
           .post("/api/exchangeCodeForToken", { code: authorizationCode })
-          .then((res) => {
+          .then((res:any) => {
             // Handle the response from the backend, which may contain the access token
             const accessToken = res.data.accessToken;
             console.log('accessToken ', accessToken)
@@ -189,7 +189,7 @@ const Dashboard = () => {
          
             // Now you can use the accessToken to make authenticated requests to Google Drive API.
           })
-          .catch((err) => {
+          .catch((err:any) => {
             console.error("Error exchanging authorization code:", err.response);
           });
       } 
@@ -208,7 +208,7 @@ const Dashboard = () => {
               q: "mimeType='application/vnd.google-apps.folder' and not trashed",
             },
           })
-          .then((res) => {
+          .then((res:any) => {
             // Handle the list of files from the Google Drive API response
             console.log('Folders:', res.data.files);
             setFolders(res.data.files);
@@ -216,7 +216,7 @@ const Dashboard = () => {
            
   
           })
-          .catch((err) => {
+          .catch((err:any) => {
             console.error("Error fetching files from Google Drive:", err.response);
           });
       }
@@ -272,7 +272,7 @@ const Dashboard = () => {
         setProceedBtnLoading(true)
         axios
           .get("/api/googleDriveFiles")
-          .then((res) => {
+          .then((res:any) => {
             // console.log('res: ' , res)
             
             if (res.data && res.data.authUrl) {
@@ -288,7 +288,7 @@ const Dashboard = () => {
             // Helpers.setUser(res.data.user)
             // router.push("/?dashboard");
           })
-          .catch((err) => {
+          .catch((err:any) => {
             console.log("err=", err.response);
           })
       }
@@ -441,7 +441,7 @@ const Dashboard = () => {
           } else {
             setIsLoading(true);
             await axios.post('/api/addUser', formData)
-            .then(async (res)=>{
+            .then(async (res:any)=>{
               console.log('user add response' , res.data);
               setOriginalUsers(res.data.allUsers);
               setSearchedUsers(res.data.allUsers)
@@ -451,7 +451,7 @@ const Dashboard = () => {
   
   
             })
-            .catch((error)=>{
+            .catch((error:any)=>{
               console.log('Error calling addUser api:', error);
               setIsLoading(false);
               toast.error('Failed to add user');
@@ -475,7 +475,7 @@ const Dashboard = () => {
         } else {
           setIsLoading(true)
           await axios.post('/api/inviteUser' , formData)
-          .then(async (res)=>{
+          .then(async (res:any)=>{
             setOriginalUsers(res.data.allUsers);
             setSearchedUsers(res.data.allUsers)
             setShowAddUser(false)
@@ -490,7 +490,7 @@ const Dashboard = () => {
               status: ''
             });
           })
-          .catch((error)=>{
+          .catch((error:any)=>{
             setIsLoading(false)
             console.log('error' , error)
             toast.error('Failed to invite user');
@@ -537,7 +537,7 @@ const Dashboard = () => {
           currentUser: storedUser.role,
           data: formData
         })
-        .then(async (res)=>{
+        .then(async (res:any)=>{
           // console.log('user updated successfully' , res.data);
           // await fetchUsers()
           setOriginalUsers(res.data.allUsers);
@@ -584,7 +584,7 @@ const Dashboard = () => {
         setIsDeleting(true);
         const userEmailToDelete:any = originalUsers[index].email;
         axios.delete(`/api/deleteUser?email=${userEmailToDelete}`)
-          .then(async (response) => {
+          .then(async (response:any) => {
             console.log('response after deleting ' , response)
             // await fetchUsers()
             setOriginalUsers(response.data.allUsers);
@@ -595,7 +595,7 @@ const Dashboard = () => {
 
             // console.log('User deleted successfully:', response.data);
           })
-          .catch((error) => {
+          .catch((error:any) => {
             // Handle any errors that occur during the API request
             console.error('Error deleting user:', error);
             setIsDeleting(false);
@@ -627,7 +627,7 @@ const Dashboard = () => {
             email: emailToUpdatePassword,
             password: newPasswordData.newPassword
           })
-          .then((res)=>{
+          .then((res:any)=>{
             console.log('set password successfully' , res.data);
             // closeAddUserDialog()
             setShowSetPassword(false)
@@ -686,14 +686,14 @@ const Dashboard = () => {
 
       const handleDataSync = ()=> {
         setTaskCompleted(true)
-        console.log('selectedfolders now' , selectedFolders)
+        // console.log('selectedfolders now' , selectedFolders)
         const updatedSelectedFolders = selectedFolders.map((folder:any) => {
           if (!folder.option || folder.option === 'Create new vault') {
             return { ...folder, option: 'Create new vault' };
           }
           return folder;
         });
-        console.log('Selected Folders:', updatedSelectedFolders);
+        // console.log('Selected Folders:', updatedSelectedFolders);
 
         axios.get("api/downloadFiles", {
                 headers: {
@@ -702,13 +702,13 @@ const Dashboard = () => {
                 params: {
                   folderId: updatedSelectedFolders,
                 },
-              }).then((res)=> {
+              }).then((res:any)=> {
                 fetchFilenames()
                 setTaskCompleted(false);
                 setFolderSelectedLoader(true)
                 // console.log('res: ' ,res.data)
         
-              }).catch((err)=> {
+              }).catch((err:any)=> {
                 setTaskCompleted(false)
         
               })
@@ -727,14 +727,14 @@ const Dashboard = () => {
         setProceedBtnLoading(true);
       
         axios.delete(`/api/deleteVault?vaultName=${vaultToDelete}`)
-          .then(async (response) => {
+          .then(async (response:any) => {
             await fetchFilenames()
             toast.success('Vault deleted successfully', { autoClose: 1500 });
             setShowVaultDelete(false)
             setProceedBtnLoading(false);
             console.log("Vault deleted successfully");
           })
-          .catch((error) => {
+          .catch((error:any) => {
             setProceedBtnLoading(false);
             toast.error('Failed to delete vault', { autoClose: 1500 });
             console.error("Error deleting vault:", error);
@@ -754,12 +754,12 @@ const Dashboard = () => {
       const handleDashboardNavigation = (item:any) => {
         setSelectedListItem(item)
         axios.get(`/api/getProducts`)
-        .then((res)=> {
+        .then((res:any)=> {
           setStripePackages(res.data)
           setSearchedStripePackages(res.data)
           console.log('getProducts response' , res.data)
         })
-        .catch((err)=> {
+        .catch((err:any)=> {
   
         })
 
