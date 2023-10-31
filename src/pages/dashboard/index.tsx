@@ -757,7 +757,7 @@ const Dashboard = () => {
         .then((res)=> {
           setStripePackages(res.data)
           setSearchedStripePackages(res.data)
-          // console.log('getProducts response' , res.data)
+          console.log('getProducts response' , res.data)
         })
         .catch((err)=> {
   
