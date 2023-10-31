@@ -30,7 +30,7 @@ export default async function handler(request, response) {
         const folderId = request.query[`folderId[${i}][id]`]
         const name = request.query[`folderId[${i}][name]`];
         const option = request.query[`folderId[${i}][option]`];
-        Data.push({ folderId, name, option });
+        reqData.push({ folderId, name, option });
     }
 
     // console.log('Data', Data);
@@ -57,13 +57,13 @@ export default async function handler(request, response) {
         return files;
     }
 
-    async function processFolders(Data) {
+    async function processFolders(reqData) {
         const results = [];
 
 
 
         // console.log('folder', Data)
-        for (const folder of Data) {
+        for (const folder of reqData) {
             // console.log('folder', folder)
             const folderId = folder.folderId;
 
@@ -83,7 +83,7 @@ export default async function handler(request, response) {
         try {
             const db = drizzle(sql)
 
-            let results = await processFolders(Data)
+            let results = await processFolders(reqData)
 
 
             // console.log('results', results)
