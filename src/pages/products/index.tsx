@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios  from 'axios';
 import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
@@ -38,12 +38,12 @@ const Products = () => {
 
   useEffect(()=> {
     axios.get(`/api/getProducts`)
-        .then((res)=> {
+        .then((res:any)=> {
           // console.log('res' , res)
-          setProductsData(res.data)
-          // console.log('getProducts response' , res.data)
+          setProductsData(res.data.stripeProducts)
+          console.log('getProducts response' , res.data)
         })
-        .catch((err)=> {
+        .catch((err:any)=> {
           console.log('error getting products' , err)
         })
 
@@ -59,7 +59,7 @@ const Products = () => {
       const userObject:any = JSON.parse(storedData)
 
     axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}`)
-    .then((res)=>{
+    .then((res:any)=>{
      
 
       axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
@@ -74,7 +74,7 @@ const Products = () => {
       window.location.href = res.data.sessionUrl;
 
     })
-    .catch((err)=>{
+    .catch((err:any)=>{
       console.log('err' , err)
     })
 

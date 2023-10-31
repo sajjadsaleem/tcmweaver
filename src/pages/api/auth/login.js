@@ -68,7 +68,7 @@ export default async function login(req, res) {
 
       const signedToken = jwt.sign(payload, signingOptions);
 
-      console.log('signedToken', signedToken)
+      // console.log('signedToken', signedToken)
 
       return res.status(200).send({
         success: true,
