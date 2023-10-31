@@ -53,13 +53,10 @@ const Products = () => {
     if(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY){
       const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
     }
-
-    // console.log('product' , product.default_price)
+    // console.log('product' , product)
     
       const storedData:any = localStorage.getItem("user");
       const userObject:any = JSON.parse(storedData)
-
-    
 
     axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}`)
     .then((res)=>{
@@ -67,11 +64,12 @@ const Products = () => {
 
       axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
       .then((res:any)=>{
-
+        console.log('sessionId saved')
       })
       .catch((err:any)=>{
-
+        console.log('error saving sessionId')
       })
+      
       // console.log('res' , res.data.sessionId)
       window.location.href = res.data.sessionUrl;
 
@@ -90,12 +88,6 @@ const Products = () => {
         <img src='graph-logo.png' alt='logo' style={{ width: '50px' }} />
         <h3 style={{ marginLeft: '12px', color: '#616161' }}>TCM Weaver</h3>
       </div>
-
-      {/* <div>
-      <stripe-pricing-table pricing-table-id="prctbl_1O5RycFD17P5ok9cTyPkAxVZ"
-        publishable-key="pk_test_51O2vx2FD17P5ok9cEi3ICZO4uHq4OF9GCZRwuxJ2emh8c475yE1GKZ0ZLjVSmmzt4v9TPP6EGLplh5sehpP5XFMx009w0LvZyz">
-      </stripe-pricing-table>
-      </div> */}
 
       <div className='products-container'>
         {productsData.map((product:any , index:any) => (

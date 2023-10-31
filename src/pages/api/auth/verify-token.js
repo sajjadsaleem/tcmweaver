@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         var tokenResult = jwt.verify(token)
         // console.log('tokenResult:', tokenResult)
         var message = "Token has been verified successfully"
-        // console.log('tokenResult=',token,tokenResult)
+        // console.log('tokenResult=', token, tokenResult)
 
         var user = []
         if (tokenResult) {
@@ -65,25 +65,34 @@ export default async function handler(req, res) {
                 }
             }
 
-            const packageIds = await db.select({ packageIds: userPackagesTable.package_id }).from(userPackagesTable)
+            const packageIds = await db.select({ packageIds: userPackagesTable.package_id })
+                .from(userPackagesTable)
                 .where(eq(userPackagesTable.user_id, user[0].id))
 
+            // console.log('packageids', packageIds)
+
             const ids = packageIds.map(row => row.packageIds);
+            // console.log('ids', ids)
+
             const packageData = [];
 
             for (const id of ids) {
-                const packageNames = await db.select({ packageName: packagesTable.package_name })
+                const packageNames = await db.select({ packageName: packagesTable.name })
                     .from(packagesTable)
                     .where(eq(packagesTable.id, id));
 
                 packageData.push({ id, packages: packageNames });
             }
 
+            // console.log('packageData', packageData)
+
 
             flatPackageData = packageData.map(item => ({
                 id: item.id,
                 packageName: item.packages.map(name => name.packageName)[0]
             })).flat();
+
+            // console.log('flatpackagedata', flatPackageData)
 
         }
 

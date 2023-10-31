@@ -1392,6 +1392,7 @@
     flex-wrap: wrap;
     max-width: 1400px;
     margin: auto;
+    justify-content: center;
 }
 
 .product-div {

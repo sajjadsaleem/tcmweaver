@@ -14,7 +14,7 @@ export default async function getProducts(req, res) {
         try {
             const db = drizzle(sql)
             const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], active: true });
-            console.log('stripeProducts', stripeProducts)
+            // console.log('stripeProducts', stripeProducts)
 
             // const updatePackages = await db.update(packagesTable)
             //     .set({ password: hashedPassword })

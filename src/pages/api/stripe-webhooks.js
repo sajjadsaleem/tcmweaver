@@ -4,7 +4,8 @@ import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { users } from '../../db/schema/users'
 import { packagesTable } from '../../db/schema/packages';
-import { eq, lt, gte, ne } from "drizzle-orm";
+import { userPackagesTable } from '../../db/schema/userPackages';
+import { eq, lt, gte, ne, and } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2023-10-16',
@@ -21,17 +22,78 @@ export default async (req, res) => {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
             // console.log('event now', event)
             if (event.type === 'checkout.session.completed') {
-                const user_id = await db.select({ user_id: users.id }).from(users)
+                // console.log('event', event)
+                const productData = await new Promise((resolve, reject) => {
+                    stripe.checkout.sessions.listLineItems(event.data.object.id, { limit: 5 }, function (err, lineItems) {
+                        if (err) {
+                            reject(err); // If there's an error, reject the promise
+                        } else {
+                            resolve(lineItems); // If successful, resolve the promise with lineItems
+                        }
+                    });
+                });
+                // console.log('productData', productData.data[0].price.product)
+                const productName = await stripe.products.list({
+                    ids: [productData.data[0].price.product],
+                    // ids: ['prod_OsvWj9vUpGIxN9']
+                });
+                // console.log('product name', productName.data[0].name)
+
+                const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
+                    .where(eq(packagesTable.name, productName.data[0].name))
+
+                console.log('packageId', packageId[0].packageId)
+
+
+
+
+                const userId = await db.select({ user_id: users.id }).from(users)
                     .where(eq(users.session_id, event.data.object.id));
 
-                // console.log('event type', event.data, 'user_id', user_id)
+                console.log('userid', userId, 'packageid', packageId)
+
+                const checkUser = await db.select().from(userPackagesTable).where(
+                    and(
+                        eq(userPackagesTable.user_id, userId[0].user_id),
+                        eq(userPackagesTable.package_id, packageId[0].packageId)
+                    )
+                );
+
+                console.log('checkuser', checkUser)
+
+                if (checkUser.length > 0) {
+                    // const updatePackage = await db.update(userPackagesTable)
+                    //     .values({ user_id: userId, package_id: packageId })
+
+                    const udpatedPackage = await db.update(userPackagesTable)
+                        .set({
+                            user_id: userId[0].user_id, package_id: packageId[0].packageId
+                        })
+                        .where(
+                            and(
+                                eq(userPackagesTable.user_id, userId[0].user_id),
+                                eq(userPackagesTable.package_id, packageId[0].packageId)
+                            )
+                        )
+                        .returning();
+
+                }
+                else {
+                    const updatePackage = await db.insert(userPackagesTable)
+                        .values({ user_id: userId[0].user_id, package_id: packageId[0].packageId })
+                }
+
+                console.log('userid', userId, 'packageid', packageId)
+
+
+
             }
             if (event.type === 'product.updated') {
                 // console.log('event type', event)
                 const productId = event.data.object.id
                 const productName = event.data.object.name
                 // console.log('prod id', productId, event.data.object.name)
-                await db.insert(packagesTable).values({ name: productName, stripe_prod_id: productId })
+                const updatedPackage = await db.insert(packagesTable).values({ name: productName, stripe_prod_id: productId })
                     .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { name: productName } })
 
                 // console.log('Package update result:', packageUpdate);

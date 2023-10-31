@@ -23,7 +23,6 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
         <meta name="description" content={`Tcm Weaver – Dashboard`} />
         <meta name="keywords" content="Tcm Weaver Next Js Template" />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
       </Head>
 
       <Provider store={store}>

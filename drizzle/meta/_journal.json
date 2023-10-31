@@ -204,6 +204,13 @@
       "when": 1698672078781,
       "tag": "0028_worthless_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1698694251329,
+      "tag": "0029_open_madame_hydra",
+      "breakpoints": true
     }
   ]
 }

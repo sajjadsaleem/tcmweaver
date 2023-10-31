@@ -5,5 +5,5 @@ import { packagesTable } from './packages';
 export const userPackagesTable = pgTable('userPackages', {
     id: serial('id').primaryKey(),
     user_id: integer('user_id').references(() => users.id),
-    package_id: integer('package_id').references(() => packagesTable.id),
+    package_id: integer('package_id')
 });

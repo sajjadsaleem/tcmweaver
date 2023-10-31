@@ -14,7 +14,7 @@ export default async function createCheckoutSession(req, res) {
         const db = drizzle(sql)
         // const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: 'all' });
 
-        // console.log('hello', req.query.trial_period_days)
+        // console.log('trial days', req.query.trial_period_days)
         if (req.query.trial_period_days === 'null') {
             const session = await stripe.checkout.sessions.create({
                 mode: 'subscription',
@@ -30,7 +30,7 @@ export default async function createCheckoutSession(req, res) {
 
 
 
-            console.log('session', session.id)
+            // console.log('session', session.id)
 
 
 
@@ -51,7 +51,7 @@ export default async function createCheckoutSession(req, res) {
                 cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
             });
 
-            res.status(200).json(session.url);
+            res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
 
         }
 
