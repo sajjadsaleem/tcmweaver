@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     const homeMd = await client.query(query, values);
 
     const homeFile = homeMd.rows[0]
-    console.log('result', homeFile)
+    // console.log('result', homeFile)
 
 
     let datasetArray = await db.select({
