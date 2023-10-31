@@ -6,15 +6,18 @@ import Link from 'next/link';
 import * as Helpers from '../../util/Helpers'
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  FormControl,
     Grid,  IconButton,  Input,  InputAdornment,  InputLabel,  List, ListItem, ListItemText, MenuItem, Paper,
-     Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
+    Select as MuiSelect, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
       Typography } from '@mui/material';
 import axios from 'axios';
 import router from 'next/router';
 import AdminLayout from '../components/AdminLayout';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { SwitchProps } from '@mui/material/Switch';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 
+
+const animatedComponents = makeAnimated();
 
 const Dashboard = () => {
 
@@ -79,6 +82,11 @@ const Dashboard = () => {
     const [packageSearchValue , setPackageSearchValue] = useState([])
     const [stripePackages , setStripePackages] = useState<any>([])
     const [searchedStripePackages , setSearchedStripePackages] = useState([])
+    const [showAddVaultPopup , setShowAddVaultPopup] = useState(false)
+    const [packageToAddVault , setPackageToAddVault] = useState<any>({})
+    const [allVaultsToSelect , setAllVaultsToSelect] = useState<any>([])
+    const [defaultVaultsInPackage , setDefaultVaultInPackage] = useState([])
+    const [selectedVaultsForPackage , setSelectedVaultsForPackage] = useState([])
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -95,19 +103,35 @@ const Dashboard = () => {
     // console.log('foldertocompare'  , folderToCompare)
     // console.log('vaulttodelete' , vaultToDelete)
     // console.log('folderselectedloader' , folderSelectedLoader)
-    // console.log('searchedstripepackages' , searchedStripePackages)
+    console.log('searchedstripepackages' , searchedStripePackages)
+    // console.log('showaddvaultpopup' , showAddVaultPopup)
+    // console.log('pkg to add vault ' , packageToAddVault)
+    // console.log('selectallvaults to ' , allVaultsToSelect)
+    // console.log('defaultVault' , defaultVaultsInPackage)
+    // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
+
 
     async function fetchFilenames() {
       try {
         const response = await axios.get('/api/getFilenames'); // Replace with your API endpoint
         // console.log('response.data' , response.data)
         if (response.data) {
+          // console.log('res.data' , response.data)
           const transformedData:any = Object.keys(response.data).map((vault_name) => ({
             vault_name,
             files: response.data[vault_name].filenames.map((item:any) => ({ filename: item.filename })),
             vault_price: response.data[vault_name].vault_price
           }));
           transformedData.sort((a:any, b:any) => a.vault_name.localeCompare(b.vault_name));
+          // console.log('transformedData' , transformedData)
+          const vaultNames = transformedData.map((item:any) => ({
+            value: item.vault_name,
+            label: item.vault_name,
+          }));
+
+          // console.log('vaultnames'  , vaultNames)
+
+          setAllVaultsToSelect(vaultNames)
           setOriginalVault(transformedData);
           setVaultFiles(transformedData)
         }
@@ -580,7 +604,7 @@ const Dashboard = () => {
         setIndexToChangePassword(index)
       };
     
-      const handleDeleteClick =async (index:any) => {
+      const handleDeleteClick = async (index:any) => {
         setIsDeleting(true);
         const userEmailToDelete:any = originalUsers[index].email;
         axios.delete(`/api/deleteUser?email=${userEmailToDelete}`)
@@ -755,9 +779,10 @@ const Dashboard = () => {
         setSelectedListItem(item)
         axios.get(`/api/getProducts`)
         .then((res:any)=> {
-          setStripePackages(res.data)
-          setSearchedStripePackages(res.data)
-          console.log('getProducts response' , res.data)
+          // console.log('res' , res)
+          setStripePackages(res.data.stripeProducts)
+          setSearchedStripePackages(res.data.stripeProducts)
+          // console.log('getProducts response' , res.data.stripeProducts)
         })
         .catch((err:any)=> {
   
@@ -789,6 +814,29 @@ const Dashboard = () => {
           default:
             return currency; // Return the currency name if not found
         }
+      }
+
+      const handleShowVaultAddPopup = async (row:any) => {
+        // console.log('row' , row)
+        const currentVaults = row.features.map((feature:any) => feature.name);
+        const defaultValues = allVaultsToSelect.filter((option:any) => currentVaults.includes(option.value));
+        // console.log('defaultValues' , defaultValues)
+        setSelectedVaultsForPackage(defaultValues)
+        setDefaultVaultInPackage(defaultValues)
+        setPackageToAddVault(row)
+        setShowAddVaultPopup(true)
+
+      }
+
+      const closeAddVaultPopup = async () => {
+        setShowAddVaultPopup(false)
+        setSelectedVaultsForPackage([]);
+      }
+
+      const handleVaultsAddToPackage = async () => {
+        // setEditUserLoader(true)
+        console.log('helllllllllo')
+        // setEditUserLoader(false)
       }
       
       
@@ -1059,7 +1107,7 @@ const Dashboard = () => {
                         <Grid item xs={12}>
                           <FormControl fullWidth>
                             <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                            <Select
+                            <MuiSelect
                               name="role"
                               value={formData.role}
                               onChange={handleChange}
@@ -1067,7 +1115,7 @@ const Dashboard = () => {
                             >
                               <MenuItem value="User">User</MenuItem>
                               <MenuItem value="Admin">Admin</MenuItem>
-                            </Select>
+                            </MuiSelect>
                           </FormControl>
                           <TextField
                             label="Email"
@@ -1245,7 +1293,7 @@ const Dashboard = () => {
                         <Grid item xs={12}>
                           <FormControl fullWidth>
                             <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                            <Select
+                            <MuiSelect
                               name="role"
                               value={formData.role}
                               onChange={handleChange}
@@ -1253,7 +1301,7 @@ const Dashboard = () => {
                             >
                               <MenuItem value="User">User</MenuItem>
                               <MenuItem value="Admin">Admin</MenuItem>
-                            </Select>
+                            </MuiSelect>
                           </FormControl>
                           <TextField
                             label="Email"
@@ -1276,7 +1324,7 @@ const Dashboard = () => {
                           <Grid item xs={12} sx={{paddingTop:2}}>
                             <FormControl fullWidth>
                               <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
-                              <Select
+                              <MuiSelect
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
@@ -1284,7 +1332,7 @@ const Dashboard = () => {
                               >
                                 <MenuItem value="Active">Active</MenuItem>
                                 <MenuItem value="Inactive">Inactive</MenuItem>
-                              </Select>
+                              </MuiSelect>
                             </FormControl>
                           </Grid>
 
@@ -1333,6 +1381,43 @@ const Dashboard = () => {
                     </DialogActions>
                   </Dialog>
                 )}
+
+                {showAddVaultPopup && (<>
+                
+                  <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
+                    <Paper sx={{ width: 500 }}>                    
+                      <DialogTitle>{packageToAddVault.name}</DialogTitle>
+                      <DialogContent sx={{ height: 300}}>
+                        <DialogContentText>
+                          Select vaults to add to this package:
+                        </DialogContentText>
+                        <Grid sx={{marginTop: '10px' }}>
+                          <Select
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            defaultValue={defaultVaultsInPackage}
+                            isMulti
+                            options={allVaultsToSelect}
+                            onChange={(selectedOptions:any) => {
+                              setSelectedVaultsForPackage(selectedOptions);
+                            }}
+                          />  
+                        </Grid>
+                      
+                      </DialogContent>
+
+                      <DialogActions>
+                        <Button onClick={closeAddVaultPopup} color="primary">
+                          Cancel
+                        </Button>
+                        <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
+                          {editUserLoader ? 'Saving...' : 'Save'}
+                        </Button>
+                      </DialogActions>
+                    </Paper>
+                  </Dialog>
+                  </>)
+                }
 
               </div>
             </div>
@@ -1658,19 +1743,19 @@ const Dashboard = () => {
                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                            </TableCell>
-                           <TableCell sx={{width: '30%'}}>
+                           <TableCell sx={{width: '25%'}}>
                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                            </TableCell>
                            <TableCell sx={{width: '10%'}}>
                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
                            </TableCell>
-                           <TableCell sx={{width: '50%'}}>
+                           <TableCell sx={{width: '10%'}}>
                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
                            </TableCell>
-                           {/* <TableCell sx={{}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
+                           <TableCell sx={{ width: '30%'}} >
+                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
                            </TableCell>
-                           <TableCell sx={{borderTopRightRadius: '17px'}}>
+                           {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                            </TableCell> */}
                          </TableRow>
@@ -1693,8 +1778,29 @@ const Dashboard = () => {
                               <TableCell className='vault-table-body-row'>
                                 {convertUnixTimestampToDateTime(row.created)}
                               </TableCell>
-                             {/* <TableCell className='vault-table-body-row'>{row.name}</TableCell>
-                             <TableCell className='vault-table-body-row'>
+                              <TableCell>
+                                {row.features && row.features.length > 0 ? (
+                                  <>
+                                    {row.features.map((feature:any , index:any) => (
+                                      <span key={index}>
+                                        {feature.name} 
+                                        {index < row.features.length - 1 && ', '}
+                                      </span>
+                                    ))}
+                                  </>
+                                  ):(
+                                  <>
+                                    <p style={{display: 'inline'}}>No vault attached</p>
+                                    
+                                  </>
+                                )}
+                                
+                                <img src="attach-vault.png" alt="logo" 
+                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                  onClick={() => handleShowVaultAddPopup(row)}
+                                />
+                              </TableCell>
+                             {/* <TableCell className='vault-table-body-row'>
                                <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
                                  <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
                                  {showOptions === index+1 && (
@@ -1707,6 +1813,16 @@ const Dashboard = () => {
                                    </div>
                                  )}
                                </div>
+                             </TableCell> */}
+                             {/* <TableCell>
+                              <span 
+                              >
+                                <img src="vault-add.png" alt="logo" 
+                                  style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                                  onClick={() => handleShowVaultAddPopup(row)}
+                                  // className='vault-view-icon'
+                                    />
+                              </span>
                              </TableCell> */}
                          
                            </TableRow>

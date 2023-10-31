@@ -27,7 +27,11 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": [
+      "@mui/material",
+      "@mui/icons-material"
+    ]
   },
   "include": [
     "next-env.d.ts",

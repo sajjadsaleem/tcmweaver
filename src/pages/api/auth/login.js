@@ -29,7 +29,6 @@ export default async function login(req, res) {
         });
       }
 
-
       const db = drizzle(sql)
       const userArray = await db.select().from(users).where(eq(users.email, email));
       // console.log('userarray', userArray)
@@ -68,6 +67,8 @@ export default async function login(req, res) {
       };
 
       const signedToken = jwt.sign(payload, signingOptions);
+
+      console.log('signedToken', signedToken)
 
       return res.status(200).send({
         success: true,
