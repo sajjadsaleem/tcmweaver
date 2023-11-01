@@ -42,7 +42,7 @@ export default async (req, res) => {
                 const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
                     .where(eq(packagesTable.name, productName.data[0].name))
 
-                console.log('packageId', packageId[0].packageId)
+                // console.log('packageId', packageId[0].packageId)
 
 
 
@@ -56,7 +56,7 @@ export default async (req, res) => {
                     .set({ session_id: '' })
                     .where(eq(users.id, userId[0].user_id));
 
-                console.log('userid', userId, 'packageid', packageId)
+                // console.log('userid', userId, 'packageid', packageId)
 
                 const checkUser = await db.select().from(userPackagesTable).where(
                     and(

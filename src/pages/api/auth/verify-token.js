@@ -15,10 +15,12 @@ import { roles } from '../../../db/schema/roles'
 import { permissions } from '../../../db/schema/permissions'
 import { rolePermission } from '../../../db/schema/rolePermissions'
 import { userPackagesTable } from '../../../db/schema/userPackages';
+import { vaultPackagesTable } from '../../../db/schema/vaultPackages'
 import { packagesTable } from '../../../db/schema/packages';
 
 import * as jwt from '../../../util/jwt'
 import _ from 'lodash'
+import { vaultsTable } from '../../../db/schema/vaults';
 
 export default async function handler(req, res) {
 
@@ -48,6 +50,8 @@ export default async function handler(req, res) {
         var getPermissions = [];
         var getRole = '';
         var flatPackageData = []
+        var flatVaultsData = []
+        var formattedVaultsData = []
 
         if (user.length > 0) {
             const roleResult = await db.select().from(roles).where(eq(roles.id, user[0]['role_id']));
@@ -74,7 +78,8 @@ export default async function handler(req, res) {
             const ids = packageIds.map(row => row.packageIds);
             // console.log('ids', ids)
 
-            const packageData = [];
+            let packageData = []
+            let vaultsData = []
 
             for (const id of ids) {
                 const packageNames = await db.select({ packageName: packagesTable.name })
@@ -84,7 +89,37 @@ export default async function handler(req, res) {
                 packageData.push({ id, packages: packageNames });
             }
 
-            // console.log('packageData', packageData)
+            for (const vaults of ids) {
+                const vaultsNames = await db.select({ vaultId: vaultPackagesTable.vault_id })
+                    .from(vaultPackagesTable)
+                    .where(eq(vaultPackagesTable.package_id, vaults));
+
+                // console.log('vaultsNames', vaultsNames)
+
+                vaultsData.push({ id: vaultsNames });
+
+            }
+
+            const flattenedVaultsArray = vaultsData.flatMap(item => item.id.map(obj => obj.vaultId));
+
+            const flatVaultsIds = [...new Set(flattenedVaultsArray)];
+
+            for (const vaultId of flatVaultsIds) {
+                flatVaultsData.push(await db.select({
+                    vaultId: vaultsTable.id, vaultName: vaultsTable.vault_name,
+                    referenceTable: vaultsTable.reference_table
+                }).from(vaultsTable).where(eq(vaultsTable.id, vaultId)))
+            }
+
+            formattedVaultsData = flatVaultsData.map(item => ({
+                vaultId: item[0].vaultId,
+                vaultName: item[0].vaultName,
+                tableName: item[0].referenceTable
+            }));
+
+            // console.log(formattedVaultsData);
+
+            // console.log('flatvaultsdata', flatVaultsData)
 
 
             flatPackageData = packageData.map(item => ({
@@ -110,7 +145,8 @@ export default async function handler(req, res) {
             user: user && user.length > 0 ? user[0] : user,
             user_permissions: getPermissions,
             user_role: getRole,
-            package: flatPackageData
+            package: flatPackageData,
+            vaultsAccess: formattedVaultsData
         });
 
     } catch (error) {

@@ -10,11 +10,11 @@ import Sidebar from "./components/Sidebar";
 
 const Page = () => {
   const [triggerChange, setTriggerChange] = useState(false);
-  const handleThemeChange = () => {
-    console.log("now in index file");
-    setTriggerChange(!triggerChange);
-    // handleThemeChangeInMain();
-  };
+  // const handleThemeChange = () => {
+  //   console.log("now in index file");
+  //   setTriggerChange(!triggerChange);
+  //   // handleThemeChangeInMain();
+  // };
 
   
 

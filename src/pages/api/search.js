@@ -16,6 +16,8 @@ const pool = new Pool({
 
 export default async function search(req, res) {
     try {
+        const tableNamesStr = req.query.AccessVaults
+        const tableNames = tableNamesStr.split(',');
         const inputValue = req.query.q.replace(/,/g, ' ');
         // console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
@@ -24,14 +26,25 @@ export default async function search(req, res) {
         const db = drizzle(sql)
 
         const basicTableToSearch = await db.select({ basicVault: vaultsTable.reference_table }).from(vaultsTable)
-            .where(eq(vaultsTable.vault_name, 'CORE'));
+            .where(eq(vaultsTable.vault_name, 'Test Core'));
         // console.log('basictabletosearch', basicTableToSearch)
 
         const client = await pool.connect();
 
-        const selectQuery = `SELECT * FROM ${basicTableToSearch[0].basicVault}`;
 
-        const { rows } = await client.query(selectQuery);
+        let rows = []
+
+        for (const table of tableNames) {
+            const selectQuery = `SELECT * FROM ${table}`;
+            const queryResult = await client.query(selectQuery);
+            for (const item of queryResult.rows) {
+                if (typeof item === 'object' && item !== null) {
+                    rows.push(item);
+                }
+            }
+
+        }
+        console.log('rows nnowowerjwelrj', rows)
         const datasets = rows
         // console.log('datasets', datasets)
 

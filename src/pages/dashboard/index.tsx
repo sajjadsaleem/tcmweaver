@@ -103,7 +103,7 @@ const Dashboard = () => {
     // console.log('foldertocompare'  , folderToCompare)
     // console.log('vaulttodelete' , vaultToDelete)
     // console.log('folderselectedloader' , folderSelectedLoader)
-    console.log('searchedstripepackages' , searchedStripePackages)
+    // console.log('searchedstripepackages' , searchedStripePackages)
     // console.log('showaddvaultpopup' , showAddVaultPopup)
     // console.log('pkg to add vault ' , packageToAddVault)
     // console.log('selectallvaults to ' , allVaultsToSelect)
@@ -818,6 +818,7 @@ const Dashboard = () => {
 
       const handleShowVaultAddPopup = async (row:any) => {
         // console.log('row' , row)
+        // console.log('allvaultstoselect' , allVaultsToSelect)
         const currentVaults = row.features.map((feature:any) => feature.name);
         const defaultValues = allVaultsToSelect.filter((option:any) => currentVaults.includes(option.value));
         // console.log('defaultValues' , defaultValues)
@@ -834,9 +835,35 @@ const Dashboard = () => {
       }
 
       const handleVaultsAddToPackage = async () => {
-        // setEditUserLoader(true)
-        console.log('helllllllllo')
-        // setEditUserLoader(false)
+        setEditUserLoader(true)
+
+        console.log()
+
+
+        const selectedVaultsValues = selectedVaultsForPackage.map((item:any) => ({ value: item.value }));
+
+        const dataToSend = {
+          packageId: packageToAddVault.id,
+          selectedVaults: selectedVaultsValues
+        };
+
+        axios.post('/api/packageVaultUpdate', dataToSend)
+        .then((res:any)=>{
+          // console.log('res from package vaults udpate' , res.data)
+
+          axios.get(`/api/getProducts`).then((res:any)=> {
+            setStripePackages(res.data.stripeProducts)
+            setSearchedStripePackages(res.data.stripeProducts)
+          }).catch((err:any)=> {})
+
+          setEditUserLoader(false)
+          setShowAddVaultPopup(false)
+
+        }).catch((err)=>{
+          console.log('error from package vaults udpate' , err)
+          setEditUserLoader(false)
+
+        })
       }
       
       

@@ -69,7 +69,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               user: res.data.user,
               user_permissions: res.data.user_permissions,
               user_role: res.data.user_role,
-              user_package: res.data.package
+              user_package: res.data.package,
+              user_vaultsAccess: res.data.vaultsAccess
             }))
            
         })

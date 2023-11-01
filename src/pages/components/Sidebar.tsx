@@ -21,7 +21,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { loadStripe } from '@stripe/stripe-js';
 
 var internalId:any = 0
 
@@ -133,7 +132,9 @@ const Sidebar = () => {
   const [getPackage , setPackage] = useState([])
   const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
   const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
-  const [clickedVault , setClickedVault] = useState('') 
+  const [clickedVault , setClickedVault] = useState('')
+  const [userAccessVaults , setUserAccessVaults] = useState<any>([])
+
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -152,17 +153,22 @@ const Sidebar = () => {
   // console.log('getpackage' , getPackage)
   // console.log('clickedvault' , clickedVault)
   // console.log('homepagefile' , homepageFile)
+  console.log('useraccessvaults' , userAccessVaults)
 
   
 
-  const getInit = () => {
-    setUser(getStAuth.stAccessTokenVerify)
-    setPermissions(getStAuth.stAccessTokenVerify.user_permissions)
-    setPackage(getStAuth.stAccessTokenVerify.user_package)
-    // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify.user_package)
-  }
+  
 
   useEffect(() => {
+    const getInit = () => {
+      setUser(getStAuth.stAccessTokenVerify)
+      setPermissions(getStAuth.stAccessTokenVerify.user_permissions)
+      setPackage(getStAuth.stAccessTokenVerify.user_package)
+      setUserAccessVaults(getStAuth.stAccessTokenVerify.user_vaultsAccess.map((vault:any) => vault.tableName))
+
+      // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify.user_vaultsAccess)
+    }
+
     getInit()
   }, [getUser, getPermissions, getStAuth]);
 
@@ -268,7 +274,6 @@ const Sidebar = () => {
     };
 
     const showToast = router.query.dashboard === "true";
-    // If the showToast parameter is present, display the toast
     if (showToast) {
       toast("Login success", {
         position: "top-right",
@@ -282,28 +287,6 @@ const Sidebar = () => {
         theme: "light",
       });
     }
-
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const sessionId = urlParams.get('session_id');
-    // if (sessionId) {
-    //   axios.get(`/api/verify-payment?sessionId=${sessionId}`)
-    //     .then((response) => {
-    //       const paymentStatus = response.data.paymentStatus;
-    
-    //       // if (paymentStatus === 'paid') {
-    //       //   // The payment was successful
-    //       //   console.log('Payment was successful');
-    //       //   // You can update your UI accordingly
-    //       // } else {
-    //       //   // The payment was not successful
-    //       //   console.log('Payment was not successful');
-    //       //   // Handle the failure or display an error message
-    //       // }
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error verifying payment:', error);
-    //     });
-    // }
 
     fetchFilesData();
 
@@ -486,8 +469,9 @@ const Sidebar = () => {
             
       internalId = setTimeout(async() => {
         try {
+          const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
-          responseJson = await axios.get(`/api/search?q=${encodedWords}`);
+          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
           console.log('responseJson' , responseJson)
           // responseJson = await response.json();
           // console.log("responseJson: ", responseJson);
@@ -513,11 +497,6 @@ const Sidebar = () => {
       }, 300);
         
   };
-
-  const generateRandomId = () => {
-    // Generate a random ID here
-    return Math.random().toString(36).substring(7);
-  }
 
   const handleSiteNameClick = () => {
     setSearchValue("");
@@ -3336,79 +3315,6 @@ const Sidebar = () => {
       
     }
   };
-
-
-  // const handleVaultCheckout = async () => {
-  //   setUpdatePasswordLoader(true)
-   
-  //   // await axios.get(`/api/getPackage?q=${clickedVault}`)
-  //   // .then(async (res)=>{
-  //   //   console.log('package selected' , res.data[0].packageApiId);
-
-  //   //   checkout({
-  //   //     lineItems: [{price: res.data[0].packageApiId , quantity: 1}]
-  //   //   })
-      
-  //     // await fetchUsers()
-  //     // setOriginalUsers(res.data.allUsers);
-  //     // setSearchedUsers(res.data.allUsers)
-  //     // closeAddUserDialog()
-  //   //   setShowEditUserDialog(false)
-  //   //   toggleAccountOptions()
-  //   //   setEditUserLoader(false)
-  //   //   toast.success('Account updated successfully!');
-  //   //   setFormData({
-  //   //     fullName: '',
-  //   //     email: '',
-  //   //     role: '',
-  //   //     status: '',
-  //   //   });
-
-  //   //   dispatch(stAccessTokenVerify({
-  //   //     user: res.data.allUsers[0],
-  //   //     user_permssions: res.data.getPermissions ,
-  //   //     user_role: res.data.getRole
-  //   //   }))
-      
-  //   // setUser(res.data.allUsers[0])
-  //   // setPermissions(res.data.getPermissions)
-  //   // })
-  //   // .catch((error:any)=>{
-  //   //   console.log('Error getting package name:', error);
-  //   //   setUpdatePasswordLoader(false)
-  //   //   toast.error('Failed to redirect. Try again');
-  //   // })
-
-  //   if (process.env.NEXT_PUBLIC_API_KEY) {
-  //     const stripe:any = await loadStripe(process.env.NEXT_PUBLIC_API_KEY);
-
-  //     await axios.get(`/api/getPackage?q=${clickedVault}`)
-  //   .then(async (res)=>{
-  //     console.log('package selected' , res.data[0].packageApiId);
-
-  //     checkout({
-  //       lineItems: [{price: res.data[0].packageApiId , quantity: 1}]
-  //     })
-  //   })
-
-  //     // Create a session with Stripe
-  //     const response = await axios.post('/api/create-checkout-session', {
-  //       lineItems: [{ price: 'your_price_id', quantity: 1 }],
-  //       successUrl: window.location.origin + '/success', // Set your success URL
-  //       cancelUrl: window.location.origin + '/cancel', // Set your cancel URL
-  //     });
-
-  //     // Redirect to the Stripe Checkout page
-  //     const { sessionId } = response.data;
-  //     const { error } = await stripe.redirectToCheckout({
-  //       sessionId,
-  //     });
-  //   }
-
-
-   
-    
-  // }
  
 
   return (
