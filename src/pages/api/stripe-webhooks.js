@@ -50,11 +50,11 @@ export default async (req, res) => {
                 const userId = await db.select({ user_id: users.id }).from(users)
                     .where(eq(users.session_id, event.data.object.id));
 
-                console.log('userid', userId)
+                // console.log('userid', userId)
 
                 const removeSessionId = await db.update(users)
                     .set({ session_id: '' })
-                    .where(eq(users.id, userId));
+                    .where(eq(users.id, userId[0].user_id));
 
                 console.log('userid', userId, 'packageid', packageId)
 
