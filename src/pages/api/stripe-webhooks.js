@@ -50,6 +50,8 @@ export default async (req, res) => {
                 const userId = await db.select({ user_id: users.id }).from(users)
                     .where(eq(users.session_id, event.data.object.id));
 
+                console.log('userid', userId)
+
                 const removeSessionId = await db.update(users)
                     .set({ session_id: '' })
                     .where(eq(users.id, userId));
@@ -92,8 +94,9 @@ export default async (req, res) => {
 
 
             }
+
             if (event.type === 'product.updated') {
-                // console.log('event type', event)
+                console.log('event type', event)
                 const productId = event.data.object.id
                 const productName = event.data.object.name
                 // console.log('prod id', productId, event.data.object.name)

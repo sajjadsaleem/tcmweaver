@@ -1782,10 +1782,9 @@ const Dashboard = () => {
                                 {row.features && row.features.length > 0 ? (
                                   <>
                                     {row.features.map((feature:any , index:any) => (
-                                      <span key={index}>
-                                        {feature.name} 
-                                        {index < row.features.length - 1 && ', '}
-                                      </span>
+                                      <button className="package-vaults" key={index}>
+                                        {feature.name}
+                                      </button>
                                     ))}
                                   </>
                                   ):(
@@ -1800,31 +1799,6 @@ const Dashboard = () => {
                                   onClick={() => handleShowVaultAddPopup(row)}
                                 />
                               </TableCell>
-                             {/* <TableCell className='vault-table-body-row'>
-                               <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
-                                 <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
-                                 {showOptions === index+1 && (
-                                   <div className='options-div'>
-                                     <div onClick={() => handleEditClick(index)}>Edit</div>
-                                     <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
-                                     <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
-                                       {isDeleting ? 'Deleting...' : 'Delete'}
-                                     </div>
-                                   </div>
-                                 )}
-                               </div>
-                             </TableCell> */}
-                             {/* <TableCell>
-                              <span 
-                              >
-                                <img src="vault-add.png" alt="logo" 
-                                  style={{ width: '15px', height: '15px', cursor: 'pointer' }}
-                                  onClick={() => handleShowVaultAddPopup(row)}
-                                  // className='vault-view-icon'
-                                    />
-                              </span>
-                             </TableCell> */}
-                         
                            </TableRow>
                          ))}
                        </TableBody>
