@@ -66,11 +66,13 @@ export default async (req, res) => {
                     )
                 );
 
-                console.log('checkuser', checkUser)
+                // console.log('checkuser', checkUser)
 
                 if (checkUser.length > 0) {
                     // const updatePackage = await db.update(userPackagesTable)
                     //     .values({ user_id: userId, package_id: packageId })
+
+                    console.log('sub id', event.data.object.subscription)
 
                     const udpatedPackage = await db.update(userPackagesTable)
                         .set({
