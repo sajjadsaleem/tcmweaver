@@ -23,7 +23,7 @@ export default async (req, res) => {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
 
             if (event.type === 'checkout.session.completed') {
-                console.log('event', event.data.object.subscription)
+                // console.log('event', event.data.object.subscription)
                 const productData = await new Promise((resolve, reject) => {
                     stripe.checkout.sessions.listLineItems(event.data.object.id, { limit: 5 }, function (err, lineItems) {
                         if (err) {
@@ -74,7 +74,7 @@ export default async (req, res) => {
 
                     const udpatedPackage = await db.update(userPackagesTable)
                         .set({
-                            user_id: userId[0].user_id, package_id: packageId[0].packageId
+                            user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
                         })
                         .where(
                             and(
@@ -87,7 +87,7 @@ export default async (req, res) => {
                 }
                 else {
                     const updatePackage = await db.insert(userPackagesTable)
-                        .values({ user_id: userId[0].user_id, package_id: packageId[0].packageId })
+                        .values({ user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })
                 }
 
                 console.log('userid', userId, 'packageid', packageId)

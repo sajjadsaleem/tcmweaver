@@ -1,0 +1,1 @@
+ALTER TABLE "userPackages" ADD COLUMN "stripe_subscription_id" integer;
