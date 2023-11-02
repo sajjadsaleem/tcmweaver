@@ -1,0 +1,1 @@
+ALTER TABLE "userPackages" ALTER COLUMN "stripe_subscription_id" SET DATA TYPE text;
