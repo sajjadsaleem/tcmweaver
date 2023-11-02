@@ -23,7 +23,7 @@ export default async (req, res) => {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
 
             if (event.type === 'checkout.session.completed') {
-                console.log('event', event)
+                console.log('event', event.data.object.subscription)
                 const productData = await new Promise((resolve, reject) => {
                     stripe.checkout.sessions.listLineItems(event.data.object.id, { limit: 5 }, function (err, lineItems) {
                         if (err) {
