@@ -3600,7 +3600,7 @@ const Sidebar = () => {
           </div>
         </div>
 
-        <div className="current-vault">
+        {/* <div className="current-vault">
           <select value={selectedVaultOption} onChange={handleVaultChange}>
             {allVaults.map((packageItem:any) => (
               <option key={packageItem.id} value={packageItem.vault_name}>
@@ -3608,7 +3608,7 @@ const Sidebar = () => {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         <div className={"menuBtn"}>
           {graphOrTextView ? (

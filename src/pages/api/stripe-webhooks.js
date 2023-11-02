@@ -18,11 +18,12 @@ export default async (req, res) => {
         const buf = await buffer(req);
         const sig = req.headers['stripe-signature'];
         let event;
+
         try {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
-            // console.log('event now', event)
+
             if (event.type === 'checkout.session.completed') {
-                // console.log('event', event)
+                console.log('event', event)
                 const productData = await new Promise((resolve, reject) => {
                     stripe.checkout.sessions.listLineItems(event.data.object.id, { limit: 5 }, function (err, lineItems) {
                         if (err) {
@@ -105,13 +106,6 @@ export default async (req, res) => {
 
                 // console.log('Package update result:', packageUpdate);
             }
-            // if (event.type === 'customer.subscription.deleted') {
-            //     console.log('event type', event.type)
-
-            // }
-            // if (event.type === 'invoice.paid') {
-            //     // console.log('event type', event.type)
-            // }
 
             return res.status(200).json({ message: 'Stripe Webhook handled successfully.' });
         } catch (error) {
