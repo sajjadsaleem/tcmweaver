@@ -21,20 +21,6 @@ export const config = {
 
 export default async function handler(request, response) {
 
-
-    // console.log('req', req.query)
-
-    const reqData = [];
-
-    for (let i = 0; request.query[`folderId[${i}][kind]`]; i++) {
-        const folderId = request.query[`folderId[${i}][id]`]
-        const name = request.query[`folderId[${i}][name]`];
-        const option = request.query[`folderId[${i}][option]`];
-        reqData.push({ folderId, name, option });
-    }
-
-    // console.log('Data', Data);
-
     async function downloadFilesInFolder(folderId) {
         const CLIENT_ID = process.env.CLIENT_ID
         const CLIENT_SECRET = process.env.CLIENT_SECRET
@@ -46,15 +32,45 @@ export default async function handler(request, response) {
 
         const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
+        const mimeType = 'text/markdown';
+        let allFiles = [];
 
-        const filesResponse = await drive.files.list({
-            q: `'${folderId}' in parents and mimeType='text/markdown'`,
-        });
-        // console.log('fileresponse', filesResponse.data.files)
 
-        const files = filesResponse.data.files;
+        async function listFiles(pageToken) {
+            console.log('folderid', folderId)
+            const params = {
+                q: `'${folderId}' in parents and mimeType='${mimeType}' and trashed=false`,
+                fields: 'nextPageToken, files(id, name)',
+                pageToken: pageToken || '',
+            };
 
-        return files;
+            const filesResponse = await drive.files.list(params);
+
+            // console.log('filesresponse', filesResponse)
+
+
+
+            const files = filesResponse.data.files;
+            // console.log('files length ', files.length)
+
+            allFiles = allFiles.concat(files);
+
+            if (filesResponse.data.nextPageToken) {
+                // If there are more files, make another API call with the next page token
+                await listFiles(filesResponse.data.nextPageToken);
+            } else {
+                // All files have been retrieved
+                // console.log('All files:', allFiles);
+
+            }
+            return allFiles
+        }
+
+        const allFilesToDownload = await listFiles();
+
+        return allFilesToDownload
+
+        // console.log('allfiles', allFiles.length)
     }
 
     async function processFolders(reqData) {
@@ -68,7 +84,7 @@ export default async function handler(request, response) {
             const folderId = folder.folderId;
 
             const downloadedFiles = await downloadFilesInFolder(folderId);
-            // console.log('downloadedFiles', downloadedFiles)
+            // console.log('downloadedFiles', downloadedFiles.length)
             results.push({ name: folder.name, option: folder.option, downloadedFiles });
         }
         // console.log('results', results[1].downloadedFiles)
@@ -80,26 +96,29 @@ export default async function handler(request, response) {
 
 
     if (request.method === "GET") {
+
+        const reqData = [];
+
+        for (let i = 0; request.query[`folderId[${i}][kind]`]; i++) {
+            const folderId = request.query[`folderId[${i}][id]`]
+            const name = request.query[`folderId[${i}][name]`];
+            const option = request.query[`folderId[${i}][option]`];
+            reqData.push({ folderId, name, option });
+        }
+
+        // console.log('reqData', reqData)
+
+
         try {
             const db = drizzle(sql)
 
             let results = await processFolders(reqData)
 
 
-            // console.log('results', results)
+            console.log('results', results)
 
 
 
-            // const folderId = .query.folderId;
-
-            // const filesResponse = await drive.files.list({
-            //     q: `'${folderId}' in parents and mimeType='text/markdown'`,
-            // });
-
-            // const files = filesResponse.data.files;
-            // console.log('files: ', files)
-
-            // const deletedData = await db.delete(basicVault);
 
             async function overwriteVault(files) {
                 console.log('files1', files)
@@ -369,7 +388,7 @@ export default async function handler(request, response) {
                 return downloadedFilesFromDrive; // Return an array of downloaded files
 
             }
-            // }
+
 
 
 
@@ -378,7 +397,7 @@ export default async function handler(request, response) {
 
                 for (const folder of results) {
                     if (folder.option === 'Create new vault') {
-                        console.log('folder', folder)
+                        // console.log('folder', folder)
 
                         downloadedFiles = [...downloadedFiles, ...await createNewVault(folder)];
 

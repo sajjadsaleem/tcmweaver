@@ -153,7 +153,7 @@ const Sidebar = () => {
   // console.log('getpackage' , getPackage)
   // console.log('clickedvault' , clickedVault)
   // console.log('homepagefile' , homepageFile)
-  console.log('useraccessvaults' , userAccessVaults)
+  // console.log('useraccessvaults' , userAccessVaults)
 
   
 
@@ -1533,20 +1533,15 @@ const Sidebar = () => {
     textarea.value = searchValue;
     document.body.appendChild(textarea);
 
-    // Select the text in the textarea element
     textarea.select();
-    textarea.setSelectionRange(0, 99999); // For mobile devices
+    textarea.setSelectionRange(0, 99999);
 
-    // Copy the selected text to the clipboard
     document.execCommand("copy");
 
-    // Remove the temporary textarea element
     document.body.removeChild(textarea);
 
-    // Optionally, provide user feedback
     setIsCopied(true);
 
-    // Hide the tooltip after a short delay (e.g., 2 seconds)
     setTimeout(() => {
       setIsCopied(false);
     }, 1500);
