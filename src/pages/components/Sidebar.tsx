@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Fzf, FzfOptions, byLengthAsc } from "fzf";
 import _, { replace, result, update } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
@@ -21,6 +21,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 var internalId:any = 0
 
@@ -134,6 +136,9 @@ const Sidebar = () => {
   const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
   const [clickedVault , setClickedVault] = useState('')
   const [userAccessVaults , setUserAccessVaults] = useState<any>([])
+  const accountOptionsRef = useRef<any>(null);
+  const usersIconRef = useRef<any>(null);
+  const [billingLoader, setBillingLoader] = useState(false)
 
 
   // console.log("filesData: ", filesData);
@@ -157,7 +162,25 @@ const Sidebar = () => {
 
   
 
-  
+  useEffect(() => {
+    const handleOutsideClick = (event:any) => {
+      // console.log('event' , event)
+      if (
+        accountOptionsRef.current &&
+        !accountOptionsRef.current.contains(event.target) &&
+        usersIconRef.current &&
+        !usersIconRef.current.contains(event.target)
+      ) {
+        setShowAccountOptions(false);
+      }
+    };
+
+    window.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('click', handleOutsideClick);
+    };
+  }, []);
 
   useEffect(() => {
     const getInit = () => {
@@ -3134,9 +3157,8 @@ const Sidebar = () => {
   };
 
   const handleUserOptions = (itemName:any)=>{
-    console.log('itemname' , itemName)
     if(itemName === 'profile'){
-      console.log('getuser' , getUser)
+      // console.log('getuser' , getUser)
       setFormData((prevData) => ({
         ...prevData,
         email: getUser.user.email,
@@ -3152,7 +3174,15 @@ const Sidebar = () => {
 
     }
     if(itemName === 'billing'){
-
+      setBillingLoader(true);
+      axios.post(`/api/stripe-billing?customer_id=${getUser.user.stripe_customer_id}`)
+      .then((res:any)=>{
+        window.location.href = res.data.url;
+      })
+      .catch((err:any)=>{
+        console.log('err from stripe billing' , err)
+        setBillingLoader(false);
+      })
     }
     if(itemName === 'logout'){
       setUserLogoutPopup(true)
@@ -3365,9 +3395,10 @@ const Sidebar = () => {
                 alt="img"
                 onClick={toggleAccountOptions}
                 style={{ cursor: "pointer" }}
+                ref={usersIconRef}
               />
               {showAccountOptions && (
-                <div className="account-options-container">
+                <div className="account-options-container" ref={accountOptionsRef}>
                   <List>
                     {
                       _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
@@ -3393,6 +3424,7 @@ const Sidebar = () => {
                       </ListItem>
                       <ListItem button onClick={() => handleUserOptions("billing")} dense>
                         <ListItemText primary="Billing" />
+                        {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
                       </ListItem>
                       <ListItem button onClick={() => handleUserOptions("logout")} dense>
                         <ListItemText primary="Logout" />

@@ -12,47 +12,104 @@ export default async function createCheckoutSession(req, res) {
 
     try {
         const db = drizzle(sql)
-        // const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: 'all' });
 
-        // console.log('trial days', req.query.trial_period_days)
-        if (req.query.trial_period_days === 'null') {
-            const session = await stripe.checkout.sessions.create({
-                mode: 'subscription',
-                line_items: [
-                    {
-                        price: req.query.productId,
-                        quantity: 1,
-                    },
-                ],
-                success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+        const checkUser = await db.select({ user_name: users.full_name, customer_id: users.stripe_customer_id }).from(users).where(eq(users.email, req.query.email));
+
+        if (checkUser[0].customer_id === null) {
+            const NewCustomer = await stripe.customers.create({
+                name: checkUser[0].user_name, email: req.query.email
             });
 
+            const customerAdd = await db.update(users)
+                .set({ stripe_customer_id: NewCustomer.id })
+                .where(eq(users.email, req.query.email))
+                .returning({ customer_id: users.stripe_customer_id });
+
+            if (req.query.trial_period_days === 'null') {
+                const session = await stripe.checkout.sessions.create({
+                    mode: 'subscription',
+                    line_items: [
+                        {
+                            price: req.query.productId,
+                            quantity: 1,
+                        },
+                    ],
+                    customer: NewCustomer.id,
+                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                });
 
 
-            // console.log('session', session.id)
+
+                // console.log('session', session.id)
 
 
 
-            res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
+                res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
+            } else {
+                const session = await stripe.checkout.sessions.create({
+                    mode: 'subscription',
+                    line_items: [
+                        {
+                            price: req.query.productId,
+                            quantity: 1,
+                        },
+                    ],
+                    subscription_data: {
+                        trial_period_days: req.query.trial_period_days,
+                    },
+                    customer: NewCustomer.id,
+                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                });
+
+                res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
+
+            }
+
         } else {
-            const session = await stripe.checkout.sessions.create({
-                mode: 'subscription',
-                line_items: [
-                    {
-                        price: req.query.productId,
-                        quantity: 1,
+            console.log('checkuser', checkUser)
+            if (req.query.trial_period_days === 'null') {
+                const session = await stripe.checkout.sessions.create({
+                    mode: 'subscription',
+                    line_items: [
+                        {
+                            price: req.query.productId,
+                            quantity: 1,
+                        },
+                    ],
+                    customer: checkUser[0].customer_id,
+                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                });
+
+
+
+                // console.log('session', session.id)
+
+
+
+                res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
+            } else {
+                const session = await stripe.checkout.sessions.create({
+                    mode: 'subscription',
+                    line_items: [
+                        {
+                            price: req.query.productId,
+                            quantity: 1,
+                        },
+                    ],
+                    subscription_data: {
+                        trial_period_days: req.query.trial_period_days,
                     },
-                ],
-                subscription_data: {
-                    trial_period_days: req.query.trial_period_days,
-                },
-                success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
-            });
+                    customer: checkUser[0].customer_id,
+                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                });
 
-            res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
+                res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
 
+            }
         }
 
 

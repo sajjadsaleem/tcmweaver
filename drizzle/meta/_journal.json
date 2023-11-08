@@ -225,6 +225,13 @@
       "when": 1698940790569,
       "tag": "0031_tan_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1699270214119,
+      "tag": "0032_round_grandmaster",
+      "breakpoints": true
     }
   ]
 }

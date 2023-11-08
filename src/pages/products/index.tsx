@@ -2,14 +2,6 @@ import axios  from 'axios';
 import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'stripe-pricing-table': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
-  }
-}
-
 
 
 const Products = () => {
@@ -57,17 +49,16 @@ const Products = () => {
     
       const storedData:any = localStorage.getItem("user");
       const userObject:any = JSON.parse(storedData)
+      // console.log('userobject' , userObject)
 
-    axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}`)
+    axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}&email=${userObject.email}`)
     .then((res:any)=>{
-     
-
       axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
       .then((res:any)=>{
         console.log('sessionId saved')
       })
       .catch((err:any)=>{
-        console.log('error saving sessionId')
+        console.log('error saving sessionId',err)
       })
       
       // console.log('res' , res.data.sessionId)
@@ -77,8 +68,6 @@ const Products = () => {
     .catch((err:any)=>{
       console.log('err' , err)
     })
-
-    
   }
   
 

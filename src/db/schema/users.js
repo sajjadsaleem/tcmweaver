@@ -14,6 +14,7 @@ export const users = pgTable('users', {
     status: text('status'),
     verification_token: text('verification_token'),
     forgot_password_token: text('forgot_password_token'),
+    stripe_customer_id: text('stripe_customer_id'),
     session_id: text('session_id')
 }, (users) => {
     return {

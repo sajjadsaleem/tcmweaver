@@ -324,33 +324,6 @@ const Dashboard = () => {
         setSelectedFolders([])
       }
 
-      // const handleFolderSelection = (folder:any) => {
-      //   // console.log(folder)
-      //   // setFolderSelectedLoader(true)
-      //   setClickedFolder(folder.id);
-      //   setTaskCompleted(false)
-      //   setSelectedFolder(folder);
-    
-      //   if (folder.id) {
-    
-      //     axios.get("api/downloadFiles", {
-      //       headers: {
-      //         Authorization: `Bearer ${accessToken}`,
-      //       },
-      //       params: {
-      //         folderId: folder.id,
-      //       },
-      //     }).then((res)=> {
-      //       setTaskCompleted(true);
-      //       console.log('res: ' ,res.data)
-    
-      //     }).catch((err)=> {
-    
-      //     })
-      //   }
-      //   // setFoldersPopup(false)
-      // };
-
       const handleFolderSelection = (selectedFolder:any) => {
        
         const updatedFolders:any = folders.map((folder:any) =>
@@ -719,6 +692,8 @@ const Dashboard = () => {
         });
         // console.log('Selected Folders:', updatedSelectedFolders);
 
+        // console.log('access token ' , accessToken)
+
         axios.get("api/downloadFiles", {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
@@ -726,16 +701,52 @@ const Dashboard = () => {
                 params: {
                   folderId: updatedSelectedFolders,
                 },
-              }).then((res:any)=> {
-                fetchFilenames()
-                setTaskCompleted(false);
-                setFolderSelectedLoader(true)
-                // console.log('res: ' ,res.data)
-        
-              }).catch((err:any)=> {
-                setTaskCompleted(false)
-        
+              }).then(async(res:any)=>{
+                  const reqData = res.data
+                  // console.log('res' , reqData)
+                  await axios.post('api/downFiles', reqData,{
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`
+                    }
+                  })
+                  .then((res:any)=>{
+                    // console.log('res' , res.data)
+                    setTaskCompleted(false);
+                    setShowFolderComparison(false)
+                    setSelectedFolders([])
+                    toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
+                      position: "top-right",
+                      autoClose: 1500,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      type: "success",
+                      progress: undefined,
+                      theme: "light",
+                    });
+                    // setFolderSelectedLoader(true)
+
+
+                  }).catch((err:any)=>{
+                    console.log('err' , err)
+                    setTaskCompleted(false);
+                  })
+              }).catch((err:any)=>{
+                  console.log('err' , err)
+
               })
+              // Original response
+              // .then((res:any)=> {
+              //   fetchFilenames()
+              //   setTaskCompleted(false);
+              //   setFolderSelectedLoader(true)
+              //   // console.log('res: ' ,res.data)
+        
+              // }).catch((err:any)=> {
+              //   setTaskCompleted(false)
+        
+              // })
 
 
       }
