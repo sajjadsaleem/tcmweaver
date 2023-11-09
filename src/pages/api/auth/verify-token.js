@@ -76,7 +76,7 @@ export default async function handler(req, res) {
             // console.log('packageids', packageIds)
 
             const ids = packageIds.map(row => row.packageIds);
-            // console.log('ids', ids)
+
 
             let packageData = []
             let vaultsData = []
@@ -89,6 +89,7 @@ export default async function handler(req, res) {
                 packageData.push({ id, packages: packageNames });
             }
 
+            // console.log('ids', ids)
             for (const vaults of ids) {
                 const vaultsNames = await db.select({ vaultId: vaultPackagesTable.vault_id })
                     .from(vaultPackagesTable)
@@ -100,9 +101,14 @@ export default async function handler(req, res) {
 
             }
 
+            // console.log('vaultsdata', vaultsData)
+
             const flattenedVaultsArray = vaultsData.flatMap(item => item.id.map(obj => obj.vaultId));
+            // console.log('flatenedvaultsarray', flattenedVaultsArray)
 
             const flatVaultsIds = [...new Set(flattenedVaultsArray)];
+
+            // console.log('flatvaultsids', flatVaultsIds)
 
             for (const vaultId of flatVaultsIds) {
                 flatVaultsData.push(await db.select({
@@ -111,13 +117,15 @@ export default async function handler(req, res) {
                 }).from(vaultsTable).where(eq(vaultsTable.id, vaultId)))
             }
 
+            // console.log('flatVaultsData', flatVaultsData)
+
             formattedVaultsData = flatVaultsData.map(item => ({
                 vaultId: item[0].vaultId,
                 vaultName: item[0].vaultName,
                 tableName: item[0].referenceTable
             }));
 
-            // console.log(formattedVaultsData);
+            console.log(formattedVaultsData);
 
             // console.log('flatvaultsdata', flatVaultsData)
 
