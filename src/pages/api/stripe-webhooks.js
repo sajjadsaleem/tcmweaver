@@ -118,7 +118,7 @@ export default async (req, res) => {
                 const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
                     .where(eq(packagesTable.stripe_prod_id, event.data.object.plan.product))
 
-                console.log('packageid', packageId)
+                console.log('packageid', packageId[0].packageId)
 
                 const updatedUserPackage = await db.update(userPackagesTable)
                     .set({ package_id: packageId })
