@@ -18,24 +18,19 @@ export default async function stipeBilling(req, res) {
                 prices: [product.default_price],
             }));
 
-            // console.log('products', formattedProducts);
-
             const configuration = await stripe.billingPortal.configurations.create({
                 features: {
                     payment_method_update: { enabled: true },
                     subscription_cancel: {
                         enabled: true,
-                        // cancellation_reason: {
-                        //     enabled: true,
-                        //     options: []
-                        // },
+                        // mode: 'immediately',
                         // proration_behavior: 'none'
                     },
                     subscription_update: {
                         enabled: true,
                         default_allowed_updates: ['price'],
                         products: formattedProducts,
-                        proration_behavior: "none"
+                        // proration_behavior: "none"
                     }
                 },
                 business_profile: {

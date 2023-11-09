@@ -10,6 +10,7 @@ import { eq, lt, gte, ne, and } from "drizzle-orm";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2023-10-16',
 });
+
 const webhookSigningKey = process.env.STRIPE_WEBHOOK_SIGNING_KEY;
 
 export default async (req, res) => {
@@ -36,7 +37,6 @@ export default async (req, res) => {
                 // console.log('productData', productData.data[0].price.product)
                 const productName = await stripe.products.list({
                     ids: [productData.data[0].price.product],
-                    // ids: ['prod_OsvWj9vUpGIxN9']
                 });
                 // console.log('product name', productName.data[0].name)
 
@@ -94,8 +94,6 @@ export default async (req, res) => {
 
                 console.log('userid', userId, 'packageid', packageId)
 
-
-
             }
 
             if (event.type === 'product.updated') {
@@ -107,6 +105,12 @@ export default async (req, res) => {
                     .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { name: productName } })
 
                 // console.log('Package update result:', packageUpdate);
+            }
+
+            if (event.type === 'customer.subscription.deleted') {
+                console.log('sub id', event.data.object.id)
+                const subscriptionDeletion = await db.delete(userPackagesTable)
+                    .where(eq(userPackagesTable.stripe_subscription_id, event.data.object.id))
             }
 
             return res.status(200).json({ message: 'Stripe Webhook handled successfully.' });
