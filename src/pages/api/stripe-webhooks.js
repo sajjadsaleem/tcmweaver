@@ -114,7 +114,14 @@ export default async (req, res) => {
             }
 
             if (event.type === 'customer.subscription.updated') {
-                console.log('event', event)
+                console.log('event', event.data.object.plan.product)
+                const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
+                    .where(eq(packagesTable.stripe_prod_id, event.data.object.plan.product))
+
+                const updatedUserPackage = await db.update(userPackagesTable)
+                    .set({ package_id: packageId })
+                    .where(eq(userPackagesTable.stripe_subscription_id, event.data.object))
+
 
             }
 
