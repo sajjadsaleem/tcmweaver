@@ -23,7 +23,7 @@ export default async function stipeBilling(req, res) {
                     payment_method_update: { enabled: true },
                     subscription_cancel: {
                         enabled: true,
-                        // mode: 'immediately',
+                        mode: 'immediately',
                         // proration_behavior: 'none'
                     },
                     subscription_update: {
