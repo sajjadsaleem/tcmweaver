@@ -1695,7 +1695,7 @@ const Dashboard = () => {
                       <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
                         <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                           <TableRow className='vault-table-row'>
-                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '8%'}}>
+                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '5%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                             </TableCell>
                             <TableCell sx={{width:'20%'}}>
@@ -1704,17 +1704,23 @@ const Dashboard = () => {
                             <TableCell sx={{width: '25%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
                             </TableCell>
-                            <TableCell sx={{width: '10%'}}>
+                            <TableCell sx={{width: '7%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
                             </TableCell>
                             <TableCell sx={{width: '10%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
                             </TableCell>
+
+                            <TableCell sx={{width: '25%'}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
+                            </TableCell>
+
                             <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                             </TableCell>
                           </TableRow>
                         </TableHead>
+                        
                         <TableBody>
                           {searchedUsers.map((row:any , index) => (
                             <TableRow
@@ -1727,6 +1733,23 @@ const Dashboard = () => {
                               <TableCell className='vault-table-body-row'>{row.email}</TableCell>
                               <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
                               <TableCell className='vault-table-body-row'>{row.status}</TableCell>
+
+                              <TableCell>
+                                {row.subscriptions && row.subscriptions.length > 0 ? (
+                                  <>
+                                    {row.subscriptions.map((subscription:any, index:any) => (
+                                      <button className="package-vaults" key={index}>
+                                        {subscription}
+                                      </button>
+                                    ))}
+                                  </>
+                                ) : (
+                                  <>
+                                    <p style={{ display: 'inline' }}>No subscriptions</p>
+                                  </>
+                                )}
+                              </TableCell>
+
                               <TableCell className='vault-table-body-row'>
                                 <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
                                   <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
