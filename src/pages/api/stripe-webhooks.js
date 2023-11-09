@@ -97,7 +97,7 @@ export default async (req, res) => {
             }
 
             if (event.type === 'product.updated') {
-                console.log('event type', event)
+                // console.log('event type', event)
                 const productId = event.data.object.id
                 const productName = event.data.object.name
                 // console.log('prod id', productId, event.data.object.name)
@@ -111,6 +111,11 @@ export default async (req, res) => {
                 console.log('sub id', event.data.object.id)
                 const subscriptionDeletion = await db.delete(userPackagesTable)
                     .where(eq(userPackagesTable.stripe_subscription_id, event.data.object.id))
+            }
+
+            if (event.type === 'customer.subscription.updated') {
+                console.log('event', event)
+
             }
 
             return res.status(200).json({ message: 'Stripe Webhook handled successfully.' });

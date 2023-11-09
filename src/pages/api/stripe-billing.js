@@ -5,7 +5,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY,);
 
 
 
-export default async function stipeBilling(req, res) {
+export default async function stripeBilling(req, res) {
     if (req.method === 'POST') {
         try {
             // console.log('req', req.query.customer_id)
@@ -23,7 +23,7 @@ export default async function stipeBilling(req, res) {
                     payment_method_update: { enabled: true },
                     subscription_cancel: {
                         enabled: true,
-                        mode: 'immediately',
+                        // mode: 'immediately',
                         // proration_behavior: 'none'
                     },
                     subscription_update: {
@@ -31,7 +31,10 @@ export default async function stipeBilling(req, res) {
                         default_allowed_updates: ['price'],
                         products: formattedProducts,
                         // proration_behavior: "none"
-                    }
+                    },
+                    invoice_history: {
+                        enabled: true
+                    },
                 },
                 business_profile: {
                     privacy_policy_url: 'https://example.com/privacy',
@@ -43,7 +46,7 @@ export default async function stipeBilling(req, res) {
 
                 customer: req.query.customer_id,
                 configuration: configuration.id,
-                return_url: 'http://localhost:3000/',
+                return_url: 'https://tcmweaver.vercel.app/',
             });
 
             return res.status(200).json(session);

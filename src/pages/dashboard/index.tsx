@@ -847,12 +847,7 @@ const Dashboard = () => {
 
       const handleVaultsAddToPackage = async () => {
         setEditUserLoader(true)
-
-        console.log()
-
-
         const selectedVaultsValues = selectedVaultsForPackage.map((item:any) => ({ value: item.value }));
-
         const dataToSend = {
           packageId: packageToAddVault.id,
           selectedVaults: selectedVaultsValues
@@ -862,10 +857,12 @@ const Dashboard = () => {
         .then((res:any)=>{
           // console.log('res from package vaults udpate' , res.data)
 
-          axios.get(`/api/getProducts`).then((res:any)=> {
+          axios.get(`/api/getProducts`)
+          .then((res:any)=> {
             setStripePackages(res.data.stripeProducts)
             setSearchedStripePackages(res.data.stripeProducts)
-          }).catch((err:any)=> {})
+          })
+          .catch((err:any)=> {})
 
           setEditUserLoader(false)
           setShowAddVaultPopup(false)
