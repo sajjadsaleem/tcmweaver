@@ -121,7 +121,7 @@ export default async (req, res) => {
                 console.log('packageid', packageId[0].packageId)
 
                 const updatedUserPackage = await db.update(userPackagesTable)
-                    .set({ package_id: packageId })
+                    .set({ package_id: packageId[0].packageId })
                     .where(eq(userPackagesTable.stripe_subscription_id, event.data.object.id))
 
 
