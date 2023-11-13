@@ -27,7 +27,7 @@ export default async function handler(request, response) {
             const db = drizzle(sql)
 
             async function overwriteVault(files) {
-                console.log('files1', files)
+                // console.log('files1', files)
                 const client = await pool.connect();
 
                 const tableName = await db.select().from(vaultsTable)
@@ -97,7 +97,7 @@ export default async function handler(request, response) {
             }
 
             async function createNewVault(files) {
-                console.log('files1', files)
+                // console.log('files1', files)
                 const client = await pool.connect();
 
                 const tableName = await db.select().from(vaultsTable)
@@ -167,7 +167,7 @@ export default async function handler(request, response) {
             }
 
             let results = [request.body];
-            console.log('results', results)
+            // console.log('results', results)
             let downloadedFiles = []
 
             for (const folder of results) {
@@ -177,15 +177,14 @@ export default async function handler(request, response) {
                     downloadedFiles = [...downloadedFiles, ...await createNewVault(folder)];
 
                 } else {
+                    console.log('folder', folder.downloadedFiles.length)
                     downloadedFiles = [...downloadedFiles, ...await overwriteVault(folder)];
                 }
             }
 
-            // console.log('downloadedfiles', downloadedFiles)
             console.log('downloadedFiles = ', downloadedFiles.length)
             response.status(200).json({
                 message: `${downloadedFiles.length} files synchronized successfully`,
-                data: downloadedFiles
             });
 
 

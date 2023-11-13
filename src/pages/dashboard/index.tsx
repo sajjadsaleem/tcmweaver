@@ -718,7 +718,7 @@ const Dashboard = () => {
                     theme: "light",
                   });
                   
-                  const chunkSize = 100;
+                  const chunkSize = 200;
 
                   for (let i = 0; i < reqData.length; i++) {
                     const downloadedFiles = reqData[i].downloadedFiles;
@@ -732,6 +732,7 @@ const Dashboard = () => {
                         option: reqData[i].option,
                         downloadedFiles: chunk,
                       };
+                      
 
                       await axios.post('api/downFilesCheck', requestData,{
                         headers: {
