@@ -44,7 +44,6 @@ async function uploadFiles(results, req) {
             const fileName = file.name;
 
             try {
-
                 const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
                 const headers = {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -53,9 +52,9 @@ async function uploadFiles(results, req) {
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: headers,
-                })
+                });
 
-                console.log('fetch response')
+                console.log('fetch response');
                 let fileContent = '';
 
                 const content = await new Promise(async (resolve) => {
@@ -66,40 +65,45 @@ async function uploadFiles(results, req) {
                             const { done, value } = await reader.read();
                             if (done) {
                                 resolve(fileContent);
-                                return
+                                return;
                             }
 
                             fileContent += new TextDecoder().decode(value);
                         }
                     }
 
-                    await readStream()
-                })
+                    await readStream();
+                });
 
-                console.log('fileName', fileName, 'content', fileContent)
+                console.log('fileName', fileName, 'content', fileContent);
 
                 var userQuery = drizzleSql`INSERT INTO `;
-                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
+                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`;
 
-                userQuery.queryChunks[0].value[0] += tableColumns
+                userQuery.queryChunks[0].value[0] += tableColumns;
 
                 var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
                 console.log('Downloaded File', fileName);
-                return
+                return { fileName, status: 'success' };
 
             } catch (error) {
-                console.log('Error fetching file:', error);
-
+                console.log('Error fetching or saving file:', fileName, error);
+                return { fileName, status: 'error', error: error.message || 'Unknown error' };
             }
+        });
 
-        })
+        // Use Promise.allSettled to handle both successful and failed promises
+        const results = await Promise.allSettled(promises);
 
-        try {
-            await Promise.all(promises);
+        // Check results for any failed promises
+        const failedFiles = results.filter((result) => result.status === 'rejected');
+
+        if (failedFiles.length > 0) {
+            console.error('Error in one or more file downloads or database insertions:', failedFiles);
+        } else {
             console.log('All files downloaded and inserted into the database.');
-        } catch (error) {
-            console.error('Error in one or more file downloads or database insertions:', error);
         }
+
 
         // for (const file of data) {
         //     console.log('file of data', file)
