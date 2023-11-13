@@ -33,17 +33,16 @@ async function uploadFiles(results, req) {
         var dataDeleted = await db.execute(drizzleSql`${deleteQuery}`);
 
         const downloadedFilesFromDrive = [];
+        const accessToken = request.headers.get('authorization')
+        const ACCESS_TOKEN = accessToken.substring('Bearer '.length);
 
-        console.log('data', data)
+        // console.log('data', data)
 
         for (const file of data) {
-            // console.log('file of data', file)
+            console.log('file of data', file)
             const fileId = file.id;
             const fileName = file.name;
-            // console.log('fileid', fileId, 'filename', fileName)
 
-            const accessToken = request.headers.get('authorization')
-            const ACCESS_TOKEN = accessToken.substring('Bearer '.length);
             try {
                 // const response = await axios({
                 //     method: 'get',
@@ -71,6 +70,7 @@ async function uploadFiles(results, req) {
                     async function readStream() {
                         while (true) {
                             const { done, value } = await reader.read();
+                            console.log('reader value ', done, value)
                             if (done) {
                                 // All data has been read
                                 return content; // Resolve the promise with the content
@@ -81,19 +81,15 @@ async function uploadFiles(results, req) {
                     }
 
                     readStream().then(async (fileContent) => {
-                        // console.log('fileName', fileName, 'content', fileContent)
+                        console.log('fileName', fileName, 'content', fileContent)
 
-                        let tableColumns = ` (filename , content) values ('${fileName}' , '${fileContent}')`
+                        var userQuery = drizzleSql`INSERT INTO `;
+                        let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
 
-                        var userQuery = drizzleSql`INSERT INTO ${tableToDelete}`;
-                        const tableName = userQuery.queryChunks.splice(1, 1)[0];
-                        userQuery.queryChunks[0].value[0] += tableName;
-                        userQuery.queryChunks.splice(1, 1);
                         userQuery.queryChunks[0].value[0] += tableColumns
-                        // console.log('userQuery:', userQuery);
 
                         var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-                        // console.log('Downloaded File', fileName);
+                        console.log('Downloaded File', dataInsertion);
 
                     }).catch((error) => {
                         console.error('Error reading the stream:', error);
@@ -327,7 +323,7 @@ async function uploadFiles(results, req) {
 
     try {
         let downloadedFiles = []
-        console.log('results', results)
+        // console.log('results', results)
 
         for (const folder of results) {
             // console.log('folder option', folder)
