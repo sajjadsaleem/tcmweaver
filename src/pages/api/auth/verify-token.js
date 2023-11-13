@@ -125,7 +125,7 @@ export default async function handler(req, res) {
                 tableName: item[0].referenceTable
             }));
 
-            console.log(formattedVaultsData);
+            // console.log(formattedVaultsData);
 
             // console.log('flatvaultsdata', flatVaultsData)
 

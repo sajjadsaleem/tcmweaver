@@ -16,9 +16,9 @@ async function uploadFiles(results, req) {
 
     async function overwriteVault(files, request) {
         const db = drizzle(sql)
-        // console.log('files1', files)
-        // const client = await pool.connect();
         console.log('now in overwrite folder')
+        // console.log('request to download files', request)
+        // console.log('files1', files)
 
         const tableNameToDelete = await db.select().from(vaultsTable)
             .where(eq(vaultsTable.vault_name, files.option));
@@ -27,18 +27,14 @@ async function uploadFiles(results, req) {
 
         const tableToDelete = tableNameToDelete[0].reference_table
 
-        var deleteQuery = drizzleSql`DELETE FROM ${tableToDelete}`;
-        const tableName = deleteQuery.queryChunks.splice(1, 1)[0];
-
-        deleteQuery.queryChunks[0].value[0] += tableName;
-
-        deleteQuery.queryChunks.splice(1, 1);
-
-        var tableDataDelete = await db.execute(drizzleSql`${deleteQuery}`);
+        var deleteQuery = drizzleSql`DELETE from `
+        const newDeleteQuery = `${tableToDelete}`
+        deleteQuery.queryChunks[0].value[0] += newDeleteQuery
+        var dataDeleted = await db.execute(drizzleSql`${deleteQuery}`);
 
         const downloadedFilesFromDrive = [];
 
-        // console.log('data', data)
+        console.log('data', data)
 
         for (const file of data) {
             // console.log('file of data', file)
@@ -331,7 +327,7 @@ async function uploadFiles(results, req) {
 
     try {
         let downloadedFiles = []
-        // console.log('results', results)
+        console.log('results', results)
 
         for (const folder of results) {
             // console.log('folder option', folder)
