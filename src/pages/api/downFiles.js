@@ -58,88 +58,43 @@ async function uploadFiles(results, req) {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
                 };
 
-                await fetch(url, {
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: headers,
-                }).then(async (response) => {
-                    console.log('fetch response')
-
-                    await new Promise((resolve) => {
-                        const reader = response.body.getReader();
-
-                        let content = '';
-
-                        async function readStream() {
-                            while (true) {
-                                const { done, value } = await reader.read();
-                                // console.log('reader value ', done, value)
-                                if (done) {
-                                    // All data has been read
-                                    return content; // Resolve the promise with the content
-                                }
-                                // Accumulate the chunk
-                                content += new TextDecoder().decode(value);
-                            }
-                        }
-
-                        readStream()
-                            .then(async (fileContent) => {
-                                console.log('fileName', fileName, 'content', fileContent)
-
-                                var userQuery = drizzleSql`INSERT INTO `;
-                                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
-
-                                userQuery.queryChunks[0].value[0] += tableColumns
-
-                                var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-                                console.log('Downloaded File', fileName);
-
-                            }).catch((error) => {
-                                console.error('Error reading the stream:', error);
-                            });
-
-                        resolve();
-                    });
-
-
-
-
-
-                    // let content = '';
-
-                    // response.data.on('data', (chunk) => {
-                    //     content += chunk.toString();
-                    // });
-
-                    // await new Promise((resolve) => {
-                    //     response.data.on('end', async () => {
-                    //         console.log(`Downloaded file ${fileName}`);
-
-                    //         // var usersQuery = drizzleSql`SELECT * FROM users where id = 43`;
-                    //         // var getUsersData = await db.execute(drizzleSql`${usersQuery}`);
-
-                    //         // const insertQuery = drizzleSql`INSERT INTO ${tableName[0].reference_table} (filename, content) VALUES ($1, $2)`;
-                    //         // const values = [fileName, content];
-                    //         // await db.execute(drizzleSql`${insertQuery}`)
-
-                    //         // await client.query(insertQuery, values);
-
-
-                    //         // const insertedFile = await db.insert(basicVault)
-                    //         //     .values({ filename: fileName, content: content })
-
-                    //         downloadedFilesFromDrive.push({
-                    //             filename: fileName,
-                    //             content: content,
-                    //         });
-                    //         resolve();
-                    //     });
-                    // });
-
-                }).catch((error) => {
-                    console.log('error', error)
                 })
 
+                console.log('fetch response')
+                let fileContent = '';
+
+                const content = await new Promise(async (resolve) => {
+                    const reader = response.body.getReader();
+
+
+
+                    async function readStream() {
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) {
+                                resolve(fileContent);
+                                return
+                            }
+
+                            fileContent += new TextDecoder().decode(value);
+                        }
+                    }
+
+                    await readStream()
+                })
+
+                console.log('fileName', fileName, 'content', fileContent)
+
+                var userQuery = drizzleSql`INSERT INTO `;
+                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
+
+                userQuery.queryChunks[0].value[0] += tableColumns
+
+                var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
+                console.log('Downloaded File', fileName);
 
             } catch (error) {
                 console.error('Error fetching file:', error);
