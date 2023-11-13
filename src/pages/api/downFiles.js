@@ -70,7 +70,7 @@ async function uploadFiles(results, req) {
                 const buffer = Buffer.concat(chunks, totalSize);
 
                 const content = buffer.toString();
-                console.log('content', content);
+                // console.log('content', content);
 
                 const userQuery = drizzleSql`INSERT INTO `;
                 const tableColumns = `${tableToDelete} (filename, content) values ('${fileName}', '${content}')`;
@@ -78,7 +78,7 @@ async function uploadFiles(results, req) {
                 userQuery.queryChunks[0].value[0] += tableColumns;
 
                 await db.execute(drizzleSql`${userQuery}`);
-                console.log('Inserted File', fileName);
+                // console.log('Inserted File', fileName);
 
                 return { fileName, status: 'success' };
             } catch (error) {
@@ -92,6 +92,8 @@ async function uploadFiles(results, req) {
         for (const file of data) {
             const result = await processFile(file, ACCESS_TOKEN);
             results.push(result);
+            console.log('results', results.length)
+            // return new Response(`Syncronizing files`);
         }
 
         console.log('All files processed:', results);
@@ -153,7 +155,7 @@ async function uploadFiles(results, req) {
         //     }
         // }
 
-        return downloadedFilesFromDrive;
+        return results;
 
     }
 
