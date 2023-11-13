@@ -38,23 +38,11 @@ async function uploadFiles(results, req) {
         const accessToken = request.headers.get('authorization')
         const ACCESS_TOKEN = accessToken.substring('Bearer '.length);
 
-        // console.log('data', data)
-
-        for (const file of data) {
-            console.log('file of data', file)
+        async function processFile(file, ACCESS_TOKEN) {
             const fileId = file.id;
             const fileName = file.name;
 
             try {
-                // const response = await axios({
-                //     method: 'get',
-                //     url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-                //     responseType: 'stream',
-                //     headers: {
-                //         Authorization: `Bearer ${ACCESS_TOKEN}`,
-                //     },
-                // });
-
                 const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
                 const headers = {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -63,7 +51,7 @@ async function uploadFiles(results, req) {
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: headers,
-                })
+                });
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch file ${fileName}. Status: ${response.status}`);
@@ -81,47 +69,89 @@ async function uploadFiles(results, req) {
                 // Combine chunks into a single buffer
                 const buffer = Buffer.concat(chunks, totalSize);
 
-                const content = buffer.toString()
-                console.log('content', content)
+                const content = buffer.toString();
+                console.log('content', content);
 
+                const userQuery = drizzleSql`INSERT INTO `;
+                const tableColumns = `${tableToDelete} (filename, content) values ('${fileName}', '${content}')`;
 
-                // console.log('fetch response', response)
-                // let fileContent = '';
+                userQuery.queryChunks[0].value[0] += tableColumns;
 
-                // const content = await new Promise(async (resolve) => {
-                //     const reader = response.body.getReader();
+                await db.execute(drizzleSql`${userQuery}`);
+                console.log('Inserted File', fileName);
 
-
-
-                //     async function readStream() {
-                //         while (true) {
-                //             const { done, value } = await reader.read();
-                //             if (done) {
-                //                 resolve(fileContent);
-                //                 return
-                //             }
-
-                //             fileContent += new TextDecoder().decode(value);
-                //         }
-                //     }
-
-                //     await readStream()
-                // })
-
-                // console.log('fileName', fileName, 'content', fileContent)
-
-                var userQuery = drizzleSql`INSERT INTO `;
-                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${content}')`
-
-                userQuery.queryChunks[0].value[0] += tableColumns
-
-                var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-                // console.log('Downloaded File', fileName);
-
+                return { fileName, status: 'success' };
             } catch (error) {
-                console.error('Error fetching file:', error);
+                console.error('Error fetching or saving file:', fileName, error);
+                return { fileName, status: 'error', error: error.message || 'Unknown error' };
             }
         }
+
+        const results = [];
+
+        for (const file of data) {
+            const result = await processFile(file, ACCESS_TOKEN);
+            results.push(result);
+        }
+
+        console.log('All files processed:', results);
+
+        // for (const file of data) {
+        //     console.log('file of data', file)
+        //     const fileId = file.id;
+        //     const fileName = file.name;
+
+        //     try {
+        //         // const response = await axios({
+        //         //     method: 'get',
+        //         //     url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        //         //     responseType: 'stream',
+        //         //     headers: {
+        //         //         Authorization: `Bearer ${ACCESS_TOKEN}`,
+        //         //     },
+        //         // });
+
+        //         const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+        //         const headers = {
+        //             Authorization: `Bearer ${ACCESS_TOKEN}`,
+        //         };
+
+        //         const response = await fetch(url, {
+        //             method: 'GET',
+        //             headers: headers,
+        //         })
+
+        //         if (!response.ok) {
+        //             throw new Error(`Failed to fetch file ${fileName}. Status: ${response.status}`);
+        //         }
+
+        //         const chunks = [];
+        //         let totalSize = 0;
+
+        //         // Read data in chunks and accumulate in the buffer array
+        //         for await (const chunk of response.body) {
+        //             chunks.push(chunk);
+        //             totalSize += chunk.length;
+        //         }
+
+        //         // Combine chunks into a single buffer
+        //         const buffer = Buffer.concat(chunks, totalSize);
+
+        //         const content = buffer.toString()
+        //         console.log('content', content)
+
+        //         var userQuery = drizzleSql`INSERT INTO `;
+        //         let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${content}')`
+
+        //         userQuery.queryChunks[0].value[0] += tableColumns
+
+        //         var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
+        //         // console.log('Downloaded File', fileName);
+
+        //     } catch (error) {
+        //         console.error('Error fetching file:', error);
+        //     }
+        // }
 
         return downloadedFilesFromDrive;
 
