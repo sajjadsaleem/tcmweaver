@@ -364,7 +364,7 @@ async function uploadFiles(results, req) {
     }
 
 
-    await wait();
+    await wait(10000);
     return;
 }
 
