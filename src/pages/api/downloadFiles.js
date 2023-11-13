@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
 import pg from 'pg';
+import { sql as drizzleSql } from "drizzle-orm";
 
 const { Pool } = pg;
 
@@ -105,24 +106,49 @@ export default async function handler(request, response) {
             const db = drizzle(sql)
 
             let results = await processFolders(reqData)
-
-
             // console.log('results', results)
+
+            for (const folder of results) {
+                if (folder.option === 'Create new vault') {
+                    var userQuery = drizzleSql`INSERT INTO `;
+                    const tableNameInsertion = `vaults (vault_name , price) values ('${folder.name}' , ${0.00}) `
+                    userQuery.queryChunks[0].value[0] += tableNameInsertion
+                    var vaultNameInsertion = await db.execute(drizzleSql`${userQuery}`);
+
+                    const getNewVaultIdQuery = drizzleSql`SELECT id from `
+                    const getNewVaultId = `vaults where vault_name = '${folder.name}'`
+                    getNewVaultIdQuery.queryChunks[0].value[0] += getNewVaultId
+                    var newVaultIdGet = await db.execute(drizzleSql`${getNewVaultIdQuery}`);
+
+                    var tableReferenceInsertionInVaults = drizzleSql`UPDATE vaults `;
+                    const tableReferenceInsertion = `set reference_table = 'table${newVaultIdGet.rows[0].id}' where id = ${newVaultIdGet.rows[0].id} `
+                    tableReferenceInsertionInVaults.queryChunks[0].value[0] += tableReferenceInsertion
+                    var referenceTableInserted = await db.execute(drizzleSql`${tableReferenceInsertionInVaults}`);
+
+                    var createNewVaultQuery = drizzleSql`CREATE TABLE `
+                    const createNewVault = `table${newVaultIdGet.rows[0].id} (id serial PRIMARY KEY , filename VARCHAR(255) UNIQUE , content TEXT)`
+                    createNewVaultQuery.queryChunks[0].value[0] += createNewVault
+                    var newVaultCreated = await db.execute(drizzleSql`${createNewVaultQuery}`)
+
+
+                } else {
+                    console.log(folder)
+                    const tableNameToDelete = await db.select().from(vaultsTable)
+                        .where(eq(vaultsTable.vault_name, folder.option));
+
+                    const tableToDelete = tableNameToDelete[0].reference_table
+
+                    var deleteQuery = drizzleSql`DELETE from `
+                    const newDeleteQuery = `${tableToDelete}`
+                    deleteQuery.queryChunks[0].value[0] += newDeleteQuery
+                    var dataDeleted = await db.execute(drizzleSql`${deleteQuery}`);
+                }
+            }
 
             response.status(200).json({
                 message: `${results[0].downloadedFiles.length} files detected`,
                 data: results
             });
-
-
-
-
-
-
-
-
-
-
 
 
 

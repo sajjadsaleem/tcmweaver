@@ -702,36 +702,66 @@ const Dashboard = () => {
                   folderId: updatedSelectedFolders,
                 },
               }).then(async(res:any)=>{
-                  const reqData = res.data
-                  // console.log('res' , reqData)
-                  await axios.post('api/downFiles', reqData,{
-                    headers: {
-                      Authorization: `Bearer ${accessToken}`
+                  const reqData = res.data.data
+                  console.log('res' , reqData)
+                  setTaskCompleted(false);
+                  setShowFolderComparison(false)
+                  toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
+                    position: "top-right",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    type: "success",
+                    progress: undefined,
+                    theme: "light",
+                  });
+                  
+                  const chunkSize = 100;
+
+                  for (let i = 0; i < reqData.length; i++) {
+                    const downloadedFiles = reqData[i].downloadedFiles;
+                  
+                    // Split downloadedFiles into chunks
+                    for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
+                      const chunk = downloadedFiles.slice(j, j + chunkSize);
+                  
+                      const requestData = {
+                        name: reqData[i].name,
+                        option: reqData[i].option,
+                        downloadedFiles: chunk,
+                      };
+
+                      await axios.post('api/downFilesCheck', requestData,{
+                        headers: {
+                          Authorization: `Bearer ${accessToken}`
+                        }
+                      })
+                      .then((res:any)=>{
+                        // console.log('res' , res.data)
+                        setTaskCompleted(false);
+                        setShowFolderComparison(false)
+                        
+                        // setFolderSelectedLoader(true)
+    
+    
+                      }).catch((err:any)=>{
+                        console.log('err' , err)
+                        setTaskCompleted(false);
+                      })
+                  
                     }
-                  })
-                  .then((res:any)=>{
-                    // console.log('res' , res.data)
-                    setTaskCompleted(false);
-                    setShowFolderComparison(false)
+
                     setSelectedFolders([])
-                    toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
-                      position: "top-right",
-                      autoClose: 1500,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      type: "success",
-                      progress: undefined,
-                      theme: "light",
-                    });
-                    // setFolderSelectedLoader(true)
+                  }
 
 
-                  }).catch((err:any)=>{
-                    console.log('err' , err)
-                    setTaskCompleted(false);
-                  })
+
+
+
+
+                  
               }).catch((err:any)=>{
                   console.log('err' , err)
 
