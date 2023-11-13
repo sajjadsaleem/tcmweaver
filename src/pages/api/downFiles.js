@@ -3,6 +3,8 @@ import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { sql as drizzleSql, eq } from "drizzle-orm";
 import { vaultsTable } from '../../db/schema/vaults';
 import axios from 'axios';
+const { Readable } = require('stream');
+const { pipeline } = require('stream/promises');
 
 export const config = {
     runtime: 'edge',
@@ -38,12 +40,21 @@ async function uploadFiles(results, req) {
 
         // console.log('data', data)
 
-        const promises = data.map(async (file) => {
-            console.log('file of data', file);
+        for (const file of data) {
+            console.log('file of data', file)
             const fileId = file.id;
             const fileName = file.name;
 
             try {
+                // const response = await axios({
+                //     method: 'get',
+                //     url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                //     responseType: 'stream',
+                //     headers: {
+                //         Authorization: `Bearer ${ACCESS_TOKEN}`,
+                //     },
+                // });
+
                 const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
                 const headers = {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -52,119 +63,65 @@ async function uploadFiles(results, req) {
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: headers,
-                });
+                })
 
-                console.log('fetch response');
-                let fileContent = '';
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch file ${fileName}. Status: ${response.status}`);
+                }
 
-                const content = await new Promise(async (resolve) => {
-                    const reader = response.body.getReader();
+                const chunks = [];
+                let totalSize = 0;
 
-                    async function readStream() {
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done) {
-                                resolve(fileContent);
-                                return;
-                            }
+                // Read data in chunks and accumulate in the buffer array
+                for await (const chunk of response.body) {
+                    chunks.push(chunk);
+                    totalSize += chunk.length;
+                }
 
-                            fileContent += new TextDecoder().decode(value);
-                        }
-                    }
+                // Combine chunks into a single buffer
+                const buffer = Buffer.concat(chunks, totalSize);
 
-                    await readStream();
-                });
+                const content = buffer.toString()
+                console.log('content', content)
 
-                console.log('fileName', fileName, 'content', fileContent);
+
+                // console.log('fetch response', response)
+                // let fileContent = '';
+
+                // const content = await new Promise(async (resolve) => {
+                //     const reader = response.body.getReader();
+
+
+
+                //     async function readStream() {
+                //         while (true) {
+                //             const { done, value } = await reader.read();
+                //             if (done) {
+                //                 resolve(fileContent);
+                //                 return
+                //             }
+
+                //             fileContent += new TextDecoder().decode(value);
+                //         }
+                //     }
+
+                //     await readStream()
+                // })
+
+                // console.log('fileName', fileName, 'content', fileContent)
 
                 var userQuery = drizzleSql`INSERT INTO `;
-                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`;
+                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${content}')`
 
-                userQuery.queryChunks[0].value[0] += tableColumns;
+                userQuery.queryChunks[0].value[0] += tableColumns
 
                 var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-                console.log('Downloaded File', fileName);
-                return { fileName, status: 'success' };
+                // console.log('Downloaded File', fileName);
 
             } catch (error) {
-                console.log('Error fetching or saving file:', fileName, error);
-                return { fileName, status: 'error', error: error.message || 'Unknown error' };
+                console.error('Error fetching file:', error);
             }
-        });
-
-        // Use Promise.allSettled to handle both successful and failed promises
-        const results = await Promise.allSettled(promises);
-
-        // Check results for any failed promises
-        const failedFiles = results.filter((result) => result.status === 'rejected');
-
-        if (failedFiles.length > 0) {
-            console.error('Error in one or more file downloads or database insertions:', failedFiles);
-        } else {
-            console.log('All files downloaded and inserted into the database.');
         }
-
-
-        // for (const file of data) {
-        //     console.log('file of data', file)
-        //     const fileId = file.id;
-        //     const fileName = file.name;
-
-        //     try {
-        //         // const response = await axios({
-        //         //     method: 'get',
-        //         //     url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-        //         //     responseType: 'stream',
-        //         //     headers: {
-        //         //         Authorization: `Bearer ${ACCESS_TOKEN}`,
-        //         //     },
-        //         // });
-
-        //         const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-        //         const headers = {
-        //             Authorization: `Bearer ${ACCESS_TOKEN}`,
-        //         };
-
-        //         const response = await fetch(url, {
-        //             method: 'GET',
-        //             headers: headers,
-        //         })
-
-        //         console.log('fetch response')
-        //         let fileContent = '';
-
-        //         const content = await new Promise(async (resolve) => {
-        //             const reader = response.body.getReader();
-
-        //             async function readStream() {
-        //                 while (true) {
-        //                     const { done, value } = await reader.read();
-        //                     if (done) {
-        //                         resolve(fileContent);
-        //                         return
-        //                     }
-
-        //                     fileContent += new TextDecoder().decode(value);
-        //                 }
-        //             }
-
-        //             await readStream()
-        //         })
-
-        //         console.log('fileName', fileName, 'content', fileContent)
-
-        //         var userQuery = drizzleSql`INSERT INTO `;
-        //         let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
-
-        //         userQuery.queryChunks[0].value[0] += tableColumns
-
-        //         var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-        //         console.log('Downloaded File', fileName);
-
-        //     } catch (error) {
-        //         console.error('Error fetching file:', error);
-        //     }
-        // }
 
         return downloadedFilesFromDrive;
 
