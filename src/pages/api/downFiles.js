@@ -58,42 +58,50 @@ async function uploadFiles(results, req) {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
                 };
 
-                fetch(url, {
+                await fetch(url, {
                     method: 'GET',
                     headers: headers,
                 }).then(async (response) => {
+                    console.log('fetch response')
 
-                    const reader = response.body.getReader();
+                    await new Promise((resolve) => {
+                        const reader = response.body.getReader();
 
-                    let content = '';
+                        let content = '';
 
-                    async function readStream() {
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            console.log('reader value ', done, value)
-                            if (done) {
-                                // All data has been read
-                                return content; // Resolve the promise with the content
+                        async function readStream() {
+                            while (true) {
+                                const { done, value } = await reader.read();
+                                // console.log('reader value ', done, value)
+                                if (done) {
+                                    // All data has been read
+                                    return content; // Resolve the promise with the content
+                                }
+                                // Accumulate the chunk
+                                content += new TextDecoder().decode(value);
                             }
-                            // Accumulate the chunk
-                            content += new TextDecoder().decode(value);
                         }
-                    }
 
-                    readStream().then(async (fileContent) => {
-                        console.log('fileName', fileName, 'content', fileContent)
+                        readStream()
+                            .then(async (fileContent) => {
+                                console.log('fileName', fileName, 'content', fileContent)
 
-                        var userQuery = drizzleSql`INSERT INTO `;
-                        let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
+                                var userQuery = drizzleSql`INSERT INTO `;
+                                let tableColumns = `${tableToDelete} (filename , content) values ('${fileName}' , '${fileContent}')`
 
-                        userQuery.queryChunks[0].value[0] += tableColumns
+                                userQuery.queryChunks[0].value[0] += tableColumns
 
-                        var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
-                        console.log('Downloaded File', dataInsertion);
+                                var dataInsertion = await db.execute(drizzleSql`${userQuery}`);
+                                console.log('Downloaded File', fileName);
 
-                    }).catch((error) => {
-                        console.error('Error reading the stream:', error);
+                            }).catch((error) => {
+                                console.error('Error reading the stream:', error);
+                            });
+
+                        resolve();
                     });
+
+
 
 
 
