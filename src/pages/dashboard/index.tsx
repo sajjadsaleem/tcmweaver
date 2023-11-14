@@ -293,6 +293,7 @@ const Dashboard = () => {
 
       const handleCloseDialog = () => {
         setSyncPopup(false);
+        setProceedBtnLoading(false)
        
       };
 
@@ -811,8 +812,11 @@ const Dashboard = () => {
           })
           .catch((error:any) => {
             setProceedBtnLoading(false);
-            toast.error('Failed to delete vault', { autoClose: 1500 });
-            console.error("Error deleting vault:", error);
+            console.log("Error deleting vault:", error.response.data.error.detail);
+            if (error.response.data.error.detail && error.response.data.error.detail.includes("referenced from table \"vaultPackages\"")) {
+              toast.error('Vault is used in a package. Remove it from the package then try again', { autoClose: 1500 });
+            }
+            // toast.error('Failed to delete vault', { autoClose: 1500 });
           })
       };
 
@@ -956,7 +960,7 @@ const Dashboard = () => {
                       <Button onClick={synchronizeFiles} color="primary">
                         {proccedBtnLoading ? (
                             <>
-                              Please Wait {" "}
+                              <span className="processing-text">Please Wait</span>
                               <span
                                 className="spinner-grow spinner-grow-sm ml-2"
                                 role="status"
