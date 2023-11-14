@@ -31,7 +31,7 @@ export default async function handler(request, response) {
             async function overwriteVault(files) {
                 // console.log('files', files)
                 client = await pool.connect();
-                console.log('client', client)
+                // console.log('client', client)
 
 
                 const tableName = await db.select().from(vaultsTable)
