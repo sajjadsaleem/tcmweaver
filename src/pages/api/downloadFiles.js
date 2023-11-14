@@ -14,6 +14,10 @@ const pool = new Pool({
     connectionString: process.env.POSTGRES_URL + "?sslmode=require",
 })
 
+export const config = {
+    maxDuration: 300,
+};
+
 
 export default async function handler(request, response) {
 
