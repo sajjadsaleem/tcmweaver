@@ -25,15 +25,19 @@ export default async function handler(request, response) {
 
         try {
             const db = drizzle(sql)
+            let client
+
 
             async function overwriteVault(files) {
-                // console.log('files1', files)
-                const client = await pool.connect();
+                // console.log('files', files)
+                client = await pool.connect();
+                console.log('client', client)
+
 
                 const tableName = await db.select().from(vaultsTable)
                     .where(eq(vaultsTable.vault_name, files.option));
 
-                console.log('tablename', tableName)
+                // console.log('tablename', tableName)
                 // const tableName = files.option;
                 const data = files.downloadedFiles
 
@@ -98,7 +102,7 @@ export default async function handler(request, response) {
 
             async function createNewVault(files) {
                 // console.log('files1', files)
-                const client = await pool.connect();
+                client = await pool.connect();
 
                 const tableName = await db.select().from(vaultsTable)
                     .where(eq(vaultsTable.vault_name, files.name));
@@ -182,6 +186,7 @@ export default async function handler(request, response) {
                 }
             }
 
+            client.release()
             console.log('downloadedFiles = ', downloadedFiles.length)
             response.status(200).json({
                 message: `${downloadedFiles.length} files synchronized successfully`,
@@ -201,6 +206,7 @@ export default async function handler(request, response) {
             console.error("Error fetching file:", error.message);
             response.status(500).json({ error: "Internal Server Error" });
         }
+
     } else {
         response.status(405).end(); // Method Not Allowed
     }

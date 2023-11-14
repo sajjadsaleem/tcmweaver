@@ -721,7 +721,7 @@ const Dashboard = () => {
                   //   theme: "light",
                   // });
                   
-                  const chunkSize = 200;
+                  const chunkSize = 2;
                   var currentlySyncronizingFiles = 0
                  
 
