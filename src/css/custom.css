@@ -1462,3 +1462,7 @@
     cursor: default !important;
     font-size: 12px;
 }
+
+.processing-text {
+    margin-right: 0.5rem;
+}

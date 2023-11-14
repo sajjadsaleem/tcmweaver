@@ -87,6 +87,10 @@ const Dashboard = () => {
     const [allVaultsToSelect , setAllVaultsToSelect] = useState<any>([])
     const [defaultVaultsInPackage , setDefaultVaultInPackage] = useState([])
     const [selectedVaultsForPackage , setSelectedVaultsForPackage] = useState([])
+    const [currentSync , setCurrentSync] = useState(false)
+    const [showCurrentSync, setShowCurrentSync] = useState(false)
+    const [totalFilesToSync , setTotalFilesToSync] = useState<any>(null)
+    const [currentSyncedFiles , setCurrentSyncedFiles] = useState<any>(null)
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -318,7 +322,6 @@ const Dashboard = () => {
       }
 
       const handlerFolderPopupClose = async () => {
-        fetchFilenames()
         setFoldersPopup(false)
         setShowFolderComparison(false)
         setSelectedFolders([])
@@ -690,10 +693,12 @@ const Dashboard = () => {
           }
           return folder;
         });
-        // console.log('Selected Folders:', updatedSelectedFolders);
 
-        // console.log('access token ' , accessToken)
+        // setShowFolderComparison(true)
 
+        setFolderSelectedLoader(true)
+        setCurrentSync(true)
+        setShowCurrentSync(true)
         axios.get("api/downloadFiles", {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
@@ -703,22 +708,22 @@ const Dashboard = () => {
                 },
               }).then(async(res:any)=>{
                   const reqData = res.data.data
-                  console.log('res' , reqData)
-                  setTaskCompleted(false);
-                  setShowFolderComparison(false)
-                  toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
-                    position: "top-right",
-                    autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    type: "success",
-                    progress: undefined,
-                    theme: "light",
-                  });
+                  setTotalFilesToSync(res.data.message)
+                  // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
+                  //   position: "top-right",
+                  //   autoClose: 1500,
+                  //   hideProgressBar: false,
+                  //   closeOnClick: true,
+                  //   pauseOnHover: true,
+                  //   draggable: true,
+                  //   type: "success",
+                  //   progress: undefined,
+                  //   theme: "light",
+                  // });
                   
                   const chunkSize = 200;
+                  var currentlySyncronizingFiles = 0
+                 
 
                   for (let i = 0; i < reqData.length; i++) {
                     const downloadedFiles = reqData[i].downloadedFiles;
@@ -726,6 +731,10 @@ const Dashboard = () => {
                     // Split downloadedFiles into chunks
                     for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
                       const chunk = downloadedFiles.slice(j, j + chunkSize);
+
+                      currentlySyncronizingFiles = currentlySyncronizingFiles + chunk.length
+
+                      setCurrentSyncedFiles(currentlySyncronizingFiles)
                   
                       const requestData = {
                         name: reqData[i].name,
@@ -741,31 +750,31 @@ const Dashboard = () => {
                       })
                       .then((res:any)=>{
                         // console.log('res' , res.data)
-                        setTaskCompleted(false);
-                        setShowFolderComparison(false)
+                        
+                        // setTaskCompleted(false);
+                        // setShowFolderComparison(false)
                         
                         // setFolderSelectedLoader(true)
     
     
                       }).catch((err:any)=>{
                         console.log('err' , err)
-                        setTaskCompleted(false);
+                        // setTaskCompleted(false);
                       })
                   
                     }
 
-                    setSelectedFolders([])
                   }
+                  fetchFilenames()
+                  // setTaskCompleted(false)
+                  // setFolderSelectedLoader(true)
+                  // setSelectedFolders([])
+                  setTaskCompleted(false)
+                  setShowCurrentSync(false)
 
 
-
-
-
-
-                  
               }).catch((err:any)=>{
                   console.log('err' , err)
-
               })
               // Original response
               // .then((res:any)=> {
@@ -1114,20 +1123,85 @@ const Dashboard = () => {
                           </List>
                         </div>
                       </div>
-                      {folderSelectedLoader && (
+                      {currentSync && (
                         <div>
-                          <ListItem>Vaults syncronized successfully</ListItem>
+                          {showCurrentSync && (
+                            <>
+                              <ListItem>We are synchronizing your files. Dont close the popup.</ListItem>
+                            </>
+                          )}
+
+                          <ListItem>
+                            {totalFilesToSync === null ? (
+                              <>
+                                <span className="processing-text">Processing</span>
+                                <span
+                                  className="spinner-grow spinner-grow-sm ml-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                              </>
+                            ) : (
+                              <>
+                                {taskCompleted ? (
+                                  <>
+                                    <span className="processing-text">
+                                      Processing {currentSyncedFiles} / {totalFilesToSync} files
+                                    </span>
+                                    <span
+                                      className="spinner-grow spinner-grow-sm ml-2"
+                                      role="status"
+                                      aria-hidden="true">
+                                    </span>
+                                  </>
+                                ):(
+                                  <>
+                                    <span>
+                                      Syncronized {currentSyncedFiles} / {totalFilesToSync} files
+                                    </span>
+                                  </>
+                                )
+
+                                }
+                                
+                              </>
+                            )}
+                          </ListItem>
+
                         </div>
                       )}
                     </DialogContent>
                     <DialogActions>
                       {folderSelectedLoader ? (
                         <>
-                          <Button onClick={() => {
+                          {/* <Button onClick={() => {
                             setShowFolderComparison(false)
                             setSelectedFolders([])}} color="primary">
                             Done
-                          </Button>
+                          </Button> */}
+                          {/* <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setFoldersPopup(true)}} color="primary">
+                            Back
+                          </Button> */}
+                          {taskCompleted ? (
+                            <>
+                              <Button color="primary" variant="contained" disabled>
+                                Sync
+                                {/* <span
+                                className="spinner-grow spinner-grow-sm ml-2"
+                                role="status"
+                                aria-hidden="true"
+                                ></span> */}
+                              </Button> 
+                            </>
+                          ) : (
+                            <>
+                              <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
+                              Done
+                              </Button>
+                            </>
+                          )}
                         </>):(
                         <>
                           <Button onClick={() => {

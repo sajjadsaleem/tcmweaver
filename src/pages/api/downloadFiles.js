@@ -145,8 +145,18 @@ export default async function handler(request, response) {
                 }
             }
 
+            let totalObjects = 0;
+            for (let i = 0; i < results.length; i++) {
+                const downloadedFiles = results[i].downloadedFiles;
+                for (let j = 0; j < downloadedFiles.length; j++) {
+                    totalObjects++;
+                }
+            }
+
+            console.log('results', totalObjects)
+
             response.status(200).json({
-                message: `${results[0].downloadedFiles.length} files detected`,
+                message: `${totalObjects}`,
                 data: results
             });
 
