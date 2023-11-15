@@ -232,6 +232,34 @@
       "when": 1699270214119,
       "tag": "0032_round_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1700057066559,
+      "tag": "0033_strong_spiral",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1700057315029,
+      "tag": "0034_military_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1700058320019,
+      "tag": "0035_odd_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1700060989655,
+      "tag": "0036_narrow_veda",
+      "breakpoints": true
     }
   ]
 }

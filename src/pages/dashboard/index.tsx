@@ -91,6 +91,10 @@ const Dashboard = () => {
     const [showCurrentSync, setShowCurrentSync] = useState(false)
     const [totalFilesToSync , setTotalFilesToSync] = useState<any>(null)
     const [currentSyncedFiles , setCurrentSyncedFiles] = useState<any>(null)
+    const [selectedVaultsForUser , setSelectedVaultsForUser] = useState([])
+    const [defaultVaultsForUser , setDefaultVaultsForUser] = useState([])
+    const [userToAddVault , setUserToAddVault] = useState<any>({})
+    const [showAddVaultToUserPopup , setShowAddVaultToUserPopup] = useState(false)
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -917,6 +921,60 @@ const Dashboard = () => {
 
         })
       }
+
+      const handleShowUserVaultAddPopup = async (row:any) => {
+        console.log(row)
+        console.log('allvaultstoselect' , allVaultsToSelect)
+        const currentVaults = row.vaults.map((vlt:any) => vlt);
+        const defaultValues = allVaultsToSelect.filter((option:any) => currentVaults.includes(option.value));
+
+        // console.log('defaultValues' , defaultValues)
+
+        setSelectedVaultsForUser(defaultValues)
+        setDefaultVaultsForUser(defaultValues)
+        setUserToAddVault(row)
+        setShowAddVaultToUserPopup(true)
+
+      }
+
+
+      const closeAddVaultToUserPopup = async () => {
+        setShowAddVaultToUserPopup(false)
+        setSelectedVaultsForUser([]);
+      }
+
+
+      const handleVaultsAddToUser = async () => {
+        setEditUserLoader(true)
+        const selectedVaultsValues = selectedVaultsForUser.map((item:any) => ({ value: item.value }));
+
+        const dataToSend = {
+          userId: userToAddVault.id,
+          selectedVaults: selectedVaultsValues
+        };
+
+        console.log('datatosend' , dataToSend)
+
+        axios.post('/api/userVaultUpdate', dataToSend)
+        .then((res:any)=>{
+
+          axios.get(`/api/getUsers`)
+          .then((res:any)=> {
+            setOriginalUsers(res.data.allUsers);
+            setSearchedUsers(res.data.allUsers)
+            setEditUserLoader(false)
+            setShowAddVaultToUserPopup(false)
+          })
+          .catch((err:any)=> {})
+
+          
+
+        }).catch((err)=>{
+          console.log('error from package vaults udpate' , err)
+          setEditUserLoader(false)
+
+        })
+      }
       
       
 
@@ -1526,42 +1584,79 @@ const Dashboard = () => {
                   </Dialog>
                 )}
 
-                {showAddVaultPopup && (<>
-                
-                  <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
-                    <Paper sx={{ width: 500 }}>                    
-                      <DialogTitle>{packageToAddVault.name}</DialogTitle>
-                      <DialogContent sx={{ height: 300}}>
-                        <DialogContentText>
-                          Select vaults to add to this package:
-                        </DialogContentText>
-                        <Grid sx={{marginTop: '10px' }}>
-                          <Select
-                            closeMenuOnSelect={false}
-                            components={animatedComponents}
-                            defaultValue={defaultVaultsInPackage}
-                            isMulti
-                            options={allVaultsToSelect}
-                            onChange={(selectedOptions:any) => {
-                              setSelectedVaultsForPackage(selectedOptions);
-                            }}
-                          />  
-                        </Grid>
-                      
-                      </DialogContent>
+                {showAddVaultPopup && (
+                  <>
+                    <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
+                      <Paper sx={{ width: 500 }}>                    
+                        <DialogTitle>{packageToAddVault.name}</DialogTitle>
+                        <DialogContent sx={{ height: 300}}>
+                          <DialogContentText>
+                            Select vaults to add to this package:
+                          </DialogContentText>
+                          <Grid sx={{marginTop: '10px' }}>
+                            <Select
+                              closeMenuOnSelect={false}
+                              components={animatedComponents}
+                              defaultValue={defaultVaultsInPackage}
+                              isMulti
+                              options={allVaultsToSelect}
+                              onChange={(selectedOptions:any) => {
+                                setSelectedVaultsForPackage(selectedOptions);
+                              }}
+                            />  
+                          </Grid>
+                        
+                        </DialogContent>
 
-                      <DialogActions>
-                        <Button onClick={closeAddVaultPopup} color="primary">
-                          Cancel
-                        </Button>
-                        <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
-                          {editUserLoader ? 'Saving...' : 'Save'}
-                        </Button>
-                      </DialogActions>
-                    </Paper>
-                  </Dialog>
-                  </>)
-                }
+                        <DialogActions>
+                          <Button onClick={closeAddVaultPopup} color="primary">
+                            Cancel
+                          </Button>
+                          <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
+                            {editUserLoader ? 'Saving...' : 'Save'}
+                          </Button>
+                        </DialogActions>
+                      </Paper>
+                    </Dialog>
+                  </>
+                )}
+
+                {showAddVaultToUserPopup && (
+                  <>
+                    <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} >
+                      <Paper sx={{ width: 500 }}>                    
+                        <DialogTitle>{userToAddVault.full_name}</DialogTitle>
+                        <DialogContent sx={{ height: 300}}>
+                          <DialogContentText>
+                            Select vaults to give access to this user:
+                          </DialogContentText>
+
+                          <Grid sx={{marginTop: '10px' }}>
+                            <Select
+                              closeMenuOnSelect={false}
+                              components={animatedComponents}
+                              defaultValue={defaultVaultsForUser}
+                              isMulti
+                              options={allVaultsToSelect}
+                              onChange={(selectedOptions:any) => {
+                                setSelectedVaultsForUser(selectedOptions);
+                              }}
+                            />  
+                          </Grid>
+                        </DialogContent>
+
+                        <DialogActions>
+                          <Button onClick={closeAddVaultToUserPopup} color="primary">
+                            Cancel
+                          </Button>
+                          <Button color="primary" onClick={handleVaultsAddToUser} disabled={editUserLoader}>
+                            {editUserLoader ? 'Saving...' : 'Save'}
+                          </Button>
+                        </DialogActions>
+                      </Paper>
+                    </Dialog>
+                  </>
+                )}
 
               </div>
             </div>
@@ -1802,25 +1897,35 @@ const Dashboard = () => {
                   <div className="user-table">
                     <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
                       <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+
                         <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                           <TableRow className='vault-table-row'>
-                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '5%'}}>
+
+                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                             </TableCell>
+
                             <TableCell sx={{width:'20%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                             </TableCell>
+
                             <TableCell sx={{width: '25%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
                             </TableCell>
+
                             <TableCell sx={{width: '7%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
                             </TableCell>
-                            <TableCell sx={{width: '10%'}}>
+
+                            <TableCell sx={{width: '8%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
                             </TableCell>
 
-                            <TableCell sx={{width: '25%'}}>
+                            <TableCell sx={{width: '18%'}}>
+                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
+                            </TableCell>
+
+                            <TableCell sx={{width: '18%'}}>
                               <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
                             </TableCell>
 
@@ -1842,6 +1947,27 @@ const Dashboard = () => {
                               <TableCell className='vault-table-body-row'>{row.email}</TableCell>
                               <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
                               <TableCell className='vault-table-body-row'>{row.status}</TableCell>
+                              <TableCell>
+                                {row.vaults && row.vaults.length > 0 ? (
+                                    <>
+                                      {row.vaults.map((vault:any , index:any) => (
+                                        <button className="package-vaults" key={index}>
+                                          {vault}
+                                        </button>
+                                      ))}
+                                    </>
+                                    ):(
+                                    <>
+                                      <p style={{display: 'inline'}}>No vault attached</p>
+                                      
+                                    </>
+                                )}
+                                  
+                                <img src="attach-vault.png" alt="logo" 
+                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                  onClick={() => handleShowUserVaultAddPopup(row)}
+                                />
+                              </TableCell>
 
                               <TableCell>
                                 {row.subscriptions && row.subscriptions.length > 0 ? (
@@ -1877,6 +2003,7 @@ const Dashboard = () => {
                             </TableRow>
                           ))}
                         </TableBody>
+
                       </Table>
                     </TableContainer>
                   </div>

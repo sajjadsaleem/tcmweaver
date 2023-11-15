@@ -1,0 +1,1 @@
+ALTER TABLE "userVaults" RENAME COLUMN "package_id" TO "vault_id";

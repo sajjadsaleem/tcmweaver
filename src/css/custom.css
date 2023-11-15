@@ -1510,7 +1510,7 @@
 .signup-error-message {
     color: red;
     font-size: 0.85rem;
-    margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 .signup-page-input {
