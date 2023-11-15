@@ -296,20 +296,20 @@ const Sidebar = () => {
       }
     };
 
-    const showToast = router.query.dashboard === "true";
-    if (showToast) {
-      toast("Login success", {
-        position: "top-right",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        type: "success",
-        theme: "light",
-      });
-    }
+    // const showToast = router.query.dashboard === "true";
+    // if (showToast) {
+    //   toast("Login success", {
+    //     position: "top-right",
+    //     autoClose: 1500,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //     type: "success",
+    //     theme: "light",
+    //   });
+    // }
 
     fetchFilesData();
 
@@ -3416,21 +3416,21 @@ const Sidebar = () => {
                     }
                     {getUser.user_role === 'User' && (
                       <>
-                      <ListItem button onClick={() => handleUserOptions("profile")} dense>
-                        <ListItemText primary="Profile" />
-                      </ListItem>
-                      <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
-                        <ListItemText primary="Change Password" />
-                      </ListItem>
-                      <ListItem button onClick={() => handleUserOptions("billing")} dense>
-                        <ListItemText primary="Billing" />
-                        {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
-                      </ListItem>
-                      <ListItem button onClick={() => handleUserOptions("logout")} dense>
-                        <ListItemText primary="Logout" />
-                      </ListItem>
+                        <ListItem button onClick={() => handleUserOptions("profile")} dense>
+                          <ListItemText primary="Profile" />
+                        </ListItem>
+                        <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
+                          <ListItemText primary="Change Password" />
+                        </ListItem>
+                        <ListItem button onClick={() => handleUserOptions("billing")} dense>
+                          <ListItemText primary="Billing" />
+                          {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
+                        </ListItem>
                       </>
                     )}
+                    <ListItem button onClick={() => handleUserOptions("logout")} dense>
+                      <ListItemText primary="Logout" />
+                    </ListItem>
                   </List>
                 </div>
               )}

@@ -1,33 +1,17 @@
 import axios  from 'axios';
 import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { useRouter } from 'next/router';
 
 
 
 const Products = () => {
   const [productsData , setProductsData] = useState<any>([])
 
-  // console.log('getProducts response' , productsData)
+  const router = useRouter();
 
-  useEffect(() => {
-    // Check to see if this is a redirect back from Checkout
-    const query = new URLSearchParams(window.location.search);
-    if(query){
-      const sessionId = query.get('session_id');
-      // console.log('sessionid' , sessionId)
 
-    
-      // console.log('query' , query)
-      if (query.get('success')) {
-        console.log('Order placed! You will receive an email confirmation.');
-      }
-
-      if (query.get('canceled')) {
-        console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
-      }
-    }
-  }, []);
-
+  // get all products from stripe on startup
   useEffect(()=> {
     axios.get(`/api/getProducts`)
         .then((res:any)=> {
@@ -41,33 +25,41 @@ const Products = () => {
 
   } , [])
 
+
   const getStripe = (product:any)=> {
+
     if(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY){
       const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
     }
-    // console.log('product' , product)
-    
-      const storedData:any = localStorage.getItem("user");
-      const userObject:any = JSON.parse(storedData)
-      // console.log('userobject' , userObject)
 
-    axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}&email=${userObject.email}`)
-    .then((res:any)=>{
-      axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
+    
+    const storedData:any = localStorage.getItem("user");
+    // console.log('storedData' , storedData)
+    const userObject:any = JSON.parse(storedData)
+    // console.log('userobject' , userObject)
+    
+    if(userObject === null) {
+      router.push('/login');
+    } else {
+      axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}&email=${userObject.email}`)
       .then((res:any)=>{
-        console.log('sessionId saved')
+        axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
+        .then((res:any)=>{
+          console.log('sessionId saved')
+        })
+        .catch((err:any)=>{
+          console.log('error saving sessionId',err)
+        })
+        
+        // console.log('res' , res.data.sessionId)
+        window.location.href = res.data.sessionUrl;
+
       })
       .catch((err:any)=>{
-        console.log('error saving sessionId',err)
+        console.log('err' , err)
       })
-      
-      // console.log('res' , res.data.sessionId)
-      window.location.href = res.data.sessionUrl;
 
-    })
-    .catch((err:any)=>{
-      console.log('err' , err)
-    })
+    }
   }
   
 
@@ -79,8 +71,10 @@ const Products = () => {
       </div>
 
       <div className='products-container'>
+
         {productsData.map((product:any , index:any) => (
           <div className='product-div' key={index}>
+
             <div style={{marginBottom: '22px' , minHeight:'75px' }}>
               <span className='product-name'>
                 {product.name}
@@ -131,6 +125,7 @@ const Products = () => {
             </div>
 
             )}
+
           </div>
         ))
         }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import router, { useRouter } from "next/router";
@@ -14,6 +14,27 @@ const Login = () => {
   const [btnLoading, setBtnLoading] = useState(false);
   const [signUpBtnLoading , setSignUpBtnLoading] = useState(false)
 
+
+  // Check to see if this is a redirect back from Checkout
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if(query){
+      const sessionId = query.get('session_id');
+      // console.log('sessionid' , sessionId)
+
+    
+      // console.log('query' , query)
+      if (query.get('success')) {
+        console.log('Order placed! You will receive an email confirmation.');
+      }
+
+      if (query.get('canceled')) {
+        console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
+      }
+    }
+  }, []);
+
+
   const handleSubmit = async (e: any) => {
     setBtnLoading(true);
     e.preventDefault();
@@ -27,13 +48,13 @@ const Login = () => {
     axios
       .post("/api/auth/login", payload)
       .then((res) => {
-        console.log('res: ' , res.data)
+        // console.log('res: ' , res.data)
         setBtnLoading(false);
         Helpers.setAccessToken(res.data.token)
         Helpers.setUser(res.data.user)
         router.push({
           pathname: "/",
-          query: { dashboard: true }, // Add 'dashboard: true' as a query parameter
+          // query: { dashboard: true },
         });
       })
       .catch((err) => {
@@ -67,6 +88,7 @@ const Login = () => {
           </div>
           <p>TCM Weaver</p>
         </div>
+        
         <div>
           <form onSubmit={handleSubmit}>
             <div className="sign-input">
@@ -93,7 +115,6 @@ const Login = () => {
               </div>
             </div>
             <div className="sign-btn">
-              {/* <button type="submit">Sign in</button> */}
               <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
                 {btnLoading ? (
                   <>

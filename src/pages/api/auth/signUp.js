@@ -4,6 +4,7 @@ import * as jwt from '../../../util/jwt'
 import bcrypt from 'bcrypt';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { eq, and } from "drizzle-orm";
 import { users } from '../../../db/schema/users'
 
 
@@ -33,6 +34,17 @@ export default async function signup(req, res) {
                 });
             }
 
+            const db = drizzle(sql)
+            const userEmailCheck = await db.select().from(users).where(eq(users.email, email));
+            if (userEmailCheck.length > 0) {
+                return res.status(500).send({
+                    success: false,
+                    status: "error",
+                    error: errors,
+                    message: 'This email is already registered'
+                });
+            }
+
             if (password != confirm_password) {
                 errors.push({ confirm_password: 'password and confirm password must be the same' })
                 return res.status(500).json({
@@ -50,21 +62,8 @@ export default async function signup(req, res) {
 
             console.log('hashed password', hashedPassword)
 
-            // const newUsers = await prisma.users.create({
-            //     data: {
-            //         role_id: 2,
-            //         email: email,
-            //         password: hashedPassword,
-            //         verification_token: '',
-            //         forgot_password_token: '',
-            //         full_name: full_name,
-            //         username: email,
-            //         status: 'Active',
-            //     },
-            // });
 
 
-            const db = drizzle(sql)
             let newUser = await db.insert(users).values({
                 role_id: 2,
                 email: email,
@@ -75,21 +74,17 @@ export default async function signup(req, res) {
                 username: email,
                 status: 'Active',
             });
-            // console.log('new user', newUser)
-            // let datasetFilter = newUser[0] || null;
-
-
 
             return res.status(200).send({
                 success: true,
                 status: "success",
-                // errors: [],
                 message: 'Account created successfully',
                 // token: signedToken,
                 // user: {
                 //     email: user.email
                 // },
             });
+
         } catch (error) {
             console.error('Error creating user:', error);
 

@@ -7,7 +7,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export default async function createCheckoutSession(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).end('Method not allowed'); // Method Not Allowed
+        return res.status(405).end('Method not allowed');
     }
 
     try {
@@ -35,8 +35,8 @@ export default async function createCheckoutSession(req, res) {
                         },
                     ],
                     customer: NewCustomer.id,
-                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                    success_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
                 });
 
 
@@ -59,8 +59,8 @@ export default async function createCheckoutSession(req, res) {
                         trial_period_days: req.query.trial_period_days,
                     },
                     customer: NewCustomer.id,
-                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                    success_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
                 });
 
                 res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
@@ -68,7 +68,7 @@ export default async function createCheckoutSession(req, res) {
             }
 
         } else {
-            console.log('checkuser', checkUser)
+            // console.log('checkuser', checkUser)
             if (req.query.trial_period_days === 'null') {
                 const session = await stripe.checkout.sessions.create({
                     mode: 'subscription',
@@ -79,8 +79,8 @@ export default async function createCheckoutSession(req, res) {
                         },
                     ],
                     customer: checkUser[0].customer_id,
-                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                    success_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
                 });
 
 
@@ -103,8 +103,8 @@ export default async function createCheckoutSession(req, res) {
                         trial_period_days: req.query.trial_period_days,
                     },
                     customer: checkUser[0].customer_id,
-                    success_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-                    cancel_url: `${req.headers.origin}/products/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
+                    success_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&success=true`,
+                    cancel_url: `${req.headers.origin}/login/?session_id={CHECKOUT_SESSION_ID}&cancelled=true`,
                 });
 
                 res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
