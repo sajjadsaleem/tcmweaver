@@ -929,7 +929,8 @@ const Dashboard = () => {
             user: user,
           };
 
-          axios.get(`/api/getProducts` , requestData)
+          console.log(user)
+          axios.post(`/api/getProducts` , requestData)
           .then((res:any)=> {
             setStripePackages(res.data.stripeProducts)
             setSearchedStripePackages(res.data.stripeProducts)
