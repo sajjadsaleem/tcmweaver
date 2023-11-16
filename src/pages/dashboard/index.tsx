@@ -916,8 +916,20 @@ const Dashboard = () => {
         axios.post('/api/packageVaultUpdate', dataToSend)
         .then((res:any)=>{
           // console.log('res from package vaults udpate' , res.data)
+          const storedUser = localStorage.getItem("user");
+          let user
+          if (storedUser) {
+            const userData = JSON.parse(storedUser);
+            user = userData.email
+          }
 
-          axios.get(`/api/getProducts`)
+          // console.log(user)
+
+          const requestData:any = {
+            user: user,
+          };
+
+          axios.get(`/api/getProducts` , requestData)
           .then((res:any)=> {
             setStripePackages(res.data.stripeProducts)
             setSearchedStripePackages(res.data.stripeProducts)
