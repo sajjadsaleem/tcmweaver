@@ -1836,11 +1836,11 @@ const Dashboard = () => {
                                 </Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '15%'}} >
+                              {/* <TableCell sx={{width: '15%'}} >
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
                                   Price
                                 </Typography>
-                              </TableCell>
+                              </TableCell> */}
 
                               <TableCell sx={{borderTopRightRadius: '17px'}}>
                                 <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
@@ -1868,9 +1868,9 @@ const Dashboard = () => {
                                   </span>
                                 </TableCell>
 
-                                <TableCell className='vault-table-body-row'>
+                                {/* <TableCell className='vault-table-body-row'>
                                   {row.vault_price}
-                                </TableCell>
+                                </TableCell> */}
                                 
                                 <TableCell scope="row" className='vault-table-body-row'>
                                   <span style={{ display: 'flex', alignItems: 'center' }}>
