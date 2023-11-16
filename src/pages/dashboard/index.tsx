@@ -836,7 +836,17 @@ const Dashboard = () => {
 
       const handleDashboardNavigation = (item:any) => {
         setSelectedListItem(item)
-        axios.get(`/api/getProducts`)
+        const storedUser = localStorage.getItem("user");
+        let user
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          user = userData.email
+        }
+
+        const requestData:any = {
+          user: user,
+        };
+        axios.get(`/api/getProducts` , requestData)
         .then((res:any)=> {
           // console.log('res' , res)
           setStripePackages(res.data.stripeProducts)

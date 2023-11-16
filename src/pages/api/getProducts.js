@@ -7,6 +7,11 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
+export const config = {
+    maxDuration: 60,
+};
+
+
 
 export default async function getProducts(req, res) {
     if (req.method === 'POST') {
