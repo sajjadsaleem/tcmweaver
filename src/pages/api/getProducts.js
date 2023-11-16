@@ -18,9 +18,10 @@ export default async function getProducts(req, res) {
         try {
             const db = drizzle(sql)
             const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], active: true });
+            // console.log('stripe products', stripeProducts)
 
             const customerId = await db.select({ customerId: users.stripe_customer_id }).from(users).where(eq(users.email, req.body.user))
-            // console.log(customerId)
+            // console.log('customerId', customerId)
 
             const customerSubscriptions = await stripe.subscriptions.list({
                 customer: customerId[0].customerId

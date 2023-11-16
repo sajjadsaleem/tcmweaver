@@ -843,10 +843,12 @@ const Dashboard = () => {
           user = userData.email
         }
 
+        // console.log(user)
+
         const requestData:any = {
           user: user,
         };
-        axios.get(`/api/getProducts` , requestData)
+        axios.post(`/api/getProducts` , requestData)
         .then((res:any)=> {
           // console.log('res' , res)
           setStripePackages(res.data.stripeProducts)
