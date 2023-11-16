@@ -4,7 +4,7 @@ import _, { replace, result, update } from "lodash";
 import Accordion from "react-bootstrap/Accordion";
 import { marked } from "marked";
 import * as d3 from "d3";
-import router from "next/router";
+import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
 import axios from "axios";
@@ -32,6 +32,8 @@ const Sidebar = () => {
   
   const dispatch = useDispatch()
   const getStAuth = useSelector((state:any) => state.stAuth)
+
+  const router = useRouter();
 
   interface FileData {
     fileName: string;
@@ -130,7 +132,6 @@ const Sidebar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
   const [homepageFile , setHomepageFile] = useState<any>([])
-  const [allVaults , setAllVaults] = useState<any>([])
   const [getPackage , setPackage] = useState([])
   const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
   const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
@@ -160,7 +161,47 @@ const Sidebar = () => {
   // console.log('homepagefile' , homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
 
-  
+
+  // Check to see if this is a redirect back from Checkout
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if(query){
+      const sessionId = query.get('session_id');
+      // console.log('sessionid' , sessionId)
+      if (query.get('success')) {
+        toast("Payment successful", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          type: "success",
+          theme: "light",
+        });
+      }
+
+      if (query.get('canceled')) {
+        toast("Payment failed", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          type: "error",
+          theme: "light",
+        });
+      }
+
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      }, undefined, { shallow: true });
+    }
+  }, [router.query]);
 
   useEffect(() => {
     const handleOutsideClick = (event:any) => {
@@ -200,14 +241,10 @@ const Sidebar = () => {
       try {
         const response = await fetch("/api");
         if (!response.ok) {
-          throw new Error("Failed to fetch filters, home and packages data.");
+          throw new Error("Failed to fetch filters, home");
         } else {
           let data = await response.json();
           // console.log('data' , data)
-
-          const allVaults = data[1].allVaults;
-
-          setAllVaults(allVaults);
 
           // const modifiedData = data.map((item: any) => {
           //   return {
@@ -219,16 +256,16 @@ const Sidebar = () => {
           // setFiltersData(modifiedData);
 
           // remove .md extension from Filenames
-          data = data.map((item: any) => {
-            if (item.fileName) {
-              const fileNameWithoutExtension = item.fileName.split(".")[0];
-              return {
-                ...item,
-                fileName: fileNameWithoutExtension,
-              };
-            }
-            return item; // Return the item unchanged if fileName is missing.
-          });
+          // data = data.map((item: any) => {
+          //   if (item.fileName) {
+          //     const fileNameWithoutExtension = item.fileName.split(".")[0];
+          //     return {
+          //       ...item,
+          //       fileName: fileNameWithoutExtension,
+          //     };
+          //   }
+          //   return item; // Return the item unchanged if fileName is missing.
+          // });
 
           marked.setOptions({
             breaks: true,
@@ -237,29 +274,47 @@ const Sidebar = () => {
           });
           // console.log('data' , data)
           let homepageFile = _.cloneDeep(data); // Deep clone the array
+          console.log(homepageFile)
 
           // console.log('homepagefile' , homepageFile[2])
-          homepageFile[2].content = marked(homepageFile[2].content);
-          setHomepageFile(homepageFile[2])
+          // homepageFile[2].content = marked(homepageFile[2].content);
+          const markedHomeObjects = homepageFile.homeObjects.map((obj:any) => ({
+            ...obj,
+            content: marked(obj.content),
+          }));
+
+          // console.log(markedHomeObjects[0].content)
+
+          setHomepageFile(markedHomeObjects[0])
+
+          const markedFilterObjects = homepageFile.filterObjects.map((obj:any) => ({
+            ...obj,
+            content: marked(obj.content),
+          }));
 
 
-          homepageFile[0].content = marked(homepageFile[0].content);
+          // homepageFile[0].content = marked(homepageFile[0]);
 
           // setHomepageFile()
 
-          setFiltersData(homepageFile)
+          setFiltersData(markedFilterObjects[0])
 
 
           // separating data and filters file
-          const filtersFile = data.filter(
-            (item: any) => item.fileName !== "SAMPLE FILTERS"
-          );
-          setFilesData(filtersFile);
 
-          const filtersObject = data.find(
-            (item: any) => item.fileName === "SAMPLE FILTERS"
-          );
-          let filteredData = filtersObject ? [filtersObject] : [];
+          // commenting this to check 
+          // const filtersFile = data.filter(
+          //   (item: any) => item.fileName !== "SAMPLE FILTERS"
+          // );
+          // setFilesData(filtersFile);
+
+          console.log(data)
+          let filteredData = data.filterObjects.filter((obj:any) => obj.filename.toLowerCase().includes('filter'));
+
+          // const filtersObject = data.find(
+          //   (item: any) => item.fileName === "SAMPLE FILTERS"
+          // );
+          // let filteredData = filtersObject ? [filtersObject] : [];
 
           filteredData = filteredData[0].content
             .split("\n")
@@ -3993,7 +4048,7 @@ const Sidebar = () => {
                   ) : (
                     <p
                       dangerouslySetInnerHTML={{
-                        __html: filtersData && filtersData.length > 0 ? homepageFile.content : '',
+                        __html: filtersData ? homepageFile.content : '',
                       }}
                       className="opened-result-description"
                     />

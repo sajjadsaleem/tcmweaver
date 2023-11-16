@@ -4,18 +4,30 @@ import { loadStripe } from '@stripe/stripe-js';
 import { useRouter } from 'next/router';
 
 
-
 const Products = () => {
   const [productsData , setProductsData] = useState<any>([])
+  const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
   const router = useRouter();
 
-
   // get all products from stripe on startup
   useEffect(()=> {
-    axios.get(`/api/getProducts`)
+    const storedUser = localStorage.getItem("user");
+    let user
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      user = userData.email
+    }
+
+    const requestData:any = {
+      user: user,
+    };
+
+    axios.post(`/api/getProducts` , requestData)
         .then((res:any)=> {
-          // console.log('res' , res)
+          const products = res.data.customerSubscriptions.map((subscription:any) => subscription.plan.product);
+
+          setCustomerSubscriptions(products)
           setProductsData(res.data.stripeProducts)
           console.log('getProducts response' , res.data)
         })
@@ -77,7 +89,23 @@ const Products = () => {
 
             <div style={{marginBottom: '22px' , minHeight:'75px' }}>
               <span className='product-name'>
-                {product.name}
+                {customerSubscriptions.includes(product.id) ? (
+                  <div style={{position: "relative"}}>
+                    
+                    {product.name}
+                    <span style={{backgroundColor: '#E1E1E1',  padding: '3px 10px' , borderRadius: '6px' , fontSize: '14px' , float:'right'}}>
+                      current
+                    </span>
+
+
+                  </div>
+                ) : (
+                  <>
+                    {product.name}
+                  </>
+
+                ) 
+                }
               </span>
               <span className='product-description'>
                 {product.description}
@@ -98,13 +126,29 @@ const Products = () => {
                     }
                   </span>
                 </p>
-                  
-                <button className='product-button' onClick={() => getStripe(product)}>
+
+                {customerSubscriptions.includes(product.id) ? (
+                  <button className='product-button' style={{cursor: 'no-drop' , backgroundColor: '#1565c0' , opacity: '0.6'}}
+                  //  onClick={() => getStripe(product)}
+                   >
                   {product.default_price.recurring.trial_period_days === null
                     ? 'Subscribe'
                     : `Start Trial`
                   }
                 </button>
+                ) : (
+                  <>
+                    <button className='product-button' onClick={() => getStripe(product)}>
+                      {product.default_price.recurring.trial_period_days === null
+                        ? 'Subscribe'
+                        : `Start Trial`
+                      }
+                    </button>
+                  </>
+
+                ) 
+                }
+                
             </div>
 
             {product.features.length > 0 && (

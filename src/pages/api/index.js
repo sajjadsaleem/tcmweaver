@@ -17,55 +17,71 @@ const pool = new Pool({
 
 
 export default async function handler(req, res) {
+
+  const client = await pool.connect();
   try {
-
-    // Drizzle Command
     const db = drizzle(sql)
-    const client = await pool.connect();
 
-    const basicTable = await db.select({ reference_table: vaultsTable.reference_table }).from(vaultsTable)
-      .where(eq(vaultsTable.vault_name, 'Basic Vault'))
+    const configVault = await db.select({ reference_table: vaultsTable.reference_table }).from(vaultsTable)
+      .where(eq(vaultsTable.vault_name, 'CONFIG'))
+    // console.log('configvault', configVault)
 
-    // console.log('basictable', basicTable)
-    const filenameToSearch = 'Home.md';
-    const query = `SELECT filename, content FROM ${basicTable[0].reference_table} WHERE filename = $1`;
-    const values = [filenameToSearch];
+    const query = `SELECT * FROM ${configVault[0].reference_table}`;
+    let configData = await client.query(query);
+    // console.log('configData', configData.rows)
 
-    const homeMd = await client.query(query, values);
+    // remove .md extension from Filenames
+    configData = configData.rows.map(obj => ({
+      ...obj,
+      filename: obj.filename.replace(/\.md$/i, '')
+    }));
 
-    const homeFile = homeMd.rows[0]
+    const homeObjects = configData.filter(obj => obj.filename.toLowerCase().includes('home'));
+    const filterObjects = configData.filter(obj => obj.filename.toLowerCase().includes('filter'));
+
+    const combinedData = {
+      homeObjects,
+      filterObjects
+    };
+
+    // console.log('Combined Object:', combinedObject);
+
+
+    // const homeFile = homeMd.rows[0]
     // console.log('result', homeFile)
 
 
-    let datasetArray = await db.select({
-      filename: filtersTable.filename, content: filtersTable.content,
-    }).from(filtersTable).where(
-      or(
-        eq(filtersTable.filename, 'SAMPLE FILTERS.md'),
-        eq(filtersTable.filename, 'Home.md')
-      )
-    );
+    // let datasetArray = await db.select({
+    //   filename: filtersTable.filename, content: filtersTable.content,
+    // }).from(filtersTable).where(
+    //   or(
+    //     eq(filtersTable.filename, 'SAMPLE FILTERS.md'),
+    //     eq(filtersTable.filename, 'Home.md')
+    //   )
+    // );
 
-    const allVaults = await db.select().from(vaultsTable)
+    // const allVaults = await db.select().from(vaultsTable)
     // console.log('allVaults', allVaults)
 
-    const updatedDatasetArray = datasetArray.map(obj => {
-      return {
-        fileName: obj.filename,
-        content: obj.content
+    // const updatedDatasetArray = datasetArray.map(obj => {
+    //   return {
+    //     fileName: obj.filename,
+    //     content: obj.content
 
-      };
-    });
+    //   };
+    // });
 
-    const updatedArrayWithPackages = [
-      ...updatedDatasetArray,
-      { allVaults }, { fileName: homeFile.filename, content: homeFile.content }
-    ];
+    // const updatedArrayWithPackages = [
+    //   ...updatedDatasetArray,
+    //   { allVaults }, { fileName: homeFile.filename, content: homeFile.content }
+    // ];
 
 
-    res.status(200).json(updatedArrayWithPackages);
+    res.status(200).json(combinedData);
   } catch (error) {
     console.error('Error reading files:', error);
     res.status(500).json({ error: 'Failed to read files.' });
+  } finally {
+    client.release();
   }
 }
