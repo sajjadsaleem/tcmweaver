@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from 'next/link';
 import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
@@ -13,19 +13,11 @@ import { TextField, InputAdornment, IconButton, Icon, Button, Grid, Paper, Typog
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const UserVerificationPage = () => {
+const Signup = () => {
     const router = useRouter()
-    const { user_id, verification_token } = router.query;
     const [btnLoading, setBtnLoading] = useState(false)
-    const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(false);
-    const [get_full_name, set_full_name] = useState("");
-    const [get_phone_number, set_phone_number] = useState("");
-    const [get_password, set_password] = useState("");
-    const [get_confirm_password, set_confirm_password] = useState("");
-    const [get_password_type, set_password_type] = useState(false)
-    const [get_confirm_password_type, set_confirm_password_type] = useState(false)
     const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<any>({
         fullName: '',
         email: '',
         password: '',
@@ -42,12 +34,27 @@ const UserVerificationPage = () => {
     });
 
     const [showRedirection , setShowRedirection] = useState(false)
+    const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+    const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false);
+    const [showConfirmPassword , setShowConfirmPassword] = useState(false)
+    const [image, setImage] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const divRefPassword = useRef<any>(null);
+    const divRefConfirmPassword = useRef<any>(null);
 
-    // console.log('formData' , formData)
+    // console.log(formData)
 
+
+    useEffect(() => {
+        document.addEventListener('click', handleClickOutside);    
+        return () => {
+          document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
 
     const handleChange = (e:any) => {
         const { name, value } = e.target;
+        console.log(name , value)
         setFormData({
             ...formData,
             [name]: value,
@@ -59,7 +66,7 @@ const UserVerificationPage = () => {
         });
     };
 
-    const handleSubmit = (e:any) => {
+    const handleSubmit = async (e:any) => {
         e.preventDefault()
 
         const newValidationErrors:any = {};
@@ -83,16 +90,15 @@ const UserVerificationPage = () => {
         return;
         }
 
-
         setBtnLoading(true)
         let payload = {
             full_name: formData.fullName,
             email: formData.email,
             password: formData.password,
             confirm_password: formData.confirmPassword,
+            image: imagePreviews[0]
         }
 
-        console.log('payload' , payload)
         axios.post('/api/auth/signUp', payload)
             .then((res) => {
                 // setFullPageComponentLoading(false)
@@ -106,6 +112,7 @@ const UserVerificationPage = () => {
                     showPassword: false,
                     showConfirmPassword: false,
                   });
+                setImagePreviews([])
                 setShowRedirection(true)
                 const timer = setTimeout(() => {
                     router.push('/login');
@@ -119,22 +126,60 @@ const UserVerificationPage = () => {
             });
     };
 
-    const handleShowPassword = () => {
-        setFormData({
-          ...formData,
-          showPassword: !formData.showPassword,
-        });
+
+    const togglePasswordVisibility = (e:any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowPassword(!showPassword);
+        setIsFocusedPassword(true)
     };
 
-    const handleShowConfirmPassword = () => {
+    const toggleConfirmPasswordVisibility = (e:any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowConfirmPassword(!showConfirmPassword);
+        setIsFocusedConfirmPassword(true)
+    };
+
+    const handleClickOutside = (e: any) => {
+        if (
+          (divRefPassword.current && !divRefPassword.current.contains(e.target)) &&
+          (divRefConfirmPassword.current && !divRefConfirmPassword.current.contains(e.target))
+        ) {
+          setIsFocusedConfirmPassword(false);
+          setIsFocusedPassword(false);
+        }
+    };
+
+    const handleImageChange = (e:any) => {
+        const file = e.target.files[0];
+        setImage(file);
+
+        const previews:any = [];
+        const reader = new FileReader();
+        reader.onload = () => {
+            console.log(reader.result)
+            previews.push(reader.result);
+            if (previews.length) {
+            setImagePreviews(previews);
+            }
+        };
+
+        reader.readAsDataURL(file);
+     
+
         setFormData({
           ...formData,
-          showConfirmPassword: !formData.showConfirmPassword,
+          image: file,
+        });
+      
+        // You may also want to reset validation errors for the image
+        setValidationErrors({
+          ...validationErrors,
+          image: '',
         });
     };
     
-    
-
     return ( 
         <LayoutWrapper layout={AuthLayout} >
             <div className="signup-page-container">
@@ -153,6 +198,19 @@ const UserVerificationPage = () => {
                 <div>
                     <form onSubmit={handleSubmit}>
                         <div className="signup-page-input">
+
+                            <input type="file" name="image" onChange={handleImageChange} />
+                            <div>
+                                {imagePreviews?.map((preview, index) => (
+                                    <img
+                                    key={index}
+                                    src={preview}
+                                    alt={`Preview ${index}`}
+                                    style={{ width: "200px", height: "auto" }}
+                                    />
+                                ))}
+                            </div>
+
                             <input
                                 type="text"
                                 name="fullName"
@@ -177,28 +235,40 @@ const UserVerificationPage = () => {
                             />
                             <span className="signup-error-message">{validationErrors.email}</span>
 
-                            <input
-                                type={formData.showPassword ? 'text' : 'password'}
-                                name="password"
-                                className="form-control"
-                                aria-describedby="passwordHelp"
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div ref={divRefPassword} className={`input-group login-page-password ${isFocusedPassword ? 'focused' : ''}`}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    className="form-control"
+                                    name="password"
+                                    aria-describedby="emailHelp"
+                                    placeholder="Password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    onFocus={() => setIsFocusedPassword(true)}
+                                    onBlur={() => setIsFocusedPassword(false)}
+                                />
+                                <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
+                                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                                </span>
+                            </div>
                             <span className="signup-error-message">{validationErrors.password}</span>
 
-                            <input
-                                type={formData.showPassword ? 'text' : 'password'}
-                                name="confirmPassword"
-                                className="form-control"
-                                aria-describedby="passwordHelp"
-                                placeholder="Confirm password"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div ref={divRefConfirmPassword} className={`input-group login-page-password ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                                <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    className="form-control"
+                                    name="confirmPassword"
+                                    aria-describedby="emailHelp"
+                                    placeholder="Password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    onFocus={() => setIsFocusedConfirmPassword(true)}
+                                    onBlur={() => setIsFocusedConfirmPassword(false)}
+                                />
+                                <span className="input-group-text" id="basic-addon1" onClick={toggleConfirmPasswordVisibility}>
+                                    {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                                </span>
+                            </div>
                             <span className="signup-error-message">{validationErrors.confirmPassword}</span>
 
                             <div className="sign-btn">
@@ -242,4 +312,4 @@ const UserVerificationPage = () => {
     );
 };
 
-export default UserVerificationPage;
+export default Signup;

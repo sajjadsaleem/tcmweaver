@@ -6,6 +6,16 @@ import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { eq, and } from "drizzle-orm";
 import { users } from '../../../db/schema/users'
+import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import formidable from 'formidable';
+
+
+// export const config = {
+//     api: {
+//         bodyParser: false,
+//     },
+// };
 
 
 export default async function signup(req, res) {
@@ -13,8 +23,53 @@ export default async function signup(req, res) {
         return res.status(500).end();
     } else {
         try {
-            const { full_name, email, password, confirm_password } = req.body;
-            // console.log('req.body', req.body)
+
+            // const form = formidable({ multiples: true });
+
+            // let full_name, email, password, confirm_password, image
+
+
+            // const parseForm = (req) => {
+            //     return new Promise((resolve, reject) => {
+            //         form.parse(req, (err, fields, files) => {
+            //             if (err) {
+            //                 console.error('Error parsing form data:', err);
+            //                 reject(err);
+            //                 return;
+            //             }
+
+            //             ({ full_name, email, password, confirm_password, image } = fields);
+            //             // const { image } = files;
+
+
+            //             resolve({ full_name, email, password, confirm_password, image });
+            //         });
+            //     });
+            // };
+
+            // const formData = await parseForm(req);
+
+            // console.log(formData)
+
+            // form.parse(req, async (err, fields, files) => {
+            //     if (err) {
+            //         console.error('Error parsing form data:', err);
+            //         res.status(500).json({ error: 'Internal Server Error' });
+            //         return;
+            //     }
+
+            //     // Access the form fields (e.g., fields.full_name, fields.email, etc.)
+            //     { full_name, email, password, confirm_password } = fields;
+            //     console.log('fullname', full_name, 'email', email)
+            // })
+
+
+
+
+
+
+            const { full_name, email, password, confirm_password, image } = req.body;
+
             const rules = [
                 { full_name: ['required'] },
                 { email: ['required', 'email'] },
@@ -60,7 +115,7 @@ export default async function signup(req, res) {
             // Hash the password using bcrypt
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            console.log('hashed password', hashedPassword)
+            // console.log('hashed password', hashedPassword)
 
 
 
@@ -72,6 +127,7 @@ export default async function signup(req, res) {
                 forgot_password_token: '',
                 full_name: full_name,
                 username: email,
+                image: image,
                 status: 'Active',
             });
 

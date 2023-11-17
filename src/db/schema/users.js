@@ -12,6 +12,7 @@ export const users = pgTable('users', {
     email: text('email'), // Change to text
     password: text('password'),
     status: text('status'),
+    image: text('image'),
     verification_token: text('verification_token'),
     forgot_password_token: text('forgot_password_token'),
     stripe_customer_id: text('stripe_customer_id'),

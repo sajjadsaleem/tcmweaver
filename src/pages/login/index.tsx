@@ -7,32 +7,36 @@ import "react-toastify/dist/ReactToastify.css";
 import LayoutWrapper from "../components/LayoutWrapper";
 import AuthLayout from '../components/AuthLayout';
 import * as Helpers from '../../util/Helpers'
+import { IconButton, Input, InputAdornment, TextField } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
   const [signUpBtnLoading , setSignUpBtnLoading] = useState(false)
+  const [isFocused, setIsFocused] = useState(false);
 
 
   // Check to see if this is a redirect back from Checkout
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if(query){
-      const sessionId = query.get('session_id');
-      // console.log('sessionid' , sessionId)
+  // useEffect(() => {
+  //   const query = new URLSearchParams(window.location.search);
+  //   if(query){
+  //     const sessionId = query.get('session_id');
+  //     // console.log('sessionid' , sessionId)
 
     
-      // console.log('query' , query)
-      if (query.get('success')) {
-        console.log('Order placed! You will receive an email confirmation.');
-      }
+  //     // console.log('query' , query)
+  //     if (query.get('success')) {
+  //       console.log('Order placed! You will receive an email confirmation.');
+  //     }
 
-      if (query.get('canceled')) {
-        console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
-      }
-    }
-  }, []);
+  //     if (query.get('canceled')) {
+  //       console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
+  //     }
+  //   }
+  // }, []);
 
 
   const handleSubmit = async (e: any) => {
@@ -79,6 +83,10 @@ const Login = () => {
     setSignUpBtnLoading(true)
   }
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <LayoutWrapper layout={AuthLayout}>
       <div className="account-page">
@@ -100,14 +108,32 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <input
-                type="password"
+              {/* <input
+                type={showPassword ? 'text' : 'password'}
                 className="form-control"
                 aria-describedby="emailHelp"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-              />
+                
+              /> */}
+
+              <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-control"
+                  aria-describedby="emailHelp"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
+                <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </span>
+              </div>
+
               <div className="forgot-psd">
                 <Link className="forgot-password" href={`/forgotPassword`}>
                   Password Reset

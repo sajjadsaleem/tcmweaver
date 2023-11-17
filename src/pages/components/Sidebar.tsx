@@ -120,6 +120,7 @@ const Sidebar = () => {
     email: '',
     role: 'User',
     status: '',
+    image: ''
   });
   const [editUserLoader , setEditUserLoader] = useState(false)
   const [showChangePasswordDialog , setShowChangePasswordDialog] = useState(false)
@@ -139,7 +140,9 @@ const Sidebar = () => {
   const [userAccessVaults , setUserAccessVaults] = useState<any>([])
   const accountOptionsRef = useRef<any>(null);
   const usersIconRef = useRef<any>(null);
+  const fileInputRef = useRef<any>(null);
   const [billingLoader, setBillingLoader] = useState(false)
+  const [imagePreviews, setImagePreviews] = useState([]);
 
 
   // console.log("filesData: ", filesData);
@@ -201,7 +204,7 @@ const Sidebar = () => {
         query: {},
       }, undefined, { shallow: true });
     }
-  }, [router.query]);
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event:any) => {
@@ -228,7 +231,9 @@ const Sidebar = () => {
       setUser(getStAuth.stAccessTokenVerify)
       setPermissions(getStAuth.stAccessTokenVerify.user_permissions)
       setPackage(getStAuth.stAccessTokenVerify.user_package)
-      setUserAccessVaults(getStAuth.stAccessTokenVerify.user_vaultsAccess.map((vault:any) => vault.tableName))
+      const userVaultsAccess = getStAuth.stAccessTokenVerify.user_vaultsAccess || [];
+
+      setUserAccessVaults(userVaultsAccess.map((vault:any) => vault.tableName));
 
       // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify.user_vaultsAccess)
     }
@@ -274,7 +279,7 @@ const Sidebar = () => {
           });
           // console.log('data' , data)
           let homepageFile = _.cloneDeep(data); // Deep clone the array
-          console.log(homepageFile)
+          // console.log(homepageFile)
 
           // console.log('homepagefile' , homepageFile[2])
           // homepageFile[2].content = marked(homepageFile[2].content);
@@ -292,11 +297,6 @@ const Sidebar = () => {
             content: marked(obj.content),
           }));
 
-
-          // homepageFile[0].content = marked(homepageFile[0]);
-
-          // setHomepageFile()
-
           setFiltersData(markedFilterObjects[0])
 
 
@@ -308,13 +308,8 @@ const Sidebar = () => {
           // );
           // setFilesData(filtersFile);
 
-          console.log(data)
+          // console.log(data)
           let filteredData = data.filterObjects.filter((obj:any) => obj.filename.toLowerCase().includes('filter'));
-
-          // const filtersObject = data.find(
-          //   (item: any) => item.fileName === "SAMPLE FILTERS"
-          // );
-          // let filteredData = filtersObject ? [filtersObject] : [];
 
           filteredData = filteredData[0].content
             .split("\n")
@@ -3219,7 +3214,8 @@ const Sidebar = () => {
         email: getUser.user.email,
         fullName: getUser.user.full_name,
         role: getUser.user_role,
-        status: getUser.user.status
+        status: getUser.user.status,
+        image: getUser.user.image
 
       }));
       setShowEditUserDialog(true)
@@ -3263,6 +3259,7 @@ const Sidebar = () => {
       email: '',
       role: '',
       status: '',
+      image: ''
     });
   }
 
@@ -3298,6 +3295,7 @@ const Sidebar = () => {
         email: '',
         role: '',
         status: '',
+        image: ''
       });
 
       dispatch(stAccessTokenVerify({
@@ -3308,6 +3306,7 @@ const Sidebar = () => {
       
     setUser(res.data.allUsers[0])
     setPermissions(res.data.getPermissions)
+    setUserAccessVaults(res.data.vaultsAccess)
     })
     .catch((error:any)=>{
       console.log('Error calling editUser api:', error);
@@ -3395,6 +3394,37 @@ const Sidebar = () => {
       
     }
   };
+
+  const handleEditProfilePicture = () => {
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      image: '',
+    }));
+  }
+
+  const handleFileChange = (event:any) => {
+    const selectedProfilePicture = event.target.files[0];
+    const previews:any = [];
+        const reader = new FileReader();
+        reader.onload = () => {
+            previews.push(reader.result);
+            if (previews.length) {
+              setFormData({
+                ...formData,
+                image: previews[0],
+              });
+            setImagePreviews(previews);
+            }
+        };
+
+        reader.readAsDataURL(selectedProfilePicture);
+
+
+  };
+
+  const handleChooseFile = () => {
+    fileInputRef.current.click();
+  };
  
 
   return (
@@ -3405,6 +3435,7 @@ const Sidebar = () => {
             <p>TCM Weaver</p>
           </div>
           <div className={"icon-profile"}>
+
             <div className={"themeChanger"}>
               {themeChangericon ? (
                 <img
@@ -3420,6 +3451,7 @@ const Sidebar = () => {
                 />
               )}
             </div>
+
             <div>
               {graphOrTextView ? (
                 <div className={"simpleIcon"}>
@@ -3549,11 +3581,40 @@ const Sidebar = () => {
               <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
                 <DialogTitle>Edit Profile</DialogTitle>
                 <DialogContent>
+
                   <DialogContentText>
                     Please enter the details:
                   </DialogContentText>
+
                   <Grid container spacing={2} sx={{paddingTop:1}}>
                     <Grid item xs={12}>
+                      <div className="edit-profile-div">
+                        <div className="edit-profile-image-div">
+                          <img src={formData.image}
+                              style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                              alt="Profile Picture"
+                            />
+                        </div>
+                       
+
+                        <div className="edit-profile-button-div">
+                          <button onClick={handleChooseFile} >
+                            Change picture
+                          </button>
+                          <button onClick={handleEditProfilePicture}>
+                            Remove
+                          </button>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                        
+                      </div>
+
+
                       <TextField
                           label="Full Name"
                           name="fullName"
@@ -3577,6 +3638,7 @@ const Sidebar = () => {
                     </Grid> 
                   </Grid>
                 </DialogContent>
+
                 <DialogActions>
                   <Button onClick={closeEditUserDailog} color="primary">
                     Cancel
@@ -3686,16 +3748,6 @@ const Sidebar = () => {
 
           </div>
         </div>
-
-        {/* <div className="current-vault">
-          <select value={selectedVaultOption} onChange={handleVaultChange}>
-            {allVaults.map((packageItem:any) => (
-              <option key={packageItem.id} value={packageItem.vault_name}>
-                {packageItem.vault_name}
-              </option>
-            ))}
-          </select>
-        </div> */}
 
         <div className={"menuBtn"}>
           {graphOrTextView ? (
@@ -4018,29 +4070,6 @@ const Sidebar = () => {
               <div className="homepage-opened-file">
                 <div className="view-panel-title">
                   <h3>Homepage</h3>
-                
-                    {/* <div className="view-panel-title-icons">
-                      <img
-                        src="/arrow-left.png"
-                        alt="img"
-                        onClick={() => collapseOpenedResult(result)}
-                      />
-                      <img
-                        src="/xmark.png"
-                        alt="img"
-                        onClick={() => removeBothSearchResults(result)}
-                      />
-                    </div>
-                
-                    <div>
-                      <img
-                        src="/collapse.png"
-                        alt="img"
-                        onClick={() => collapseOpenedResult(result)}
-                        className="link-collapse-icon"
-                      />
-                    </div> */}
-              
                 </div>
                 <div className="opened-result-detail">
                   {homepageFile.length === 0 ? (

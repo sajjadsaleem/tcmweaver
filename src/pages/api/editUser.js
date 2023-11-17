@@ -5,6 +5,11 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 import { roles } from '../../db/schema/roles'
 import { permissions } from '../../db/schema/permissions'
 import { rolePermission } from '../../db/schema/rolePermissions'
+import { userPackagesTable } from '../../db/schema/userPackages';
+import { userVaultsTable } from '../../db/schema/userVaults';
+import { packagesTable } from '../../db/schema/packages';
+import { vaultPackagesTable } from '../../db/schema/vaultPackages';
+import { vaultsTable } from '../../db/schema/vaults';
 import _ from 'lodash'
 
 export default async function updateUser(req, res) {
@@ -35,7 +40,8 @@ export default async function updateUser(req, res) {
                     email: data.email,
                     username: data.email,
                     full_name: data.fullName,
-                    status: data.status
+                    status: data.status,
+                    image: data.image
                 }).where(eq(users.email, email))
                 .returning();
 
@@ -46,6 +52,9 @@ export default async function updateUser(req, res) {
 
             var getPermissions = [];
             var getRole = '';
+            var flatVaultsData = []
+            var formattedVaultsData = []
+            var flatPackageData = []
 
             if (updatedUser.length > 0) {
                 const roleResult = await db.select().from(roles).where(eq(roles.id, updatedUser[0]['role_id']));
@@ -62,14 +71,105 @@ export default async function updateUser(req, res) {
                         // console.log('permissionResult=',getPermissions,permissionResult['rows'])
                     }
                 }
+
+                const packageIds = await db.select({ packageIds: userPackagesTable.package_id })
+                    .from(userPackagesTable)
+                    .where(eq(userPackagesTable.user_id, updatedUser[0].id))
+
+                const userVaultsIds = await db.select({ vltId: userVaultsTable.vault_id }).from(userVaultsTable)
+                    .where(eq(userVaultsTable.user_id, updatedUser[0].id))
+                const vaultIdsFlat = userVaultsIds.map((item) => item.vltId);
+
+                // console.log('packageids', packageIds)
+
+                const ids = packageIds.map(row => row.packageIds);
+
+
+                let packageData = []
+                let vaultsData = []
+
+                for (const id of ids) {
+                    const packageNames = await db.select({ packageName: packagesTable.name })
+                        .from(packagesTable)
+                        .where(eq(packagesTable.id, id));
+
+                    packageData.push({ id, packages: packageNames });
+                }
+
+
+
+                // console.log('ids', ids)
+
+                for (const vaults of ids) {
+                    const vaultsNames = await db.select({ vaultId: vaultPackagesTable.vault_id })
+                        .from(vaultPackagesTable)
+                        .where(eq(vaultPackagesTable.package_id, vaults));
+
+                    // console.log('vaultsNames', vaultsNames)
+
+                    vaultsData.push({ id: vaultsNames });
+
+                }
+
+                // console.log('vaultsdata', vaultsData)
+
+                const flattenedVaultsArray = vaultsData.flatMap(item => item.id.map(obj => obj.vaultId));
+                // console.log('flatenedvaultsarray', flattenedVaultsArray)
+
+                let flatVaultsIds = [...new Set(flattenedVaultsArray)];
+
+                flatVaultsIds = [...flatVaultsIds, ...vaultIdsFlat.filter((id) => !flatVaultsIds.includes(id))];
+
+                // console.log('flatvaultsids', flatVaultsIds)
+
+                for (const vaultId of flatVaultsIds) {
+                    flatVaultsData.push(await db.select({
+                        vaultId: vaultsTable.id, vaultName: vaultsTable.vault_name,
+                        referenceTable: vaultsTable.reference_table
+                    }).from(vaultsTable).where(eq(vaultsTable.id, vaultId)))
+                }
+
+                // console.log('flatVaultsData', flatVaultsData)
+
+                formattedVaultsData = flatVaultsData.map(item => ({
+                    vaultId: item[0].vaultId,
+                    vaultName: item[0].vaultName,
+                    tableName: item[0].referenceTable
+                }));
+
+                // console.log(formattedVaultsData);
+
+                // console.log('flatvaultsdata', flatVaultsData)
+
+
+                flatPackageData = packageData.map(item => ({
+                    id: item.id,
+                    packageName: item.packages.map(name => name.packageName)[0]
+                })).flat();
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             if (currentUser === 1) {
                 const allUsers = await db.select().from(users);
                 res.status(200).json({ message: 'User updated successfully', allUsers, getPermissions, getRole });
             } else {
                 const allUsers = await db.select().from(users).where(eq(users.email, data.email));
-                res.status(200).json({ message: 'User updated successfully', allUsers, getPermissions, getRole });
+                res.status(200).json({ message: 'User updated successfully', allUsers, getPermissions, getRole, vaultsAccess: formattedVaultsData });
             }
 
 
