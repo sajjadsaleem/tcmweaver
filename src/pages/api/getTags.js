@@ -1,24 +1,34 @@
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { dataset } from '../../db/schema/dataset'
+import { sql as drizzleSql } from "drizzle-orm";
 
 
 export default async function getTags(req, res) {
     try {
         const inputValue = req.query.q
+        const accessVaults = req.query.av
         const inputValueArray = inputValue.split(',');
+        const tableNames = accessVaults.split(',');
         console.log('inputValueArray: ', inputValueArray)
+        console.log('tablenames', tableNames)
 
         const db = drizzle(sql)
-        // const datasets = await prisma.dataset.findMany({
-        //     select: {
-        //         filename: true,
-        //         content: true,
-        //         // Add other columns you want to include here
-        //     },
-        // });
 
-        const datasets = await db.select().from(dataset);
+        let datasets = []
+
+        for (const table of tableNames) {
+            const selectQuery = drizzleSql`SELECT * FROM `;
+            const selectQueryJoint = `${table}`
+            selectQuery.queryChunks[0].value[0] += selectQueryJoint
+            var dataFromVaultAccess = await db.execute(drizzleSql`${selectQuery}`);
+
+            for (const item of dataFromVaultAccess.rows) {
+                if (typeof item === 'object' && item !== null) {
+                    datasets.push(item);
+                }
+            }
+        }
+        // console.log('rows nnowowerjwelrj', rows)
 
         // Remove ".md" extension
         const extensionRemovedData = datasets.map(item => {
@@ -51,10 +61,12 @@ export default async function getTags(req, res) {
                         result[word] = tag.replace('#', '');
                     });
                 }
+            } else {
+                result[word] = 'tagnotfound'
             }
         });
 
-        // console.log(result);
+        console.log(result);
 
         res.status(200).json(result);
     } catch (error) {

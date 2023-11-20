@@ -40,8 +40,14 @@ const Login = () => {
 
 
   const handleSubmit = async (e: any) => {
-    setBtnLoading(true);
     e.preventDefault();
+    
+    if (!email || !password) {
+      // Display an error message or handle the case where fields are empty
+      console.log("Email and password are required.");
+      return;
+    }
+    setBtnLoading(true);
 
 
     let payload = {

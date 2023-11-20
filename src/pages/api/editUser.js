@@ -149,21 +149,6 @@ export default async function updateUser(req, res) {
             }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             if (currentUser === 1) {
                 const allUsers = await db.select().from(users);
                 res.status(200).json({ message: 'User updated successfully', allUsers, getPermissions, getRole });

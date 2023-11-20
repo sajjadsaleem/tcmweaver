@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import LayoutWrapper from '../components/LayoutWrapper'
 import AuthLayout from '../components/AuthLayout'
 import { ToastContainer, toast } from "react-toastify";
@@ -60,6 +60,7 @@ const Dashboard = () => {
     const [showEditUserDialog , setShowEditUserDialog] = useState(false)
     const [editUserLoader , setEditUserLoader] = useState(false)
     const [currentUser , setCurrentUser] = useState('')
+    const [currentUserImage , setCurrentUserImage] = useState('')
     const [proccedBtnLoading , setProceedBtnLoading] = useState(false)
     const [folderSelectedLoader , setFolderSelectedLoader] = useState(false)
     const [clickedFolder, setClickedFolder] = useState(null);
@@ -95,6 +96,8 @@ const Dashboard = () => {
     const [defaultVaultsForUser , setDefaultVaultsForUser] = useState([])
     const [userToAddVault , setUserToAddVault] = useState<any>({})
     const [showAddVaultToUserPopup , setShowAddVaultToUserPopup] = useState(false)
+    const fileInputRef = useRef<any>(null);
+    const [imagePreviews, setImagePreviews] = useState([]);
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -157,7 +160,9 @@ const Dashboard = () => {
           if (storedUser) {
             const user = JSON.parse(storedUser);
             const fullName = response.data.allUsers.find((u:any) => u.email === user.email)?.full_name;
+            const image = response.data.allUsers.find((u:any) => u.email === user.email)?.image;
             setCurrentUser(fullName)
+            setCurrentUserImage(image)
           }
           setOriginalUsers(response.data.allUsers);
           setSearchedUsers(response.data.allUsers)
@@ -521,7 +526,8 @@ const Dashboard = () => {
           role: userToEdit.role_id === 1 ? "Admin" : userToEdit.role_id === 2 ? "User" : "",
           email: userToEdit.email,
           fullName: userToEdit.full_name,
-          status: userToEdit.status
+          status: userToEdit.status,
+          image: userToEdit.image
 
         }));
         setShowEditUserDialog(true)
@@ -548,6 +554,7 @@ const Dashboard = () => {
           setOriginalUsers(res.data.allUsers);
           setSearchedUsers(res.data.allUsers)
           // closeAddUserDialog()
+          await fetchUsers()
           setShowEditUserDialog(false)
           setEditUserLoader(false)
           toast.success('User updated successfully!');
@@ -557,7 +564,8 @@ const Dashboard = () => {
             role: 'User',
             password: '',
             confirmPassword: '',
-            status: ''
+            status: '',
+            image: ''
           });
         })
         .catch((error:any)=>{
@@ -1000,7 +1008,36 @@ const Dashboard = () => {
 
         })
       }
+
+      const handleChooseFile = () => {
+        fileInputRef.current.click();
+      };
+
+      const handleFileChange = (event:any) => {
+        const selectedProfilePicture = event.target.files[0];
+        const previews:any = [];
+            const reader = new FileReader();
+            reader.onload = () => {
+                previews.push(reader.result);
+                if (previews.length) {
+                  setFormData({
+                    ...formData,
+                    image: previews[0],
+                  });
+                setImagePreviews(previews);
+                }
+            };
+    
+            reader.readAsDataURL(selectedProfilePicture);
+      };
       
+
+      const handleEditProfilePicture = () => {
+        setFormData((prevFormData:any) => ({
+          ...prevFormData,
+          image: '',
+        }));
+      }
       
 
     return (
@@ -1057,46 +1094,6 @@ const Dashboard = () => {
                     </DialogActions>
                   </Dialog>
                 </div>)}
-                
-                {/* {foldersPopup && (
-                  <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
-                    <DialogTitle>
-                      {taskCompleted ? 'Data Sync' : 'Select a folder to sync data'}
-                    </DialogTitle>
-                    <DialogContent>
-                    {taskCompleted ? (
-                        // Show a message indicating synchronization completion
-                        <div>{selectedFolder.name} has been synchronized!</div>
-                      ) : selectedFolder ? (
-                        // Show the selected folder's synchronization message while syncing is in progress
-                        <div>
-                          {selectedFolder.name} is synchronizing data{' '}
-                          <span
-                            className="spinner-grow spinner-grow-sm ml-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        </div>
-                      ) : (
-                        // Show the list of folders when no folder is selected
-                        <List>
-                          {folders.map((folder:any) => (
-                            <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
-                              <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight:'15px' }}/>
-                              {folder.name}
-                            </ListItem>
-                          ))}
-                        </List>
-                      )}
-                    </DialogContent>
-
-                    <DialogActions>
-                      <Button onClick={ handlerFolderPopupClose} color="primary">
-                      {taskCompleted ? 'Done' : 'cancel'}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                )} */}
 
                 {foldersPopup && (
                   <Dialog open={foldersPopup} 
@@ -1509,74 +1506,103 @@ const Dashboard = () => {
                     </Dialog></>): (<></>
                 )}
 
-                {showEditUserDialog ? (<>
-                  <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
-                    <DialogTitle>Edit User</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                        Please enter the user details:
-                      </DialogContentText>
-                      <Grid container spacing={2} sx={{paddingTop:1}}>
-                        <Grid item xs={12}>
-                          <FormControl fullWidth>
-                            <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                            <MuiSelect
-                              name="role"
-                              value={formData.role}
-                              onChange={handleChange}
-                              size='small'
-                            >
-                              <MenuItem value="User">User</MenuItem>
-                              <MenuItem value="Admin">Admin</MenuItem>
-                            </MuiSelect>
-                          </FormControl>
-                          <TextField
-                            label="Email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                            size='small'
-                          />
-                          <TextField
-                            label="Full Name"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                            size='small'
-                          />
-                          <Grid item xs={12} sx={{paddingTop:2}}>
+                {showEditUserDialog && (
+                  <>
+                    <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
+                      <DialogTitle>Edit User</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>
+                          Please enter the user details:
+                        </DialogContentText>
+
+                        <Grid container spacing={2} sx={{paddingTop:1}}>
+                          <Grid item xs={12}>
+
+                            <div className="edit-profile-div">
+                              <div className="edit-profile-image-div">
+                                <img src={formData.image}
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                    alt="Profile Picture"
+                                  />
+                              </div>
+
+                              <div className="edit-profile-button-div">
+                                <button onClick={handleChooseFile} >
+                                  Change picture
+                                </button>
+                                <button onClick={handleEditProfilePicture} >
+                                  Remove
+                                </button>
+                                <input
+                                  type="file"
+                                  ref={fileInputRef}
+                                  style={{ display: 'none' }}
+                                  onChange={handleFileChange}
+                                />
+                              </div>
+                            </div>
+
+
+
                             <FormControl fullWidth>
-                              <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
+                              <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
                               <MuiSelect
-                                name="status"
-                                value={formData.status}
+                                name="role"
+                                value={formData.role}
                                 onChange={handleChange}
                                 size='small'
                               >
-                                <MenuItem value="Active">Active</MenuItem>
-                                <MenuItem value="Inactive">Inactive</MenuItem>
+                                <MenuItem value="User">User</MenuItem>
+                                <MenuItem value="Admin">Admin</MenuItem>
                               </MuiSelect>
                             </FormControl>
-                          </Grid>
+                            <TextField
+                              label="Email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleChange}
+                              fullWidth
+                              margin="normal"
+                              size='small'
+                            />
+                            <TextField
+                              label="Full Name"
+                              name="fullName"
+                              value={formData.fullName}
+                              onChange={handleChange}
+                              fullWidth
+                              margin="normal"
+                              size='small'
+                            />
+                            <Grid item xs={12} sx={{paddingTop:2}}>
+                              <FormControl fullWidth>
+                                <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
+                                <MuiSelect
+                                  name="status"
+                                  value={formData.status}
+                                  onChange={handleChange}
+                                  size='small'
+                                >
+                                  <MenuItem value="Active">Active</MenuItem>
+                                  <MenuItem value="Inactive">Inactive</MenuItem>
+                                </MuiSelect>
+                              </FormControl>
+                            </Grid>
 
-                        </Grid> 
-                      </Grid>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={closeEditUserDailog} color="primary">
-                        Cancel
-                      </Button>
-                      <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
-                        {editUserLoader ? 'Saving...' : 'Save'}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  </>): (<></>)
-                }
+                          </Grid> 
+                        </Grid>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={closeEditUserDailog} color="primary">
+                          Cancel
+                        </Button>
+                        <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                          {editUserLoader ? 'Saving...' : 'Save'}
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </>
+                )}
 
                 {showVaultDelete && (
                   <Dialog open={showVaultDelete} onClose={() => setShowVaultDelete(false)}>
@@ -1720,13 +1746,13 @@ const Dashboard = () => {
             <div className='logout-section'>
               <div className='avatar-title'>
                 <div className='profile-avatar'>
-                  <img src='profile-pic.webp' alt="Profile Picture"/>
+                  <img src={currentUserImage} alt="Profile Picture"/>
                 </div>
                 <div className="profile-title"><h4>{currentUser}</h4></div>
               </div>
 
               <div className='logout-button-div'>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={handleLogout} >
                   <img src='logout.svg'/>
                   Logout
                 </button>
@@ -1761,15 +1787,15 @@ const Dashboard = () => {
 
                   <div className="vault-search">
                     <div>
-                    {showVaultFiles ? (
-                      <>
-                      <input className='vault-searchbar' placeholder='Search file' value={searched}
-                      onChange={vaultFileSearch} />
-                      </>
-                    ):(
-                      <input className='vault-searchbar' placeholder='Search file' value={searched}
-                      onChange={requestSearch} />
-                    )}
+                      {showVaultFiles ? (
+                        <>
+                        <input className='vault-searchbar' placeholder='Search file' value={searched}
+                        onChange={vaultFileSearch} />
+                        </>
+                      ):(
+                        <input className='vault-searchbar' placeholder='Search file' value={searched}
+                        onChange={requestSearch} />
+                      )}
                     </div>
                     <div>
                       {showVaultFiles ? (

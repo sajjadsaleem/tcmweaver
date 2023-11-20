@@ -41,6 +41,7 @@ const Signup = () => {
     const [imagePreviews, setImagePreviews] = useState([]);
     const divRefPassword = useRef<any>(null);
     const divRefConfirmPassword = useRef<any>(null);
+    const fileInputRef = useRef<any>(null);
 
     // console.log(formData)
 
@@ -152,26 +153,44 @@ const Signup = () => {
     };
 
     const handleImageChange = (e:any) => {
-        const file = e.target.files[0];
-        setImage(file);
+        const selectedProfilePicture = e.target.files[0];
+        if(selectedProfilePicture) {
 
-        const previews:any = [];
-        const reader = new FileReader();
-        reader.onload = () => {
-            console.log(reader.result)
-            previews.push(reader.result);
-            if (previews.length) {
-            setImagePreviews(previews);
-            }
-        };
+            const previews:any = [];
+            const reader = new FileReader();
+            reader.onload = () => {
+                previews.push(reader.result);
+                if (previews.length) {
+                  setFormData({
+                    ...formData,
+                    image: previews[0],
+                  });
+                setImagePreviews(previews);
+                }
+            };
+    
+            reader.readAsDataURL(selectedProfilePicture);
+        }
+        // const file = e.target.files[0];
+        // setImage(file);
 
-        reader.readAsDataURL(file);
+        // const previews:any = [];
+        // const reader = new FileReader();
+        // reader.onload = () => {
+        //     console.log(reader.result)
+        //     previews.push(reader.result);
+        //     if (previews.length) {
+        //     setImagePreviews(previews);
+        //     }
+        // };
+
+        // reader.readAsDataURL(file);
      
 
-        setFormData({
-          ...formData,
-          image: file,
-        });
+        // setFormData({
+        //   ...formData,
+        //   image: file,
+        // });
       
         // You may also want to reset validation errors for the image
         setValidationErrors({
@@ -179,12 +198,23 @@ const Signup = () => {
           image: '',
         });
     };
+
+    const handleChooseFile = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleEditProfilePicture = () => {
+        setFormData((prevFormData:any) => ({
+          ...prevFormData,
+          image: '',
+        }));
+    }
     
     return ( 
         <LayoutWrapper layout={AuthLayout} >
             <div className="signup-page-container">
 
-                <div>
+                <div style={{marginTop: '60px'}}>
                     <Link href="/login" style={{textDecoration: 'none'}}>
                         <div className="signup-top">
                             <div>
@@ -196,20 +226,34 @@ const Signup = () => {
                 </div>
 
                 <div>
+
+                    <div className="edit-profile-div">
+                        <div className="edit-profile-image-div">
+                            <img src={formData.image}
+                                style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                alt="Profile Picture"
+                            />
+                        </div>
+
+                        <div className="edit-profile-button-div">
+                            <button onClick={handleChooseFile} >
+                                Change picture
+                            </button>
+                            <button onClick={handleEditProfilePicture} >
+                                Remove
+                            </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                onChange={handleImageChange}
+                            />
+                        </div>
+                    </div>
+
+
                     <form onSubmit={handleSubmit}>
                         <div className="signup-page-input">
-
-                            <input type="file" name="image" onChange={handleImageChange} />
-                            <div>
-                                {imagePreviews?.map((preview, index) => (
-                                    <img
-                                    key={index}
-                                    src={preview}
-                                    alt={`Preview ${index}`}
-                                    style={{ width: "200px", height: "auto" }}
-                                    />
-                                ))}
-                            </div>
 
                             <input
                                 type="text"

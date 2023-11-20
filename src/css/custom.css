@@ -978,6 +978,20 @@
     margin: 0px;
 }
 
+.sign-btn button:hover {
+    background-color: #484848;
+    /* Change the background color on hover */
+    border-color: #484848;
+    /* Change the border color on hover */
+}
+
+.sign-btn button:active {
+    background-color: #393939;
+    /* Change the background color on active (button pressed) */
+    border-color: #393939;
+    /* Change the border color on active */
+}
+
 .sign-up {
     margin: auto;
     display: flex;
@@ -1004,6 +1018,17 @@
     font-weight: 600;
     font-size: 1.75rem;
     margin: 0px;
+}
+
+.sign-up button:hover {
+    background-color: #f3f0f0;
+    /* color: #ffffff; */
+}
+
+.sign-up button:active {
+    background-color: #f3f0f0;
+    /* border-color: #424242; */
+    /* color: #ffffff; */
 }
 
 .signup-logo {
@@ -1217,6 +1242,17 @@
     border-radius: 10px;
     background-color: #c2bdbd;
     padding: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #a8a2a2;
+    /* Change the background color on hover */
+}
+
+.logout-button:active {
+    background-color: #918787;
+    /* Change the background color on active (button pressed) */
 }
 
 .night-mode .logout-button {
@@ -1289,12 +1325,26 @@
     background-color: #C2BDBD;
     border-radius: 8px;
     padding: 8px 16px;
+    transition: background-color 0.3s ease;
 }
 
 .vault-sync-btn img,
 .add-user img {
     width: 15px
 }
+
+.vault-sync-btn:hover,
+.add-user:hover {
+    background-color: #a8a2a2;
+    /* Change the background color on hover */
+}
+
+.vault-sync-btn:active,
+.add-user:active {
+    background-color: #918787;
+    /* Change the background color on active (button pressed) */
+}
+
 
 .night-mode .vault-sync-btn,
 .night-mode .add-user {

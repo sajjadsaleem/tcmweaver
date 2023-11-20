@@ -1,5 +1,3 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { vaultsTable } from '../../db/schema/vaults';
