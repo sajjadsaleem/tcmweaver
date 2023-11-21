@@ -19,7 +19,7 @@ export default async function search(req, res) {
         const inputValue = req.query.q.replace(/,/g, ' ');
         // console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
-        // console.log('req wordsArray: ', wordsArray)
+        console.log('req wordsArray: ', wordsArray)
 
         const db = drizzle(sql)
 

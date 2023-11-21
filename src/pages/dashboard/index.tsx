@@ -15,11 +15,16 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
+import { useDispatch, useSelector } from 'react-redux';
+import { FullPageComponentLoading } from '@/util/FullPageComponentLoading';
 
 
 const animatedComponents = makeAnimated();
 
 const Dashboard = () => {
+
+  const dispatch = useDispatch()
+  const getStAuth = useSelector((state:any) => state.stAuth)
 
     const [themeChangericon, setThemeChangerIcon] = useState(true);
     const [graphOrTextView, setgraphOrTextView] = useState(true);
@@ -98,6 +103,8 @@ const Dashboard = () => {
     const [showAddVaultToUserPopup , setShowAddVaultToUserPopup] = useState(false)
     const fileInputRef = useRef<any>(null);
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [getUser, setUser] = useState<any>({})
+    const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -120,6 +127,20 @@ const Dashboard = () => {
     // console.log('selectallvaults to ' , allVaultsToSelect)
     // console.log('defaultVault' , defaultVaultsInPackage)
     // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
+
+    useEffect(() => {
+      const getInit = () => {
+        setUser(getStAuth.stAccessTokenVerify)
+      }
+      getInit()
+      if(getUser.user) {
+        if(getUser.user.role_id !==1){
+          router.push('/');
+        }
+      }
+
+
+    }, [getUser , getStAuth])
 
 
     async function fetchFilenames() {
@@ -1042,1125 +1063,1134 @@ const Dashboard = () => {
 
     return (
       <LayoutWrapper layout={AdminLayout}>
-        <div>
-          <div className="side-nav">
-            <div className={"logoVc"}>
-              <div className="site-name" onClick={handleSiteNameClick}>
-                <p>TCM Weaver</p>
-              </div>
-              <div className={"icon-profile"}>
-                <div className={"themeChanger"}>
-                  {themeChangericon ? (
-                    <img
-                      src="/dark-mode.png"
-                      alt="img"
-                      onClick={handleThemeChangerClick}
-                    />
-                  ) : (
-                    <img
-                      src="/light-mode.png"
-                      alt="img"
-                      onClick={handleThemeChangerClick}
-                    />
-                  )}
-                </div>
+        {getFullPageComponentLoading ? (
+          <>
+            <FullPageComponentLoading></FullPageComponentLoading>
+          </>
+        ):(
+          <>
+            <div>
+              <div className="side-nav">
+                <div className={"logoVc"}>
+                  <div className="site-name" onClick={handleSiteNameClick}>
+                    <p>TCM Weaver</p>
+                  </div>
+                  <div className={"icon-profile"}>
+                    <div className={"themeChanger"}>
+                      {themeChangericon ? (
+                        <img
+                          src="/dark-mode.png"
+                          alt="img"
+                          onClick={handleThemeChangerClick}
+                        />
+                      ) : (
+                        <img
+                          src="/light-mode.png"
+                          alt="img"
+                          onClick={handleThemeChangerClick}
+                        />
+                      )}
+                    </div>
 
-                {syncPopup && (<div>
-                  <Dialog open={syncPopup} onClose={handleCloseDialog}>
-                    <DialogTitle>Authorization Required</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                      You will be redirected to the Google consent page to grant this app access to your Google Drive
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={synchronizeFiles} color="primary">
-                        {proccedBtnLoading ? (
-                            <>
-                              <span className="processing-text">Please Wait</span>
-                              <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
-                            </>
-                          ) : (
-                            <>Proceed</>
-                          )}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </div>)}
+                    {syncPopup && (<div>
+                      <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                        <DialogTitle>Authorization Required</DialogTitle>
+                        <DialogContent>
+                          <DialogContentText>
+                          You will be redirected to the Google consent page to grant this app access to your Google Drive
+                          </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={handleCloseDialog} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={synchronizeFiles} color="primary">
+                            {proccedBtnLoading ? (
+                                <>
+                                  <span className="processing-text">Please Wait</span>
+                                  <span
+                                    className="spinner-grow spinner-grow-sm ml-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                  ></span>
+                                </>
+                              ) : (
+                                <>Proceed</>
+                              )}
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                    </div>)}
 
-                {foldersPopup && (
-                  <Dialog open={foldersPopup} 
-                  // onClose={handlerFolderPopupClose}
-                  >
-                    <DialogTitle>
-                      {taskCompleted ? 'Data Sync' : 'Select folder to sync data'}
-                    </DialogTitle>
-                    <DialogContent sx={{paddingLeft: '6px'}}>
-                      <List>
-                        {folders.map((folder:any) => (
-                          <ListItem button key={folder.id} sx={{ paddingLeft: '0px'}}>
-                            <Checkbox
-                              checked={folder.checked}
-                              onChange={() => handleFolderSelection(folder)}
-                            />
-                            <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px' , marginLeft: '15px' }} />
-                            {folder.name}
-                          </ListItem>
-                        ))}
-                      </List>
-                    </DialogContent>
-
-                    <DialogActions>
-                      <Button onClick={handlerFolderPopupClose} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={handleFoldersNext} color="primary" variant="contained"
-                        disabled={!folders.some((folder:any) => folder.checked)}>
-                        Next
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                )}
-
-                {showFolderComparison && (
-                    <Dialog open={showFolderComparison} onClose={handlerFolderPopupClose}>
-                    <DialogTitle>Selected folders</DialogTitle>
-                    <DialogContent sx={{paddingLeft: '6px'}}>
-                      <div style={{ display: 'flex' }}>
-                        <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
+                    {foldersPopup && (
+                      <Dialog open={foldersPopup} 
+                      // onClose={handlerFolderPopupClose}
+                      >
+                        <DialogTitle>
+                          {taskCompleted ? 'Data Sync' : 'Select folder to sync data'}
+                        </DialogTitle>
+                        <DialogContent sx={{paddingLeft: '6px'}}>
                           <List>
-                            {selectedFolders.map((folder:any , index:any) => (
-                              <div key={folder.id} style={{display: 'flex' , alignItems: 'center'}}>
-                                <ListItem >
-                                  <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
-                                  {folder.name}
-                                </ListItem>
-                                <ListItem key={folder.id + 1}>
-                                {folderToCompare.some((compareFolder:any) =>
-                                 compareFolder.vault_name === folder.name) ? (
-                                  <>
-                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
-                                    <select id={`vaultSelect`} value={folder.option}
-                                      disabled={folderSelectedLoader} 
-                                      defaultValue={folder.name}
-                                      onChange={(e:any) => {
-                                        console.log('e' , e.target)
-                                        setSelectedFolders((prevSelectedFolders:any) => {
-                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
-                                            console.log('prevfolder' , prevFolder , i , index)
-                                            if (i === index) {
-                                              return {
-                                                ...prevFolder,
-                                                option: e.target.value,
-                                              };
-                                            }
-                                            return prevFolder;
-                                          });
-                                        });
-                                      }}>
-                                      {originalVault.map((vault:any) => (
-                                          <option key={vault.vault_name} value={vault.vault_name}>
-                                              {`Overwrite ${vault.vault_name}`}
-                                          </option>
-                                      ))}
-                                      
-                                    </select>
-                                  </>
-                                ) : (
-                                  <>
-                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
-                                    <select id="vaultSelect"
-                                      disabled={folderSelectedLoader} 
-                                      onChange={(e:any) => {
-                                        console.log('e change' , e.target)
-                                        setSelectedFolders((prevSelectedFolders:any) => {
-                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
-                                            if (i === index) {
-                                              return {
-                                                ...prevFolder,
-                                                option: e.target.value,
-                                              };
-                                            }
-                                            return prevFolder;
-                                          });
-                                        });
-                                      }}>
-                                      <option value="Create new vault" selected>Create new vault</option>
-                                      {originalVault.map((vault:any) => (
-                                          <option key={vault.vault_name} value={vault.vault_name}>
-                                              {`Overwrite ${vault.vault_name}`}
-                                          </option>
-                                      ))}
-                                    </select>
-                                  </>
-                                )}
-                                </ListItem>
-                                </div>
+                            {folders.map((folder:any) => (
+                              <ListItem button key={folder.id} sx={{ paddingLeft: '0px'}}>
+                                <Checkbox
+                                  checked={folder.checked}
+                                  onChange={() => handleFolderSelection(folder)}
+                                />
+                                <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px' , marginLeft: '15px' }} />
+                                {folder.name}
+                              </ListItem>
                             ))}
                           </List>
-                        </div>
-                      </div>
-                      {currentSync && (
-                        <div>
-                          {showCurrentSync && (
-                            <>
-                              <ListItem>We are synchronizing your files. Dont close the popup.</ListItem>
-                            </>
-                          )}
+                        </DialogContent>
 
-                          <ListItem>
-                            {totalFilesToSync === null ? (
-                              <>
-                                <span className="processing-text">Processing</span>
-                                <span
-                                  className="spinner-grow spinner-grow-sm ml-2"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
-                              </>
-                            ) : (
-                              <>
-                                {taskCompleted ? (
+                        <DialogActions>
+                          <Button onClick={handlerFolderPopupClose} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={handleFoldersNext} color="primary" variant="contained"
+                            disabled={!folders.some((folder:any) => folder.checked)}>
+                            Next
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                    )}
+
+                    {showFolderComparison && (
+                        <Dialog open={showFolderComparison} onClose={handlerFolderPopupClose}>
+                        <DialogTitle>Selected folders</DialogTitle>
+                        <DialogContent sx={{paddingLeft: '6px'}}>
+                          <div style={{ display: 'flex' }}>
+                            <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
+                              <List>
+                                {selectedFolders.map((folder:any , index:any) => (
+                                  <div key={folder.id} style={{display: 'flex' , alignItems: 'center'}}>
+                                    <ListItem >
+                                      <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
+                                      {folder.name}
+                                    </ListItem>
+                                    <ListItem key={folder.id + 1}>
+                                    {folderToCompare.some((compareFolder:any) =>
+                                    compareFolder.vault_name === folder.name) ? (
+                                      <>
+                                        <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
+                                        <select id={`vaultSelect`} value={folder.option}
+                                          disabled={folderSelectedLoader} 
+                                          defaultValue={folder.name}
+                                          onChange={(e:any) => {
+                                            console.log('e' , e.target)
+                                            setSelectedFolders((prevSelectedFolders:any) => {
+                                              return prevSelectedFolders.map((prevFolder:any, i:any) => {
+                                                console.log('prevfolder' , prevFolder , i , index)
+                                                if (i === index) {
+                                                  return {
+                                                    ...prevFolder,
+                                                    option: e.target.value,
+                                                  };
+                                                }
+                                                return prevFolder;
+                                              });
+                                            });
+                                          }}>
+                                          {originalVault.map((vault:any) => (
+                                              <option key={vault.vault_name} value={vault.vault_name}>
+                                                  {`Overwrite ${vault.vault_name}`}
+                                              </option>
+                                          ))}
+                                          
+                                        </select>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
+                                        <select id="vaultSelect"
+                                          disabled={folderSelectedLoader} 
+                                          onChange={(e:any) => {
+                                            console.log('e change' , e.target)
+                                            setSelectedFolders((prevSelectedFolders:any) => {
+                                              return prevSelectedFolders.map((prevFolder:any, i:any) => {
+                                                if (i === index) {
+                                                  return {
+                                                    ...prevFolder,
+                                                    option: e.target.value,
+                                                  };
+                                                }
+                                                return prevFolder;
+                                              });
+                                            });
+                                          }}>
+                                          <option value="Create new vault" selected>Create new vault</option>
+                                          {originalVault.map((vault:any) => (
+                                              <option key={vault.vault_name} value={vault.vault_name}>
+                                                  {`Overwrite ${vault.vault_name}`}
+                                              </option>
+                                          ))}
+                                        </select>
+                                      </>
+                                    )}
+                                    </ListItem>
+                                    </div>
+                                ))}
+                              </List>
+                            </div>
+                          </div>
+                          {currentSync && (
+                            <div>
+                              {showCurrentSync && (
+                                <>
+                                  <ListItem>We are synchronizing your files. Dont close the popup.</ListItem>
+                                </>
+                              )}
+
+                              <ListItem>
+                                {totalFilesToSync === null ? (
                                   <>
-                                    <span className="processing-text">
-                                      Processing {currentSyncedFiles} / {totalFilesToSync} files
-                                    </span>
+                                    <span className="processing-text">Processing</span>
                                     <span
                                       className="spinner-grow spinner-grow-sm ml-2"
                                       role="status"
-                                      aria-hidden="true">
-                                    </span>
+                                      aria-hidden="true"
+                                    ></span>
                                   </>
-                                ):(
+                                ) : (
                                   <>
-                                    <span>
-                                      Syncronized {currentSyncedFiles} / {totalFilesToSync} files
-                                    </span>
+                                    {taskCompleted ? (
+                                      <>
+                                        <span className="processing-text">
+                                          Processing {currentSyncedFiles} / {totalFilesToSync} files
+                                        </span>
+                                        <span
+                                          className="spinner-grow spinner-grow-sm ml-2"
+                                          role="status"
+                                          aria-hidden="true">
+                                        </span>
+                                      </>
+                                    ):(
+                                      <>
+                                        <span>
+                                          Syncronized {currentSyncedFiles} / {totalFilesToSync} files
+                                        </span>
+                                      </>
+                                    )
+
+                                    }
+                                    
                                   </>
-                                )
+                                )}
+                              </ListItem>
 
-                                }
-                                
-                              </>
-                            )}
-                          </ListItem>
-
-                        </div>
-                      )}
-                    </DialogContent>
-                    <DialogActions>
-                      {folderSelectedLoader ? (
-                        <>
-                          {/* <Button onClick={() => {
-                            setShowFolderComparison(false)
-                            setSelectedFolders([])}} color="primary">
-                            Done
-                          </Button> */}
-                          {/* <Button onClick={() => {
-                            setShowFolderComparison(false)
-                            setFoldersPopup(true)}} color="primary">
-                            Back
-                          </Button> */}
-                          {taskCompleted ? (
-                            <>
-                              <Button color="primary" variant="contained" disabled>
-                                Sync
-                                {/* <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
-                                ></span> */}
-                              </Button> 
-                            </>
-                          ) : (
-                            <>
-                              <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
-                              Done
-                              </Button>
-                            </>
-                          )}
-                        </>):(
-                        <>
-                          <Button onClick={() => {
-                            setShowFolderComparison(false)
-                            setFoldersPopup(true)}} color="primary">
-                            Back
-                          </Button>
-                          {taskCompleted ? (
-                            <>
-                              <Button color="primary" variant="contained">
-                                Syncronizing
-                                <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
-                                ></span>
-                              </Button> 
-                            </>
-                          ) : (
-                            <>
-                              <Button onClick={handleDataSync} color="primary" variant="contained">
-                              Sync
-                              </Button>
-                            </>
-                          )}
-                        </>
-                      )}
-                      
-                      
-                    </DialogActions>
-                  </Dialog>
-                  
-                )}
-
-                {showAddUser ? (<div>
-                  <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550 , margin: 'auto' }} >
-                    <DialogTitle>Add User</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                        Please enter the user details:
-                      </DialogContentText>
-                      <Grid container spacing={2} sx={{paddingTop:1}}>
-                        <Grid item xs={12}>
-                          <FormControl fullWidth>
-                            <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                            <MuiSelect
-                              name="role"
-                              value={formData.role}
-                              onChange={handleChange}
-                              size='small'
-                            >
-                              <MenuItem value="User">User</MenuItem>
-                              <MenuItem value="Admin">Admin</MenuItem>
-                            </MuiSelect>
-                          </FormControl>
-                          <TextField
-                            label="Email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                            size='small'
-                            required
-                          />
-                          <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
-                            <Typography variant="body1">
-                              Invite User by Sending Email Notification
-                            </Typography>
-                            <Switch
-                              checked={showInviteFields}
-                              onChange={toggleInviteFields}
-                              color="primary"
-                            />
-                          </div>
-                          {showInviteFields ? (<></>):(
-                            <>
-                              <TextField
-                                label="Full Name"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                fullWidth
-                                margin="normal"
-                                size='small'
-                                required/>
-                              <TextField
-                                type={showPassword ? 'text' : 'password'}
-                                label="Password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                fullWidth
-                                margin="normal"
-                                size='small'
-                                required
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        edge="end"
-                                      >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                      </IconButton>
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                              <TextField
-                                type={showPassword ? 'text' : 'password'}
-                                label="Confirm password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                fullWidth
-                                margin="normal"
-                                size='small'
-                                required
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        edge="end"
-                                      >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                      </IconButton>
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                            </>
-                          )}
-                        </Grid> 
-                      </Grid>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={closeAddUserDialog} color="primary">
-                        Cancel
-                      </Button>
-                      {showInviteFields ? (
-                        <>
-                          <Button color='primary' onClick={handleInviteUser} disabled={isLoading}>
-                            {isLoading ? 'Sending Invite...' : 'Send Invite'}
-
-                          </Button>
-                        </>): (
-                        <>
-                          <Button color="primary" onClick={handleAddUser} disabled={isLoading}>
-                            {isLoading ? 'Saving...' : 'Save'}
-                          </Button>
-                        </>
-                      )}
-                    
-                    </DialogActions>
-                  </Dialog></div>): (<></>
-                )}
-
-                {showSetPassword ? (<>
-                  <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
-                      <DialogTitle>Set Password</DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          Please enter the new password:
-                        </DialogContentText>
-                        <TextField
-                          type={showSetPasswordToggle ? 'text' : 'password'}
-                          label="New Password"
-                          name="newPassword"
-                          value={newPasswordData.newPassword}
-                          onChange={handleSetNewPasswordToggle}
-                          fullWidth
-                          margin="normal"
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                                  edge="end"
-                                >
-                                  {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                        <TextField
-                          type={showConfirmPasswordToggle ? 'text' : 'password'}
-                          label="Confirm Password"
-                          name="confirmPassword"
-                          value={newPasswordData.confirmPassword}
-                          onChange={handleSetNewPasswordToggle}
-                          fullWidth
-                          margin="normal"
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                                  edge="end"
-                                >
-                                  {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={closeSetPasswordDialog} color="primary">
-                          Cancel
-                        </Button>
-                        <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                          {updatePasswordLoader ? 'Saving...' : 'Save'}
-                        </Button>
-                      </DialogActions>
-                    </Dialog></>): (<></>
-                )}
-
-                {showEditUserDialog && (
-                  <>
-                    <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
-                      <DialogTitle>Edit User</DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          Please enter the user details:
-                        </DialogContentText>
-
-                        <Grid container spacing={2} sx={{paddingTop:1}}>
-                          <Grid item xs={12}>
-
-                            <div className="edit-profile-div">
-                              <div className="edit-profile-image-div">
-                                <img src={formData.image}
-                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
-                                    alt="Profile Picture"
-                                  />
-                              </div>
-
-                              <div className="edit-profile-button-div">
-                                <button onClick={handleChooseFile} >
-                                  Change picture
-                                </button>
-                                <button onClick={handleEditProfilePicture} >
-                                  Remove
-                                </button>
-                                <input
-                                  type="file"
-                                  ref={fileInputRef}
-                                  style={{ display: 'none' }}
-                                  onChange={handleFileChange}
-                                />
-                              </div>
                             </div>
+                          )}
+                        </DialogContent>
+                        <DialogActions>
+                          {folderSelectedLoader ? (
+                            <>
+                              {/* <Button onClick={() => {
+                                setShowFolderComparison(false)
+                                setSelectedFolders([])}} color="primary">
+                                Done
+                              </Button> */}
+                              {/* <Button onClick={() => {
+                                setShowFolderComparison(false)
+                                setFoldersPopup(true)}} color="primary">
+                                Back
+                              </Button> */}
+                              {taskCompleted ? (
+                                <>
+                                  <Button color="primary" variant="contained" disabled>
+                                    Sync
+                                    {/* <span
+                                    className="spinner-grow spinner-grow-sm ml-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                    ></span> */}
+                                  </Button> 
+                                </>
+                              ) : (
+                                <>
+                                  <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
+                                  Done
+                                  </Button>
+                                </>
+                              )}
+                            </>):(
+                            <>
+                              <Button onClick={() => {
+                                setShowFolderComparison(false)
+                                setFoldersPopup(true)}} color="primary">
+                                Back
+                              </Button>
+                              {taskCompleted ? (
+                                <>
+                                  <Button color="primary" variant="contained">
+                                    Syncronizing
+                                    <span
+                                    className="spinner-grow spinner-grow-sm ml-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                    ></span>
+                                  </Button> 
+                                </>
+                              ) : (
+                                <>
+                                  <Button onClick={handleDataSync} color="primary" variant="contained">
+                                  Sync
+                                  </Button>
+                                </>
+                              )}
+                            </>
+                          )}
+                          
+                          
+                        </DialogActions>
+                      </Dialog>
+                      
+                    )}
 
-
-
-                            <FormControl fullWidth>
-                              <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                              <MuiSelect
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                size='small'
-                              >
-                                <MenuItem value="User">User</MenuItem>
-                                <MenuItem value="Admin">Admin</MenuItem>
-                              </MuiSelect>
-                            </FormControl>
-                            <TextField
-                              label="Email"
-                              name="email"
-                              value={formData.email}
-                              onChange={handleChange}
-                              fullWidth
-                              margin="normal"
-                              size='small'
-                            />
-                            <TextField
-                              label="Full Name"
-                              name="fullName"
-                              value={formData.fullName}
-                              onChange={handleChange}
-                              fullWidth
-                              margin="normal"
-                              size='small'
-                            />
-                            <Grid item xs={12} sx={{paddingTop:2}}>
+                    {showAddUser ? (<div>
+                      <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550 , margin: 'auto' }} >
+                        <DialogTitle>Add User</DialogTitle>
+                        <DialogContent>
+                          <DialogContentText>
+                            Please enter the user details:
+                          </DialogContentText>
+                          <Grid container spacing={2} sx={{paddingTop:1}}>
+                            <Grid item xs={12}>
                               <FormControl fullWidth>
-                                <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
+                                <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
                                 <MuiSelect
-                                  name="status"
-                                  value={formData.status}
+                                  name="role"
+                                  value={formData.role}
                                   onChange={handleChange}
                                   size='small'
                                 >
-                                  <MenuItem value="Active">Active</MenuItem>
-                                  <MenuItem value="Inactive">Inactive</MenuItem>
+                                  <MenuItem value="User">User</MenuItem>
+                                  <MenuItem value="Admin">Admin</MenuItem>
                                 </MuiSelect>
                               </FormControl>
-                            </Grid>
-
-                          </Grid> 
-                        </Grid>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={closeEditUserDailog} color="primary">
-                          Cancel
-                        </Button>
-                        <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
-                          {editUserLoader ? 'Saving...' : 'Save'}
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
-                  </>
-                )}
-
-                {showVaultDelete && (
-                  <Dialog open={showVaultDelete} onClose={() => setShowVaultDelete(false)}>
-                    <DialogTitle>Delete Vault</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                        Are you sure you want to delete
-                        <strong style={{ fontWeight: 'bold' }}> {vaultToDelete}</strong> ?
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={() => setShowVaultDelete(false)} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={deleteVault} color="primary">
-                        {proccedBtnLoading ? (
+                              <TextField
+                                label="Email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                fullWidth
+                                margin="normal"
+                                size='small'
+                                required
+                              />
+                              <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
+                                <Typography variant="body1">
+                                  Invite User by Sending Email Notification
+                                </Typography>
+                                <Switch
+                                  checked={showInviteFields}
+                                  onChange={toggleInviteFields}
+                                  color="primary"
+                                />
+                              </div>
+                              {showInviteFields ? (<></>):(
+                                <>
+                                  <TextField
+                                    label="Full Name"
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    margin="normal"
+                                    size='small'
+                                    required/>
+                                  <TextField
+                                    type={showPassword ? 'text' : 'password'}
+                                    label="Password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    margin="normal"
+                                    size='small'
+                                    required
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <IconButton
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                          >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                          </IconButton>
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                  />
+                                  <TextField
+                                    type={showPassword ? 'text' : 'password'}
+                                    label="Confirm password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    margin="normal"
+                                    size='small'
+                                    required
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <IconButton
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                          >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                          </IconButton>
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                  />
+                                </>
+                              )}
+                            </Grid> 
+                          </Grid>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={closeAddUserDialog} color="primary">
+                            Cancel
+                          </Button>
+                          {showInviteFields ? (
                             <>
-                              Deleting {" "}
-                              <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
+                              <Button color='primary' onClick={handleInviteUser} disabled={isLoading}>
+                                {isLoading ? 'Sending Invite...' : 'Send Invite'}
+
+                              </Button>
+                            </>): (
+                            <>
+                              <Button color="primary" onClick={handleAddUser} disabled={isLoading}>
+                                {isLoading ? 'Saving...' : 'Save'}
+                              </Button>
                             </>
-                          ) : (
-                            <>Delete</>
                           )}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                )}
-
-                {showAddVaultPopup && (
-                  <>
-                    <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
-                      <Paper sx={{ width: 500 }}>                    
-                        <DialogTitle>{packageToAddVault.name}</DialogTitle>
-                        <DialogContent sx={{ height: 300}}>
-                          <DialogContentText>
-                            Select vaults to add to this package:
-                          </DialogContentText>
-                          <Grid sx={{marginTop: '10px' }}>
-                            <Select
-                              closeMenuOnSelect={false}
-                              components={animatedComponents}
-                              defaultValue={defaultVaultsInPackage}
-                              isMulti
-                              options={allVaultsToSelect}
-                              onChange={(selectedOptions:any) => {
-                                setSelectedVaultsForPackage(selectedOptions);
-                              }}
-                            />  
-                          </Grid>
                         
-                        </DialogContent>
-
-                        <DialogActions>
-                          <Button onClick={closeAddVaultPopup} color="primary">
-                            Cancel
-                          </Button>
-                          <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
-                            {editUserLoader ? 'Saving...' : 'Save'}
-                          </Button>
                         </DialogActions>
-                      </Paper>
-                    </Dialog>
-                  </>
-                )}
+                      </Dialog></div>): (<></>
+                    )}
 
-                {showAddVaultToUserPopup && (
-                  <>
-                    <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} >
-                      <Paper sx={{ width: 500 }}>                    
-                        <DialogTitle>{userToAddVault.full_name}</DialogTitle>
-                        <DialogContent sx={{ height: 300}}>
-                          <DialogContentText>
-                            Select vaults to give access to this user:
-                          </DialogContentText>
-
-                          <Grid sx={{marginTop: '10px' }}>
-                            <Select
-                              closeMenuOnSelect={false}
-                              components={animatedComponents}
-                              defaultValue={defaultVaultsForUser}
-                              isMulti
-                              options={allVaultsToSelect}
-                              onChange={(selectedOptions:any) => {
-                                setSelectedVaultsForUser(selectedOptions);
+                    {showSetPassword ? (<>
+                      <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
+                          <DialogTitle>Set Password</DialogTitle>
+                          <DialogContent>
+                            <DialogContentText>
+                              Please enter the new password:
+                            </DialogContentText>
+                            <TextField
+                              type={showSetPasswordToggle ? 'text' : 'password'}
+                              label="New Password"
+                              name="newPassword"
+                              value={newPasswordData.newPassword}
+                              onChange={handleSetNewPasswordToggle}
+                              fullWidth
+                              margin="normal"
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                                      edge="end"
+                                    >
+                                      {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
                               }}
-                            />  
-                          </Grid>
-                        </DialogContent>
+                            />
+                            <TextField
+                              type={showConfirmPasswordToggle ? 'text' : 'password'}
+                              label="Confirm Password"
+                              name="confirmPassword"
+                              value={newPasswordData.confirmPassword}
+                              onChange={handleSetNewPasswordToggle}
+                              fullWidth
+                              margin="normal"
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                                      edge="end"
+                                    >
+                                      {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={closeSetPasswordDialog} color="primary">
+                              Cancel
+                            </Button>
+                            <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                              {updatePasswordLoader ? 'Saving...' : 'Save'}
+                            </Button>
+                          </DialogActions>
+                        </Dialog></>): (<></>
+                    )}
 
+                    {showEditUserDialog && (
+                      <>
+                        <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
+                          <DialogTitle>Edit User</DialogTitle>
+                          <DialogContent>
+                            <DialogContentText>
+                              Please enter the user details:
+                            </DialogContentText>
+
+                            <Grid container spacing={2} sx={{paddingTop:1}}>
+                              <Grid item xs={12}>
+
+                                <div className="edit-profile-div">
+                                  <div className="edit-profile-image-div">
+                                    <img src={formData.image}
+                                        style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                        alt="Profile Picture"
+                                      />
+                                  </div>
+
+                                  <div className="edit-profile-button-div">
+                                    <button onClick={handleChooseFile} >
+                                      Change picture
+                                    </button>
+                                    <button onClick={handleEditProfilePicture} >
+                                      Remove
+                                    </button>
+                                    <input
+                                      type="file"
+                                      ref={fileInputRef}
+                                      style={{ display: 'none' }}
+                                      onChange={handleFileChange}
+                                    />
+                                  </div>
+                                </div>
+
+
+
+                                <FormControl fullWidth>
+                                  <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
+                                  <MuiSelect
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    size='small'
+                                  >
+                                    <MenuItem value="User">User</MenuItem>
+                                    <MenuItem value="Admin">Admin</MenuItem>
+                                  </MuiSelect>
+                                </FormControl>
+                                <TextField
+                                  label="Email"
+                                  name="email"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  fullWidth
+                                  margin="normal"
+                                  size='small'
+                                />
+                                <TextField
+                                  label="Full Name"
+                                  name="fullName"
+                                  value={formData.fullName}
+                                  onChange={handleChange}
+                                  fullWidth
+                                  margin="normal"
+                                  size='small'
+                                />
+                                <Grid item xs={12} sx={{paddingTop:2}}>
+                                  <FormControl fullWidth>
+                                    <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
+                                    <MuiSelect
+                                      name="status"
+                                      value={formData.status}
+                                      onChange={handleChange}
+                                      size='small'
+                                    >
+                                      <MenuItem value="Active">Active</MenuItem>
+                                      <MenuItem value="Inactive">Inactive</MenuItem>
+                                    </MuiSelect>
+                                  </FormControl>
+                                </Grid>
+
+                              </Grid> 
+                            </Grid>
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={closeEditUserDailog} color="primary">
+                              Cancel
+                            </Button>
+                            <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                              {editUserLoader ? 'Saving...' : 'Save'}
+                            </Button>
+                          </DialogActions>
+                        </Dialog>
+                      </>
+                    )}
+
+                    {showVaultDelete && (
+                      <Dialog open={showVaultDelete} onClose={() => setShowVaultDelete(false)}>
+                        <DialogTitle>Delete Vault</DialogTitle>
+                        <DialogContent>
+                          <DialogContentText>
+                            Are you sure you want to delete
+                            <strong style={{ fontWeight: 'bold' }}> {vaultToDelete}</strong> ?
+                          </DialogContentText>
+                        </DialogContent>
                         <DialogActions>
-                          <Button onClick={closeAddVaultToUserPopup} color="primary">
+                          <Button onClick={() => setShowVaultDelete(false)} color="primary">
                             Cancel
                           </Button>
-                          <Button color="primary" onClick={handleVaultsAddToUser} disabled={editUserLoader}>
-                            {editUserLoader ? 'Saving...' : 'Save'}
+                          <Button onClick={deleteVault} color="primary">
+                            {proccedBtnLoading ? (
+                                <>
+                                  Deleting {" "}
+                                  <span
+                                    className="spinner-grow spinner-grow-sm ml-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                  ></span>
+                                </>
+                              ) : (
+                                <>Delete</>
+                              )}
                           </Button>
                         </DialogActions>
-                      </Paper>
-                    </Dialog>
-                  </>
-                )}
+                      </Dialog>
+                    )}
 
-              </div>
-            </div>
-
-            <div className='dashboard-navigation'>
-              <List>
-                <Link href="/">
-                  <ListItem className={`dashboard-navigation-list ${selectedListItem === 0 ? 'selected-dashboard-navigation-list' : ''}`}
-                    onClick={() => setSelectedListItem(0)}>
-                      <img src='home.png' alt="Home" style={{ marginRight: '10px' }} />
-                      <ListItemText primary="Home" />
-                  </ListItem>
-                </Link>
-
-                <ListItem className={`dashboard-navigation-list ${selectedListItem === 1 ? 'selected-dashboard-navigation-list' : ''}`}
-                  onClick={() => setSelectedListItem(1)}>
-                    <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
-                    <ListItemText primary="Vault Management" />
-                </ListItem>
-
-                <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
-                  onClick={() => setSelectedListItem(2)}>
-                    <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
-                    <ListItemText primary="User Management" />
-                </ListItem>
-
-                <ListItem className={`dashboard-navigation-list ${selectedListItem === 3 ? 'selected-dashboard-navigation-list' : ''}`}
-                  onClick={() => handleDashboardNavigation(3)}>
-                    <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
-                    <ListItemText primary="Packages" />
-                </ListItem>
-
-              </List>
-            </div>
-            
-            <div className='logout-section'>
-              <div className='avatar-title'>
-                <div className='profile-avatar'>
-                  <img src={currentUserImage} alt="Profile Picture"/>
-                </div>
-                <div className="profile-title"><h4>{currentUser}</h4></div>
-              </div>
-
-              <div className='logout-button-div'>
-                <button className="logout-button" onClick={handleLogout} >
-                  <img src='logout.svg'/>
-                  Logout
-                </button>
-              </div> 
-            </div>
-
-          </div>
-            
-    
-          <div className="workspace-content">
-            <div className='main main-setting'>
-              {selectedListItem === 0 && (
-                <div></div>
-              )}
-
-              {selectedListItem === 1 && (
-                <div className='main-vault'>
-                  <div className="vault-breadcrumbs">
-                    {showVaultFiles ? (
+                    {showAddVaultPopup && (
                       <>
-                        <h5>
-                          <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
-                            Vault 
-                          </span>
-                          / {vaultFilesToShow.vault_name}
-                        </h5></>):(<>
-                        <h5>Vaults</h5>
+                        <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
+                          <Paper sx={{ width: 500 }}>                    
+                            <DialogTitle>{packageToAddVault.name}</DialogTitle>
+                            <DialogContent sx={{ height: 300}}>
+                              <DialogContentText>
+                                Select vaults to add to this package:
+                              </DialogContentText>
+                              <Grid sx={{marginTop: '10px' }}>
+                                <Select
+                                  closeMenuOnSelect={false}
+                                  components={animatedComponents}
+                                  defaultValue={defaultVaultsInPackage}
+                                  isMulti
+                                  options={allVaultsToSelect}
+                                  onChange={(selectedOptions:any) => {
+                                    setSelectedVaultsForPackage(selectedOptions);
+                                  }}
+                                />  
+                              </Grid>
+                            
+                            </DialogContent>
+
+                            <DialogActions>
+                              <Button onClick={closeAddVaultPopup} color="primary">
+                                Cancel
+                              </Button>
+                              <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
+                                {editUserLoader ? 'Saving...' : 'Save'}
+                              </Button>
+                            </DialogActions>
+                          </Paper>
+                        </Dialog>
                       </>
-                      )}
-                    
+                    )}
+
+                    {showAddVaultToUserPopup && (
+                      <>
+                        <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} >
+                          <Paper sx={{ width: 500 }}>                    
+                            <DialogTitle>{userToAddVault.full_name}</DialogTitle>
+                            <DialogContent sx={{ height: 300}}>
+                              <DialogContentText>
+                                Select vaults to give access to this user:
+                              </DialogContentText>
+
+                              <Grid sx={{marginTop: '10px' }}>
+                                <Select
+                                  closeMenuOnSelect={false}
+                                  components={animatedComponents}
+                                  defaultValue={defaultVaultsForUser}
+                                  isMulti
+                                  options={allVaultsToSelect}
+                                  onChange={(selectedOptions:any) => {
+                                    setSelectedVaultsForUser(selectedOptions);
+                                  }}
+                                />  
+                              </Grid>
+                            </DialogContent>
+
+                            <DialogActions>
+                              <Button onClick={closeAddVaultToUserPopup} color="primary">
+                                Cancel
+                              </Button>
+                              <Button color="primary" onClick={handleVaultsAddToUser} disabled={editUserLoader}>
+                                {editUserLoader ? 'Saving...' : 'Save'}
+                              </Button>
+                            </DialogActions>
+                          </Paper>
+                        </Dialog>
+                      </>
+                    )}
+
+                  </div>
+                </div>
+
+                <div className='dashboard-navigation'>
+                  <List>
+                    <Link href="/">
+                      <ListItem className={`dashboard-navigation-list ${selectedListItem === 0 ? 'selected-dashboard-navigation-list' : ''}`}
+                        onClick={() => setSelectedListItem(0)}>
+                          <img src='home.png' alt="Home" style={{ marginRight: '10px' }} />
+                          <ListItemText primary="Home" />
+                      </ListItem>
+                    </Link>
+
+                    <ListItem className={`dashboard-navigation-list ${selectedListItem === 1 ? 'selected-dashboard-navigation-list' : ''}`}
+                      onClick={() => setSelectedListItem(1)}>
+                        <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
+                        <ListItemText primary="Vault Management" />
+                    </ListItem>
+
+                    <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
+                      onClick={() => setSelectedListItem(2)}>
+                        <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
+                        <ListItemText primary="User Management" />
+                    </ListItem>
+
+                    <ListItem className={`dashboard-navigation-list ${selectedListItem === 3 ? 'selected-dashboard-navigation-list' : ''}`}
+                      onClick={() => handleDashboardNavigation(3)}>
+                        <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
+                        <ListItemText primary="Packages" />
+                    </ListItem>
+
+                  </List>
+                </div>
+                
+                <div className='logout-section'>
+                  <div className='avatar-title'>
+                    <div className='profile-avatar'>
+                      <img src={currentUserImage} alt="Profile Picture"/>
+                    </div>
+                    <div className="profile-title"><h4>{currentUser}</h4></div>
                   </div>
 
-                  <div className="vault-search">
-                    <div>
+                  <div className='logout-button-div'>
+                    <button className="logout-button" onClick={handleLogout} >
+                      <img src='logout.svg'/>
+                      Logout
+                    </button>
+                  </div> 
+                </div>
+
+              </div>
+                
+              <div className="workspace-content">
+                <div className='main main-setting'>
+                  {selectedListItem === 0 && (
+                    <div></div>
+                  )}
+
+                  {selectedListItem === 1 && (
+                    <div className='main-vault'>
+                      <div className="vault-breadcrumbs">
+                        {showVaultFiles ? (
+                          <>
+                            <h5>
+                              <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
+                                Vault 
+                              </span>
+                              / {vaultFilesToShow.vault_name}
+                            </h5></>):(<>
+                            <h5>Vaults</h5>
+                          </>
+                          )}
+                        
+                      </div>
+
+                      <div className="vault-search">
+                        <div>
+                          {showVaultFiles ? (
+                            <>
+                            <input className='vault-searchbar' placeholder='Search file' value={searched}
+                            onChange={vaultFileSearch} />
+                            </>
+                          ):(
+                            <input className='vault-searchbar' placeholder='Search file' value={searched}
+                            onChange={requestSearch} />
+                          )}
+                        </div>
+                        <div>
+                          {showVaultFiles ? (
+                            <button className='vault-sync-btn' onClick={() => {
+                              setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
+                            back
+                          </button>
+                          ):(
+                            <button className='vault-sync-btn' onClick={openSyncDialog}>
+                            Sync
+                            <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                          </button>
+                          )}
+                          
+                        </div>
+                      </div>
+
                       {showVaultFiles ? (
                         <>
-                        <input className='vault-searchbar' placeholder='Search file' value={searched}
-                        onChange={vaultFileSearch} />
-                        </>
-                      ):(
-                        <input className='vault-searchbar' placeholder='Search file' value={searched}
-                        onChange={requestSearch} />
+                          <div className="vault-table"> 
+                            <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                              <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                                <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                                  <TableRow className='vault-table-row'>
+                                    <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                      <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                                    </TableCell>
+                                    <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                      <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {vaultFilesToShow.files.map((row:any , index:any) => (
+                                    <TableRow
+                                      key={index}
+                                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                      className='vault-table-row vault-file-hover'
+                                    >
+                                      <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                                      <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                        </div>
+
+                        </>):(
+                        <div className="vault-table"> 
+                          <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                            <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                              <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                                <TableRow className='vault-table-row'>
+                                  <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                      No#
+                                    </Typography>
+                                  </TableCell>
+
+                                  <TableCell sx={{width: '45%'}} >
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                      Vaults
+                                    </Typography>
+                                  </TableCell>
+
+                                  {/* <TableCell sx={{width: '15%'}} >
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                      Price
+                                    </Typography>
+                                  </TableCell> */}
+
+                                  <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                    <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
+                                      Actions
+                                    </Typography>
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
+
+                              <TableBody>
+                                {vaultFiles.map((row:any , index) => (
+                                  <TableRow
+                                    key={index}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    className='vault-table-row hover-row'
+                                    onDoubleClick={() => handleVaultRowClick(row)}
+                                  >
+                                    <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+
+                                    <TableCell className='vault-table-body-row'>
+                                      <span style={{ display: 'flex', alignItems: 'center' }}>
+                                        <img src="vault.svg" alt="Folder Icon"
+                                          style={{ width: '17px', height: '17px', marginRight: '10px' }} />
+                                        {row.vault_name}
+                                      </span>
+                                    </TableCell>
+
+                                    {/* <TableCell className='vault-table-body-row'>
+                                      {row.vault_price}
+                                    </TableCell> */}
+                                    
+                                    <TableCell scope="row" className='vault-table-body-row'>
+                                      <span style={{ display: 'flex', alignItems: 'center' }}>
+                                          <img src="eye.png" alt="Folder Icon" 
+                                            style={{ width: '20px', height: '20px', marginRight: '10px' }}
+                                            onClick={() => handleVaultRowClick(row)}
+                                            className='vault-view-icon' />
+
+                                            <img src="delete.png" alt="Folder Icon" 
+                                            style={{ width: '18px', height: '18px', marginRight: '10px' }}
+                                            onClick={() => handleDeleteVault(row)}
+                                            className='vault-view-icon' />
+                                      </span>
+                                      
+                                      
+
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </div>
                       )}
-                    </div>
-                    <div>
-                      {showVaultFiles ? (
-                        <button className='vault-sync-btn' onClick={() => {
-                          setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
-                        back
-                      </button>
-                      ):(
-                        <button className='vault-sync-btn' onClick={openSyncDialog}>
-                        Sync
-                        <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                      </button>
-                      )}
+
                       
                     </div>
-                  </div>
+                  )}
 
-                  {showVaultFiles ? (
-                    <>
-                      <div className="vault-table"> 
-                        <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                  {selectedListItem === 2 && (
+                    <div className='main-user-management'>
+                      <div className="user-breadcrumbs">
+                        <h5>User Management/Users</h5>
+                      </div>
+
+                      <div className="user-search">
+                        <div>
+                          <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
+                          onChange={requestUserSearch} />
+                        </div>
+                        <div>
+                          <button className='add-user' onClick={showAddUserPopup}>
+                            Add User
+                            <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="user-table">
+                        <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
                           <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+
                             <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                               <TableRow className='vault-table-row'>
-                                <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+
+                                <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
                                   <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                                 </TableCell>
-                                <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+
+                                <TableCell sx={{width:'20%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{width: '25%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{width: '7%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{width: '8%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{width: '18%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{width: '18%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
+                                </TableCell>
+
+                                <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                                 </TableCell>
                               </TableRow>
                             </TableHead>
+                            
                             <TableBody>
-                              {vaultFilesToShow.files.map((row:any , index:any) => (
+                              {searchedUsers.map((row:any , index) => (
                                 <TableRow
-                                  key={index}
+                                  key={row.email}
                                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                  className='vault-table-row vault-file-hover'
+                                  className='vault-table-row user-row-hover'
                                 >
                                   <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                                  <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.email}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.status}</TableCell>
+                                  <TableCell>
+                                    {row.vaults && row.vaults.length > 0 ? (
+                                        <>
+                                          {row.vaults.map((vault:any , index:any) => (
+                                            <button className="package-vaults" key={index}>
+                                              {vault}
+                                            </button>
+                                          ))}
+                                        </>
+                                        ):(
+                                        <>
+                                          <p style={{display: 'inline'}}>No vault attached</p>
+                                          
+                                        </>
+                                    )}
+                                      
+                                    <img src="attach-vault.png" alt="logo" 
+                                      style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                      onClick={() => handleShowUserVaultAddPopup(row)}
+                                    />
+                                  </TableCell>
+
+                                  <TableCell>
+                                    {row.subscriptions && row.subscriptions.length > 0 ? (
+                                      <>
+                                        {row.subscriptions.map((subscription:any, index:any) => (
+                                          <button className="package-vaults" key={index}>
+                                            {subscription}
+                                          </button>
+                                        ))}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <p style={{ display: 'inline' }}>No subscriptions</p>
+                                      </>
+                                    )}
+                                  </TableCell>
+
+                                  <TableCell className='vault-table-body-row'>
+                                    <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
+                                      <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
+                                      {showOptions === index+1 && (
+                                        <div className='options-div'>
+                                          <div onClick={() => handleEditClick(index)}>Edit</div>
+                                          <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
+                                          <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
+                                            {isDeleting ? 'Deleting...' : 'Delete'}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                              
                                 </TableRow>
                               ))}
                             </TableBody>
+
                           </Table>
                         </TableContainer>
+                      </div>
                     </div>
+                  )}
 
-                    </>):(
-                    <div className="vault-table"> 
-                      <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                  {selectedListItem == 3 && (
+                    <div className='main-user-management'>
+                      <div className="user-breadcrumbs">
+                        <h5>Packages</h5>
+                      </div>
+
+                      <div className="user-search">
+                        <div>
+                          <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
+                          onChange={requestPackageSearch} />
+                        </div>
+                        {/* <div>
+                          <button className='add-user' onClick={showAddUserPopup}>
+                            Add Package
+                            <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                          </button>
+                        </div> */}
+                      </div>
+
+                    <div className="user-table">
+                      <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
                           <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                             <TableRow className='vault-table-row'>
-                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  No#
-                                </Typography>
+                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                               </TableCell>
-
-                              <TableCell sx={{width: '45%'}} >
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  Vaults
-                                </Typography>
+                              <TableCell sx={{width: '25%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                               </TableCell>
-
-                              {/* <TableCell sx={{width: '15%'}} >
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  Price
-                                </Typography>
+                              <TableCell sx={{width: '10%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
+                              </TableCell>
+                              <TableCell sx={{width: '10%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
+                              </TableCell>
+                              <TableCell sx={{ width: '30%'}} >
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
+                              </TableCell>
+                              {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                               </TableCell> */}
-
-                              <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
-                                  Actions
-                                </Typography>
-                              </TableCell>
                             </TableRow>
                           </TableHead>
 
                           <TableBody>
-                            {vaultFiles.map((row:any , index) => (
+                            {searchedStripePackages.map((row:any , index) => (
                               <TableRow
-                                key={index}
+                                key={row.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                className='vault-table-row hover-row'
-                                onDoubleClick={() => handleVaultRowClick(row)}
+                                className='vault-table-row user-row-hover'
                               >
-                                <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-
-                                <TableCell className='vault-table-body-row'>
-                                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                                    <img src="vault.svg" alt="Folder Icon"
-                                      style={{ width: '17px', height: '17px', marginRight: '10px' }} />
-                                    {row.vault_name}
-                                  </span>
-                                </TableCell>
-
-                                {/* <TableCell className='vault-table-body-row'>
-                                  {row.vault_price}
-                                </TableCell> */}
-                                
-                                <TableCell scope="row" className='vault-table-body-row'>
-                                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                                      <img src="eye.png" alt="Folder Icon" 
-                                        style={{ width: '20px', height: '20px', marginRight: '10px' }}
-                                        onClick={() => handleVaultRowClick(row)}
-                                        className='vault-view-icon' />
-
-                                        <img src="delete.png" alt="Folder Icon" 
-                                        style={{ width: '18px', height: '18px', marginRight: '10px' }}
-                                        onClick={() => handleDeleteVault(row)}
-                                        className='vault-view-icon' />
-                                  </span>
-                                  
-                                  
-
-                                </TableCell>
+                                  <TableCell component="th" scope="row" className='vault-table-body-row'>
+                                    {index + 1}
+                                  </TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+                                  <TableCell className='vault-table-body-row'>
+                                    {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                                  </TableCell>
+                                  <TableCell className='vault-table-body-row'>
+                                    {convertUnixTimestampToDateTime(row.created)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {row.features && row.features.length > 0 ? (
+                                      <>
+                                        {row.features.map((feature:any , index:any) => (
+                                          <button className="package-vaults" key={index}>
+                                            {feature.name}
+                                          </button>
+                                        ))}
+                                      </>
+                                      ):(
+                                      <>
+                                        <p style={{display: 'inline'}}>No vault attached</p>
+                                        
+                                      </>
+                                    )}
+                                    
+                                    <img src="attach-vault.png" alt="logo" 
+                                      style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                      onClick={() => handleShowVaultAddPopup(row)}
+                                    />
+                                  </TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
                         </Table>
                       </TableContainer>
                     </div>
+                  </div>
+
                   )}
-
                   
+                  
+                    
                 </div>
-              )}
-
-              {selectedListItem === 2 && (
-                <div className='main-user-management'>
-                  <div className="user-breadcrumbs">
-                    <h5>User Management/Users</h5>
-                  </div>
-
-                  <div className="user-search">
-                    <div>
-                      <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
-                      onChange={requestUserSearch} />
-                    </div>
-                    <div>
-                      <button className='add-user' onClick={showAddUserPopup}>
-                        Add User
-                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="user-table">
-                    <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                      <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-
-                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                          <TableRow className='vault-table-row'>
-
-                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width:'20%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '25%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '7%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '8%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '18%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '18%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        
-                        <TableBody>
-                          {searchedUsers.map((row:any , index) => (
-                            <TableRow
-                              key={row.email}
-                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                              className='vault-table-row user-row-hover'
-                            >
-                              <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.email}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.status}</TableCell>
-                              <TableCell>
-                                {row.vaults && row.vaults.length > 0 ? (
-                                    <>
-                                      {row.vaults.map((vault:any , index:any) => (
-                                        <button className="package-vaults" key={index}>
-                                          {vault}
-                                        </button>
-                                      ))}
-                                    </>
-                                    ):(
-                                    <>
-                                      <p style={{display: 'inline'}}>No vault attached</p>
-                                      
-                                    </>
-                                )}
-                                  
-                                <img src="attach-vault.png" alt="logo" 
-                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
-                                  onClick={() => handleShowUserVaultAddPopup(row)}
-                                />
-                              </TableCell>
-
-                              <TableCell>
-                                {row.subscriptions && row.subscriptions.length > 0 ? (
-                                  <>
-                                    {row.subscriptions.map((subscription:any, index:any) => (
-                                      <button className="package-vaults" key={index}>
-                                        {subscription}
-                                      </button>
-                                    ))}
-                                  </>
-                                ) : (
-                                  <>
-                                    <p style={{ display: 'inline' }}>No subscriptions</p>
-                                  </>
-                                )}
-                              </TableCell>
-
-                              <TableCell className='vault-table-body-row'>
-                                <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
-                                  <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
-                                  {showOptions === index+1 && (
-                                    <div className='options-div'>
-                                      <div onClick={() => handleEditClick(index)}>Edit</div>
-                                      <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
-                                      <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
-                                        {isDeleting ? 'Deleting...' : 'Delete'}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </TableCell>
-                          
-                            </TableRow>
-                          ))}
-                        </TableBody>
-
-                      </Table>
-                    </TableContainer>
-                  </div>
-                </div>
-              )}
-
-              {selectedListItem == 3 && (
-                <div className='main-user-management'>
-                  <div className="user-breadcrumbs">
-                    <h5>Packages</h5>
-                  </div>
-
-                  <div className="user-search">
-                    <div>
-                      <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
-                      onChange={requestPackageSearch} />
-                    </div>
-                    {/* <div>
-                      <button className='add-user' onClick={showAddUserPopup}>
-                        Add Package
-                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                      </button>
-                    </div> */}
-                  </div>
-
-                 <div className="user-table">
-                   <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                     <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                       <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                         <TableRow className='vault-table-row'>
-                           <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                           </TableCell>
-                           <TableCell sx={{width: '25%'}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
-                           </TableCell>
-                           <TableCell sx={{width: '10%'}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
-                           </TableCell>
-                           <TableCell sx={{width: '10%'}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
-                           </TableCell>
-                           <TableCell sx={{ width: '30%'}} >
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
-                           </TableCell>
-                           {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
-                             <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
-                           </TableCell> */}
-                         </TableRow>
-                       </TableHead>
-
-                       <TableBody>
-                         {searchedStripePackages.map((row:any , index) => (
-                           <TableRow
-                             key={row.id}
-                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                             className='vault-table-row user-row-hover'
-                           >
-                              <TableCell component="th" scope="row" className='vault-table-body-row'>
-                                {index + 1}
-                              </TableCell>
-                              <TableCell className='vault-table-body-row'>{row.name}</TableCell>
-                              <TableCell className='vault-table-body-row'>
-                                {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
-                              </TableCell>
-                              <TableCell className='vault-table-body-row'>
-                                {convertUnixTimestampToDateTime(row.created)}
-                              </TableCell>
-                              <TableCell>
-                                {row.features && row.features.length > 0 ? (
-                                  <>
-                                    {row.features.map((feature:any , index:any) => (
-                                      <button className="package-vaults" key={index}>
-                                        {feature.name}
-                                      </button>
-                                    ))}
-                                  </>
-                                  ):(
-                                  <>
-                                    <p style={{display: 'inline'}}>No vault attached</p>
-                                    
-                                  </>
-                                )}
-                                
-                                <img src="attach-vault.png" alt="logo" 
-                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
-                                  onClick={() => handleShowVaultAddPopup(row)}
-                                />
-                              </TableCell>
-                           </TableRow>
-                         ))}
-                       </TableBody>
-                     </Table>
-                   </TableContainer>
-                 </div>
-               </div>
-
-              )}
-              
-               
-                
-            </div>
-          </div>
+              </div>
         
-          <ToastContainer autoClose={1500} />
-        </div>
+              <ToastContainer autoClose={1500} />
+            </div>
+          </>
+
+        )}
+        
       </LayoutWrapper>
       );
 }

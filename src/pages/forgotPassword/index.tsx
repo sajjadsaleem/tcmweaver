@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import LayoutWrapper from "@/pages/components/LayoutWrapper";
+import AuthLayout from "@/pages/components/AuthLayout";
 
-// import LayoutWrapper from './components/global/LayoutWrapper';
-// import AuthLayout from './components/global/AuthLayout';
 import * as Helpers from '../../util/Helpers';
-// import appLogo from '../images/logo.gif';
+
 
 const LoginPage = () => {
   const router = useRouter();
@@ -17,7 +17,17 @@ const LoginPage = () => {
   const [btnLoading, setBtnLoading] = useState(false);
 
   const [get_email, set_email] = useState("");
-  console.log(get_email)
+  const [validationErrors, setValidationErrors] = useState<any>({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const [formData, setFormData] = useState<any>({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
   const submitBtn = () => {
     setBtnLoading(true);
@@ -41,64 +51,118 @@ const LoginPage = () => {
           });
   };
 
+  const handleSubmit = async (e:any) => {
+    e.preventDefault()
+
+    const newValidationErrors:any = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+        newValidationErrors.email = 'Please enter a valid email address';
+    }
+
+    if (Object.keys(newValidationErrors).length > 0) {
+      // Validation failed, update state to display error messages
+      setValidationErrors(newValidationErrors);
+      return;
+    }
+
+
+    // setBtnLoading(true)
+
+    let payload = {
+      email: formData.email,
+    }
+
+    // axios.post('/api/auth/forgot-password', payload)
+    //   .then((res) => {
+    //       setBtnLoading(false)
+    //       toast.success(res.data.message, {
+    //         position: "top-right",
+    //         autoClose: 1500,
+    //         pauseOnHover: true,
+    //         theme: "colored",
+    //       });
+    //   })
+    //   .catch(err => {
+    //       console.log('err=',err.response.data)
+    //       setBtnLoading(false)
+    //   });
+
+
+  }
+
+  const handleChange = (e:any) => {
+    const { name, value } = e.target;
+    setFormData({
+        ...formData,
+        [name]: value,
+    });
+
+    setValidationErrors({
+        ...validationErrors,
+        [name]: '',
+    });
+  };
+
   return (
     <>
-      {/* <LayoutWrapper layout={AuthLayout} > */}
-      <div className="forget-password-container">
-        <div className="authForm">
-          <div className="mb-40 text-center">
-            <Link href="/" className="logo">
-              {/* <img src={appLogo.src} alt="Logo" /> */}
-            </Link>
-          </div>
+      <LayoutWrapper layout={AuthLayout} >
+        <div className="forgot-password-container">
 
-          <div className="mb-3">
-            {/* <label for="email" className="form-label">
-              Email
-            </label> */}
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              value={get_email}
-              onChange={(e) => set_email(e.target.value)}
-            />
-          </div>
-
-          <div className="d-grid mb-4">
-            <button
-              type="submit"
-              className="btn btn-primary btn-block"
-              disabled={btnLoading}
-              onClick={submitBtn}
-            >
-              {btnLoading ? (
-                <>
-                  Please Wait{" "}
-                  <span
-                    className="spinner-grow spinner-grow-sm ml-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </>
-              ) : (
-                <>Reset Password</>
-              )}
-            </button>
-          </div>
-
-          <div className="mb-3 text-center">
-            <p>
-              Already have an account?{" "}
-              <Link className="text-base" href={`/login`}>
-                Login
+          <div style={{marginTop: '10px'}}>
+              <Link href="/login" style={{textDecoration: 'none'}}>
+                  <div className="signup-top">
+                      <div>
+                          <img src="/graph-logo.png" alt="img" />
+                      </div>
+                      <p>TCM Weaver</p>
+                  </div>
               </Link>
-            </p>
           </div>
+          
+          <div>          
+            <form onSubmit={handleSubmit}>
+              <div className="forgotpassword-page-input">
+                <input
+                    type="email"
+                    name="email"
+                    className="form-control"
+                    aria-describedby="emailHelp"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+                <span className="signup-error-message">{validationErrors.email}</span>
+
+                <div className="sign-btn">
+                    <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+                        {btnLoading ? (
+                        <>
+                            Please Wait{" "}
+                            <span
+                            className="spinner-grow spinner-grow-sm ml-2"
+                            role="status"
+                            aria-hidden="true"
+                            ></span>
+                        </>
+                        ) : (
+                        <>Reset Password</>
+                        )}
+                    </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+
+          <div className="mb-3 mt-3 text-center">
+              <p>Already have an account?{" "}<Link className="text-base" href={`/login`}>Login</Link></p>
+          </div>
+
         </div>
-      </div>
-      <ToastContainer />
-      {/* </LayoutWrapper> */}
+        <ToastContainer />
+      </LayoutWrapper>
     </>
   );
 };

@@ -1636,7 +1636,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-top: 10px;
+    padding: 10px;
 }
 
 .signup-top {
@@ -1679,6 +1679,34 @@
 }
 
 .signup-page-input input {
+    border-radius: 40px;
+    width: 400px;
+    padding: 13px 15px;
+    border-color: #616161;
+}
+
+/* ----- forgot passowrd page ------- */
+
+.forgot-password-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+
+}
+
+.forgotpassword-page-input {
+    display: flex;
+    flex-direction: column;
+    /* gap: 4px; */
+    width: 100%;
+    margin-top: 30px;
+}
+
+.forgotpassword-page-input input {
     border-radius: 40px;
     width: 400px;
     padding: 13px 15px;

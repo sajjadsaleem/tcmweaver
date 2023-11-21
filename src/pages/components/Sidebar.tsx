@@ -765,6 +765,7 @@ const Sidebar = () => {
     }
     setAllCheckboxes(updatedCheckboxes);
   };
+  
 
   const handleAccordionClick = () => {
     setShouldShowFilters(!shouldShowFilters);
@@ -959,7 +960,7 @@ const Sidebar = () => {
         });
 
         finalCount = updatedOpenedResults.length;
-        console.log("updatedOpenedResults: ", updatedOpenedResults);
+        // console.log("updatedOpenedResults: ", updatedOpenedResults);
 
         // add all nodes
         updatedOpenedResults.forEach(async (result: any) => {
@@ -1082,6 +1083,21 @@ const Sidebar = () => {
       }
 
     } else {
+      console.log('eeee')
+      const graphDiv:any = document.getElementById('graph-div');
+      if (graphDiv) {
+        const svgElement = graphDiv.querySelector('svg');
+        if (svgElement) {
+          graphDiv.removeChild(svgElement);
+        } else {
+          console.log('SVG element not found or already removed.');
+        }
+      } else {
+        console.log('Element with ID "graph-div" not found.');
+      }
+
+
+
       setShouldShowFilters(true);
       setSearchValue(graphSearchValue)
     }
@@ -1899,9 +1915,10 @@ const Sidebar = () => {
       });
   };
 
-  const wanderClickedNode = () => {
-    console.log("node clicked: ", fileOpenedFromGraph);
-    console.log("openedResult: ", openedResults);
+  const wanderClickedNode = async () => {
+    // console.log("fileopenedfromgraph: ", fileOpenedFromGraph);
+    // console.log("openedResult: ", openedResults);
+    // console.log('graphdata' , graphData)
     const updatedGraphData: any = { ...graphData };
     const matchingResult = openedResults.find(
       (result) => result.fileName === fileOpenedFromGraph.id
@@ -1910,12 +1927,14 @@ const Sidebar = () => {
       return updatedGraphData.nodes.some((node: any) => node.id === id);
     };
 
-    if (matchingResult && fileOpenedFromGraph.tag === '#sandwich') {
-      console.log("Matching result found:", matchingResult);
-      console.log("updatedGraphData: ", updatedGraphData);
+
+    if (matchingResult) {
+      // console.log("Matching result found:", matchingResult);
+      // console.log("updatedGraphData: ", updatedGraphData);
       const underlinedWords: any = matchingResult.content.match(
         /<span[^>]*>(.*?)<\/span>/g
       );
+
 
       let count = 0;
       let finalCount = 1;
@@ -1929,78 +1948,143 @@ const Sidebar = () => {
         });
       } else if(underlinedWords === null){
         wordsArray = [matchingResult.fileName];
-
       }
-      
 
+      // console.log('wordsarray' , wordsArray)
+      
       try {
         // console.log("wordsArray", wordsArray);
-        axios
-          .post("/api/getTags?q=" + wordsArray.join(","))
-          .then((response) => {
-            count = count + 1;
-            // console.log("res", response);
-            // Handle the response data here
+        const tableNamesStr = userAccessVaults.join(',');
+          const encodedWords = encodeURIComponent(wordsArray.join(","));
+          // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
+        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}`)
+        if(response) {
 
-            console.log("response: ", response.data);
-            const linkTags = Object.keys(response.data).map((key) => {
-              return {
-                name: key,
-                category: response.data[key],
-              };
-            });
+          for (const entry of response.data) {
+            let textToConvert = entry.content;
+            const regex = /\[\[([^[\]]+)\]\]/g;
+      
+            // entry.content = textToConvert.replace(
+            //   regex,
+            //   (match: any, word: any) => `${word}`
+            // );
+      
+            const contentWithRemovedBrackets = textToConvert.replace(
+              regex,
+              (match: any, word: any) => `${word}`
+            );
+            entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
+          }
 
-            // console.log("linkTags", linkTags);
+          console.log('response' , response.data)
 
-            const searchWords = (
-              searchValue.match(/(-?)"([^"]*)"|\S+/g) || []
-            ).map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
-            // console.log("searchWords", searchWords);
 
-            // Use filter to remove objects that match any word in searchWords with a hyphen
-            const filteredData = linkTags.filter((item: any) => {
-              return !searchWords.includes(`-${item.name}`);
-            });
+          const linkTags = Object.keys(response.data).map((key) => {
+            return {
+              name: response.data[key].fileName,
+              category: response.data[key].tag,
+            };
+          });
 
-            filteredData.forEach((word: any) => {
-              // Remove HTML tags from underlined word
-              console.log("word", word);
-              if (!nodeExists(word.name)) {
-                updatedGraphData.nodes.push({
-                  id: word.name,
-                  tag: word.category,
-                });
-                openedResults.forEach((result) => {
-                  // Check if the name exists in the content
-                  if (result.content.includes(word.name)) {
-                    // Add a link to newLinks
-                    console.log(result, word);
-                    updatedGraphData.links.push({
-                      source: result.fileName,
-                      target: word.name,
-                      value: 1,
-                    });
-                  }
-                });
-                // console.log("nodes:", nodes);
-              }
-              // console.log("nodes", nodes);
-              // Create a link between fileName and underlined word
-            });
+          const searchWords = (
+            searchValue.match(/(-?)"([^"]*)"|\S+/g) || []
+          ).map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
-            console.log("updatedGraphData: ", updatedGraphData);
-            if (finalCount == count) {
-              // let graphNewData = resultData;
-              setGraphData(updatedGraphData);
-              makeGraph(updatedGraphData);
-              // console.log("match count");
+          // Use filter to remove objects that match any word in searchWords with a hyphen
+          const filteredData = linkTags.filter((item: any) => {
+            return !searchWords.includes(`-${item.name}`);
+          });
+
+          filteredData.forEach((word: any) => {
+            if (!nodeExists(word.name)) {
+              updatedGraphData.nodes.push({
+                id: word.name,
+                tag: word.category,
+              });
+              openedResults.forEach((result) => {
+                // Check if the name exists in the content
+                if (result.content.includes(word.name)) {
+                  // Add a link to newLinks
+                  updatedGraphData.links.push({
+                    source: result.fileName,
+                    target: word.name,
+                  });
+                }
+              });
+              // console.log("nodes:", nodes);
             }
           });
-        // console.log("finalCount", finalCount);
-        // console.log("count", count);
+
+          console.log("updatedGraphData: ", updatedGraphData);
+            // let graphNewData = resultData;
+          setGraphData(updatedGraphData);
+          makeGraph(updatedGraphData);
+          // console.log("match count");
+          // Remove HTML tags from underlined word
+
+          const originalArray = response.data;
+          const copiedArray = _.cloneDeep(originalArray);
+
+          let updatedOpenedResults:any = [];
+          copiedArray.forEach((result:any) => {
+            let matchingFile: any = result;
+            marked.setOptions({
+              breaks: true,
+            });
+
+            matchingFile.content = marked(matchingFile.content);
+
+            const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+            const regex = /\[\[([^[\]]+)\]\]/g;
+
+            const contentWithoutHashtags = matchingFile.content.replace(
+              hashtagParagraphRegex,
+              ""
+            );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            // console.log("contentwithstyledwords", contentWithStyledWords);
+
+            matchingFile.content = contentWithStyledWords;
+
+            updatedOpenedResults.push({
+              ...matchingFile,
+              openedFromResults: true,
+            });
+          })
+
+          const newOpenedResults = [...openedResults];
+          const filteredUpdatedResults = newOpenedResults.filter((updatedObj:any) => (
+            !updatedOpenedResults.some((existingObj:any) => existingObj.fileName === updatedObj.fileName)
+          ));
+
+          console.log('filteredupdatedresults' , filteredUpdatedResults)
+
+
+          const indexToInsertAfter  = filteredUpdatedResults.findIndex((obj) => obj.fileName === fileOpenedFromGraph.id);
+          if (indexToInsertAfter !== -1) {
+            
+            const insertionIndex = indexToInsertAfter + 1;
+            
+            filteredUpdatedResults.splice(insertionIndex, 0, ...updatedOpenedResults);
+            console.log('filteredUpdatedResults' , filteredUpdatedResults)
+            setOpenedResults(filteredUpdatedResults)
+
+          
+            // Log the updated array to verify the changes
+            // console.log('newOpenedResults:', newOpenedResults);
+            // setOpenedResults(newOpenedResults)
+          }          
+        }
       } catch (error) {
         // Handle errors here
-        console.log("Error:", error);
+        console.log("Error getting wander node files:", error);
       }
     } else {
       console.log("No matching result found.");
@@ -2340,6 +2424,7 @@ const Sidebar = () => {
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
+      // console.log('response' , responseJson)
 
       newEntries = responseJson;
 
@@ -2431,294 +2516,346 @@ const Sidebar = () => {
           }
         });
 
+
         finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
-        updatedOpenedResults.forEach(async (result: any) => {
-          // Create a node for the fileName
-          const nodeId = result.fileName;
+
+        updatedOpenedResults.forEach(async (result:any) => {
+          const nodeId = result.fileName
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
           const nodeTag = match ? match[0] : null;
+          const cleanedTag = nodeTag.substring(1);
           if (!nodeExists(nodeId)) {
-            nodes.push({ id: nodeId, tag: nodeTag });
+                nodes.push({ id: nodeId, tag: cleanedTag});
           }
-          let wordsArray = []
-          let underlinedWords = null
+        })
 
-          if (new RegExp(searchValueForGraph, 'i').test(nodeId)) {
+        updatedOpenedResults.map((result:any) => {
+          const nodeId = result.fileName
 
-          // Parse the content to extract underlined words
-            underlinedWords = result.content.match(
-              /<span[^>]*>(.*?)<\/span>/g
-            );
-            // console.log("result" , result.fileName , "underlinedWords1 ", underlinedWords);
-            
-            if(underlinedWords){
-              wordsArray = underlinedWords.map((span: any) => {
-                // Use a regular expression to extract the text content between the <span> tags
-                const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-                // Check if a match was found and return the extracted text, or an empty string if not
-                return match ? match[1] : "";
-              });
-            } else if (underlinedWords === null) {
-              wordsArray = [result.fileName];
-    
-              // Handle the case where underlinedWords is null or undefined
-            }
-            for (const word of wordsArray) {
-              // Check if the word is not already in tempNodes
-              if (!tempNodes.includes(word)) {
-                // Add the word to tempNodes
-                tempNodes.push(word);
-              }
-            }
-          } else {
-            underlinedWords = result.content.match(
-              /<span[^>]*>(.*?)<\/span>/g
-            );
-            // console.log("result" , result.fileName , "underlinedWords2 ", underlinedWords);
-            
-            if(underlinedWords){
-              wordsArray = underlinedWords.map((span: any) => {
-                // Use a regular expression to extract the text content between the <span> tags
-                const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-                // Check if a match was found and return the extracted text, or an empty string if not
-                return match ? match[1] : "";
-              });
-              // console.log('wordsarray now' , wordsArray)
-              wordsArray= wordsArray.filter((word:any) => {
-                // Check if the word matches searchValueForGraph or if it's in the nodes array
-                const matchesSearch = new RegExp(searchValueForGraph, "i").test(word);
-                // console.log('matchesSearch' , matchesSearch)
-                const inNodesArray = tempNodes.some((node:any) => {
-                  // Check if any node in tempNodes meets a specific condition
-                  return node === word; // Adjust the condition as needed
-              });
-                // console.log('inNodesArray' , inNodesArray)
-                return matchesSearch || inNodesArray;
-              });
-              // console.log('wordsarraynowafter' , wordsArray)
-            } else if (underlinedWords === null) {
-              wordsArray = [result.fileName];
-    
-              // Handle the case where underlinedWords is null or undefined
-            }
-            for (const word of wordsArray) {
-              // Check if the word is not already in tempNodes
-              if (!tempNodes.includes(word)) {
-                // Add the word to tempNodes
-                tempNodes.push(word);
-              }
-            }
-
-          }
-          
-          // console.log("wordsArray: ", wordsArray);
-
-          try {
-            // console.log('nodes' , nodes)
-            // console.log("wordsArray", wordsArray);
-            const tableNamesStr = userAccessVaults.join(',');
-            const response = await axios.post(
-              `/api/getTags?q=${wordsArray.join(",")}&av=${tableNamesStr}`
-            );
-            console.log("res", response);
-            // Handle the response data here
-
-            if (response) {
-              count = count + 1;
-              const linkTags = Object.keys(response.data).map((key) => {
-                return {
-                  name: key,
-                  category: response.data[key],
-                };
-              });
-              // let nodeArray = [];
-              // console.log("linkTags", linkTags);
-              linkTags.forEach((word: any) => {
-                const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
-                if (existingNodeIndex !== -1) {
-                  // Node already exists, update its tag
-                  nodes[existingNodeIndex].tag = word.category;
-                } else {
-                  // Node doesn't exist, create a new one
-                  nodes.push({ id: word.name, tag: word.category });
-                }
-                // Create a link between fileName and underlined word
-                links.push({ source: nodeId, target: word.name, value: 1 });
-              });
-            }
-            // console.log("finalCount", finalCount);
-            // console.log("count", count);
-            if (finalCount == count) {
-              const resultData: any = { nodes, links };
-              // let graphNewData = resultData;
-              setGraphData(resultData);
-              makeGraph(resultData);
-              // console.log("match count");
-            }
-          } catch (error) {
-            // Handle errors here
-            console.log("Error:", error);
-          }
-        });
-        setOpenedResults(updatedOpenedResults);
-        
-      } else {
-        // If files are not open in workspace
-        // console.log("search Results", searchResults);
-        console.log('no words in search')
-
-        const updatedOpenedResults: any = searchResultsForGraph.slice();
-
-        updatedOpenedResults.forEach((result:any) => {
-          let matchingFile: any = result;
-          marked.setOptions({
-            breaks: true,
-          });
-
-          matchingFile.content = marked(matchingFile.content);
-          // console.log("markedContent", matchingFile);
-
-          const regex = /\[\[([^[\]]+)\]\]/g;
-          const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
-          if (matchingFile) {
-            const contentWithoutHashtags = matchingFile.content.replace(
-              hashtagParagraphRegex,
-              ""
-            );
-            // console.log("contentWithoutHashtags", contentWithoutHashtags);
-
-            const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex,
-              (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-            );
-            // console.log("contentwithstyledwords", contentWithStyledWords);
-
-            const updatedResultToOpen = {
-              ...result,
-              content: contentWithStyledWords,
-              openedFromResults: true,
-            };
-
-            // const doesExist = openedResults.some(
-            //   (result) => result.fileName === updatedResultToOpen.fileName
-            // );
-            const doesExist = updatedOpenedResults.some(
-              (result: any) => result.fileName === updatedResultToOpen.fileName
-            );
-
-            if (!doesExist) {
-              updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
-            } else {
-              console.log("An object with the same fileName already exists.");
-            }
-          }
-        });
-        finalCount = updatedOpenedResults.length;
-        // console.log("updatedOpenedResults: ", updatedOpenedResults);
-        updatedOpenedResults.forEach(async (result: any) => {
-          // Create a node for the fileName
-          const nodeId = result.fileName;
-          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          const nodeTag = match ? match[0] : null;
-          if (!nodeExists(nodeId)) {
-            nodes.push({ id: nodeId, group: 1, tag: nodeTag });
-          }
-
-          // Parse the content to extract underlined words
-          const underlinedWords = result.content.match(
+          const underlinedWords: any = result.content.match(
             /<span[^>]*>(.*?)<\/span>/g
           );
-          console.log("underlinedWords", underlinedWords);
-          let wordsArray
-          if(underlinedWords){
+
+          let wordsArray: any = [];
+          if (underlinedWords && Array.isArray(underlinedWords)) {
             wordsArray = underlinedWords.map((span: any) => {
               // Use a regular expression to extract the text content between the <span> tags
               const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
               // Check if a match was found and return the extracted text, or an empty string if not
               return match ? match[1] : "";
             });
-          } else if (underlinedWords === null) {
-            wordsArray = [result.fileName];
-  
-            // Handle the case where underlinedWords is null or undefined
+
+            // Now you can use wordsArray safely
           }
+
+          wordsArray.forEach((word:any) => {
+            const nodeWithWord = nodes.find((node:any) => node.id === word);
           
-          // console.log("wordsArray: ", wordsArray);
-
-          try {
-            // console.log("wordsArray", wordsArray);
-            const tableNamesStr = userAccessVaults.join(',');
-            const response = await axios.post(
-              `/api/getTags?q=${wordsArray.join(",")}&av=${tableNamesStr}`
-            );
-            // console.log("res", response);
-            // Handle the response data here
-
-            if (response) {
-              count = count + 1;
-              const linkTags = Object.keys(response.data).map((key) => {
-                return {
-                  name: key,
-                  category: response.data[key],
-                };
-              });
-              // let nodeArray = [];
-              // console.log("linkTags", linkTags);
-              linkTags.forEach((word: any) => {
-                const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
-                if (existingNodeIndex !== -1) {
-                  // Node already exists, update its tag
-                  nodes[existingNodeIndex].tag = word.category;
-                } else {
-                  // Node doesn't exist, create a new one
-                  nodes.push({ id: word.name, tag: word.category });
-                }
-                // Create a link between fileName and underlined word
-                links.push({ source: nodeId, target: word.name, value: 1 });
-              });
+            if (nodeWithWord) {
+              if(nodeId !== nodeWithWord.id){
+                // Node with the word exists, update its tag
+                links.push({ source: nodeId, target: nodeWithWord.id });
+              }
             }
-            // console.log("finalCount", finalCount);
-            // console.log("count", count);
-            if (finalCount == count) {
-              const resultData: any = { nodes, links };
-              // let graphNewData = resultData;
-              setGraphData(resultData);
-              makeGraph(resultData);
-              // console.log("match count");
-            }
-          } catch (error) {
-            // Handle errors here
-            console.log("Error:", error);
-          }
-        });
-        setOpenedResults(updatedOpenedResults);
-      }
+          });
+        })
+
+        const resultData:any = {nodes , links}
+
+        setTimeout(()=> {
+          setOpenedResults(updatedOpenedResults)
+          setGraphData(resultData);
+          makeGraph(resultData);
+        }, 200)
+
+        // updatedOpenedResults.forEach(async (result: any) => {
+        //   // Create a node for the fileName
+        //   const nodeId = result.fileName;
+        //   const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+        //   const nodeTag = match ? match[0] : null;
+        //   if (!nodeExists(nodeId)) {
+        //     nodes.push({ id: nodeId, tag: nodeTag });
+        //   }
+        //   let wordsArray = []
+        //   let underlinedWords = null
+
+        //   if (new RegExp(searchValueForGraph, 'i').test(nodeId)) {
+
+        //   // Parse the content to extract underlined words
+        //     underlinedWords = result.content.match(
+        //       /<span[^>]*>(.*?)<\/span>/g
+        //     );
+        //     // console.log("result" , result.fileName , "underlinedWords1 ", underlinedWords);
+            
+        //     if(underlinedWords){
+        //       wordsArray = underlinedWords.map((span: any) => {
+        //         // Use a regular expression to extract the text content between the <span> tags
+        //         const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+        //         // Check if a match was found and return the extracted text, or an empty string if not
+        //         return match ? match[1] : "";
+        //       });
+        //     } else if (underlinedWords === null) {
+        //       wordsArray = [result.fileName];
+    
+        //       // Handle the case where underlinedWords is null or undefined
+        //     }
+        //     for (const word of wordsArray) {
+        //       // Check if the word is not already in tempNodes
+        //       if (!tempNodes.includes(word)) {
+        //         // Add the word to tempNodes
+        //         tempNodes.push(word);
+        //       }
+        //     }
+        //   } else {
+        //     underlinedWords = result.content.match(
+        //       /<span[^>]*>(.*?)<\/span>/g
+        //     );
+        //     // console.log("result" , result.fileName , "underlinedWords2 ", underlinedWords);
+            
+        //     if(underlinedWords){
+        //       wordsArray = underlinedWords.map((span: any) => {
+        //         // Use a regular expression to extract the text content between the <span> tags
+        //         const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+        //         // Check if a match was found and return the extracted text, or an empty string if not
+        //         return match ? match[1] : "";
+        //       });
+        //       // console.log('wordsarray now' , wordsArray)
+        //       wordsArray= wordsArray.filter((word:any) => {
+        //         // Check if the word matches searchValueForGraph or if it's in the nodes array
+        //         const matchesSearch = new RegExp(searchValueForGraph, "i").test(word);
+        //         // console.log('matchesSearch' , matchesSearch)
+        //         const inNodesArray = tempNodes.some((node:any) => {
+        //           // Check if any node in tempNodes meets a specific condition
+        //           return node === word; // Adjust the condition as needed
+        //       });
+        //         // console.log('inNodesArray' , inNodesArray)
+        //         return matchesSearch || inNodesArray;
+        //       });
+        //       // console.log('wordsarraynowafter' , wordsArray)
+        //     } else if (underlinedWords === null) {
+        //       wordsArray = [result.fileName];
+    
+        //       // Handle the case where underlinedWords is null or undefined
+        //     }
+        //     for (const word of wordsArray) {
+        //       // Check if the word is not already in tempNodes
+        //       if (!tempNodes.includes(word)) {
+        //         // Add the word to tempNodes
+        //         tempNodes.push(word);
+        //       }
+        //     }
+
+        //   }
+          
+        //   // console.log("wordsArray: ", wordsArray);
+
+        //   try {
+        //     // console.log('nodes' , nodes)
+        //     // console.log("wordsArray", wordsArray);
+        //     const tableNamesStr = userAccessVaults.join(',');
+        //     const response = await axios.post(
+        //       `/api/getTags?q=${wordsArray.join(",")}&av=${tableNamesStr}`
+        //     );
+        //     console.log("res", response);
+        //     // Handle the response data here
+
+        //     if (response) {
+        //       count = count + 1;
+        //       const linkTags = Object.keys(response.data).map((key) => {
+        //         return {
+        //           name: key,
+        //           category: response.data[key],
+        //         };
+        //       });
+        //       // let nodeArray = [];
+        //       // console.log("linkTags", linkTags);
+        //       linkTags.forEach((word: any) => {
+        //         const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
+        //         if (existingNodeIndex !== -1) {
+        //           // Node already exists, update its tag
+        //           nodes[existingNodeIndex].tag = word.category;
+        //         } else {
+        //           // Node doesn't exist, create a new one
+        //           nodes.push({ id: word.name, tag: word.category });
+        //         }
+        //         // Create a link between fileName and underlined word
+        //         links.push({ source: nodeId, target: word.name, value: 1 });
+        //       });
+        //     }
+        //     // console.log("finalCount", finalCount);
+        //     // console.log("count", count);
+        //     if (finalCount == count) {
+        //       const resultData: any = { nodes, links };
+        //       // let graphNewData = resultData;
+        //       setGraphData(resultData);
+        //       makeGraph(resultData);
+        //       // console.log("match count");
+        //     }
+        //   } catch (error) {
+        //     // Handle errors here
+        //     console.log("Error:", error);
+        //   }
+        // });
+        // setOpenedResults(updatedOpenedResults);
+        
+      } 
+      // else {
+      //   // If files are not open in workspace
+      //   // console.log("search Results", searchResults);
+      //   console.log('no words in search')
+
+      //   const updatedOpenedResults: any = searchResultsForGraph.slice();
+
+      //   updatedOpenedResults.forEach((result:any) => {
+      //     let matchingFile: any = result;
+      //     marked.setOptions({
+      //       breaks: true,
+      //     });
+
+      //     matchingFile.content = marked(matchingFile.content);
+      //     // console.log("markedContent", matchingFile);
+
+      //     const regex = /\[\[([^[\]]+)\]\]/g;
+      //     const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+      //     if (matchingFile) {
+      //       const contentWithoutHashtags = matchingFile.content.replace(
+      //         hashtagParagraphRegex,
+      //         ""
+      //       );
+      //       // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+      //       const contentWithStyledWords = contentWithoutHashtags.replace(
+      //         regex,
+      //         (match: any, word: any) =>
+      //           `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+      //       );
+      //       // console.log("contentwithstyledwords", contentWithStyledWords);
+
+      //       const updatedResultToOpen = {
+      //         ...result,
+      //         content: contentWithStyledWords,
+      //         openedFromResults: true,
+      //       };
+
+      //       // const doesExist = openedResults.some(
+      //       //   (result) => result.fileName === updatedResultToOpen.fileName
+      //       // );
+      //       const doesExist = updatedOpenedResults.some(
+      //         (result: any) => result.fileName === updatedResultToOpen.fileName
+      //       );
+
+      //       if (!doesExist) {
+      //         updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
+      //       } else {
+      //         console.log("An object with the same fileName already exists.");
+      //       }
+      //     }
+      //   });
+      //   finalCount = updatedOpenedResults.length;
+      //   // console.log("updatedOpenedResults: ", updatedOpenedResults);
+      //   updatedOpenedResults.forEach(async (result: any) => {
+      //     // Create a node for the fileName
+      //     const nodeId = result.fileName;
+      //     const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+      //     const nodeTag = match ? match[0] : null;
+      //     if (!nodeExists(nodeId)) {
+      //       nodes.push({ id: nodeId, group: 1, tag: nodeTag });
+      //     }
+
+      //     // Parse the content to extract underlined words
+      //     const underlinedWords = result.content.match(
+      //       /<span[^>]*>(.*?)<\/span>/g
+      //     );
+      //     console.log("underlinedWords", underlinedWords);
+      //     let wordsArray
+      //     if(underlinedWords){
+      //       wordsArray = underlinedWords.map((span: any) => {
+      //         // Use a regular expression to extract the text content between the <span> tags
+      //         const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
+      //         // Check if a match was found and return the extracted text, or an empty string if not
+      //         return match ? match[1] : "";
+      //       });
+      //     } else if (underlinedWords === null) {
+      //       wordsArray = [result.fileName];
+  
+      //       // Handle the case where underlinedWords is null or undefined
+      //     }
+          
+      //     // console.log("wordsArray: ", wordsArray);
+
+      //     try {
+      //       // console.log("wordsArray", wordsArray);
+      //       const tableNamesStr = userAccessVaults.join(',');
+      //       const response = await axios.post(
+      //         `/api/getTags?q=${wordsArray.join(",")}&av=${tableNamesStr}`
+      //       );
+      //       // console.log("res", response);
+      //       // Handle the response data here
+
+      //       if (response) {
+      //         count = count + 1;
+      //         const linkTags = Object.keys(response.data).map((key) => {
+      //           return {
+      //             name: key,
+      //             category: response.data[key],
+      //           };
+      //         });
+      //         // let nodeArray = [];
+      //         // console.log("linkTags", linkTags);
+      //         linkTags.forEach((word: any) => {
+      //           const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
+      //           if (existingNodeIndex !== -1) {
+      //             // Node already exists, update its tag
+      //             nodes[existingNodeIndex].tag = word.category;
+      //           } else {
+      //             // Node doesn't exist, create a new one
+      //             nodes.push({ id: word.name, tag: word.category });
+      //           }
+      //           // Create a link between fileName and underlined word
+      //           links.push({ source: nodeId, target: word.name, value: 1 });
+      //         });
+      //       }
+      //       // console.log("finalCount", finalCount);
+      //       // console.log("count", count);
+      //       if (finalCount == count) {
+      //         const resultData: any = { nodes, links };
+      //         // let graphNewData = resultData;
+      //         setGraphData(resultData);
+      //         makeGraph(resultData);
+      //         // console.log("match count");
+      //       }
+      //     } catch (error) {
+      //       // Handle errors here
+      //       console.log("Error:", error);
+      //     }
+      //   });
+      //   setOpenedResults(updatedOpenedResults);
+      // }
 
       // Create the final object in the desired format
 
       // setTimeout(() => {}, 400);
     } else {
       setShouldShowFilters(false);
-        const nodes: any = [];
-        const links: any = [];
-        const resultData: any = { nodes, links };
+      const nodes: any = [];
+      const links: any = [];
+      const resultData: any = { nodes, links };
         // console.log('resultData: ' , resultData)
         // let graphNewData = resultData;
-        setGraphData(resultData);
-        const graphDiv:any = document.getElementById('graph-div');
-        if (graphDiv) {
-          const svgElement = graphDiv.querySelector('svg');
-          if (svgElement) {
-            graphDiv.removeChild(svgElement);
-          } else {
-            console.log('SVG element not found or already removed.');
-          }
+      setGraphData(resultData);
+      const graphDiv:any = document.getElementById('graph-div');
+      if (graphDiv) {
+        const svgElement = graphDiv.querySelector('svg');
+        if (svgElement) {
+          graphDiv.removeChild(svgElement);
         } else {
-          console.log('Element with ID "graph-div" not found.');
+          console.log('SVG element not found or already removed.');
         }
-        setOpenedResults(searchResultsForGraph);
+      } else {
+        console.log('Element with ID "graph-div" not found.');
+      }
+      setOpenedResults(searchResultsForGraph);
         // makeGraph(resultData);
     }
 
@@ -3616,43 +3753,44 @@ const Sidebar = () => {
               )}
             </div>
 
-            {syncPopup ? (<div>
-              <Dialog open={syncPopup} onClose={handleCloseDialog}>
-                <DialogTitle>Authorization Required</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                  You will be redirected to the Google consent page to grant this app access to your Google Drive
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog} color="primary">
-                    Cancel
-                  </Button>
-                  <Button onClick={synchronizeFiles} color="primary">
-                    Proceed
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            </div>): (<></>)}
+            {syncPopup ? (
+              <div>
+                <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                  <DialogTitle>Authorization Required</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                    You will be redirected to the Google consent page to grant this app access to your Google Drive
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={synchronizeFiles} color="primary">
+                      Proceed
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>): (<></>)}
             
             {foldersPopup && (
-             <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
-             <DialogTitle>Select a Folder</DialogTitle>
-             <DialogContent>
-               <List>
-                 {folders.map((folder:any) => (
-                   <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
-                     <ListItemText primary={folder.name} />
-                   </ListItem>
-                 ))}
-               </List>
-             </DialogContent>
-             <DialogActions>
-               <Button onClick={ handlerFolderPopupClose} color="primary">
-                 Cancel
-               </Button>
-             </DialogActions>
-           </Dialog>
+              <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
+              <DialogTitle>Select a Folder</DialogTitle>
+              <DialogContent>
+                <List>
+                  {folders.map((folder:any) => (
+                    <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
+                      <ListItemText primary={folder.name} />
+                    </ListItem>
+                  ))}
+                </List>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={ handlerFolderPopupClose} color="primary">
+                  Cancel
+                </Button>
+              </DialogActions>
+              </Dialog>
             )}
 
             {userLogoutPopup && (
@@ -3969,9 +4107,7 @@ const Sidebar = () => {
                 </div>
               </div>
             )}
-            <div
-              id="nodeInfo"
-              className="node-click-options"
+            <div id="nodeInfo" className="node-click-options"
               style={{
                 position: "absolute",
                 display: "none",

@@ -171,26 +171,7 @@ const Signup = () => {
     
             reader.readAsDataURL(selectedProfilePicture);
         }
-        // const file = e.target.files[0];
-        // setImage(file);
-
-        // const previews:any = [];
-        // const reader = new FileReader();
-        // reader.onload = () => {
-        //     console.log(reader.result)
-        //     previews.push(reader.result);
-        //     if (previews.length) {
-        //     setImagePreviews(previews);
-        //     }
-        // };
-
-        // reader.readAsDataURL(file);
      
-
-        // setFormData({
-        //   ...formData,
-        //   image: file,
-        // });
       
         // You may also want to reset validation errors for the image
         setValidationErrors({
