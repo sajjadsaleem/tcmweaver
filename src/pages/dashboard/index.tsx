@@ -136,6 +136,9 @@ const Dashboard = () => {
       if(getUser.user) {
         if(getUser.user.role_id !==1){
           router.push('/');
+        } 
+        else {
+          setFullPageComponentLoading(false)
         }
       }
 
