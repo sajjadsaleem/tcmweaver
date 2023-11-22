@@ -22,6 +22,8 @@ import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
 
 
 var internalId:any = 0
@@ -142,6 +144,10 @@ const Sidebar = () => {
   const usersIconRef = useRef<any>(null);
   const fileInputRef = useRef<any>(null);
   const [billingLoader, setBillingLoader] = useState(false)
+  const [previewNodeLinkLoader , setPreviewNodeLinkLoader] = useState<any>(false)
+  const [animationKey, setAnimationKey] = useState(0);
+  const [showColorSetting , setShowColorSetting] = useState(false)
+  const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
 
 
   // console.log("filesData: ", filesData);
@@ -162,6 +168,7 @@ const Sidebar = () => {
   // console.log('clickedvault' , clickedVault)
   // console.log('homepagefile' , homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
+  // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -368,12 +375,17 @@ const Sidebar = () => {
     const syntheticEvent = {
       target: { value: graphSearchValue },
     };
-    if(graphSearchValue.length > 0){
-      handleGraphSearch(syntheticEvent)
+
+    if(sliderValue !== -40) {
+      makeGraph(graphData)
     }
-    else {
-      sliderNewGraph()
-    }
+   
+    // if(graphSearchValue.length > 0){
+    //   handleGraphSearch(syntheticEvent)
+    // }
+    // else {
+    //   sliderNewGraph()
+    // }
 
 
   }, [sliderValue])
@@ -1503,6 +1515,7 @@ const Sidebar = () => {
     }
   };
 
+
   const openSearchResult = (resultToOpen: any) => {
     // console.log("resultToOpen: ", resultToOpen);
     let matchingFile: any = searchResults.find(
@@ -1574,6 +1587,7 @@ const Sidebar = () => {
     }
   };
 
+
   const removeSearchResult = (resultToRemove: any) => {
     // console.log("search Results: ", searchResults, resultToRemove);
     const newResult = searchResults.filter(
@@ -1583,6 +1597,7 @@ const Sidebar = () => {
     setSearchResults(newResult);
   };
 
+
   const collapseOpenedResult = (resultToCollapse: any) => {
     // console.log("resultToCollapse", resultToCollapse);
     const collapsedResult = openedResults.filter(
@@ -1590,6 +1605,7 @@ const Sidebar = () => {
     );
     setOpenedResults(collapsedResult);
   };
+
 
   const removeBothSearchResults = (resultToRemove: any) => {
     // console.log("resultToRemove", resultToRemove);
@@ -1600,12 +1616,13 @@ const Sidebar = () => {
     const updatedSearchValue = `${searchValue} -"${resultToRemove.fileName}"`;
 
     // console.log("updatedSearchValue", updatedSearchValue);
-    setSearchValue(updatedSearchValue);
-    const syntheticEvent = {
-      target: { value: updatedSearchValue },
-    };
-    handleSearch(syntheticEvent);
+    // setSearchValue(updatedSearchValue);
+    // const syntheticEvent = {
+    //   target: { value: updatedSearchValue },
+    // };
+    // handleSearch(syntheticEvent);
   };
+
 
   const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any) => {
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
@@ -1710,6 +1727,7 @@ const Sidebar = () => {
     }
   };
 
+
   const handleCopyText = () => {
     const textarea = document.createElement("textarea");
     textarea.value = searchValue;
@@ -1729,8 +1747,9 @@ const Sidebar = () => {
     }, 1500);
   };
 
+
   const showNodeClickedFile = async () => {
-    console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
     const matchingResult: any = openedResults.find(
       (result: any) => result.fileName === fileOpenedFromGraph.id
     );
@@ -1739,6 +1758,7 @@ const Sidebar = () => {
       // console.log("Matching Result:", matchingResult);
       setGraphNodeOpened(matchingResult);
     } else {
+      // Now does not come in this else
       try {
         const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
         const newDataObject = await response.json();
@@ -1772,18 +1792,22 @@ const Sidebar = () => {
         console.error("Error fetching search results:", error);
       }
     }
+
+    setAnimationKey((prevKey) => prevKey + 1);
     sethideFiltersForPreview(false);
   };
+
 
   const collapseExpandedNode = () => {
     sethideFiltersForPreview(true);
     setGraphNodeOpened([]);
   };
 
+
   const removeClickedNode = (event: any) => {
-    console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
     // console.log("graphData: ", graphData);
-    console.log("openedResults", openedResults);
+    // console.log("openedResults", openedResults);
 
     // removeing nodes
     // Usage:
@@ -1791,19 +1815,14 @@ const Sidebar = () => {
       graphData,
       fileOpenedFromGraph.id
     );
-    console.log("updatedGraphData", updatedGraphData);
-    console.log("graphData: ", graphData);
+    // console.log("updatedGraphData", updatedGraphData);
+    // console.log("graphData: ", graphData);
+    setGraphData(updatedGraphData)
     makeGraph(updatedGraphData);
 
     removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
-
-    // const updatedOpenedResults = openedResults.filter(
-    //   (result) => result.fileName !== fileOpenedFromGraph
-    // );
-
-    // // Update the state with the new openedResults
-    // setOpenedResults(updatedOpenedResults);
   };
+
 
   const removeNodeAndConnected = (graphData: any, nodeId: any) => {
     // Create a copy of the graphData object
@@ -1827,7 +1846,7 @@ const Sidebar = () => {
           link.source === nodeToRemove || link.target === nodeToRemove
       );
 
-      // console.log("connectedLinks", connectedLinks);
+      console.log("connectedLinks", connectedLinks);
 
       // // Remove the node and connected links from the graphData object
       updatedGraphData.nodes.splice(nodeIndexToRemove, 1);
@@ -1837,25 +1856,26 @@ const Sidebar = () => {
       const nodesToKeep = new Set();
 
       // // Iterate over connected links
-      connectedLinks.forEach((link: any) => {
-        // Check if the connected nodes are not connected to any other nodes
-        const sourceLinks = updatedGraphData.links.filter(
-          (l: any) => l.source === link.source
-        );
-        const targetLinks = updatedGraphData.links.filter(
-          (l: any) => l.target === link.target
-        );
+      // connectedLinks.forEach((link: any) => {
+      //   // Check if the connected nodes are not connected to any other nodes
+      //   const sourceLinks = updatedGraphData.links.filter(
+      //     (l: any) => l.source === link.source
+      //   );
+      //   const targetLinks = updatedGraphData.links.filter(
+      //     (l: any) => l.target === link.target
+      //   );
 
-        // Check if the source node is not connected to any other nodes
-        if (sourceLinks.length === 1) {
-          nodesToKeep.add(link.source);
-        }
+      //   // Check if the source node is not connected to any other nodes
+      //   if (sourceLinks.length === 1) {
+      //     nodesToKeep.add(link.source);
+      //   }
 
-        // Check if the target node is not connected to any other nodes
-        if (targetLinks.length === 1) {
-          nodesToKeep.add(link.target);
-        }
-      });
+      //   // Check if the target node is not connected to any other nodes
+      //   if (targetLinks.length === 1) {
+      //     nodesToKeep.add(link.target);
+      //   }
+      // });
+
       const nodesToKeepUpdate = updatedGraphData.nodes.filter(
         (node: any) => !nodesToKeep.has(node.id)
       );
@@ -1877,12 +1897,23 @@ const Sidebar = () => {
     return updatedGraphData;
   };
 
+
   const previewNodeLink = (node: any) => {
-    console.log("link to preview", node);
-    axios
-      .post(`/api/linkFile?q=${node}`)
+    setPreviewNodeLinkLoader(true)
+    // console.log("link to preview", node);
+
+    const matchingResult: any = openedResults.find(
+      (result: any) => result.fileName === node
+    );
+
+    if (matchingResult) {
+      setPreviewNodeLinkLoader(false)
+      setGraphNodeOpened(matchingResult);
+    } else {
+      const tableNamesStr = userAccessVaults.join(',');
+      // console.log(tableNamesStr)
+      axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
       .then((res) => {
-        console.log("res", res.data);
         const newDataObject = res.data;
 
         marked.setOptions({
@@ -1906,14 +1937,20 @@ const Sidebar = () => {
           (match: any, word: any) =>
             `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
-        console.log("newDataObject", newDataObject);
-
+        // console.log("newDataObject", newDataObject);
+        setAnimationKey((prevKey) => prevKey + 1);
         setGraphNodeOpened(newDataObject);
+        setPreviewNodeLinkLoader(false)
       })
       .catch((err) => {
         console.log("err=", err);
+        setPreviewNodeLinkLoader(false)
       });
+
+    }
+    
   };
+
 
   const wanderClickedNode = async () => {
     // console.log("fileopenedfromgraph: ", fileOpenedFromGraph);
@@ -2260,6 +2297,7 @@ const Sidebar = () => {
     }
   };
 
+
   const handleGraphSearch = async (event: any) => {
     // console.log("event", event.target.value);
     const inputValue = event.target.value;
@@ -2442,6 +2480,7 @@ const Sidebar = () => {
       generateGraphfromSearch(newEntries , inputValue);
     }, 300);
   };
+  
 
   const generateGraphfromSearch = (searchResultsForGraph: any , searchValueForGraph: any) => {
     // console.log('searchResultsforGraph' , searchResultsForGraph)
@@ -3109,14 +3148,21 @@ const Sidebar = () => {
     // }
   };
 
-  const handleSliderChange = (event:any, newValue:any) => {
-    // console.log('newvalue: ' , newValue)
+  // const handleSliderChange = (event:any, newValue:any) => {
+  //   // console.log('newvalue: ' , event, newValue)
+  //   const mappedValue = mapValueToState(newValue);
+  //   // setSliderValue(mappedValue);
+  // };
+
+
+  const handleSliderChangeCommitted = (event: any, newValue: any) => {
     const mappedValue = mapValueToState(newValue);
-    // console.log('mappedvalue: ' , mappedValue)
-    setSliderValue(mappedValue);
+    setSliderValue(mappedValue)
   };
 
+
   const sliderNewGraph = () => {
+    console.log('graphdata' , graphData)
     if (!graphOrTextView) {
       setShouldShowFilters(false);
       const nodes: any = [];
@@ -3331,6 +3377,7 @@ const Sidebar = () => {
       setShouldShowFilters(true);
     }
   };
+
 
   const mapValueToState = (value:any) => {
     const minStateValue = -300;
@@ -3655,6 +3702,51 @@ const Sidebar = () => {
   const handleChooseFile = () => {
     fileInputRef.current.click();
   };
+
+  const getRandomColor = () => {
+    const randomHexColor = () => {
+        return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    };
+
+    let newColor;
+    const existingColors = showAddGraphNodeColor.map((group:any) => group.color);
+
+    do {
+        newColor = randomHexColor();
+    } while (existingColors.includes(newColor));
+
+    return newColor;
+  };
+
+  const handleAddNewColor = () => {
+    const newGroup = {
+      id: Math.floor(Math.random() * 900) + 100, 
+      tag: '',
+      color: getRandomColor(),
+    };
+
+    setShowAddGraphNodeColor((prevGroups:any) => [...prevGroups, newGroup]);
+  }
+
+  const handleRemoveNodeColor = (e:any) => {
+    const updatedArray = showAddGraphNodeColor.filter((item:any) => item.id !== e.id);
+    setShowAddGraphNodeColor(updatedArray);
+
+  }
+
+  const handleNodeColorTagChange = (index:any, newTag:any) => {
+    const updatedArray = [...showAddGraphNodeColor];
+    updatedArray[index].tag = newTag;
+    setShowAddGraphNodeColor(updatedArray);
+  }
+
+  const handleNodeColorChange = (e:any , newColor:any) => {
+    const updatedColors = [...showAddGraphNodeColor];
+    updatedColors[e].color = newColor
+
+    // Update the state with the modified array
+    setShowAddGraphNodeColor(updatedColors);
+  };
  
 
   return (
@@ -3739,10 +3831,12 @@ const Sidebar = () => {
                         <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
                           <ListItemText primary="Change Password" />
                         </ListItem>
-                        <ListItem button onClick={() => handleUserOptions("billing")} dense>
-                          <ListItemText primary="Billing" />
-                          {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
-                        </ListItem>
+                        {getUser.user_package.length > 0 && (
+                          <ListItem button onClick={() => handleUserOptions("billing")} dense>
+                            <ListItemText primary="Billing" />
+                            {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
+                          </ListItem>
+                        )}
                       </>
                     )}
                     <ListItem button onClick={() => handleUserOptions("logout")} dense>
@@ -3975,7 +4069,6 @@ const Sidebar = () => {
             </Dialog>
             )}
 
-
           </div>
         </div>
 
@@ -4074,11 +4167,14 @@ const Sidebar = () => {
         ) : (
           <>
             {!hideFiltersForPreview && (
-              <div className="node-preview">
+              <div key={animationKey} className="node-preview">
                 <div className="node-preview-title">
                   <h4>{graphNodeOpened.fileName.toUpperCase()}</h4>
 
                   <div>
+                    {previewNodeLinkLoader && (
+                      <CircularProgress size={16} style={{color: 'black'}} />
+                    )}
                     <img
                       src="/collapse.png"
                       alt="img"
@@ -4099,7 +4195,7 @@ const Sidebar = () => {
                         e.target.tagName === "SPAN" &&
                         e.target.style.textDecoration === "underline"
                       ) {
-                        const clickedWord = e.target.textContent; // Get the clicked word
+                        const clickedWord = e.target.textContent;
                         previewNodeLink(clickedWord);
                       }
                     }}
@@ -4126,10 +4222,6 @@ const Sidebar = () => {
                 className="node-text-icon"
                 onClick={showNodeClickedFile}
               />
-              {/* <FormatAlignLeftIcon
-                className="node-text-icon"
-                onClick={showNodeClickedFile}
-              /> */}
               <img
                 src="/wander-icon.svg"
                 alt="img"
@@ -4200,6 +4292,7 @@ const Sidebar = () => {
                 )}
               </>
             )}
+
             {shouldShowFilters && (
               <div className="filter-accordion">
                 <Accordion>
@@ -4229,11 +4322,12 @@ const Sidebar = () => {
               size="small"
               min={0}
               max={1}
-              step={0.01}// Set the maximum value
+              step={0.01}
               defaultValue={1}
               aria-label="Small"
               valueLabelDisplay="auto"
-              onChange={handleSliderChange}
+              // onChange={handleSliderChange}
+              onChangeCommitted={handleSliderChangeCommitted}
               classes={{ track: 'custom-slider-track',
                         thumb: 'custom-slider-thumb',
                       rail: 'custom-slider-rail', }}
@@ -4319,6 +4413,58 @@ const Sidebar = () => {
         ) : (
           <div className="graph-container">
             <div id="graph-div" className="graph-div"></div>
+
+            {showColorSetting ? (
+              <>
+                <div className="graph-color-setting">
+
+                  <div className="graph-color-setting-close-div">
+                    <h5>Groups</h5>
+                    <button onClick={() => setShowColorSetting(false)}>
+                      <CloseIcon></CloseIcon>
+                    </button>
+                  </div>
+
+                  {showAddGraphNodeColor.length > 0 && (
+                    <div>
+                      {showAddGraphNodeColor.map((group:any, index:any) => (
+                        <div key={index} className="graph-node-new-color">
+                          <input type="text"
+                            placeholder="Enter tag"
+                            className="node-new-color-text"
+                            value={group.tag}
+                            onChange={(e) => handleNodeColorTagChange(index, e.target.value)}
+                          />
+                          <div className="color-input-wrapper">
+                            <input type='color'
+                              value={group.color}
+                              onChange={(e) => handleNodeColorChange(index, e.target.value)}
+                              className="node-new-colorpicker "/>
+                          </div>
+                          <button onClick={() => handleRemoveNodeColor(group)}>
+                            <CloseIcon></CloseIcon>
+                          </button>
+                        </div>
+                      ))}
+
+                    </div>
+                  )}
+
+                  <div className="graph-color-group-div">
+                    <button onClick={handleAddNewColor}>New Group</button>
+                  </div>
+                </div>
+              </>):(
+              <>
+                <div className="graph-color-setting-icon">
+                  <button onClick={() => setShowColorSetting(true)}>
+                    <SettingsIcon></SettingsIcon>
+                  </button>
+                </div>
+              </>
+            )}
+
+            
           </div>
         )}
 

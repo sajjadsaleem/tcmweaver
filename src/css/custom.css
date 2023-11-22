@@ -128,6 +128,7 @@
     height: auto;
 }
 
+
 @font-face {
     font-family: 'YourFontName';
     /* Use your desired font name */
@@ -587,6 +588,19 @@
     margin: auto;
     /* overflow-y: scroll; */
     padding-left: 10px;
+    animation: textFadeRight 1s forwards 1;
+}
+
+@keyframes textFadeRight {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .node-preview-title {
@@ -658,7 +672,7 @@
 }
 
 .custom-slider-track {
-    background-color: #C2C2C2;
+    background-color: #C2C2C2 !important;
     /* Change this to the color you desire */
 }
 
@@ -668,7 +682,7 @@
 }
 
 .custom-slider-rail {
-    background-color: #C2C2C2;
+    background-color: #C2C2C2 !important;
     /* Change this to the color you desire for the rail */
 }
 
@@ -704,12 +718,8 @@
     margin-left: 346px;
     position: relative;
     display: flex;
-    /* background-color: #bfbfbf; */
-
-    /* background-color: lightcoral; */
     overflow-y: hidden;
     overflow-x: scroll;
-    /* border: 1px solid red; */
 }
 
 .workspace-content.night-mode .graph-container {
@@ -718,15 +728,145 @@
 
 
 .graph-div {
-    /* border: 1px solid red; */
     width: 100%;
 }
 
-/* .graph-tooltip{
-    color: rgb(48, 46, 46) !important;
-    background-color: transparent !important;
-    visibility: visible !important;
-} */
+.graph-color-setting-icon {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+}
+
+.graph-color-setting-icon button {
+    border: 0;
+    outline: 0;
+    border-radius: 5px;
+    padding: 2px 4px;
+    background-color: white;
+
+}
+
+.graph-color-setting-icon button:hover {
+    background-color: #DBD9D9;
+}
+
+.graph-color-setting {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 240px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    background-color: white;
+    padding: 5px 10px 10px 10px;
+}
+
+.graph-color-setting-close-div {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 5px;
+
+
+}
+
+.graph-color-setting-close-div button {
+    border: 0;
+    outline: 0;
+    border-radius: 5px;
+    padding: 2px 4px;
+    background-color: white;
+}
+
+.graph-color-setting-close-div button:hover {
+    background-color: #DBD9D9;
+}
+
+.graph-color-group-div {
+    padding: 14px 10px 12px 0px;
+
+}
+
+.graph-color-group-div button {
+    width: 100%;
+    outline: 0;
+    border: 0;
+    border-radius: 5px;
+    background-color: #858383;
+    padding: 3px;
+    transition: background-color 0.2s;
+}
+
+.graph-color-group-div button:hover {
+    background-color: #616161;
+}
+
+.graph-node-new-color {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.graph-node-new-color button {
+    border: 0;
+    outline: 0;
+    border-radius: 5px;
+    padding: 1px 3px;
+    background-color: white;
+
+
+}
+
+.graph-node-new-color button svg {
+    font-size: 21px;
+
+}
+
+.graph-node-new-color button:hover {
+    background-color: #DBD9D9;
+
+}
+
+.node-new-color-text {
+    width: 70%;
+    margin-right: 6px;
+    border-radius: 3px;
+    border: 1px solid #616161;
+}
+
+.node-new-color-text:focus {
+    border-color: #616161;
+    box-shadow: 0 0 0 0.1rem rgba(97, 97, 97, 1);
+    outline: none;
+}
+
+.color-input-wrapper {
+    height: 1.110em;
+    width: 1.110em;
+    overflow: hidden;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    margin-right: 6px;
+}
+
+.color-input-wrapper input[type=color] {
+    position: absolute;
+    height: 4em;
+    width: 4em;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+
+
 
 .node-pointer {
     cursor: pointer;
