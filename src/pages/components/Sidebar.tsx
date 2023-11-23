@@ -95,7 +95,7 @@ const Sidebar = () => {
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
   const [isCopied, setIsCopied] = useState(false);
   const [filtersData, setFiltersData] = useState<any>([]);
-  const [graphData, setGraphData] = useState([]);
+  const [graphData, setGraphData] = useState<any>([]);
   // const [graphDimension, setGraphDimension] = useState({
   //   width: 0,
   //   height: 0,
@@ -106,12 +106,9 @@ const Sidebar = () => {
   const [textColorForNode , setTextColorForNode] = useState('black')
   const [sliderValue, setSliderValue] = useState(-40)
   const [accessToken, setAccessToken] = useState('');
-  const [userEmail, setUserEmail] = useState('');
   const [syncPopup, setSyncPopup] = useState(false);
   const [folders, setFolders] = useState([]);
   const [foldersPopup, setFoldersPopup] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState(null);
-  const [searchQueue , setSearchQueue] = useState([])
   const [showAccountOptions, setShowAccountOptions] = useState(false);
   const [getUser, setUser] = useState<any>({})
   const [getPermissions , setPermissions] = useState([])
@@ -148,6 +145,7 @@ const Sidebar = () => {
   const [animationKey, setAnimationKey] = useState(0);
   const [showColorSetting , setShowColorSetting] = useState(false)
   const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
+  const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
 
 
   // console.log("filesData: ", filesData);
@@ -169,6 +167,7 @@ const Sidebar = () => {
   // console.log('homepagefile' , homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
+  // console.log('slidervalue' , sliderValue)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -389,6 +388,29 @@ const Sidebar = () => {
 
 
   }, [sliderValue])
+
+  useEffect(() => {
+    if(nodeColorRemoveCheck !== '') {
+      console.log(nodeColorRemoveCheck)
+      console.log('now' , showAddGraphNodeColor)
+
+      const tagExists = graphData.nodes.some((node:any) => node.tag === nodeColorRemoveCheck);
+
+    if (tagExists) {
+      makeGraph(graphData);
+    }
+      
+      // makeGraph(graphData)
+    }
+    setNodeColorRemoveCheck('')
+    // if (showAddGraphNodeColor.source === 'handleRemoveNodeColor') {
+    //   console.log('Updated showAddGraphNodeColor:', showAddGraphNodeColor);
+    // }
+    // Perform any additional actions or checks here
+  
+    // Call makeGraph whenever showAddGraphNodeColor changes
+    // makeGraph(graphData);
+  }, [showAddGraphNodeColor]);
 
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
@@ -1085,7 +1107,7 @@ const Sidebar = () => {
         // });
 
         const resultData: any = { nodes, links };
-        console.log('resultData' , resultData)
+        // console.log('resultData' , resultData)
 
         setTimeout(() => {
           setGraphData(resultData);
@@ -1233,19 +1255,14 @@ const Sidebar = () => {
 
       function getColorByTag(tag: string) {
         // Define a mapping of tags to colors
-        const tagColors: Record<string, string> = {
-          sandwich: "blue",
-          meat: "red",
-          veg: "green",
-          sauce: "purple",
-          bread: "brown",
-          ferment: "yellow",
-          cheese: "orange",
-          tagnotfound: "#C6C1BF"
-          // Add more tag-color mappings as needed
-        };
+        const tagColors: Record<string, string> = {};
 
-        // Return the color based on the tag, or a default color if not found
+        // console.log(showAddGraphNodeColor)
+        showAddGraphNodeColor.forEach((colorGroup:any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+        
         return tagColors[tag] || nodeFill;
       }
 
@@ -1498,11 +1515,12 @@ const Sidebar = () => {
     }
 
     const options: any = {
-      nodeFill: "blue",
-      nodeStroke: "blue",
+      nodeFill: "#808080",
+      nodeStroke: "#808080",
       width: graphWidth,
       height: graphHeight,
     };
+
     // console.log("graphData: ", graphData);
     // console.log("graphNewData", graphNewData);
 
@@ -1628,7 +1646,8 @@ const Sidebar = () => {
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
     try {
-      const response = await fetch(`/api/linkFile?q=${linkClicked}`);
+      const tableNamesStr = userAccessVaults.join(',');
+      const response = await fetch(`/api/linkFile?q=${linkClicked}&av=${tableNamesStr}`);
       const newDataObject = await response.json();
       // console.log("responseJson: ", responseJson);
 
@@ -3148,21 +3167,16 @@ const Sidebar = () => {
     // }
   };
 
-  // const handleSliderChange = (event:any, newValue:any) => {
-  //   // console.log('newvalue: ' , event, newValue)
-  //   const mappedValue = mapValueToState(newValue);
-  //   // setSliderValue(mappedValue);
-  // };
-
 
   const handleSliderChangeCommitted = (event: any, newValue: any) => {
-    const mappedValue = mapValueToState(newValue);
+    const mappedValue = mapValueToState(newValue , 0 , 1 , -300 , -50);
+
     setSliderValue(mappedValue)
   };
 
 
   const sliderNewGraph = () => {
-    console.log('graphdata' , graphData)
+    // console.log('graphdata' , graphData)
     if (!graphOrTextView) {
       setShouldShowFilters(false);
       const nodes: any = [];
@@ -3379,11 +3393,13 @@ const Sidebar = () => {
   };
 
 
-  const mapValueToState = (value:any) => {
-    const minStateValue = -300;
-    const maxStateValue = -50;
-    return minStateValue + (maxStateValue - minStateValue) * value;
+  const mapValueToState = (value:any , min1:any , max1:any , min2:any , max2:any) => {
+    return (value - min1) * (max2 - min2) / (max1 - min1) + min2;
   };
+
+  const mapSliderValueToReal = (value:any, min1:any, max1:any, min2:any, max2:any) => {
+    return (value - min2) * (max1 - min1) / (max2 - min2) + min1;
+  }
 
   const handleLogout = () => {
     Helpers.logout()
@@ -3728,24 +3744,49 @@ const Sidebar = () => {
     setShowAddGraphNodeColor((prevGroups:any) => [...prevGroups, newGroup]);
   }
 
-  const handleRemoveNodeColor = (e:any) => {
-    const updatedArray = showAddGraphNodeColor.filter((item:any) => item.id !== e.id);
+
+  const handleRemoveNodeColor = async (e:any) => {
+    const updatedArray = showAddGraphNodeColor.filter((item: any) => item.id !== e.id);
+    setNodeColorRemoveCheck(e.tag)
     setShowAddGraphNodeColor(updatedArray);
+
 
   }
 
   const handleNodeColorTagChange = (index:any, newTag:any) => {
     const updatedArray = [...showAddGraphNodeColor];
-    updatedArray[index].tag = newTag;
-    setShowAddGraphNodeColor(updatedArray);
+
+    const itemIndex = updatedArray.findIndex((item: any) => item.id === index.id);
+
+    if (itemIndex !== -1) {
+      // Update the tag property
+      updatedArray[itemIndex].tag = newTag;
+      
+      // Update the state with the modified array
+      setShowAddGraphNodeColor(updatedArray);
+    }
+    // updatedArray[index].tag = newTag;
+    // setShowAddGraphNodeColor(updatedArray);
+    const tagExists = graphData.nodes.some((node:any) => node.tag === index.tag);
+
+    if (tagExists) {
+      makeGraph(graphData);
+    }
   }
 
   const handleNodeColorChange = (e:any , newColor:any) => {
+    console.log(e , newColor)
     const updatedColors = [...showAddGraphNodeColor];
     updatedColors[e].color = newColor
-
-    // Update the state with the modified array
     setShowAddGraphNodeColor(updatedColors);
+  };
+
+  const handleColorInputBlur = (e:any, newColor:any , group:any) => {
+    const tagExists = graphData.nodes.some((node:any) => node.tag === group.tag);
+
+    if (tagExists) {
+      makeGraph(graphData);
+    }
   };
  
 
@@ -3787,18 +3828,35 @@ const Sidebar = () => {
                 </div>
               ) : (
                 <div className={"note-icon"}>
-                  <img
+                  {themeChangericon ? (
+                    <img
+                      src="/text-logo.png"
+                      alt="img"
+                      onClick={() => {
+                        handleGraphOrTextView();
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src="/text-logo-night.png"
+                      alt="img"
+                      onClick={() => {
+                        handleGraphOrTextView();
+                      }}
+                    />
+              )}
+                  {/* <img
                     src="/text-logo.png"
                     alt="img"
                     onClick={() => {
                       handleGraphOrTextView();
                     }}
-                  />
+                  /> */}
                 </div>
               )}
             </div>
             
-            <div>
+            <div className="sidebar-user-div">
               <img
                 src="/users.svg"
                 alt="img"
@@ -4319,18 +4377,17 @@ const Sidebar = () => {
           <>
             <div className="forces-container">
               <Slider
-              size="small"
-              min={0}
-              max={1}
-              step={0.01}
-              defaultValue={1}
-              aria-label="Small"
-              valueLabelDisplay="auto"
-              // onChange={handleSliderChange}
-              onChangeCommitted={handleSliderChangeCommitted}
-              classes={{ track: 'custom-slider-track',
-                        thumb: 'custom-slider-thumb',
-                      rail: 'custom-slider-rail', }}
+                size="small"
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                onChangeCommitted={handleSliderChangeCommitted}
+                classes={{ track: 'custom-slider-track',
+                          thumb: 'custom-slider-thumb',
+                          rail: 'custom-slider-rail', }}
               />
             </div>
           </>
@@ -4433,12 +4490,13 @@ const Sidebar = () => {
                             placeholder="Enter tag"
                             className="node-new-color-text"
                             value={group.tag}
-                            onChange={(e) => handleNodeColorTagChange(index, e.target.value)}
+                            onChange={(e) => handleNodeColorTagChange(group, e.target.value)}
                           />
                           <div className="color-input-wrapper">
                             <input type='color'
                               value={group.color}
                               onChange={(e) => handleNodeColorChange(index, e.target.value)}
+                              onBlur={(e) => handleColorInputBlur(index, e.target.value , group)}
                               className="node-new-colorpicker "/>
                           </div>
                           <button onClick={() => handleRemoveNodeColor(group)}>

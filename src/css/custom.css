@@ -629,6 +629,10 @@
 
 }
 
+.sidebar-user-div img {
+    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+}
+
 .night-mode .note-icon img {
     filter: invert(1) !important;
 }
@@ -737,17 +741,35 @@
     top: 15px;
 }
 
+
+
 .graph-color-setting-icon button {
     border: 0;
     outline: 0;
     border-radius: 5px;
     padding: 2px 4px;
     background-color: white;
+}
 
+.night-mode .graph-color-setting-icon button {
+    background-color: #242424;
 }
 
 .graph-color-setting-icon button:hover {
     background-color: #DBD9D9;
+}
+
+.night-mode .graph-color-setting-icon button:hover {
+    background-color: #3a3939;
+}
+
+
+.graph-color-setting-icon button svg {
+    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+}
+
+.night-mode .graph-color-setting-icon button svg {
+    filter: invert(71%) sepia(93%) saturate(7%) hue-rotate(21deg) brightness(93%) contrast(99%);
 }
 
 .graph-color-setting {
@@ -761,12 +783,20 @@
     padding: 5px 10px 10px 10px;
 }
 
+.night-mode .graph-color-setting {
+    background-color: #242424;
+}
+
+
+
 .graph-color-setting-close-div {
     display: flex;
     justify-content: space-between;
     padding-bottom: 5px;
+}
 
-
+.night-mode .graph-color-setting-close-div h5 {
+    color: #FFFFFF;
 }
 
 .graph-color-setting-close-div button {
@@ -777,8 +807,24 @@
     background-color: white;
 }
 
+.night-mode .graph-color-setting-close-div button {
+    background-color: #242424;
+
+}
+
+.night-mode .graph-color-setting-close-div button svg {
+    filter: invert(71%) sepia(93%) saturate(7%) hue-rotate(21deg) brightness(93%) contrast(99%);
+
+}
+
+
+
 .graph-color-setting-close-div button:hover {
     background-color: #DBD9D9;
+}
+
+.night-mode .graph-color-setting-close-div button:hover {
+    background-color: #3a3939;
 }
 
 .graph-color-group-div {
@@ -796,14 +842,37 @@
     transition: background-color 0.2s;
 }
 
+.night-mode .graph-color-group-div button {
+    background-color: #635f5f;
+    color: white;
+}
+
 .graph-color-group-div button:hover {
-    background-color: #616161;
+    background-color: #817e7e;
 }
 
 .graph-node-new-color {
     display: flex;
     margin-bottom: 5px;
     align-items: center;
+}
+
+.night-mode .graph-node-new-color input,
+.night-mode .graph-node-new-color button {
+    background-color: #242424;
+}
+
+.night-mode .graph-node-new-color input::placeholder {
+    color: white;
+}
+
+.night-mode .graph-node-new-color button svg {
+    filter: invert(71%) sepia(93%) saturate(7%) hue-rotate(21deg) brightness(93%) contrast(99%);
+
+}
+
+.night-mode .graph-node-new-color button:hover {
+    background-color: #3a3939;
 }
 
 .graph-node-new-color button {
@@ -831,6 +900,7 @@
     margin-right: 6px;
     border-radius: 3px;
     border: 1px solid #616161;
+    padding-left: 8px;
 }
 
 .node-new-color-text:focus {
@@ -988,6 +1058,10 @@
 .node-click-options {
     width: 60px;
     height: 25px;
+}
+
+.node-click-options img {
+    filter: invert(0);
 }
 
 .node-remove-icon,

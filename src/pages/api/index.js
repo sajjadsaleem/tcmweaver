@@ -44,39 +44,6 @@ export default async function handler(req, res) {
       filterObjects
     };
 
-    // console.log('Combined Object:', combinedObject);
-
-
-    // const homeFile = homeMd.rows[0]
-    // console.log('result', homeFile)
-
-
-    // let datasetArray = await db.select({
-    //   filename: filtersTable.filename, content: filtersTable.content,
-    // }).from(filtersTable).where(
-    //   or(
-    //     eq(filtersTable.filename, 'SAMPLE FILTERS.md'),
-    //     eq(filtersTable.filename, 'Home.md')
-    //   )
-    // );
-
-    // const allVaults = await db.select().from(vaultsTable)
-    // console.log('allVaults', allVaults)
-
-    // const updatedDatasetArray = datasetArray.map(obj => {
-    //   return {
-    //     fileName: obj.filename,
-    //     content: obj.content
-
-    //   };
-    // });
-
-    // const updatedArrayWithPackages = [
-    //   ...updatedDatasetArray,
-    //   { allVaults }, { fileName: homeFile.filename, content: homeFile.content }
-    // ];
-
-
     res.status(200).json(combinedData);
   } catch (error) {
     console.error('Error reading files:', error);
