@@ -370,13 +370,15 @@
 
 }
 
-.filter-data h1 span,
-.filter-data .note span {
-    background-color: #d4cece;
+
+/* .filter-data .note span, */
+.filter-data h1 span {
+    background-color: #666262;
+    display: inline-block;
 }
 
-.night-mode .filter-data h1 span,
-.night-mode .filter-data .note span {
+/* .night-mode .filter-data .note span, */
+.night-mode .filter-data h1 span {
     background-color: #666262;
 }
 
@@ -641,6 +643,10 @@
     width: 95%;
 }
 
+.night-mode .preview-node-loader span svg {
+    filter: invert(1);
+}
+
 .node-preview-detail {
     padding-top: 20px;
     overflow-y: scroll;
@@ -709,6 +715,7 @@
     width: 284px;
     margin-left: 26px;
     margin-top: 10px;
+    /* border: 1px solid red; */
 }
 
 .custom-slider-track {

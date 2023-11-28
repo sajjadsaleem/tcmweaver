@@ -54,6 +54,7 @@ const Sidebar = () => {
     wordOccurence: number;
     contentWithHighlightedWords: string;
     fileNameWithHighlightedWords: string;
+    totalMarkedData: string;
   }
 
   interface OpenedResult {
@@ -104,8 +105,9 @@ const Sidebar = () => {
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
-  const [textColorForNode , setTextColorForNode] = useState('black')
+  const [textColorForNode , setTextColorForNode] = useState('white')
   const [sliderValue, setSliderValue] = useState(-40)
+  const [centerForceValue , setCenterForceValue] = useState(1)
   const [accessToken, setAccessToken] = useState('');
   const [syncPopup, setSyncPopup] = useState(false);
   const [folders, setFolders] = useState([]);
@@ -148,6 +150,7 @@ const Sidebar = () => {
   const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
   const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
   const [nodeTagsColors , setNodeTagsColors] = useState<any>([])
+  
 
 
   // console.log("filesData: ", filesData);
@@ -171,7 +174,8 @@ const Sidebar = () => {
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
   // console.log('slidervalue' , sliderValue)
-  console.log(shouldShowFilters)
+  // console.log('shouldShowFilters' , shouldShowFilters)
+  // console.log('searchResults' , searchResults)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -409,7 +413,24 @@ const Sidebar = () => {
     // }
 
 
-  }, [sliderValue])
+  }, [sliderValue , centerForceValue])
+
+  useEffect(()=> {
+
+    if(centerForceValue !== 1)
+      makeGraph(graphData)
+   
+    // if(graphSearchValue.length > 0){
+    //   handleGraphSearch(syntheticEvent)
+    // }
+    // else {
+    //   sliderNewGraph()
+    // }
+
+
+  }, [centerForceValue])
+
+
 
 
   useEffect(() => {
@@ -546,6 +567,7 @@ const Sidebar = () => {
         currentPair.push(word);
       }
     }
+
     if (currentPair.length > 0) {
       resultCalculateWithOR.push(currentPair);
     }
@@ -602,7 +624,7 @@ const Sidebar = () => {
           const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
-          console.log('responseJson' , responseJson)
+          // console.log('responseJson' , responseJson)
           // responseJson = await response.json();
           // console.log("responseJson: ", responseJson);
         } catch (error) {
@@ -617,9 +639,11 @@ const Sidebar = () => {
 
         highlightSearchWord(newEntries, wordToSearch);
 
-        newEntries = newEntries
-          .slice()
-          .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+        markAllData(newEntries , wordToSearch)
+
+
+
+        newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
         // console.log("newEntries: ", newEntries);
 
@@ -654,6 +678,7 @@ const Sidebar = () => {
         (match: any, word: any) => `${word}`
       );
       entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
+      
 
       let wordOccurence = 0;
 
@@ -679,6 +704,7 @@ const Sidebar = () => {
           new RegExp(`(${wordToSearch.join("|")})`, "gi"),
           (match: any) => `<span>${match}</span>`
         );
+
       const fileNameWithHighlightedWords = entry.fileName.replace(
         new RegExp(`(${wordToSearch.join("|")})`, "gi"),
         (match: any) => `<span>${match}</span>`
@@ -686,6 +712,63 @@ const Sidebar = () => {
       entry.contentWithHighlightedWords = contentWithHighlightedWords;
       entry.fileNameWithHighlightedWords = fileNameWithHighlightedWords;
     }
+  }
+
+
+  function markAllData (newentries:any , wordToSearch:any) {
+    // console.log('wordtosearch' , wordToSearch)
+    const maxWordsBeforeAndAfter = 3;
+
+    for (const entry of newentries) {
+
+      let matchingFile: any = {}
+
+      marked.setOptions({
+        breaks: true,
+      });
+
+      // matchingFile.content = marked(entry.content);
+      matchingFile.content = entry.content
+      // console.log(matchingFile.content)
+
+      const regex = /\[\[([^[\]]+)\]\]/g;
+      const hashtagParagraphRegex = /^#\w+/gm;
+
+      if (matchingFile) {
+        const contentWithoutHashtag = matchingFile.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+
+        const contentWithStyledWord = contentWithoutHashtag.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span>${word}</span>`
+        );
+
+        const searchPattern = new RegExp(`(${wordToSearch.join('|')})`, 'gi');
+
+        const contentWithBackground = contentWithStyledWord.replace(
+          searchPattern,
+          '<span style="background-color: #666262; text-decoration: underline;">$1</span>'
+        );
+
+        const regexRemove = /(^|\n)(#[^\n]*){1,5}(\n|$)/g;
+        const finalContent = contentWithBackground.replace(regexRemove, '');
+
+        
+
+        // console.log(finalContent)
+
+        // console.log(result);
+        
+        // console.log(contentWithBackground)
+
+
+        entry.totalMarkedData = finalContent 
+      }
+    }
+    // console.log(newentries)
   }
 
 
@@ -1255,7 +1338,7 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter())
+        .force("center", d3.forceCenter().strength(centerForceValue))
         .on("tick", ticked);
 
       const svg = d3
@@ -2016,7 +2099,6 @@ const Sidebar = () => {
       
     }
     
-    
   };
 
 
@@ -2535,6 +2617,8 @@ const Sidebar = () => {
       removeBrackets(newEntries, wordToSearch);
 
       highlightSearchWord(newEntries, wordToSearch);
+
+      markAllData(newEntries , wordToSearch)
 
       newEntries = newEntries
         .slice()
@@ -3221,6 +3305,12 @@ const Sidebar = () => {
     setSliderValue(mappedValue)
   };
 
+  const handleCenterForceCommitted = (event: any, newValue: any) => {
+    // console.log(newValue)
+    setCenterForceValue(newValue)
+  };
+
+
 
   const sliderNewGraph = () => {
     // console.log('graphdata' , graphData)
@@ -3837,9 +3927,11 @@ const Sidebar = () => {
 
 
   const handleLeftArrowForPreviousFile = () => {
+    setPreviewNodeLinkLoader(true)
     const newArray = graphNodeOpened.slice(1);
     setGraphNodeOpened(newArray);
     setAnimationKey((prevKey) => prevKey + 1);
+    setPreviewNodeLinkLoader(false)
   }
  
 
@@ -4209,11 +4301,7 @@ const Sidebar = () => {
         </div>
 
         {graphOrTextView ? (
-          <div
-            className={`search-results ${
-              !shouldShowFilters ? "results-height" : ""
-            }`}
-          >
+          <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
             {searchValue.length > 0 && (
               <div>
                 {searchResults.map((result, index) => (
@@ -4247,15 +4335,16 @@ const Sidebar = () => {
                           onClick={() => removeBothSearchResults(result)}
                         />
                       </div>
+
                       <div>
                         <div>
                           <p
                             dangerouslySetInnerHTML={{
                               __html: (
                                 result as {
-                                  contentWithHighlightedWords: string;
+                                  totalMarkedData: string;
                                 }
-                              ).contentWithHighlightedWords,
+                              ).totalMarkedData,
                             }}
                             className="note"
                           />
@@ -4298,7 +4387,7 @@ const Sidebar = () => {
                   </div>
 
 
-                  <div>
+                  <div className="preview-node-loader">
                     {previewNodeLinkLoader && (
                       <CircularProgress size={16} style={{color: 'black'}} />
                     )}
@@ -4440,19 +4529,43 @@ const Sidebar = () => {
         {graphOrTextView ? (<></>):(
           <>
             <div className="forces-container">
-              <Slider
-                size="small"
-                min={0}
-                max={1}
-                step={0.01}
-                defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)}
-                aria-label="Small"
-                valueLabelDisplay="auto"
-                onChangeCommitted={handleSliderChangeCommitted}
-                classes={{ track: 'custom-slider-track',
-                          thumb: 'custom-slider-thumb',
-                          rail: 'custom-slider-rail', }}
-              />
+
+              <div>
+                <p style={{margin: '0px'}}>Center force</p>
+                <Slider
+                  style={{padding: '8px 0px'}}
+                  size="small"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={centerForceValue}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChangeCommitted={handleCenterForceCommitted}
+                  classes={{ track: 'custom-slider-track',
+                            thumb: 'custom-slider-thumb',
+                            rail: 'custom-slider-rail', }}
+                />
+              </div>
+
+              <div>
+                <p style={{margin: '0px'}}>Link force</p>
+                <Slider
+                  style={{padding: '8px 0px'}}
+                  size="small"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChangeCommitted={handleSliderChangeCommitted}
+                  classes={{ track: 'custom-slider-track',
+                            thumb: 'custom-slider-thumb',
+                            rail: 'custom-slider-rail', }}
+                />
+              </div>
+
             </div>
           </>
         )}
