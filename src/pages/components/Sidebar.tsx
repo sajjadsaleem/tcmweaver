@@ -24,6 +24,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 var internalId:any = 0
@@ -90,7 +91,7 @@ const Sidebar = () => {
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
   const [shouldShowFilters, setShouldShowFilters] = useState(true);
-  const [themeChangericon, setThemeChangerIcon] = useState(true);
+  const [themeChangericon, setThemeChangerIcon] = useState(false);
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
   const [isCopied, setIsCopied] = useState(false);
@@ -102,7 +103,7 @@ const Sidebar = () => {
   // });
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
-  const [graphNodeOpened, setGraphNodeOpened] = useState<any>({});
+  const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
   const [textColorForNode , setTextColorForNode] = useState('black')
   const [sliderValue, setSliderValue] = useState(-40)
   const [accessToken, setAccessToken] = useState('');
@@ -146,6 +147,7 @@ const Sidebar = () => {
   const [showColorSetting , setShowColorSetting] = useState(false)
   const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
   const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
+  const [nodeTagsColors , setNodeTagsColors] = useState<any>([])
 
 
   // console.log("filesData: ", filesData);
@@ -153,6 +155,7 @@ const Sidebar = () => {
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("currentCategories: ", allCheckboxes);
+  // console.log('themchangeicon' , themeChangericon)
   // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
@@ -160,7 +163,7 @@ const Sidebar = () => {
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
   // console.log('userEmail ', userEmail)
-  // console.log('getUser' , getUser , 'getpermissions' , getPermissions)
+  // console.log('getUser' , getUser)
   // console.log('allVaults' , allVaults)
   // console.log('getpackage' , getPackage)
   // console.log('clickedvault' , clickedVault)
@@ -168,6 +171,7 @@ const Sidebar = () => {
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
   // console.log('slidervalue' , sliderValue)
+  console.log(shouldShowFilters)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -211,6 +215,7 @@ const Sidebar = () => {
     }
   }, []);
 
+
   useEffect(() => {
     const handleOutsideClick = (event:any) => {
       // console.log('event' , event)
@@ -231,6 +236,7 @@ const Sidebar = () => {
     };
   }, []);
 
+
   useEffect(() => {
     const getInit = () => {
       setUser(getStAuth.stAccessTokenVerify)
@@ -246,12 +252,14 @@ const Sidebar = () => {
     getInit()
   }, [getUser, getPermissions, getStAuth]);
 
+
+  // Api Call to get home, filters, nodeColors , synonyms
   useEffect(() => {
     const fetchFilesData = async () => {
       try {
         const response = await fetch("/api");
         if (!response.ok) {
-          throw new Error("Failed to fetch filters, home");
+          throw new Error("Failed to fetch filters, home , nodeColors , synonyms");
         } else {
           let data = await response.json();
           // console.log('data' , data)
@@ -351,6 +359,18 @@ const Sidebar = () => {
       }
     };
 
+    const fetchNodeColors = async () => {
+      await axios.get(`/api/nodeColors`)
+      .then((res:any) => {
+        // console.log('res from fetching node colors' , res.data.nodeColors)
+
+      })
+      .catch((err:any) => {
+        console.log('Error fetching node colors' , err)
+      })
+
+    }
+
     // const showToast = router.query.dashboard === "true";
     // if (showToast) {
     //   toast("Login success", {
@@ -366,9 +386,11 @@ const Sidebar = () => {
     //   });
     // }
 
-    fetchFilesData();
+    fetchFilesData()
+    fetchNodeColors()
 
   }, []);
+
 
   useEffect(()=> {
     const syntheticEvent = {
@@ -388,6 +410,7 @@ const Sidebar = () => {
 
 
   }, [sliderValue])
+
 
   useEffect(() => {
     if(nodeColorRemoveCheck !== '') {
@@ -411,6 +434,7 @@ const Sidebar = () => {
     // Call makeGraph whenever showAddGraphNodeColor changes
     // makeGraph(graphData);
   }, [showAddGraphNodeColor]);
+
 
   const handleSearch = async (event: any) => {
     const inputValue = event.target.value;
@@ -604,6 +628,7 @@ const Sidebar = () => {
         
   };
 
+
   const handleSiteNameClick = () => {
     setSearchValue("");
     setGraphSearchValue("")
@@ -611,6 +636,7 @@ const Sidebar = () => {
     setOpenedResults([]);
     setShouldShowFilters(true);
   };
+
 
   function removeBrackets(newEntries: any, wordToSearch: any) {
     // console.log("newEntries: ", newEntries);
@@ -645,6 +671,7 @@ const Sidebar = () => {
     }
   }
 
+
   function highlightSearchWord(newEntries: any, wordToSearch: any) {
     for (const entry of newEntries) {
       const contentWithHighlightedWords =
@@ -661,8 +688,9 @@ const Sidebar = () => {
     }
   }
 
-  function handleThemeChangerClick() {
-    console.log("themeChangerIcon: ", themeChangericon);
+
+  const handleThemeChangerClick = () => {
+    // console.log("themeChangerIcon: ", themeChangericon);
     setThemeChangerIcon(!themeChangericon);
     const sideNav:any = document.querySelector(`.${"side-nav"}`);
     // const mainPanel = document.querySelector(`.${"main"}`);
@@ -679,9 +707,9 @@ const Sidebar = () => {
     } else {
       setTextColorForNode('black')
     }
-      
-   
+       
   }
+  
 
   const handleCheckboxClick = (category: any, id: any) => {
    
@@ -817,6 +845,7 @@ const Sidebar = () => {
       const links: any = [];
       let count = 0;
       let finalCount = 0;
+
       const nodeExists = (id: any) => {
         return nodes.some((node: any) => node.id === id);
       };
@@ -831,11 +860,19 @@ const Sidebar = () => {
           // Create a node for the fileName
           const nodeId = result.fileName;
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          const nodeTag:any = match ? match[0] : null;
-          const cleanedTag = nodeTag.substring(1);
+          // console.log('match' , match)
+          let nodeTag:any = match ? match[0] : null;
+          let cleanedTag
+          
+          if(nodeTag === null){
+            cleanedTag = 'tagnotfound'
+          } else {
+            cleanedTag = nodeTag.substring(1);
+          }
           if (!nodeExists(nodeId)) {
             nodes.push({ id: nodeId, tag: cleanedTag });
           }
+          
         })
 
         openedResults.map((result:any)=> {
@@ -1117,7 +1154,6 @@ const Sidebar = () => {
       }
 
     } else {
-      console.log('eeee')
       const graphDiv:any = document.getElementById('graph-div');
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
@@ -1775,7 +1811,11 @@ const Sidebar = () => {
 
     if (matchingResult) {
       // console.log("Matching Result:", matchingResult);
-      setGraphNodeOpened(matchingResult);
+      
+      if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
+        // Update the array only if the fileName is different
+        setGraphNodeOpened((prevGraphNodeOpened:any) => [matchingResult, ...prevGraphNodeOpened]);
+      }
     } else {
       // Now does not come in this else
       try {
@@ -1919,7 +1959,6 @@ const Sidebar = () => {
 
   const previewNodeLink = (node: any) => {
     setPreviewNodeLinkLoader(true)
-    // console.log("link to preview", node);
 
     const matchingResult: any = openedResults.find(
       (result: any) => result.fileName === node
@@ -1927,7 +1966,11 @@ const Sidebar = () => {
 
     if (matchingResult) {
       setPreviewNodeLinkLoader(false)
-      setGraphNodeOpened(matchingResult);
+      if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
+        // Update the array only if the fileName is different
+        setGraphNodeOpened((prevGraphNodeOpened:any) => [matchingResult, ...prevGraphNodeOpened]);
+        setAnimationKey((prevKey) => prevKey + 1);
+      }
     } else {
       const tableNamesStr = userAccessVaults.join(',');
       // console.log(tableNamesStr)
@@ -1956,17 +1999,23 @@ const Sidebar = () => {
           (match: any, word: any) =>
             `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
-        // console.log("newDataObject", newDataObject);
-        setAnimationKey((prevKey) => prevKey + 1);
-        setGraphNodeOpened(newDataObject);
+        
+        if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {
+          setGraphNodeOpened((prevGraphNodeOpened:any) => [newDataObject, ...prevGraphNodeOpened]);
+        }
+
+        // setGraphNodeOpened(newDataObject);
         setPreviewNodeLinkLoader(false)
+        setAnimationKey((prevKey) => prevKey + 1);
       })
       .catch((err) => {
         console.log("err=", err);
         setPreviewNodeLinkLoader(false)
       });
 
+      
     }
+    
     
   };
 
@@ -1976,9 +2025,9 @@ const Sidebar = () => {
     // console.log("openedResult: ", openedResults);
     // console.log('graphdata' , graphData)
     const updatedGraphData: any = { ...graphData };
-    const matchingResult = openedResults.find(
-      (result) => result.fileName === fileOpenedFromGraph.id
-    );
+    const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
+    // console.log('matching result' , matchingResult)
+
     const nodeExists = (id: any) => {
       return updatedGraphData.nodes.some((node: any) => node.id === id);
     };
@@ -2009,7 +2058,6 @@ const Sidebar = () => {
       // console.log('wordsarray' , wordsArray)
       
       try {
-        // console.log("wordsArray", wordsArray);
         const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
@@ -2032,7 +2080,7 @@ const Sidebar = () => {
             entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
           }
 
-          console.log('response' , response.data)
+          // console.log('response' , response.data)
 
 
           const linkTags = Object.keys(response.data).map((key) => {
@@ -2071,7 +2119,7 @@ const Sidebar = () => {
             }
           });
 
-          console.log("updatedGraphData: ", updatedGraphData);
+          // console.log("updatedGraphData: ", updatedGraphData);
             // let graphNewData = resultData;
           setGraphData(updatedGraphData);
           makeGraph(updatedGraphData);
@@ -2120,7 +2168,7 @@ const Sidebar = () => {
             !updatedOpenedResults.some((existingObj:any) => existingObj.fileName === updatedObj.fileName)
           ));
 
-          console.log('filteredupdatedresults' , filteredUpdatedResults)
+          // console.log('filteredupdatedresults' , filteredUpdatedResults)
 
 
           const indexToInsertAfter  = filteredUpdatedResults.findIndex((obj) => obj.fileName === fileOpenedFromGraph.id);
@@ -2129,7 +2177,7 @@ const Sidebar = () => {
             const insertionIndex = indexToInsertAfter + 1;
             
             filteredUpdatedResults.splice(insertionIndex, 0, ...updatedOpenedResults);
-            console.log('filteredUpdatedResults' , filteredUpdatedResults)
+            // console.log('filteredUpdatedResults' , filteredUpdatedResults)
             setOpenedResults(filteredUpdatedResults)
 
           
@@ -2139,7 +2187,6 @@ const Sidebar = () => {
           }          
         }
       } catch (error) {
-        // Handle errors here
         console.log("Error getting wander node files:", error);
       }
     } else {
@@ -3397,6 +3444,7 @@ const Sidebar = () => {
     return (value - min1) * (max2 - min2) / (max1 - min1) + min2;
   };
 
+
   const mapSliderValueToReal = (value:any, min1:any, max1:any, min2:any, max2:any) => {
     return (value - min2) * (max1 - min1) / (max2 - min2) + min1;
   }
@@ -3567,9 +3615,6 @@ const Sidebar = () => {
 
   const handleEditUser = async () => {
     setEditUserLoader(true)
-    // console.log('emailtoudpatedata' , getUser.user.email)
-    // console.log('formData' , formData)
-    // setUpdatePasswordLoader(true)
     await axios.post('/api/editUser', {
       email: getUser.user.email,
       data: formData
@@ -3595,7 +3640,8 @@ const Sidebar = () => {
       dispatch(stAccessTokenVerify({
         user: res.data.allUsers[0],
         user_permssions: res.data.getPermissions ,
-        user_role: res.data.getRole
+        user_role: res.data.getRole,
+        user_package: getUser.user_package
       }))
       
     setUser(res.data.allUsers[0])
@@ -3788,11 +3834,18 @@ const Sidebar = () => {
       makeGraph(graphData);
     }
   };
+
+
+  const handleLeftArrowForPreviousFile = () => {
+    const newArray = graphNodeOpened.slice(1);
+    setGraphNodeOpened(newArray);
+    setAnimationKey((prevKey) => prevKey + 1);
+  }
  
 
   return (
     <div>
-      <div className="side-nav">
+      <div className="side-nav night-mode">
         <div className={"logoVc"}>
           <div className="site-name" onClick={handleSiteNameClick}>
             <p>TCM Weaver</p>
@@ -3973,27 +4026,27 @@ const Sidebar = () => {
                     <Grid item xs={12}>
                       <div className="edit-profile-div">
                         <div className="edit-profile-image-div">
-                          <img src={formData.image}
+                          {formData.image && formData.image !== null && formData.image !== '' ? (
+                            <img src={formData.image}
                               style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
                               alt="Profile Picture"
                             />
+                          ):(
+                            <img src='/profile-avatar.webp'
+                            style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                            alt="Profile Picture"
+                            />
+                          )}
                         </div>
 
                         <div className="edit-profile-button-div">
-                          <button onClick={handleChooseFile} >
-                            Change picture
-                          </button>
-                          <button onClick={handleEditProfilePicture}>
-                            Remove
-                          </button>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
+                          <button onClick={handleChooseFile} >Change picture</button>
+                          <button onClick={handleEditProfilePicture}>Remove</button>
+                          <input type="file" ref={fileInputRef} style={{ display: 'none' }}
                             onChange={handleFileChange}
                           />
                         </div>
-                        
+
                       </div>
 
 
@@ -4227,7 +4280,23 @@ const Sidebar = () => {
             {!hideFiltersForPreview && (
               <div key={animationKey} className="node-preview">
                 <div className="node-preview-title">
-                  <h4>{graphNodeOpened.fileName.toUpperCase()}</h4>
+                  <div className="graph-show-node">
+                    {graphNodeOpened.length === 1 ? (
+                      <div>
+                        <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+                          className="graph-node-backarrow-single">
+                        </ArrowBackIcon>
+                      </div>
+                    ):(
+                      <div onClick={handleLeftArrowForPreviousFile}>
+                        <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
+                          className="graph-node-backarrow">
+                        </ArrowBackIcon>
+                      </div>
+                    )}
+                    <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
+                  </div>
+
 
                   <div>
                     {previewNodeLinkLoader && (
@@ -4245,7 +4314,7 @@ const Sidebar = () => {
                 <div className="node-preview-detail">
                   <p
                     dangerouslySetInnerHTML={{
-                      __html: graphNodeOpened.content,
+                      __html: graphNodeOpened[0].content,
                     }}
                     className="opened-result-description"
                     onClick={(e: any) => {
@@ -4261,13 +4330,8 @@ const Sidebar = () => {
                 </div>
               </div>
             )}
-            <div id="nodeInfo" className="node-click-options"
-              style={{
-                position: "absolute",
-                display: "none",
-                backgroundColor: "white",
-              }}
-            >
+
+            <div id="nodeInfo" className="node-click-options">
               <img
                 src="xmark.png"
                 alt="img"
@@ -4290,7 +4354,7 @@ const Sidebar = () => {
           </>
         )}
 
-        <div className="menus">
+        <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
           <div className="menus-link">
             {!shouldShowFilters && (
               <>
@@ -4395,9 +4459,9 @@ const Sidebar = () => {
 
       </div>
 
-      <div className="workspace-content">
+      <div className="workspace-content night-mode">
         {graphOrTextView ? (
-          <div className="main">
+          <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
             {openedResults.length > 0 ? (
               openedResults.map((result, index) => (
                 <div key={index} className="opened-results">

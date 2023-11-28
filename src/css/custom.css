@@ -4,8 +4,10 @@
 
 
 
-/* ==== new code ======*/
 
+/* =====================================Homepage================================= */
+
+/* =====================================Sidebar================================== */
 
 .side-nav {
     width: 346px;
@@ -13,13 +15,10 @@
     background-color: #f4f4f4;
     position: fixed;
     z-index: 11;
-    /* overflow-y: hidden; */
-    /* overflow: hidden; */
-    /* background-color: red; */
 }
 
 .side-nav.night-mode {
-    background-color: #000 !important;
+    background-color: #000;
 }
 
 .side-nav.active {
@@ -37,6 +36,12 @@
  
     margin-right: 21px;
 } */
+
+
+
+
+
+
 .main::-webkit-scrollbar {
     height: 10px;
 }
@@ -90,6 +95,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 8.8%;
 }
 
 .logoVc p {
@@ -154,11 +160,36 @@
 }
 
 .menus {
-    margin-top: 1rem !important;
+    margin-top: 0.9rem !important;
     width: 100%;
     /* margin: auto; */
-    height: 225px;
+    height: 7%;
     overflow-y: scroll;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+}
+
+.menus-filters-visible {
+    height: 36.675%;
+    margin-top: 0.9rem !important;
+    width: 100%;
+    /* margin: auto; */
+    /* height: 7%; */
+    overflow-y: scroll;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+}
+
+.filters-graph-screen {
+    height: 50.675%;
+    margin-top: 1.5rem !important;
+    width: 100%;
+    overflow-y: scroll;
+    display: flex;
+    position: relative;
+
 }
 
 .height-check {
@@ -181,6 +212,7 @@
     margin: auto;
     margin-top: 1.5rem;
     gap: 10px;
+    height: 6.5%;
 }
 
 .menuBtn .copy-icon {
@@ -386,7 +418,7 @@
 .accordion-body {
     border-top: 1px solid #b7b7b7;
     transition: all 1s ease;
-    height: 110px;
+    height: auto;
     padding: 5px 0px !important;
     display: flex;
     flex-direction: column;
@@ -395,6 +427,7 @@
     padding-left: 25px !important;
     transition: none !important;
     font-weight: 600;
+
 }
 
 .night-mode .accordion-body {
@@ -567,10 +600,8 @@
 .search-results {
     margin-top: 17px !important;
     margin-bottom: 6px;
-    min-height: 66.6vh;
-    max-height: 66.6vh;
-    /* background-color: rgb(116, 97, 100); */
-    /* background-color: rgb(231, 158, 158); */
+    min-height: 67.675%;
+    max-height: 67.675%;
     width: 100%;
     margin: auto;
     overflow-y: scroll;
@@ -663,6 +694,10 @@
     filter: invert(0) !important;
 }
 
+/* .profile-title h4 {
+    color: #616161;
+} */
+
 .night-mode span,
 .night-mode p,
 .night-mode h4,
@@ -673,6 +708,7 @@
 .forces-container {
     width: 284px;
     margin-left: 26px;
+    margin-top: 10px;
 }
 
 .custom-slider-track {
@@ -694,26 +730,56 @@
     color: #C2C2C2 !important;
 }
 
+.graph-show-node {
+    display: flex;
+}
 
-/* ===========Main================*/
+.graph-node-backarrow {
+    cursor: pointer;
+}
+
+.graph-node-backarrow-single,
+.graph-node-backarrow {
+    width: 15px;
+    height: 15px;
+    margin-top: 2px;
+    margin-right: 5px;
+}
+
+.graph-node-backarrow {
+    cursor: pointer;
+}
+
+
+/* ==========================================Main=================================*/
 
 .main {
     height: 100vh;
     width: calc(100vw - 346px);
-    /* padding-left: 346px; */
     margin-left: 346px;
     position: relative;
     display: flex;
-
-    /* background-color: lightcoral; */
     overflow-y: hidden;
     overflow-x: scroll;
-
 }
 
-.workspace-content.night-mode .main {
+.workspace-content.night-mode .main,
+.workspace-content.night-mode .main-homepage {
     background-color: #242424;
 }
+
+.main-homepage {
+    height: 100vh;
+    width: calc(100vw - 346px);
+    margin-left: 346px;
+    position: relative;
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+
+
+
+
 
 .graph-container {
     height: 100vh;
@@ -958,14 +1024,13 @@
 
 .homepage-opened-file {
     min-width: 300px;
-    max-width: 300px;
+    /* max-width: 300px; */
     padding: 16px;
 }
 
 .view-panel-title {
     display: flex;
     justify-content: space-between;
-    /* align-items: center; */
 }
 
 .view-panel-title h4 {
@@ -1019,23 +1084,6 @@
     font-size: 1.5rem;
 }
 
-/* .highlighted-heading {
-    color: black;
-    animation: blink .8s 1;
-} */
-
-/* @keyframes blink {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(0.9);
-    }
-} */
-
 .highlighted-heading {
 
     animation: blink 1.5s 1;
@@ -1058,10 +1106,16 @@
 .node-click-options {
     width: 60px;
     height: 25px;
+    position: absolute;
+    display: none;
 }
 
 .node-click-options img {
     filter: invert(0);
+}
+
+.night-mode .node-click-options img {
+    filter: invert(1);
 }
 
 .node-remove-icon,
@@ -1075,7 +1129,7 @@
 
 
 
-/*  login page */
+/*  ===================================Login Page===================================== */
 
 .login-page-password {
     width: 400px !important;
@@ -1359,7 +1413,7 @@
 
 .edit-profile-image-div {
     width: 75px;
-    height: 77px;
+    height: 75px;
     border: 1px solid #EEE;
     border-radius: 100px;
     display: flex;
@@ -1372,9 +1426,9 @@
 
 
 
-/*  Dashboard */
+/*  =============================================Dashboard================================== */
+
 .dashboard-navigation {
-    /* border: 1px solid red; */
     width: 284px;
     margin: auto;
     margin-top: 1rem;
@@ -1385,34 +1439,64 @@
     color: black;
 }
 
+/* .dashboard-navigation span {
+    color: #616161;
+} */
+
+.night-mode .dashboard-navigation span {
+    color: white;
+}
+
+
+
 .dashboard-navigation li {
     cursor: pointer;
 
 }
 
-.dashboard-navigation img {
+.dashboard-navigation img,
+.dashboard-navigation svg {
     width: 20px;
+    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
 }
+
+.night-mode .dashboard-navigation img {
+    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
+}
+
 
 .dashboard-navigation-list {
     border-radius: 8px;
-}
-
-.selected-dashboard-navigation-list {
-    background-color: #c2bdbd;
 }
 
 .dashboard-navigation-list:hover {
     background-color: #e0dede;
 }
 
-/* .dashboard-navigation-list:active {
-    background-color: #c2bdbd;
-} */
+.selected-dashboard-navigation-list {
+    background-color: #969696;
+}
 
 .selected-dashboard-navigation-list:hover {
-    background-color: #c2bdbd;
+    background-color: #a7a2a2;
 }
+
+.selected-dashboard-navigation-list span {
+    color: white;
+}
+
+.selected-dashboard-navigation-list svg {
+    filter: invert(100%) sepia(7%) saturate(30%) hue-rotate(332deg) brightness(107%) contrast(110%);
+}
+
+.night-mode .dashboard-navigation-list svg {
+    filter: invert(100%) sepia(7%) saturate(30%) hue-rotate(332deg) brightness(107%) contrast(110%);
+}
+
+.selected-dashboard-navigation-list img {
+    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%) !important;
+}
+
 
 .logout-section {
     width: 284px;
@@ -1454,10 +1538,13 @@
     width: 240px;
     border: none;
     border-radius: 10px;
-    background-color: #c2bdbd;
+    background-color: #969696;
     padding: 8px;
     transition: background-color 0.3s ease;
+    color: white;
 }
+
+
 
 .logout-button:hover {
     background-color: #a8a2a2;
@@ -1477,6 +1564,7 @@
 .logout-button img {
     width: 20px;
     margin-right: 17px;
+    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
 }
 
 
@@ -1495,7 +1583,6 @@
 
 .vault-breadcrumbs,
 .user-breadcrumbs {
-    /* background-color: lightcoral; */
     padding-top: 18px;
 
 }
@@ -1507,6 +1594,36 @@
 
 .main-setting {
     overflow-y: scroll;
+}
+
+.main-setting img {
+    color: rgb(73, 72, 72);
+    filter: invert(28%) sepia(0%) saturate(0%) hue-rotate(193deg) brightness(97%) contrast(97%);
+}
+
+.night-mode .main-setting img {
+    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
+}
+
+/* .main-setting h5,
+.main-setting h6,
+.main-setting th {
+    color: #616161;
+} */
+
+.night-mode .main-setting h5,
+.night-mode .main-setting h6,
+.night-mode .main-setting th {
+    color: white;
+}
+
+
+/* .main-setting td span {
+    color: #515151;
+} */
+
+.night-mode .main-setting td span {
+    color: white;
 }
 
 .vault-search,
@@ -1536,15 +1653,18 @@
 .vault-sync-btn,
 .add-user {
     border: none;
-    background-color: #C2BDBD;
+    background-color: #969696;
     border-radius: 8px;
     padding: 8px 16px;
     transition: background-color 0.3s ease;
+    color: white;
 }
 
 .vault-sync-btn img,
 .add-user img {
-    width: 15px
+    width: 15px;
+    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
+
 }
 
 .vault-sync-btn:hover,
@@ -1694,6 +1814,10 @@
     cursor: pointer;
 }
 
+/* .vault-table-row td {
+    color: #515151;
+} */
+
 .night-mode .vault-table-row {
     border-bottom: 2px solid rgb(114, 114, 114);
 }
@@ -1702,6 +1826,11 @@
 .night-mode .vault-table-body-row {
     color: rgb(255, 255, 255);
 }
+
+/* .vault-table-body-row img {
+    color: #535151;
+    filter: invert(32%) sepia(14%) saturate(15%) hue-rotate(32deg) brightness(93%) contrast(95%) !important;
+} */
 
 #vaultSelect {
     border: 1px solid #c7c7c7 !important;

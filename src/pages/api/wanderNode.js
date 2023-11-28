@@ -16,12 +16,14 @@ const pool = new Pool({
 
 export default async function search(req, res) {
     if (req.method === 'GET') {
+
         try {
             const tableNamesStr = req.query.av
             const tableNames = tableNamesStr.split(',');
-            const wordsArray = req.query.q.split(',');
-            // console.log('tablenames', tableNames)
-            // console.log('wordsArray', wordsArray)
+            const wordsArrayRaw = req.query.q.split(',');
+            const uniqueWordsSet = new Set(wordsArrayRaw);
+            const wordsArray = Array.from(uniqueWordsSet);
+            // console.log('wordsArray', wordsArray);
 
             const db = drizzle(sql)
 
@@ -57,20 +59,32 @@ export default async function search(req, res) {
                 wordsArray.includes(obj.fileName)
             );
 
+            const missingFilenames = wordsArray.filter((filename) =>
+                !matchedObjects.some((obj) => obj.fileName === filename)
+            );
+
+            // console.log('missingFilenames', missingFilenames)
+
+            const missingObjects = missingFilenames.map((filename) => ({ fileName: filename, content: '', tag: 'file not found' }));
+
+            const finalObjects = [...matchedObjects, ...missingObjects];
+
             // adding tag to the results
-            const updatedObjects = matchedObjects.map((obj) => {
+            const updatedObjects = finalObjects.map((obj) => {
                 // Extract the first word after '#' from the content using a regular expression
                 const match = obj.content.match(/#(\w+)/);
                 const tag = match ? match[1] : null;
 
+                // console.log('tag', tag)
+
                 // Add the 'tag' property to the object
                 return {
                     ...obj,
-                    tag: tag || null,
+                    tag: tag || 'file not found',
                 };
             });
 
-            console.log('Updated objects:', updatedObjects);
+            // console.log('Updated objects:', updatedObjects);
 
 
 

@@ -210,10 +210,20 @@ const Signup = () => {
 
                     <div className="edit-profile-div">
                         <div className="edit-profile-image-div">
-                            <img src={formData.image}
+                            {formData.image && formData.image !== null && formData.image !== '' ? (
+                                <img src={formData.image}
                                 style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
                                 alt="Profile Picture"
-                            />
+                                />
+                            ):(
+                                <>
+                                    <img src='/profile-avatar.webp'
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                    alt="Profile Picture"
+                                    />
+                                </>
+                            )}
+                            
                         </div>
 
                         <div className="edit-profile-button-div">

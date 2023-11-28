@@ -42,7 +42,7 @@ export default async function search(req, res) {
             }
 
         }
-        console.log('rows nnowowerjwelrj', rows)
+        // console.log('rows nnowowerjwelrj', rows)
         const datasets = rows
         // console.log('datasets', datasets)
 

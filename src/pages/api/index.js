@@ -1,5 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
+
 import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { filtersTable } from '../../db/schema/filters'
@@ -13,7 +12,6 @@ const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL + "?sslmode=require",
 })
-
 
 
 export default async function handler(req, res) {
