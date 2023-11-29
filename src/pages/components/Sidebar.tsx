@@ -92,8 +92,8 @@ const Sidebar = () => {
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
   const [shouldShowFilters, setShouldShowFilters] = useState(true);
-  const [themeChangericon, setThemeChangerIcon] = useState(() => {
-    const storedTheme = localStorage.getItem('theme');
+  const [themeChangericon, setThemeChangerIcon] = useState<any>(async() => {
+    const storedTheme = await localStorage.getItem('theme');
     return storedTheme ? JSON.parse(storedTheme) : false;
   });
   const [graphOrTextView, setgraphOrTextView] = useState(true);
@@ -104,7 +104,7 @@ const Sidebar = () => {
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
-  const [textColorForNode , setTextColorForNode] = useState(() => {
+  const [textColorForNode , setTextColorForNode] = useState<any>(async() => {
     const storedTheme:any = localStorage.getItem('theme');
     const curTheme = JSON.parse(storedTheme)
     return curTheme ? 'black' : 'white';
