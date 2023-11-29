@@ -792,9 +792,10 @@ const Sidebar = () => {
     // console.log("themeChangerIcon: ", themeChangericon);
     const currentTheme = !themeChangericon
     setThemeChangerIcon(!themeChangericon);
+    const changeTheme = JSON.stringify(currentTheme)
+    // console.log(changeTheme)
 
-
-    localStorage.setItem('theme', JSON.stringify(currentTheme));
+    localStorage.setItem('theme', changeTheme);
     const sideNav:any = document.querySelector(`.${"side-nav"}`);
     // const mainPanel = document.querySelector(`.${"main"}`);
     const workspacePanel:any = document.querySelector(`.${"workspace-content"}`); 
