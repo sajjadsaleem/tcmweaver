@@ -5,7 +5,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import stAuth from './apps/auth';
 import stShipment from './apps/shipment';
 import stUsers from './apps/users';
-import themeReducer from './apps/theme';
 // import { AppDispatch, RootState } from './types';
 
 export const store = configureStore({
@@ -13,7 +12,6 @@ export const store = configureStore({
     stAuth,
     stShipment,
     stUsers,
-    theme: themeReducer,
 
   },
   middleware: getDefaultMiddleware =>
