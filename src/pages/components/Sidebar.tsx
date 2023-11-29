@@ -92,22 +92,26 @@ const Sidebar = () => {
   const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
   const [shouldShowFilters, setShouldShowFilters] = useState(true);
-  const [themeChangericon, setThemeChangerIcon] = useState(false);
+  const [themeChangericon, setThemeChangerIcon] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+    return storedTheme ? JSON.parse(storedTheme) : false;
+  });
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
   const [isCopied, setIsCopied] = useState(false);
   const [filtersData, setFiltersData] = useState<any>([]);
   const [graphData, setGraphData] = useState<any>([]);
-  // const [graphDimension, setGraphDimension] = useState({
-  //   width: 0,
-  //   height: 0,
-  // });
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
-  const [textColorForNode , setTextColorForNode] = useState('white')
-  const [sliderValue, setSliderValue] = useState(-40)
+  const [textColorForNode , setTextColorForNode] = useState(() => {
+    const storedTheme:any = localStorage.getItem('theme');
+    const curTheme = JSON.parse(storedTheme)
+    return curTheme ? 'black' : 'white';
+  })
   const [centerForceValue , setCenterForceValue] = useState(1)
+  const [sliderValue, setSliderValue] = useState(-40)
+  const [linkForceValue , setLinkForceValue] = useState(0.2)
   const [accessToken, setAccessToken] = useState('');
   const [syncPopup, setSyncPopup] = useState(false);
   const [folders, setFolders] = useState([]);
@@ -397,38 +401,20 @@ const Sidebar = () => {
 
 
   useEffect(()=> {
-    const syntheticEvent = {
-      target: { value: graphSearchValue },
-    };
-
     if(sliderValue !== -40) {
       makeGraph(graphData)
     }
-   
-    // if(graphSearchValue.length > 0){
-    //   handleGraphSearch(syntheticEvent)
-    // }
-    // else {
-    //   sliderNewGraph()
-    // }
-
-
-  }, [sliderValue , centerForceValue])
+  }, [sliderValue])
 
   useEffect(()=> {
-
-    if(centerForceValue !== 1)
+    if(!graphOrTextView)
       makeGraph(graphData)
-   
-    // if(graphSearchValue.length > 0){
-    //   handleGraphSearch(syntheticEvent)
-    // }
-    // else {
-    //   sliderNewGraph()
-    // }
-
-
   }, [centerForceValue])
+
+  useEffect(()=> {
+    if(!graphOrTextView)
+      makeGraph(graphData)
+  }, [linkForceValue])
 
 
 
@@ -717,7 +703,7 @@ const Sidebar = () => {
 
   function markAllData (newentries:any , wordToSearch:any) {
     // console.log('wordtosearch' , wordToSearch)
-    const maxWordsBeforeAndAfter = 3;
+    console.log(newentries)
 
     for (const entry of newentries) {
 
@@ -728,7 +714,33 @@ const Sidebar = () => {
       });
 
       // matchingFile.content = marked(entry.content);
-      matchingFile.content = entry.content
+
+      function stripHtml(html:any) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+      }
+      
+      const plainText = stripHtml(entry.content);
+      const hashtagWordRegex = /#\S+/g;
+      const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
+      const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
+      const pattern = new RegExp(`(?:\\b(?:${wordToSearch.join('|')})\\b)\\W+(\\w+\\W+\\w+\\W+\\w+)`, 'gi');
+
+      const matches = [];
+      let match;
+      while ((match = pattern.exec(plainTextWithoutBrackets)) !== null) {
+        matches.push(match[0]);
+      }
+
+      const result = matches.join('\n');
+      console.log(result);
+      
+
+      if(result !== null && result !== '') {
+        // console.log('result' , result)
+        entry.totalMarkedData = result
+      } else {
+        matchingFile.content = entry.content
       // console.log(matchingFile.content)
 
       const regex = /\[\[([^[\]]+)\]\]/g;
@@ -767,6 +779,10 @@ const Sidebar = () => {
 
         entry.totalMarkedData = finalContent 
       }
+
+      }
+
+      
     }
     // console.log(newentries)
   }
@@ -774,7 +790,11 @@ const Sidebar = () => {
 
   const handleThemeChangerClick = () => {
     // console.log("themeChangerIcon: ", themeChangericon);
+    const currentTheme = !themeChangericon
     setThemeChangerIcon(!themeChangericon);
+
+
+    localStorage.setItem('theme', JSON.stringify(currentTheme));
     const sideNav:any = document.querySelector(`.${"side-nav"}`);
     // const mainPanel = document.querySelector(`.${"main"}`);
     const workspacePanel:any = document.querySelector(`.${"workspace-content"}`); 
@@ -1259,7 +1279,6 @@ const Sidebar = () => {
 
   const makeGraph = (graphNewData: any) => {
     let element: any = document.getElementById("graph-div");
-
     if (element) {
       while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -1287,7 +1306,7 @@ const Sidebar = () => {
         linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
         linkStroke = "#999", // link stroke color
         linkStrokeOpacity = 0.6, // link stroke opacity
-        linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
+        linkStrokeWidth = 0.5, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
         linkStrength = 0.3,
         colors = d3.schemeTableau10, // an array of color strings, for the node groups
@@ -1329,7 +1348,7 @@ const Sidebar = () => {
       const forceNode = d3.forceManyBody();
       const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
       if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-      if (linkStrength !== undefined) forceLink.strength(linkStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
       // console.log("nodes ", nodes);
       const customNodes: any = nodes;
@@ -1397,7 +1416,7 @@ const Sidebar = () => {
         nodeInfoDiv.style.top = `${event.pageY - 35}px`;
 
         // Show the div
-        nodeInfoDiv.style.display = "block";
+        nodeInfoDiv.style.display = "flex";
 
         // Prevent the click event from propagating further (e.g., to zoom or drag)
         event.stopPropagation();
@@ -3299,16 +3318,24 @@ const Sidebar = () => {
   };
 
 
+  const handleCenterForceCommitted = (event: any, newValue: any) => {
+    // console.log(newValue)
+    setCenterForceValue(newValue)
+  };
+
+
+  const handleLinkForceCommitted = (event:any , newValue:any) => {
+    setLinkForceValue(newValue)
+  }
+
+
   const handleSliderChangeCommitted = (event: any, newValue: any) => {
     const mappedValue = mapValueToState(newValue , 0 , 1 , -300 , -50);
 
     setSliderValue(mappedValue)
   };
 
-  const handleCenterForceCommitted = (event: any, newValue: any) => {
-    // console.log(newValue)
-    setCenterForceValue(newValue)
-  };
+  
 
 
 
@@ -3937,7 +3964,7 @@ const Sidebar = () => {
 
   return (
     <div>
-      <div className="side-nav night-mode">
+      <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
         <div className={"logoVc"}>
           <div className="site-name" onClick={handleSiteNameClick}>
             <p>TCM Weaver</p>
@@ -4556,6 +4583,24 @@ const Sidebar = () => {
                   min={0}
                   max={1}
                   step={0.01}
+                  defaultValue={linkForceValue}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChangeCommitted={handleLinkForceCommitted}
+                  classes={{ track: 'custom-slider-track',
+                            thumb: 'custom-slider-thumb',
+                            rail: 'custom-slider-rail', }}
+                />
+              </div>
+
+              <div>
+                <p style={{margin: '0px'}}>Link distance</p>
+                <Slider
+                  style={{padding: '8px 0px'}}
+                  size="small"
+                  min={0}
+                  max={1}
+                  step={0.01}
                   defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)}
                   aria-label="Small"
                   valueLabelDisplay="auto"
@@ -4572,7 +4617,7 @@ const Sidebar = () => {
 
       </div>
 
-      <div className="workspace-content night-mode">
+      <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
         {graphOrTextView ? (
           <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
             {openedResults.length > 0 ? (

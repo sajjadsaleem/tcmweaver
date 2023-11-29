@@ -1,6 +1,7 @@
 import React from "react";
 import AdminLayout from "./components/AdminLayout";
 import Head from "next/head";
+import localFont from 'next/font/local'
 
 import "./style.css";
 import "../css/custom.css";
@@ -12,12 +13,36 @@ import { store } from '../store/index';
 
 interface DashboardProps {
   Component: React.ComponentType;
-  pageProps: any; // Adjust the type as per your actual pageProps type
+  pageProps: any;
 }
+ 
+const myFont = localFont({ 
+        src:[ 
+          {
+            path: '../../public/fonts/GlacialIndifference-Regular.otf',
+            weight: '400',
+            style: 'normal',
+          },
+          {
+            path: '../../public/fonts/GlacialIndifference-Italic.otf',
+            weight: '400',
+            style: 'italic',
+           
+          },
+          // {
+          //   path: '../../public/fonts/GlacialIndifference-Bold.otf',
+          //   weight: '700',
+          //   style: 'normal'
+          // }
+        ]
+})
 
 const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
   return (
-    <>
+    <div 
+    className={myFont.className}
+    >
+      
       <Head>
         <title>TCM Weaver</title>
         <meta name="description" content={`Tcm Weaver – Dashboard`} />
@@ -26,9 +51,9 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
       </Head>
 
       <Provider store={store}>
-      <Component {...pageProps} />
-    </Provider>
-    </>
+          <Component {...pageProps} />
+      </Provider>
+    </div>
   );
 };
 

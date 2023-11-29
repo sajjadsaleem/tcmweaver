@@ -3,8 +3,6 @@
 }
 
 
-
-
 /* =====================================Homepage================================= */
 
 /* =====================================Sidebar================================== */
@@ -25,21 +23,21 @@
     width: 60vw;
 }
 
-/* .side-nav:hover {
-    overflow-y: scroll;
-    padding-left:0;
-} */
+.site-name {
+    cursor: pointer;
+}
 
-/* .side-nav:hover .navVc {
-    width: 284px;
-  
- 
-    margin-right: 21px;
-} */
+.site-name p {
+    font-style: normal;
+    font-size: 30px;
+    margin: 0px;
+    padding: 3px 0px;
+    color: #616161;
+}
 
-
-
-
+.night-mode .site-name p {
+    color: #fff;
+}
 
 
 .main::-webkit-scrollbar {
@@ -84,9 +82,7 @@
  
 } */
 
-.site-name {
-    cursor: pointer;
-}
+
 
 
 .logoVc {
@@ -96,18 +92,6 @@
     align-items: center;
     justify-content: space-between;
     height: 8.8%;
-}
-
-.logoVc p {
-    font-weight: 400;
-    font-size: 30px;
-    margin: 0px;
-    padding: 3px 0px;
-    color: #616161;
-}
-
-.night-mode .logoVc p {
-    color: #fff;
 }
 
 .icon-profile {
@@ -135,30 +119,6 @@
 }
 
 
-@font-face {
-    font-family: 'YourFontName';
-    /* Use your desired font name */
-    src: url('/fonts/your-font-file.woff2') format('woff2'),
-        url('/fonts/your-font-file.woff') format('woff');
-    /* Add more src declarations for different font formats if needed */
-    /* Other font properties such as font-weight and font-style can be added here */
-}
-
-@font-face {
-    font-family: 'inter';
-    /* Use your desired font name */
-    src: url('/public/fonts/Inter-Bold.ttf') format('ttf');
-    /* Add more src declarations for different font formats if needed */
-    /* Other font properties such as font-weight and font-style can be added here */
-}
-
-@font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 300;
-    src: url('/public/fonts/Inter.ttf') format('ttf');
-}
-
 .menus {
     margin-top: 0.9rem !important;
     width: 100%;
@@ -183,7 +143,7 @@
 }
 
 .filters-graph-screen {
-    height: 50.675%;
+    height: 48.675%;
     margin-top: 1.5rem !important;
     width: 100%;
     overflow-y: scroll;
@@ -345,13 +305,13 @@
 .filter-data .note {
     font-size: 0.938rem;
     margin: 0px;
-    font-weight: 400;
     margin-left: 17px;
     margin-right: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 280px;
     white-space: nowrap;
+
 
 }
 
@@ -720,7 +680,6 @@
 
 .custom-slider-track {
     background-color: #C2C2C2 !important;
-    /* Change this to the color you desire */
 }
 
 
@@ -730,7 +689,6 @@
 
 .custom-slider-rail {
     background-color: #C2C2C2 !important;
-    /* Change this to the color you desire for the rail */
 }
 
 .css-53tbrc-MuiSlider-root {
@@ -757,7 +715,7 @@
     cursor: pointer;
 }
 
-
+/* ==========================================Homepage============================= */
 /* ==========================================Main=================================*/
 
 .main {
@@ -1021,13 +979,7 @@
     visibility: visible !important;
 }
 
-.opened-results {
-    min-width: 300px;
-    max-width: 300px;
-    padding: 16px;
-    border-right: 1px solid rgb(223, 214, 214);
-    /* margin-left: 16px; */
-}
+
 
 .homepage-opened-file {
     min-width: 300px;
@@ -1065,6 +1017,14 @@
     width: 16px;
     margin-left: 8px;
     cursor: pointer;
+}
+
+.opened-results {
+    min-width: 340px;
+    max-width: 340px;
+    padding: 16px;
+    border-right: 1px solid rgb(223, 214, 214);
+    /* margin-left: 16px; */
 }
 
 .opened-result-detail {
@@ -1111,10 +1071,11 @@
 }
 
 .node-click-options {
-    width: 60px;
+    width: 62px;
     height: 25px;
     position: absolute;
     display: none;
+    justify-content: space-between;
 }
 
 .node-click-options img {

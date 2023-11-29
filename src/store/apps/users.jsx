@@ -8,11 +8,11 @@ import axios from 'axios'
 // ** Set Access Token Verify
 export const stGetManagers = createAsyncThunk('appUsers/stGetManagers', async (data, { dispatch }) => {
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
-  console.log('stGetManagers>>>>>>>>>>=',data)
+  // console.log('stGetManagers>>>>>>>>>>=',data)
   var payload = data
   const response = await axios.post("/api/managers", payload, {
     headers: {
-      Authorization: "Bearer "+accessToken
+      Authorization: "Bearer " + accessToken
     }
   })
 
