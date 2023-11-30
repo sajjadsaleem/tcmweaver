@@ -311,8 +311,10 @@
     text-overflow: ellipsis;
     width: 280px;
     white-space: nowrap;
+}
 
-
+.night-mode .filter-data .note {
+    color: #fff;
 }
 
 .night-mode .filter-data h1 {
@@ -325,13 +327,10 @@
 
 }
 
-.night-mode .filter-data .note {
-    color: #fff;
-
-}
 
 
-/* .filter-data .note span, */
+
+.filter-data .note span,
 .filter-data h1 span {
     background-color: #666262;
     display: inline-block;

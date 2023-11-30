@@ -101,11 +101,7 @@ const Sidebar = () => {
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
-  const [textColorForNode , setTextColorForNode] = useState<any>(async() => {
-    const storedTheme:any = await localStorage.getItem('theme');
-    const curTheme = JSON.parse(storedTheme)
-    return curTheme ? 'black' : 'white';
-  })
+  const [textColorForNode , setTextColorForNode] = useState<any>()
   const [centerForceValue , setCenterForceValue] = useState(1)
   const [sliderValue, setSliderValue] = useState(-40)
   const [linkForceValue , setLinkForceValue] = useState(0.2)
@@ -151,6 +147,7 @@ const Sidebar = () => {
   const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
   const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
   const [nodeTagsColors , setNodeTagsColors] = useState<any>([])
+  const [rawSearchResults , setRawSearchResults] = useState<any>([])
   
 
 
@@ -222,8 +219,10 @@ const Sidebar = () => {
 
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
+    const storedTheme:any = localStorage.getItem('theme');
+    const checkTheme = JSON.parse(storedTheme)
     setThemeChangerIcon(storedTheme ? JSON.parse(storedTheme) : false);
+    setTextColorForNode(checkTheme ? 'black' : 'white')
   }, []);
 
 
@@ -420,12 +419,10 @@ const Sidebar = () => {
   }, [linkForceValue])
 
 
-
-
   useEffect(() => {
     if(nodeColorRemoveCheck !== '') {
-      console.log(nodeColorRemoveCheck)
-      console.log('now' , showAddGraphNodeColor)
+      // console.log(nodeColorRemoveCheck)
+      // console.log('now' , showAddGraphNodeColor)
 
       const tagExists = graphData.nodes.some((node:any) => node.tag === nodeColorRemoveCheck);
 
@@ -613,6 +610,10 @@ const Sidebar = () => {
           const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
+
+          const copySearchResults = _.cloneDeep(responseJson.data);
+          // console.log(responseJson.data);
+          setRawSearchResults(copySearchResults);
           // console.log('responseJson' , responseJson)
           // responseJson = await response.json();
           // console.log("responseJson: ", responseJson);
@@ -637,7 +638,7 @@ const Sidebar = () => {
         // console.log("newEntries: ", newEntries);
 
         setSearchResults(newEntries);
-      }, 300);
+      }, 400);
         
   };
 
@@ -647,7 +648,23 @@ const Sidebar = () => {
     setGraphSearchValue("")
     setSearchResults([]);
     setOpenedResults([]);
-    setShouldShowFilters(true);
+    
+    sethideFiltersForPreview(true);
+    setGraphNodeOpened([])
+
+    if(graphOrTextView){
+      setShouldShowFilters(true);
+    }
+
+    const updatedCheckboxes :any = allCheckboxes.map((eachCategory: any) => ({
+      ...eachCategory,
+      items: eachCategory.items.map((eachItem: any) => ({
+        ...eachItem,
+        state: "unchecked",
+        status: "neutral",
+      })),
+    }));
+    setAllCheckboxes(updatedCheckboxes)
   };
 
 
@@ -706,7 +723,7 @@ const Sidebar = () => {
 
   function markAllData (newentries:any , wordToSearch:any) {
     // console.log('wordtosearch' , wordToSearch)
-    console.log(newentries)
+    // console.log(newentries)
 
     for (const entry of newentries) {
 
@@ -731,63 +748,89 @@ const Sidebar = () => {
 
       const matches = [];
       let match;
-      while ((match = pattern.exec(plainTextWithoutBrackets)) !== null) {
-        matches.push(match[0]);
-      }
+      while ((match = pattern.exec(plainTextWithoutBrackets)) !== null) {matches.push(match[0])}
 
       const result = matches.join('\n');
-      console.log(result);
+      // console.log(result);
+
+      const highlightedResult = result.replace(new RegExp(`(${wordToSearch.join('|')})`, 'ig'),
+        (match) => `<span>${match}</span>`
+      );
       
 
-      if(result !== null && result !== '') {
+      if(highlightedResult !== null && highlightedResult !== '') {
         // console.log('result' , result)
-        entry.totalMarkedData = result
+        entry.totalMarkedData = highlightedResult
       } else {
-        matchingFile.content = entry.content
-      // console.log(matchingFile.content)
+      //   matchingFile.content = entry.content
+      // // console.log(matchingFile.content)
 
-      const regex = /\[\[([^[\]]+)\]\]/g;
-      const hashtagParagraphRegex = /^#\w+/gm;
+      // const regex = /\[\[([^[\]]+)\]\]/g;
+      // const hashtagParagraphRegex = /^#\w+/gm;
 
-      if (matchingFile) {
-        const contentWithoutHashtag = matchingFile.content.replace(
-          hashtagParagraphRegex,
-          ""
-        );
+      // if (matchingFile) {
+      //   const contentWithoutHashtag = matchingFile.content.replace(
+      //     hashtagParagraphRegex,
+      //     ""
+      //   );
 
-        const contentWithStyledWord = contentWithoutHashtag.replace(
-          regex,
-          (match: any, word: any) =>
-            `<span>${word}</span>`
-        );
+      //   const contentWithStyledWord = contentWithoutHashtag.replace(
+      //     regex,
+      //     (match: any, word: any) =>
+      //       `<span>${word}</span>`
+      //   );
 
-        const searchPattern = new RegExp(`(${wordToSearch.join('|')})`, 'gi');
+      //   const searchPattern = new RegExp(`(${wordToSearch.join('|')})`, 'gi');
 
-        const contentWithBackground = contentWithStyledWord.replace(
-          searchPattern,
-          '<span style="background-color: #666262; text-decoration: underline;">$1</span>'
-        );
+      //   const contentWithBackground = contentWithStyledWord.replace(
+      //     searchPattern,
+      //     '<span style="background-color: #666262; text-decoration: underline;">$1</span>'
+      //   );
 
-        const regexRemove = /(^|\n)(#[^\n]*){1,5}(\n|$)/g;
-        const finalContent = contentWithBackground.replace(regexRemove, '');
+      //   const regexRemove = /(^|\n)(#[^\n]*){1,5}(\n|$)/g;
+      //   const finalContent = contentWithBackground.replace(regexRemove, '');
 
         
 
-        // console.log(finalContent)
+      //   // console.log(finalContent)
 
-        // console.log(result);
+      //   // console.log(result);
         
-        // console.log(contentWithBackground)
+      //   // console.log(contentWithBackground)
 
 
-        entry.totalMarkedData = finalContent 
-      }
+      //   entry.totalMarkedData = finalContent 
+      // }
+
+      const plainText = stripHtml(entry.content);
+      const hashtagWordRegex = /#\S+/g;
+      const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
+      const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
+
+      const linesToKeep = plainTextWithoutBrackets.split('\n')
+      .filter(line => wordToSearch.some((word:any) => line.toLowerCase().includes(word.toLowerCase())));
+      const result = linesToKeep.join('\n');
+
+      const highlightedResult = result.replace(new RegExp(`(${wordToSearch.join('|')})`, 'ig'),
+        (match) => `<span>${match}</span>`
+      );
+      // console.log(highlightedResult)
+      if(highlightedResult !== '') {
+        entry.totalMarkedData  = highlightedResult
+      } else {
+        const plainText = stripHtml(entry.content);
+        const hashtagWordRegex = /#\S+/g;
+        const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
+        const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
+        entry.totalMarkedData = plainTextWithoutBrackets
+
 
       }
 
       
+
+      }
     }
-    // console.log(newentries)
   }
 
 
@@ -819,44 +862,32 @@ const Sidebar = () => {
   
 
   const handleCheckboxClick = (category: any, id: any) => {
-   
-    const updatedCheckboxes: any = allCheckboxes.map(
-      (checkboxCategory: any) => {
-        if (checkboxCategory.category === category) {
-          const updatedItems = checkboxCategory.items.map((item: any) => {
-            if (item.id === id) {
-              // Toggle the state and status of the checkbox
-              const newState =
-                item.status === "neutral"
-                  ? "checked"
-                  : item.status === "include"
-                  ? "checked"
-                  : "unchecked";
-              const newStatus =
-                item.status === "neutral"
-                  ? "include"
-                  : item.status === "include"
-                  ? "exclude"
-                  : "neutral";
+    const updatedCheckboxes: any = allCheckboxes.map((checkboxCategory: any) => {
+      if (checkboxCategory.category === category) {
+        const updatedItems = checkboxCategory.items.map((item: any) => {
+          if (item.id === id) {
+            // console.log(item)
+            const newState =item.status==="neutral" ? "checked":item.status==="include" ? "checked":"unchecked";
+            const newStatus =item.status==="neutral" ? "include": item.status === "include" ? "exclude": "neutral";
+            // console.log(newState , newStatus)
 
-              return {
-                ...item,
-                state: newState,
-                status: newStatus,
-              };
-            }
-            return item;
-          });
-          return {
-            ...checkboxCategory,
-            items: updatedItems,
-          };
-        }
-        return checkboxCategory;
+            return {
+              ...item,
+              state: newState,
+              status: newStatus,
+            };
+          }
+          return item;
+        });
+        return {
+          ...checkboxCategory,
+          items: updatedItems,
+        };
       }
-    );
+      return checkboxCategory;
+    })
 
-    
+    // console.log(updatedCheckboxes)
 
     const currentValue = searchValue;
     let valueToInclude = null;
@@ -865,6 +896,7 @@ const Sidebar = () => {
     const foundCategory = updatedCheckboxes.find(
       (checkboxCategory: any) => checkboxCategory.category === category
     );
+    
     if (foundCategory) {
       const foundItem = foundCategory.items.find((item: any) => item.id === id);
       valueToInclude = foundItem ? foundItem.value : null;
@@ -873,52 +905,44 @@ const Sidebar = () => {
 
     if (valueToCheck === "include") {
       let updatedValue
-      console.log('valutoinclude' , valueToInclude)
-      
-    
+      if (!currentValue) {
+        updatedValue = `"${valueToInclude}"`
+      } else {
         updatedValue = currentValue + ` "${valueToInclude}"`;
-      
-      
+      }
 
-      console.log('upatedValue' , updatedValue)
       const syntheticEvent = {
         target: { value: updatedValue },
       };
-      handleSearch(syntheticEvent);
-      if(!graphOrTextView){
-        handleGraphSearch(syntheticEvent)
-      }
+
+      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
+
+
     } else if (valueToCheck === "exclude") {
       const valueToAdd = valueToInclude;
       let updatedValue = currentValue;
-      console.log(valueToAdd ,currentValue)
-        if (currentValue.toLowerCase().includes(valueToAdd.toLowerCase())) {
-          console.log('he')
+      if (currentValue.toLowerCase().includes(valueToAdd.toLowerCase())) {
 
-          // Remove valueToAdd, whether it's in quotes or not (case-insensitive)
-          updatedValue = currentValue
-          .replace(new RegExp(`(?:"${valueToAdd}"|\\b${valueToAdd}\\b)`, "gi"), "") // Remove the word in quotes or without quotes (case-insensitive)
-          .replace(/ +/g, " ") // Replace multiple consecutive spaces with a single space
-          .trim();
-    //         updatedValue = currentValue
-    //         .replace(new RegExp(`\\b"${valueToAdd}"\\b`, "g"), "") // Remove the word in quotes
-    //   .replace(new RegExp(`\\b${valueToAdd}\\b`, "g"), "") // Remove the word without quotes
-    //   .replace(/ +/g, " ") // Replace multiple consecutive spaces with a single space
-    //   .trim();
-    // updatedValue = updatedValue.replace(/"/g, ""); // Remove any remaining quotes
-    console.log('udpatedValue' , updatedValue)
-    updatedValue += ` -"${valueToAdd}"`;
-        } else {
+
+        updatedValue = currentValue
+        .replace(new RegExp(`${valueToAdd.replace(/"/g, "")}`, "gi"), "")
+        .replace(/""/g, "")
+        .replace(/ +/g, " ")
+        .trim();
+
+        updatedValue += ` -"${valueToAdd}"`;
+      } else {
+        console.log('value not present')
           // If the value is not present, add it with a leading minus sign
           updatedValue = currentValue + " -" + valueToInclude;
-        }
+      }
+
       const syntheticEvent = {
         target: { value: updatedValue },
       };
-      handleSearch(syntheticEvent);
-      if(!graphOrTextView){
-        handleGraphSearch(syntheticEvent)
-      }
+
+      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
+
     } else {
       const valueToRemove = valueToInclude;
       const regex = new RegExp(`\\s*(-?["']?${valueToRemove}["']?)\\s*`, "gi");
@@ -927,25 +951,27 @@ const Sidebar = () => {
       const syntheticEvent = {
         target: { value: updatedValue },
       };
-      handleSearch(syntheticEvent);
-      if(!graphOrTextView){
-        handleGraphSearch(syntheticEvent)
-      }
+
+      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
     }
+    
     setAllCheckboxes(updatedCheckboxes);
   };
   
 
   const handleAccordionClick = () => {
     setShouldShowFilters(!shouldShowFilters);
+    sethideFiltersForPreview(true)
   };
 
 
   const handleGraphOrTextView = () => {
     setgraphOrTextView(!graphOrTextView);
+    if(graphNodeOpened.length > 0) {
+      sethideFiltersForPreview(false)
+    }
 
     if (graphOrTextView) {
-      console.log(searchValue)
       setGraphSearchValue(searchValue)
       setShouldShowFilters(false);
       const nodes: any = [];
@@ -1095,6 +1121,7 @@ const Sidebar = () => {
           marked.setOptions({
             breaks: true,
           });
+
 
           matchingFile.content = marked(matchingFile.content);
           // console.log("markedContent", matchingFile);
@@ -1677,8 +1704,10 @@ const Sidebar = () => {
 
 
   const openSearchResult = (resultToOpen: any) => {
-    // console.log("resultToOpen: ", resultToOpen);
-    let matchingFile: any = searchResults.find(
+    const copySearchResults = _.cloneDeep(rawSearchResults);
+    // console.log(copySearchResults)
+
+    let matchingFile: any = copySearchResults.find(
       (file: any) => file.fileName === resultToOpen.fileName
     );
 
@@ -1686,7 +1715,8 @@ const Sidebar = () => {
       breaks: true,
     });
 
-    matchingFile.content = marked(matchingFile.content);
+    let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+    matchingFile.content = marked(editedResult);
     // console.log("markedContent", matchingFile);
 
     const regex = /\[\[([^[\]]+)\]\]/g;
@@ -1696,14 +1726,16 @@ const Sidebar = () => {
         hashtagParagraphRegex,
         ""
       );
-      // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
       const contentWithStyledWords = contentWithoutHashtags.replace(
         regex,
         (match: any, word: any) =>
           `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
       );
-      // console.log("contentwithstyledwords", contentWithStyledWords);
+
+      // console.log(contentWithStyledWords)
+
+      // let markedData = marked(contentWithStyledWords);
 
       const updatedResultToOpen = {
         ...resultToOpen,
@@ -1714,6 +1746,8 @@ const Sidebar = () => {
       const doesExist = openedResults.some(
         (result) => result.fileName === updatedResultToOpen.fileName
       );
+
+      
 
       if (!doesExist) {
         const updatedOpenedResults = [...openedResults, updatedResultToOpen];
@@ -1775,12 +1809,13 @@ const Sidebar = () => {
 
     const updatedSearchValue = `${searchValue} -"${resultToRemove.fileName}"`;
 
-    // console.log("updatedSearchValue", updatedSearchValue);
-    // setSearchValue(updatedSearchValue);
-    // const syntheticEvent = {
-    //   target: { value: updatedSearchValue },
-    // };
-    // handleSearch(syntheticEvent);
+    setSearchValue(updatedSearchValue);
+
+    const syntheticEvent = {
+      target: { value: updatedSearchValue },
+    };
+    
+    handleSearch(syntheticEvent);
   };
 
 
@@ -2126,9 +2161,6 @@ const Sidebar = () => {
 
 
   const wanderClickedNode = async () => {
-    // console.log("fileopenedfromgraph: ", fileOpenedFromGraph);
-    // console.log("openedResult: ", openedResults);
-    // console.log('graphdata' , graphData)
     const updatedGraphData: any = { ...graphData };
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
@@ -2137,13 +2169,10 @@ const Sidebar = () => {
       return updatedGraphData.nodes.some((node: any) => node.id === id);
     };
 
-
     if (matchingResult) {
       // console.log("Matching result found:", matchingResult);
       // console.log("updatedGraphData: ", updatedGraphData);
-      const underlinedWords: any = matchingResult.content.match(
-        /<span[^>]*>(.*?)<\/span>/g
-      );
+      const underlinedWords: any = matchingResult.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
 
       let count = 0;
@@ -2151,9 +2180,7 @@ const Sidebar = () => {
       let wordsArray
       if(underlinedWords){
         wordsArray = underlinedWords.map((span: any) => {
-          // Use a regular expression to extract the text content between the <span> tags
           const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-          // Check if a match was found and return the extracted text, or an empty string if not
           return match ? match[1] : "";
         });
       } else if(underlinedWords === null){
@@ -2195,9 +2222,8 @@ const Sidebar = () => {
             };
           });
 
-          const searchWords = (
-            searchValue.match(/(-?)"([^"]*)"|\S+/g) || []
-          ).map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
+          const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || [])
+          .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
           // Use filter to remove objects that match any word in searchWords with a hyphen
           const filteredData = linkTags.filter((item: any) => {
@@ -2233,6 +2259,7 @@ const Sidebar = () => {
 
           const originalArray = response.data;
           const copiedArray = _.cloneDeep(originalArray);
+          // console.log('copiedArray',copiedArray)
 
           let updatedOpenedResults:any = [];
           copiedArray.forEach((result:any) => {
@@ -2241,6 +2268,7 @@ const Sidebar = () => {
               breaks: true,
             });
 
+            matchingFile.content = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
             matchingFile.content = marked(matchingFile.content);
 
             const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
@@ -2433,6 +2461,7 @@ const Sidebar = () => {
               breaks: true,
             });
 
+            item.content = item.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
             item.content = marked(item.content);
             // console.log("markedContent", matchingFile);
 
@@ -2651,7 +2680,7 @@ const Sidebar = () => {
 
       setSearchResults(newEntries);
       generateGraphfromSearch(newEntries , inputValue);
-    }, 300);
+    }, 400);
   };
   
 
@@ -3340,9 +3369,6 @@ const Sidebar = () => {
   };
 
   
-
-
-
   const sliderNewGraph = () => {
     // console.log('graphdata' , graphData)
     if (!graphOrTextView) {
@@ -3970,27 +3996,23 @@ const Sidebar = () => {
     <div>
       <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
         <div className={"logoVc"}>
+
           <div className="site-name" onClick={handleSiteNameClick}>
             <p>TCM Weaver</p>
           </div>
+
           <div className={"icon-profile"}>
 
+            {/* ==============Theme Change==========================  */}
             <div className={"themeChanger"}>
               {themeChangericon ? (
-                <img
-                  src="/dark-mode.png"
-                  alt="img"
-                  onClick={handleThemeChangerClick}
-                />
+                <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
               ) : (
-                <img
-                  src="/light-mode.png"
-                  alt="img"
-                  onClick={handleThemeChangerClick}
-                />
+                <img src="/light-mode.png" alt="img" onClick={handleThemeChangerClick} />
               )}
             </div>
 
+            {/* =============Graph or Text View=======================*/}
             <div>
               {graphOrTextView ? (
                 <div className={"simpleIcon"}>
@@ -4005,41 +4027,17 @@ const Sidebar = () => {
               ) : (
                 <div className={"note-icon"}>
                   {themeChangericon ? (
-                    <img
-                      src="/text-logo.png"
-                      alt="img"
-                      onClick={() => {
-                        handleGraphOrTextView();
-                      }}
-                    />
-                  ) : (
-                    <img
-                      src="/text-logo-night.png"
-                      alt="img"
-                      onClick={() => {
-                        handleGraphOrTextView();
-                      }}
-                    />
-              )}
-                  {/* <img
-                    src="/text-logo.png"
-                    alt="img"
-                    onClick={() => {
-                      handleGraphOrTextView();
-                    }}
-                  /> */}
+                    <img src="/text-logo.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                    ) : (
+                    <img src="/text-logo-night.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                  )}
                 </div>
               )}
             </div>
             
+            {/* =============Users Options=========================== */}
             <div className="sidebar-user-div">
-              <img
-                src="/users.svg"
-                alt="img"
-                onClick={toggleAccountOptions}
-                style={{ cursor: "pointer" }}
-                ref={usersIconRef}
-              />
+              <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
               {showAccountOptions && (
                 <div className="account-options-container" ref={accountOptionsRef}>
                   <List>
@@ -4304,8 +4302,11 @@ const Sidebar = () => {
             )}
 
           </div>
+
         </div>
 
+
+        {/* =====Search Bar=======================================  */}
         <div className={"menuBtn"}>
           {graphOrTextView ? (
             <input
@@ -4331,6 +4332,8 @@ const Sidebar = () => {
           </div>
         </div>
 
+
+        {/* =====Search Results & Graph Node Preview==============  */}
         {graphOrTextView ? (
           <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
             {searchValue.length > 0 && (
@@ -4474,9 +4477,10 @@ const Sidebar = () => {
           </>
         )}
 
+        {/* =====Filters =========================================  */}
         <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
           <div className="menus-link">
-            {!shouldShowFilters && (
+            {!shouldShowFilters ? (
               <>
                 {hideFiltersForPreview && (
                   <div className="sub-accordion">
@@ -4533,9 +4537,7 @@ const Sidebar = () => {
                   </div>
                 )}
               </>
-            )}
-
-            {shouldShowFilters && (
+            ):(
               <div className="filter-accordion">
                 <Accordion>
                   <Accordion.Item
@@ -4554,9 +4556,12 @@ const Sidebar = () => {
                 </Accordion>
               </div>
             )}
+
           </div>
         </div>
 
+
+        {/* =====Graph Sliders====================================  */}
         {graphOrTextView ? (<></>):(
           <>
             <div className="forces-container">
@@ -4621,6 +4626,7 @@ const Sidebar = () => {
 
       </div>
 
+
       <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
         {graphOrTextView ? (
           <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
@@ -4665,7 +4671,7 @@ const Sidebar = () => {
                           e.target.tagName === "SPAN" &&
                           e.target.style.textDecoration === "underline"
                         ) {
-                          const clickedWord = e.target.textContent; // Get the clicked word
+                          const clickedWord = e.target.textContent;
                           handleLinkClick(result.fileName, clickedWord);
                         }
                       }}
