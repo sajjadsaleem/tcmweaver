@@ -5,7 +5,7 @@ const FullPageComponentLoading = () => {
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme')
     const currentTheme = JSON.parse(storedTheme)
-    console.log(currentTheme)
+    // console.log(currentTheme)
     setCurrTheme(currentTheme)
 
 

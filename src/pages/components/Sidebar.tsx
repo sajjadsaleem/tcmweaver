@@ -28,6 +28,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 var internalId:any = 0
+// let searchRequest = 0
+// let cancelToken:any
+let controller:any
+
 
 
 
@@ -148,14 +152,15 @@ const Sidebar = () => {
   const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
   const [nodeTagsColors , setNodeTagsColors] = useState<any>([])
   const [rawSearchResults , setRawSearchResults] = useState<any>([])
+  const [textSearchLoader , setTextSearchLoader] = useState<any>(false)
+  const [graphSearchLoader , setGraphSearchLoader] = useState<any>(false)
   
-
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
-  // console.log("currentCategories: ", allCheckboxes);
+  // console.log("allCheckboxes: ", allCheckboxes);
   // console.log('themchangeicon' , themeChangericon)
   // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
@@ -315,10 +320,12 @@ const Sidebar = () => {
 
           setHomepageFile(markedHomeObjects[0])
 
+
           const markedFilterObjects = homepageFile.filterObjects.map((obj:any) => ({
             ...obj,
             content: marked(obj.content),
           }));
+
 
           setFiltersData(markedFilterObjects[0])
 
@@ -338,12 +345,18 @@ const Sidebar = () => {
             .split("\n")
             .filter((word: any) => word.trim() !== "");
 
-          setFiltersFileData(filteredData);
+
+          const trimmedData = filteredData.map((item:any) => item.trim());
+
+
+          setFiltersFileData(trimmedData);
 
           const categories: any = [];
           let currentCategories = null;
 
-          for (const item of filteredData) {
+          
+
+          for (const item of trimmedData) {
             if (item.startsWith("# ") && item.length > 2) {
               currentCategories = item.slice(2);
               categories.push({
@@ -381,21 +394,6 @@ const Sidebar = () => {
 
     }
 
-    // const showToast = router.query.dashboard === "true";
-    // if (showToast) {
-    //   toast("Login success", {
-    //     position: "top-right",
-    //     autoClose: 1500,
-    //     hideProgressBar: false,
-    //     closeOnClick: true,
-    //     pauseOnHover: true,
-    //     draggable: true,
-    //     progress: undefined,
-    //     type: "success",
-    //     theme: "light",
-    //   });
-    // }
-
     fetchFilesData()
     fetchNodeColors()
 
@@ -408,10 +406,12 @@ const Sidebar = () => {
     }
   }, [sliderValue])
 
+
   useEffect(()=> {
     if(!graphOrTextView)
       makeGraph(graphData)
   }, [centerForceValue])
+
 
   useEffect(()=> {
     if(!graphOrTextView)
@@ -444,11 +444,10 @@ const Sidebar = () => {
 
 
   const handleSearch = async (event: any) => {
+
     const inputValue = event.target.value;
-    // console.log("input value: ", inputValue);
 
     setSearchValue(inputValue);
-    // setGraphSearchValue(inputValue)
 
     let wordToSearch: any;
 
@@ -493,15 +492,16 @@ const Sidebar = () => {
               const itemId = item.id;
               item.state = "checked";
               item.status = "exclude";
-              console.log("item: ", item);
+              // console.log("item: ", item);
 
-              console.log(`Word: ${word}`);
-              console.log(`Category: ${categoryTitle}`);
-              console.log(`Item ID: ${itemId}`);
+              // console.log(`Word: ${word}`);
+              // console.log(`Category: ${categoryTitle}`);
+              // console.log(`Item ID: ${itemId}`);
             }
           }
         }
       } else if (!word.startsWith("-")) {
+        console.log('inside wordsArray else')
         for (const category of allCheckboxes as any[]) {
           for (const item of category.items) {
             // console.log("item: ", item);
@@ -519,6 +519,7 @@ const Sidebar = () => {
           }
         }
       }
+
       for (const category of allCheckboxes as any[]) {
         for (const item of category.items) {
           const lowerItemValue = item.value.toLowerCase();
@@ -604,16 +605,56 @@ const Sidebar = () => {
       {
           clearTimeout(internalId);
       }
+
+      // if (typeof cancelToken != typeof undefined) {
+      //   cancelToken.cancel("Operation canceled due to new request.")
+      // }
+
+      if(typeof controller != typeof undefined) {
+        controller.abort()
+      }
+
+      // cancelToken = axios.CancelToken.source()
+      controller = new AbortController()
             
       internalId = setTimeout(async() => {
         try {
+
+          
+          // searchRequest += 1;
+          // const currentRequest = searchRequest;
+          
+          // searchRequest +=1
+          // console.log('searchRequest' , searchRequest)
           const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
-          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
+          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
+            signal: controller.signal,
+          });
 
+        
           const copySearchResults = _.cloneDeep(responseJson.data);
-          // console.log(responseJson.data);
           setRawSearchResults(copySearchResults);
+
+          newEntries = _.cloneDeep(responseJson.data)
+          // console.log('newentries' , newEntries)
+
+          // Remove Brackets and Calculate Occurence of Words
+          removeBrackets(newEntries, wordToSearch);
+
+          highlightSearchWord(newEntries, wordToSearch);
+
+          markAllData(newEntries , wordToSearch)
+
+
+
+          newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+          // console.log("newEntries: ", newEntries);
+
+          setSearchResults(newEntries);
+
+          // console.log(responseJson.data);
           // console.log('responseJson' , responseJson)
           // responseJson = await response.json();
           // console.log("responseJson: ", responseJson);
@@ -621,29 +662,634 @@ const Sidebar = () => {
           console.log("Error fetching search results:", error);
         }
 
-        newEntries = responseJson.data;
-        // console.log('newentries' , newEntries)
-
-        // Remove Brackets and Calculate Occurence of Words
-        removeBrackets(newEntries, wordToSearch);
-
-        highlightSearchWord(newEntries, wordToSearch);
-
-        markAllData(newEntries , wordToSearch)
-
-
-
-        newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-
-        // console.log("newEntries: ", newEntries);
-
-        setSearchResults(newEntries);
-      }, 400);
+        
+      }, 300);
         
   };
 
 
+  const handleSearchFromFilters = async (event: any) => {
+
+    const inputValue = event.target.value;
+
+    setSearchValue(inputValue);
+
+    let wordToSearch: any;
+
+    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
+      wordToSearch = inputValue.trim();
+      wordToSearch = wordToSearch.replace(/^\s+/, "");
+    } else {
+      wordToSearch = inputValue;
+    }
+
+    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
+
+    // Remove extra spaces within words
+    wordToSearch = wordToSearch.replace(/\s+/g, " ");
+
+    // Remove single '-' followed by a space
+    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
+
+    // Remove trailing '-' at the end of the search query
+    wordToSearch = wordToSearch.replace(/-$/g, "");
+
+    // Remove all spaces if the query consists only of spaces
+    if (/^\s*$/.test(wordToSearch)) {
+      wordToSearch = "";
+    }
+
+    // console.log("wordToSearch before split:", wordToSearch);
+
+    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    );
+    console.log("words array: ", wordsArray);
+
+    //changing filter status for each word in search bar
+    // wordsArray.forEach((word: any) => {
+    //   if (word.startsWith("-")) {
+    //     word = word.replace("-", "");
+    //     for (const category of allCheckboxes as any[]) {
+    //       for (const item of category.items) {
+    //         if (item.value.toLowerCase() === word.toLowerCase()) {
+    //           const categoryTitle = category.category;
+    //           const itemId = item.id;
+    //           item.state = "checked";
+    //           item.status = "exclude";
+    //           console.log("item: ", item);
+
+    //           console.log(`Word: ${word}`);
+    //           console.log(`Category: ${categoryTitle}`);
+    //           console.log(`Item ID: ${itemId}`);
+    //         }
+    //       }
+    //     }
+    //   } else if (!word.startsWith("-")) {
+    //     console.log('inside wordsArray else')
+    //     for (const category of allCheckboxes as any[]) {
+    //       for (const item of category.items) {
+    //         console.log("item: ", item);
+    //         if (item.value.toLowerCase() === word.toLowerCase()) {
+    //           const categoryTitle = category.category;
+    //           const itemId = item.id;
+    //           item.state = "checked";
+    //           item.status = "include";
+    //           // console.log("item: ", item);
+
+    //           // console.log(`Word: ${word}`);
+    //           // console.log(`Category: ${categoryTitle}`);
+    //           // console.log(`Item ID: ${itemId}`);
+    //         }
+    //       }
+    //     }
+    //   }
+
+    //   for (const category of allCheckboxes as any[]) {
+    //     for (const item of category.items) {
+    //       const lowerItemValue = item.value.toLowerCase();
+    //       const lowerWordsArray = wordsArray.map((word: any) =>
+    //         word.toLowerCase()
+    //       );
+
+    //       if (
+    //         !lowerWordsArray.includes(lowerItemValue) &&
+    //         !lowerWordsArray.includes(`-${lowerItemValue}`)
+    //       ) {
+    //         item.state = "unchecked";
+    //         item.status = "neutral";
+    //       }
+    //     }
+    //   }
+    // });
+
+    const resultCalculateWithOR: any = [];
+    let currentPair = [];
+    const wordsToSearch = [];
+    const wordsToExclude: any[] = [];
+    const orGateWord: any[] = [];
+
+    for (const word of wordsArray) {
+      if (word === "OR") {
+        if (currentPair.length > 0) {
+          resultCalculateWithOR.push([...currentPair]);
+        }
+        currentPair = [];
+      } else {
+        currentPair.push(word);
+      }
+    }
+
+    if (currentPair.length > 0) {
+      resultCalculateWithOR.push(currentPair);
+    }
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      if (word.startsWith("-")) {
+        const wordToExclude = word.substring(1);
+        wordsToExclude.push(wordToExclude);
+      } else if (word === "OR" || word === "or") {
+        if (word === "OR") {
+          if (i > 0) {
+            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
+          }
+          orGateWord.push("OR"); // Capture "OR"
+          if (i < wordsArray.length - 1) {
+            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
+          }
+        }
+      } else {
+        wordsToSearch.push(word);
+      }
+    }
+
+    wordToSearch = wordsToSearch;
+
+    console.log("word to search", wordToSearch);
+
+    const options: FzfOptions<File> = {
+      selector: (item: any) => `${item.fileName} (${item.content})`,
+      casing: "case-insensitive",
+      fuzzy: false,
+    };
+    const fzf: any = new Fzf<File[]>(filesData, options);
+
+    let entries: any = []; // Initialize the array to store results
+
+    for (const word of wordToSearch) {
+      const newResults = fzf.find(word); // Perform search for the current word
+      entries = entries.concat(newResults); // Add new results to the entries array
+    }
+
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+
+    if(internalId)
+      {
+          clearTimeout(internalId);
+      }
+
+      // if (typeof cancelToken != typeof undefined) {
+      //   cancelToken.cancel("Operation canceled due to new request.")
+      // }
+
+      if(typeof controller != typeof undefined) {
+        controller.abort()
+      }
+
+      // cancelToken = axios.CancelToken.source()
+      controller = new AbortController()
+            
+      internalId = setTimeout(async() => {
+        try {
+
+          
+          // searchRequest += 1;
+          // const currentRequest = searchRequest;
+          
+          // searchRequest +=1
+          // console.log('searchRequest' , searchRequest)
+          const tableNamesStr = userAccessVaults.join(',');
+          const encodedWords = encodeURIComponent(wordsArray.join(","));
+          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
+            signal: controller.signal,
+          });
+
+        
+          const copySearchResults = _.cloneDeep(responseJson.data);
+          setRawSearchResults(copySearchResults);
+
+          newEntries = _.cloneDeep(responseJson.data)
+          // console.log('newentries' , newEntries)
+
+          // Remove Brackets and Calculate Occurence of Words
+          removeBrackets(newEntries, wordToSearch);
+
+          highlightSearchWord(newEntries, wordToSearch);
+
+          markAllData(newEntries , wordToSearch)
+
+
+
+          newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+          // console.log("newEntries: ", newEntries);
+
+          setSearchResults(newEntries);
+
+          // console.log(responseJson.data);
+          // console.log('responseJson' , responseJson)
+          // responseJson = await response.json();
+          // console.log("responseJson: ", responseJson);
+        } catch (error) {
+          console.log("Error fetching search results:", error);
+        }
+
+        
+      }, 300);
+        
+  };
+
+
+  const handleGraphSearch = async (event: any) => {
+    // console.log("graph search", event.target.value);
+    const inputValue = event.target.value;
+    setGraphSearchValue(inputValue);
+    // setSearchValue(inputValue)
+
+    let wordToSearch: any;
+
+    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
+      wordToSearch = inputValue.trim();
+      wordToSearch = wordToSearch.replace(/^\s+/, "");
+    } else {
+      wordToSearch = inputValue;
+    }
+
+    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
+
+    // Remove extra spaces within words
+    wordToSearch = wordToSearch.replace(/\s+/g, " ");
+
+    // Remove single '-' followed by a space
+    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
+
+    // Remove trailing '-' at the end of the search query
+    wordToSearch = wordToSearch.replace(/-$/g, "");
+
+    // Remove all spaces if the query consists only of spaces
+    if (/^\s*$/.test(wordToSearch)) {
+      wordToSearch = "";
+    }
+
+    // console.log("wordToSearch before split:", wordToSearch);
+
+    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    );
+    // console.log("words array: ", wordsArray);
+
+    //changing filter status for each word in search bar
+    wordsArray.forEach((word: any) => {
+      if (word.startsWith("-")) {
+        word = word.replace("-", "");
+        for (const category of allCheckboxes as any[]) {
+          for (const item of category.items) {
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              // item.state = "checked";
+              // item.status = "exclude";
+              // console.log("item: ", item);
+
+              // console.log(`Word: ${word}`);
+              // console.log(`Category: ${categoryTitle}`);
+              // console.log(`Item ID: ${itemId}`);
+            }
+          }
+        }
+      } else if (!word.startsWith("-")) {
+        for (const category of allCheckboxes as any[]) {
+          for (const item of category.items) {
+            // console.log("item: ", item);
+            if (item.value.toLowerCase() === word.toLowerCase()) {
+              const categoryTitle = category.category;
+              const itemId = item.id;
+              item.state = "checked";
+              item.status = "include";
+            }
+          }
+        }
+      }
+      for (const category of allCheckboxes as any[]) {
+        for (const item of category.items) {
+          const lowerItemValue = item.value.toLowerCase();
+          const lowerWordsArray = wordsArray.map((word: any) =>
+            word.toLowerCase()
+          );
+
+          if (
+            !lowerWordsArray.includes(lowerItemValue) &&
+            !lowerWordsArray.includes(`-${lowerItemValue}`)
+          ) {
+            item.state = "unchecked";
+            item.status = "neutral";
+          }
+        }
+      }
+    });
+
+    const resultCalculateWithOR: any = [];
+    let currentPair = [];
+    const wordsToSearch = [];
+    const wordsToExclude: any[] = [];
+    const orGateWord: any[] = [];
+
+    for (const word of wordsArray) {
+      if (word === "OR") {
+        if (currentPair.length > 0) {
+          resultCalculateWithOR.push([...currentPair]);
+        }
+        currentPair = [];
+      } else {
+        currentPair.push(word);
+      }
+    }
+    if (currentPair.length > 0) {
+      resultCalculateWithOR.push(currentPair);
+    }
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      if (word.startsWith("-")) {
+        const wordToExclude = word.substring(1);
+        wordsToExclude.push(wordToExclude);
+      } else if (word === "OR" || word === "or") {
+        if (word === "OR") {
+          if (i > 0) {
+            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
+          }
+          orGateWord.push("OR"); // Capture "OR"
+          if (i < wordsArray.length - 1) {
+            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
+          }
+        }
+      } else {
+        wordsToSearch.push(word);
+      }
+    }
+
+    wordToSearch = wordsToSearch;
+
+    // console.log("word to search", wordToSearch);
+
+    const options: FzfOptions<File> = {
+      selector: (item: any) => `${item.fileName} (${item.content})`,
+      casing: "case-insensitive",
+      fuzzy: false,
+    };
+    const fzf: any = new Fzf<File[]>(filesData, options);
+
+    let entries: any = []; // Initialize the array to store results
+
+    for (const word of wordToSearch) {
+      const newResults = fzf.find(word); // Perform search for the current word
+      entries = entries.concat(newResults); // Add new results to the entries array
+    }
+
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+
+    if(internalId){
+        clearTimeout(internalId);
+    }
+    internalId = setTimeout(async() => {
+
+      if(typeof controller != typeof undefined) {
+        controller.abort()
+      }
+
+      // cancelToken = axios.CancelToken.source()
+      controller = new AbortController()
+
+      try {
+        const tableNamesStr = userAccessVaults.join(',');
+        const encodedWords = encodeURIComponent(wordsArray.join(","));
+        const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
+          signal: controller.signal,
+        });
+        responseJson = await response.json();
+        // console.log("responseJson: ", responseJson);
+         // console.log('response' , responseJson)
+
+      newEntries = responseJson;
+
+      removeBrackets(newEntries, wordToSearch);
+
+      highlightSearchWord(newEntries, wordToSearch);
+
+      markAllData(newEntries , wordToSearch)
+
+      newEntries = newEntries
+        .slice()
+        .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+      // console.log("newEntries: ", newEntries);
+
+      setSearchResults(newEntries);
+      generateGraphfromSearch(newEntries , inputValue);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+     
+    }, 300);
+  };
+
+
+  const handleGraphSearchFromFilters = async (event: any) => {
+    // console.log("graph search", event.target.value);
+    const inputValue = event.target.value;
+    setGraphSearchValue(inputValue);
+    // setSearchValue(inputValue)
+
+    let wordToSearch: any;
+
+    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
+      wordToSearch = inputValue.trim();
+      wordToSearch = wordToSearch.replace(/^\s+/, "");
+    } else {
+      wordToSearch = inputValue;
+    }
+
+    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
+
+    // Remove extra spaces within words
+    wordToSearch = wordToSearch.replace(/\s+/g, " ");
+
+    // Remove single '-' followed by a space
+    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
+
+    // Remove trailing '-' at the end of the search query
+    wordToSearch = wordToSearch.replace(/-$/g, "");
+
+    // Remove all spaces if the query consists only of spaces
+    if (/^\s*$/.test(wordToSearch)) {
+      wordToSearch = "";
+    }
+
+    // console.log("wordToSearch before split:", wordToSearch);
+
+    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    );
+    // console.log("words array: ", wordsArray);
+
+    //changing filter status for each word in search bar
+    // wordsArray.forEach((word: any) => {
+    //   if (word.startsWith("-")) {
+    //     word = word.replace("-", "");
+    //     for (const category of allCheckboxes as any[]) {
+    //       for (const item of category.items) {
+    //         if (item.value.toLowerCase() === word.toLowerCase()) {
+    //           const categoryTitle = category.category;
+    //           const itemId = item.id;
+    //           // item.state = "checked";
+    //           // item.status = "exclude";
+    //           // console.log("item: ", item);
+
+    //           // console.log(`Word: ${word}`);
+    //           // console.log(`Category: ${categoryTitle}`);
+    //           // console.log(`Item ID: ${itemId}`);
+    //         }
+    //       }
+    //     }
+    //   } else if (!word.startsWith("-")) {
+    //     for (const category of allCheckboxes as any[]) {
+    //       for (const item of category.items) {
+    //         // console.log("item: ", item);
+    //         if (item.value.toLowerCase() === word.toLowerCase()) {
+    //           const categoryTitle = category.category;
+    //           const itemId = item.id;
+    //           item.state = "checked";
+    //           item.status = "include";
+    //         }
+    //       }
+    //     }
+    //   }
+    //   for (const category of allCheckboxes as any[]) {
+    //     for (const item of category.items) {
+    //       const lowerItemValue = item.value.toLowerCase();
+    //       const lowerWordsArray = wordsArray.map((word: any) =>
+    //         word.toLowerCase()
+    //       );
+
+    //       if (
+    //         !lowerWordsArray.includes(lowerItemValue) &&
+    //         !lowerWordsArray.includes(`-${lowerItemValue}`)
+    //       ) {
+    //         item.state = "unchecked";
+    //         item.status = "neutral";
+    //       }
+    //     }
+    //   }
+    // });
+
+    const resultCalculateWithOR: any = [];
+    let currentPair = [];
+    const wordsToSearch = [];
+    const wordsToExclude: any[] = [];
+    const orGateWord: any[] = [];
+
+    for (const word of wordsArray) {
+      if (word === "OR") {
+        if (currentPair.length > 0) {
+          resultCalculateWithOR.push([...currentPair]);
+        }
+        currentPair = [];
+      } else {
+        currentPair.push(word);
+      }
+    }
+    if (currentPair.length > 0) {
+      resultCalculateWithOR.push(currentPair);
+    }
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      if (word.startsWith("-")) {
+        const wordToExclude = word.substring(1);
+        wordsToExclude.push(wordToExclude);
+      } else if (word === "OR" || word === "or") {
+        if (word === "OR") {
+          if (i > 0) {
+            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
+          }
+          orGateWord.push("OR"); // Capture "OR"
+          if (i < wordsArray.length - 1) {
+            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
+          }
+        }
+      } else {
+        wordsToSearch.push(word);
+      }
+    }
+
+    wordToSearch = wordsToSearch;
+
+    // console.log("word to search", wordToSearch);
+
+    const options: FzfOptions<File> = {
+      selector: (item: any) => `${item.fileName} (${item.content})`,
+      casing: "case-insensitive",
+      fuzzy: false,
+    };
+    const fzf: any = new Fzf<File[]>(filesData, options);
+
+    let entries: any = []; // Initialize the array to store results
+
+    for (const word of wordToSearch) {
+      const newResults = fzf.find(word); // Perform search for the current word
+      entries = entries.concat(newResults); // Add new results to the entries array
+    }
+
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+
+    if(internalId){
+        clearTimeout(internalId);
+    }
+    internalId = setTimeout(async() => {
+
+      if(typeof controller != typeof undefined) {
+        controller.abort()
+      }
+
+      // cancelToken = axios.CancelToken.source()
+      controller = new AbortController()
+
+      try {
+        const tableNamesStr = userAccessVaults.join(',');
+        const encodedWords = encodeURIComponent(wordsArray.join(","));
+        const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
+          signal: controller.signal,
+        });
+        responseJson = await response.json();
+        // console.log("responseJson: ", responseJson);
+
+        newEntries = responseJson;
+
+        removeBrackets(newEntries, wordToSearch);
+  
+        highlightSearchWord(newEntries, wordToSearch);
+  
+        markAllData(newEntries , wordToSearch)
+  
+        newEntries = newEntries
+          .slice()
+          .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+  
+        // console.log("newEntries: ", newEntries);
+  
+        setSearchResults(newEntries);
+        generateGraphfromSearch(newEntries , inputValue);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+      // console.log('response' , responseJson)
+
+    }, 300);
+  };
+
+
   const handleSiteNameClick = () => {
+    if(typeof controller != typeof undefined) {
+      controller.abort()
+    }
+
     setSearchValue("");
     setGraphSearchValue("")
     setSearchResults([]);
@@ -866,11 +1512,25 @@ const Sidebar = () => {
       if (checkboxCategory.category === category) {
         const updatedItems = checkboxCategory.items.map((item: any) => {
           if (item.id === id) {
-            // console.log(item)
-            const newState =item.status==="neutral" ? "checked":item.status==="include" ? "checked":"unchecked";
-            const newStatus =item.status==="neutral" ? "include": item.status === "include" ? "exclude": "neutral";
+            let newState;
+            if (item.status === "neutral") {
+              newState = "checked";
+            } else if (item.status === "include") {
+              newState = "checked";
+            } else {
+              newState = "unchecked";
+            }
+  
+            let newStatus;
+            if (item.status === "neutral") {
+              newStatus = "include";
+            } else if (item.status === "include") {
+              newStatus = "exclude";
+            } else {
+              newStatus = "neutral";
+            }
             // console.log(newState , newStatus)
-
+  
             return {
               ...item,
               state: newState,
@@ -879,17 +1539,28 @@ const Sidebar = () => {
           }
           return item;
         });
+  
+        // console.log('match', updatedItems);
+  
         return {
           ...checkboxCategory,
           items: updatedItems,
         };
       }
       return checkboxCategory;
-    })
+    });
+    
+    setAllCheckboxes(updatedCheckboxes); 
 
-    // console.log(updatedCheckboxes)
 
-    const currentValue = searchValue;
+    let currentValue
+
+    if(graphOrTextView) {
+      currentValue = searchValue
+    } else {
+      currentValue = graphSearchValue
+    }
+
     let valueToInclude = null;
     let valueToCheck = null;
 
@@ -915,47 +1586,52 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
 
-      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
 
+
+      if(graphOrTextView) {
+        handleSearchFromFilters(syntheticEvent)
+      } else {
+        handleGraphSearchFromFilters(syntheticEvent)
+      }
 
     } else if (valueToCheck === "exclude") {
       const valueToAdd = valueToInclude;
+      // console.log('valuetoadd' , valueToAdd , currentValue)
       let updatedValue = currentValue;
-      if (currentValue.toLowerCase().includes(valueToAdd.toLowerCase())) {
+      if (currentValue.includes(valueToAdd)) {
 
+        // updatedValue = currentValue
+        // .replace(new RegExp(`${valueToAdd.replace(/"/g, "")}`, "gi"), "")
+        // .replace(/""/g, "")
+        // .trim();
 
-        updatedValue = currentValue
-        .replace(new RegExp(`${valueToAdd.replace(/"/g, "")}`, "gi"), "")
-        .replace(/""/g, "")
-        .replace(/ +/g, " ")
-        .trim();
+        const regex = new RegExp(`\\s*(-?["']?${valueToAdd}["']?)(?=\\s*)`, "gi");
+        updatedValue = currentValue.replace(regex, "").trim();
 
         updatedValue += ` -"${valueToAdd}"`;
+        console.log(updatedValue)
       } else {
-        console.log('value not present')
-          // If the value is not present, add it with a leading minus sign
-          updatedValue = currentValue + " -" + valueToInclude;
+          updatedValue = currentValue + ` -"${valueToInclude}"`;
       }
 
       const syntheticEvent = {
         target: { value: updatedValue },
       };
 
-      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
+      (graphOrTextView ? handleSearchFromFilters : handleGraphSearchFromFilters)(syntheticEvent);
 
     } else {
       const valueToRemove = valueToInclude;
-      const regex = new RegExp(`\\s*(-?["']?${valueToRemove}["']?)\\s*`, "gi");
+      const regex = new RegExp(`\\s*(-?["']?${valueToRemove}["']?)(?=\\s*)`, "gi");
       const updatedValue = currentValue.replace(regex, "").trim();
       // console.log('updatedValue' , updatedValue)
       const syntheticEvent = {
         target: { value: updatedValue },
       };
 
-      (graphOrTextView ? handleSearch : handleGraphSearch)(syntheticEvent);
+      (graphOrTextView ? handleSearchFromFilters : handleGraphSearchFromFilters)(syntheticEvent);
     }
-    
-    setAllCheckboxes(updatedCheckboxes);
+
   };
   
 
@@ -2498,192 +3174,6 @@ const Sidebar = () => {
   };
 
 
-  const handleGraphSearch = async (event: any) => {
-    // console.log("event", event.target.value);
-    const inputValue = event.target.value;
-    setGraphSearchValue(inputValue);
-    // setSearchValue(inputValue)
-
-    let wordToSearch: any;
-
-    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
-      wordToSearch = inputValue.trim();
-      wordToSearch = wordToSearch.replace(/^\s+/, "");
-    } else {
-      wordToSearch = inputValue;
-    }
-
-    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
-
-    // Remove extra spaces within words
-    wordToSearch = wordToSearch.replace(/\s+/g, " ");
-
-    // Remove single '-' followed by a space
-    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
-
-    // Remove trailing '-' at the end of the search query
-    wordToSearch = wordToSearch.replace(/-$/g, "");
-
-    // Remove all spaces if the query consists only of spaces
-    if (/^\s*$/.test(wordToSearch)) {
-      wordToSearch = "";
-    }
-
-    // console.log("wordToSearch before split:", wordToSearch);
-
-    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
-      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
-    );
-    // console.log("words array: ", wordsArray);
-
-    //changing filter status for each word in search bar
-    wordsArray.forEach((word: any) => {
-      if (word.startsWith("-")) {
-        word = word.replace("-", "");
-        for (const category of allCheckboxes as any[]) {
-          for (const item of category.items) {
-            if (item.value.toLowerCase() === word.toLowerCase()) {
-              const categoryTitle = category.category;
-              const itemId = item.id;
-              item.state = "checked";
-              item.status = "exclude";
-              console.log("item: ", item);
-
-              console.log(`Word: ${word}`);
-              console.log(`Category: ${categoryTitle}`);
-              console.log(`Item ID: ${itemId}`);
-            }
-          }
-        }
-      } else if (!word.startsWith("-")) {
-        for (const category of allCheckboxes as any[]) {
-          for (const item of category.items) {
-            // console.log("item: ", item);
-            if (item.value.toLowerCase() === word.toLowerCase()) {
-              const categoryTitle = category.category;
-              const itemId = item.id;
-              item.state = "checked";
-              item.status = "include";
-            }
-          }
-        }
-      }
-      for (const category of allCheckboxes as any[]) {
-        for (const item of category.items) {
-          const lowerItemValue = item.value.toLowerCase();
-          const lowerWordsArray = wordsArray.map((word: any) =>
-            word.toLowerCase()
-          );
-
-          if (
-            !lowerWordsArray.includes(lowerItemValue) &&
-            !lowerWordsArray.includes(`-${lowerItemValue}`)
-          ) {
-            item.state = "unchecked";
-            item.status = "neutral";
-          }
-        }
-      }
-    });
-
-    const resultCalculateWithOR: any = [];
-    let currentPair = [];
-    const wordsToSearch = [];
-    const wordsToExclude: any[] = [];
-    const orGateWord: any[] = [];
-
-    for (const word of wordsArray) {
-      if (word === "OR") {
-        if (currentPair.length > 0) {
-          resultCalculateWithOR.push([...currentPair]);
-        }
-        currentPair = [];
-      } else {
-        currentPair.push(word);
-      }
-    }
-    if (currentPair.length > 0) {
-      resultCalculateWithOR.push(currentPair);
-    }
-
-    for (let i = 0; i < wordsArray.length; i++) {
-      const word = wordsArray[i];
-      if (word.startsWith("-")) {
-        const wordToExclude = word.substring(1);
-        wordsToExclude.push(wordToExclude);
-      } else if (word === "OR" || word === "or") {
-        if (word === "OR") {
-          if (i > 0) {
-            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
-          }
-          orGateWord.push("OR"); // Capture "OR"
-          if (i < wordsArray.length - 1) {
-            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
-          }
-        }
-      } else {
-        wordsToSearch.push(word);
-      }
-    }
-
-    wordToSearch = wordsToSearch;
-
-    // console.log("word to search", wordToSearch);
-
-    const options: FzfOptions<File> = {
-      selector: (item: any) => `${item.fileName} (${item.content})`,
-      casing: "case-insensitive",
-      fuzzy: false,
-    };
-    const fzf: any = new Fzf<File[]>(filesData, options);
-
-    let entries: any = []; // Initialize the array to store results
-
-    for (const word of wordToSearch) {
-      const newResults = fzf.find(word); // Perform search for the current word
-      entries = entries.concat(newResults); // Add new results to the entries array
-    }
-
-    // getting search result data from backend
-    let newEntries: any = [];
-    let responseJson: any = [];
-
-    if(internalId){
-        clearTimeout(internalId);
-    }
-    internalId = setTimeout(async() => {
-
-      try {
-        const tableNamesStr = userAccessVaults.join(',');
-        const encodedWords = encodeURIComponent(wordsArray.join(","));
-        const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
-        responseJson = await response.json();
-        // console.log("responseJson: ", responseJson);
-      } catch (error) {
-        console.error("Error fetching search results:", error);
-      }
-      // console.log('response' , responseJson)
-
-      newEntries = responseJson;
-
-      removeBrackets(newEntries, wordToSearch);
-
-      highlightSearchWord(newEntries, wordToSearch);
-
-      markAllData(newEntries , wordToSearch)
-
-      newEntries = newEntries
-        .slice()
-        .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-
-      // console.log("newEntries: ", newEntries);
-
-      setSearchResults(newEntries);
-      generateGraphfromSearch(newEntries , inputValue);
-    }, 400);
-  };
-  
-
   const generateGraphfromSearch = (searchResultsForGraph: any , searchValueForGraph: any) => {
     // console.log('searchResultsforGraph' , searchResultsForGraph)
 
@@ -3596,17 +4086,21 @@ const Sidebar = () => {
     return (value - min2) * (max1 - min1) / (max2 - min2) + min1;
   }
 
+
   const handleLogout = () => {
     Helpers.logout()
   }
+
 
   const openSyncDialog = () => {
     setSyncPopup(true)
   }
 
+
   const handleCloseDialog = () => {
     setSyncPopup(false);
   };
+
 
   const synchronizeFiles = async () => {
 
@@ -3634,6 +4128,7 @@ const Sidebar = () => {
   const handlerFolderPopupClose = async () => {
     setFoldersPopup(false)
   }
+
 
   const handleFolderSelection = (folder:any) => {
     console.log(folder)
@@ -3682,9 +4177,11 @@ const Sidebar = () => {
     // setFoldersPopup(false)
   };
 
+
   const toggleAccountOptions = () => {
     setShowAccountOptions(!showAccountOptions);
   };
+
 
   const handleUserManagementClick = (itemName:any) => {
     const queryParams = { usermanagement: itemName };
@@ -3694,6 +4191,7 @@ const Sidebar = () => {
       query: queryParams,
     });
   };
+
 
   const handleUserOptions = (itemName:any)=>{
     if(itemName === 'profile'){
@@ -3729,16 +4227,19 @@ const Sidebar = () => {
     }
   }
 
+
   const handleUserLogoutPopupClose = () => {
     toggleAccountOptions()
     setUserLogoutPopup(false)
   }
+
 
   const userLogout = () => {
       Helpers.logout()
     router.push('/login')
 
   }
+
 
   const closeEditUserDailog = () => {
     setShowEditUserDialog(false)
@@ -3752,6 +4253,7 @@ const Sidebar = () => {
     });
   }
 
+
   const handleUserProfileChange = (e:any) => {
     const { name, value } = e.target;
         setFormData({
@@ -3759,6 +4261,7 @@ const Sidebar = () => {
           [name]: value,
         });
   }
+
 
   const handleEditUser = async () => {
     setEditUserLoader(true)
@@ -3803,6 +4306,7 @@ const Sidebar = () => {
     })
   }
 
+
   const closeSetPasswordDialog = () => {
     setShowChangePasswordDialog(false)
     setNewPasswordData({
@@ -3815,6 +4319,7 @@ const Sidebar = () => {
 
   }
 
+
   const handleSetNewPasswordToggle = (e:any) =>{
     const { name, value } = e.target;
     setNewPasswordData({
@@ -3822,6 +4327,7 @@ const Sidebar = () => {
       [name]: value,
     });
   }
+
 
   const handleSetPassword = async () => {
     // const emailToUpdatePassword:any = originalUsers[indexToChangePassword].email;
@@ -3866,6 +4372,7 @@ const Sidebar = () => {
 
   }
 
+
   const handleVaultChange = (event:any) => {
     const selectedValue = event.target.value;
     // console.log('selectedvauule' , selectedValue)
@@ -3882,12 +4389,14 @@ const Sidebar = () => {
     }
   };
 
+
   const handleEditProfilePicture = () => {
     setFormData(prevFormData => ({
       ...prevFormData,
       image: '',
     }));
   }
+
 
   const handleFileChange = (event:any) => {
     const selectedProfilePicture = event.target.files[0];
@@ -3908,9 +4417,11 @@ const Sidebar = () => {
 
   };
 
+
   const handleChooseFile = () => {
     fileInputRef.current.click();
   };
+
 
   const getRandomColor = () => {
     const randomHexColor = () => {
@@ -3926,6 +4437,7 @@ const Sidebar = () => {
 
     return newColor;
   };
+
 
   const handleAddNewColor = () => {
     const newGroup = {
@@ -3945,6 +4457,7 @@ const Sidebar = () => {
 
 
   }
+
 
   const handleNodeColorTagChange = (index:any, newTag:any) => {
     const updatedArray = [...showAddGraphNodeColor];
@@ -3967,12 +4480,14 @@ const Sidebar = () => {
     }
   }
 
+
   const handleNodeColorChange = (e:any , newColor:any) => {
     console.log(e , newColor)
     const updatedColors = [...showAddGraphNodeColor];
     updatedColors[e].color = newColor
     setShowAddGraphNodeColor(updatedColors);
   };
+
 
   const handleColorInputBlur = (e:any, newColor:any , group:any) => {
     const tagExists = graphData.nodes.some((node:any) => node.tag === group.tag);
@@ -4309,21 +4824,23 @@ const Sidebar = () => {
         {/* =====Search Bar=======================================  */}
         <div className={"menuBtn"}>
           {graphOrTextView ? (
-            <input
-              type="text"
-              className={"formControl"}
-              placeholder=" Smart search"
-              value={searchValue}
-              onChange={handleSearch}
-            />
+            <>
+              {textSearchLoader && (
+                <CircularProgress size={16} style={{color: 'black'}} />
+              )}
+              <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
+                onChange={handleSearch}
+              />
+            </>
           ) : (
-            <input
-              type="text"
-              className={"formControl"}
-              placeholder=" Graph search"
-              value={graphSearchValue}
-              onChange={handleGraphSearch}
-            />
+            <>
+              {graphSearchLoader && (
+                <CircularProgress size={16} style={{color: 'black'}} />
+              )}
+              <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
+                onChange={handleGraphSearch}
+              />
+            </>
           )}
 
           <div className="copy-icon">

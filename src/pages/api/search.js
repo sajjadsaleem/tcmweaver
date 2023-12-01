@@ -23,10 +23,6 @@ export default async function search(req, res) {
 
         const db = drizzle(sql)
 
-        const basicTableToSearch = await db.select({ basicVault: vaultsTable.reference_table }).from(vaultsTable)
-            .where(eq(vaultsTable.vault_name, 'Test Core'));
-        // console.log('basictabletosearch', basicTableToSearch)
-
         const client = await pool.connect();
 
 
@@ -40,11 +36,10 @@ export default async function search(req, res) {
                     rows.push(item);
                 }
             }
-
         }
         // console.log('rows nnowowerjwelrj', rows)
         const datasets = rows
-        // console.log('datasets', datasets)
+        console.log('datasets', datasets)
 
         // const datasets = await db.select().from(dataset);
         // console.log('datasets', datasets)
@@ -142,7 +137,7 @@ export default async function search(req, res) {
         //     },
         // });
 
-        // console.log('newEntries = ', newEntries)
+        console.log('newEntries = ', newEntries.length)
 
         res.status(200).json(newEntries);
     } catch (error) {
