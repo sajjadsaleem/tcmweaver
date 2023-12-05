@@ -106,6 +106,7 @@ const Sidebar = () => {
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
   const [textColorForNode , setTextColorForNode] = useState<any>()
+  const [graphLinkColor , setGraphLinkColor] = useState<any>()
   const [centerForceValue , setCenterForceValue] = useState(1)
   const [sliderValue, setSliderValue] = useState(-40)
   const [linkForceValue , setLinkForceValue] = useState(0.2)
@@ -155,6 +156,7 @@ const Sidebar = () => {
   const [textSearchLoader , setTextSearchLoader] = useState<any>(false)
   const [graphSearchLoader , setGraphSearchLoader] = useState<any>(false)
   
+  
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -179,6 +181,7 @@ const Sidebar = () => {
   // console.log('slidervalue' , sliderValue)
   // console.log('shouldShowFilters' , shouldShowFilters)
   // console.log('searchResults' , searchResults)
+  // console.log(textColorForNode)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -227,7 +230,8 @@ const Sidebar = () => {
     const storedTheme:any = localStorage.getItem('theme');
     const checkTheme = JSON.parse(storedTheme)
     setThemeChangerIcon(storedTheme ? JSON.parse(storedTheme) : false);
-    setTextColorForNode(checkTheme ? 'black' : 'white')
+    setTextColorForNode(checkTheme ? '#6C655C' : '#B3B3B5')
+    setGraphLinkColor(checkTheme ? '#CFCCC7' : '#565959')
   }, []);
 
 
@@ -1481,7 +1485,15 @@ const Sidebar = () => {
 
 
   const handleThemeChangerClick = () => {
-    // console.log("themeChangerIcon: ", themeChangericon);
+    if(!themeChangericon){
+      setTextColorForNode('#6C655C')
+      setGraphLinkColor('#CFCCC7')
+      
+    } else {
+      setTextColorForNode('#B3B3B5')
+      setGraphLinkColor('#565959')
+      
+    }
     const currentTheme = !themeChangericon
     setThemeChangerIcon(!themeChangericon);
     const changeTheme = JSON.stringify(currentTheme)
@@ -1498,11 +1510,7 @@ const Sidebar = () => {
     // sideNav.classList.toggle("night-mode");
     workspacePanel.classList.toggle("night-mode");
 
-    if(themeChangericon){
-      setTextColorForNode('white')
-    } else {
-      setTextColorForNode('black')
-    }
+    
        
   }
   
@@ -2011,9 +2019,9 @@ const Sidebar = () => {
         nodeStrength = -30,
         linkSource = ({ source }: { source: string }) => source, // Specify the type as string
         linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
-        linkStroke = "#999", // link stroke color
-        linkStrokeOpacity = 0.6, // link stroke opacity
-        linkStrokeWidth = 0.5, // given d in links, returns a stroke width in pixels
+        linkStroke = graphLinkColor, // link stroke color
+        linkStrokeOpacity = 1, // link stroke opacity
+        linkStrokeWidth = 1, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
         linkStrength = 0.3,
         colors = d3.schemeTableau10, // an array of color strings, for the node groups
@@ -4508,7 +4516,7 @@ const Sidebar = () => {
  
 
   return (
-    <div>
+    <div className="homepage-container">
       <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
         <div className={"logoVc"}>
 
@@ -4519,25 +4527,23 @@ const Sidebar = () => {
           <div className={"icon-profile"}>
 
             {/* ==============Theme Change==========================  */}
-            <div className={"themeChanger"}>
+            <div className="themeChanger">
               {themeChangericon ? (
                 <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
               ) : (
-                <img src="/light-mode.png" alt="img" onClick={handleThemeChangerClick} />
+                <img src="/light-modenew.svg" alt="img" onClick={handleThemeChangerClick} />
               )}
             </div>
 
             {/* =============Graph or Text View=======================*/}
             <div>
               {graphOrTextView ? (
-                <div className={"simpleIcon"}>
-                  <img
-                    src="/graph-logo.png"
-                    alt="img"
-                    onClick={() => {
-                      handleGraphOrTextView();
-                    }}
-                  />
+                <div className="simple-icon">
+                  {themeChangericon ? (
+                    <img src="/graph-logo-light.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                    ) : (
+                    <img src="/graph-logo-dark.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                  )}
                 </div>
               ) : (
                 <div className={"note-icon"}>
@@ -4552,7 +4558,12 @@ const Sidebar = () => {
             
             {/* =============Users Options=========================== */}
             <div className="sidebar-user-div">
-              <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+              {themeChangericon ? (
+                  <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+                ) : (
+                  <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+              )}
+              {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
               {showAccountOptions && (
                 <div className="account-options-container" ref={accountOptionsRef}>
                   <List>
@@ -4612,7 +4623,8 @@ const Sidebar = () => {
                     </Button>
                   </DialogActions>
                 </Dialog>
-              </div>): (<></>)}
+              </div>): (<></>
+            )}
             
             {foldersPopup && (
               <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
@@ -4635,18 +4647,19 @@ const Sidebar = () => {
             )}
 
             {userLogoutPopup && (
-              <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose}>
-                <DialogTitle>Are you sure you want to logout?</DialogTitle>
-                <DialogActions>
-                  <Button onClick={handleUserLogoutPopupClose} color="primary">
-                    Cancel
-                  </Button>
-                  <Button onClick={userLogout} color="primary">
-                    Logout
-                  </Button>
-                </DialogActions>
-
-              </Dialog>
+              <div >
+                <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose} className="user-logout-div">
+                  <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                  <DialogActions>
+                    <Button onClick={handleUserLogoutPopupClose} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={userLogout} color="primary">
+                      Logout
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
             )}
 
             {showEditUserDialog && (
@@ -4844,7 +4857,12 @@ const Sidebar = () => {
           )}
 
           <div className="copy-icon">
-            <ContentCopySharpIcon onClick={handleCopyText} />
+            {themeChangericon ? (
+                <img src="/copy-content.png" alt="img" onClick={handleCopyText} />
+              ) : (
+                <img src="/copy-content-dark.png" alt="img" onClick={handleCopyText} />
+            )}
+            {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
             {isCopied && <div className="copy-tooltip">Copied!</div>}
           </div>
         </div>
@@ -4879,12 +4897,11 @@ const Sidebar = () => {
                           />
                         </div>
 
-                        <img
-                          src="xmark.png"
-                          alt="img"
-                          className="remove-search-result"
-                          onClick={() => removeBothSearchResults(result)}
-                        />
+                        {themeChangericon ? (
+                        <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
+                         ) : (
+                        <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
+                        )}
                       </div>
 
                       <div>
@@ -4901,12 +4918,11 @@ const Sidebar = () => {
                           />
                         </div>
                         <div>
-                          <img
-                            src="arrow-right.png"
-                            alt="img"
-                            className="remove-search-result"
-                            onClick={() => openSearchResult(result)}
-                          />
+                          {themeChangericon ? (
+                            <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          ) : (
+                            <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          )}
                         </div>
                       </div>
                     </div>
@@ -4923,15 +4939,25 @@ const Sidebar = () => {
                   <div className="graph-show-node">
                     {graphNodeOpened.length === 1 ? (
                       <div>
-                        <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+                        {themeChangericon ? (
+                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                        ) : (
+                          <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
+                        )}
+                        {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
                           className="graph-node-backarrow-single">
-                        </ArrowBackIcon>
+                        </ArrowBackIcon> */}
                       </div>
                     ):(
                       <div onClick={handleLeftArrowForPreviousFile}>
-                        <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
+                        {themeChangericon ? (
+                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                        ) : (
+                          <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
+                        )}
+                        {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
                           className="graph-node-backarrow">
-                        </ArrowBackIcon>
+                        </ArrowBackIcon> */}
                       </div>
                     )}
                     <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
@@ -4942,12 +4968,17 @@ const Sidebar = () => {
                     {previewNodeLinkLoader && (
                       <CircularProgress size={16} style={{color: 'black'}} />
                     )}
-                    <img
+                    {themeChangericon ? (
+                      <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                    ) : (
+                      <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                    )}
+                    {/* <img
                       src="/collapse.png"
                       alt="img"
                       onClick={() => collapseExpandedNode()}
                       className="link-collapse-icon"
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -4972,24 +5003,37 @@ const Sidebar = () => {
             )}
 
             <div id="nodeInfo" className="node-click-options">
-              <img
+              {themeChangericon ? (
+                <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+              ) : (
+                <img src="/xmark-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+              )}
+              
+              {/* <img
                 src="xmark.png"
                 alt="img"
                 className="node-remove-icon"
                 onClick={removeClickedNode}
-              />
-              <img
+              /> */}
+
+              {themeChangericon ? (
+                <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+              ) : (
+                <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+              )}
+
+              {/* <img
                 src="node-text.svg"
                 alt="img"
                 className="node-text-icon"
                 onClick={showNodeClickedFile}
-              />
-              <img
-                src="/wander-icon.svg"
-                alt="img"
-                className="node-wander-icon"
-                onClick={wanderClickedNode}
-              />
+              /> */}
+
+              {themeChangericon ? (
+                <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+              ) : (
+                <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+              )}
             </div>
           </>
         )}
@@ -5154,21 +5198,22 @@ const Sidebar = () => {
                     <h4>{result.fileName.toUpperCase()}</h4>
                     {result.openedFromResults ? (
                       <div className="view-panel-title-icons">
-                        <img
-                          src="/arrow-left.png"
-                          alt="img"
-                          onClick={() => collapseOpenedResult(result)}
-                        />
-                        <img
-                          src="/xmark.png"
-                          alt="img"
-                          onClick={() => removeBothSearchResults(result)}
-                        />
+                        {themeChangericon ? (
+                            <img src="/arrow-leftnew.png" alt="img" onClick={() => collapseOpenedResult(result)} />
+                          ) : (
+                            <img src="/arrow-left-dark.png" alt="img" onClick={() => collapseOpenedResult(result)} />
+                        )}
+
+                        {themeChangericon ? (
+                            <img src="/xmarknew.png" alt="img" onClick={() => removeBothSearchResults(result)} />
+                          ) : (
+                            <img src="/xmark-dark.png" alt="img" onClick={() => removeBothSearchResults(result)} />
+                        )}
                       </div>
                     ) : (
                       <div>
                         <img
-                          src="/collapse.png"
+                          src="/collapsenew.png"
                           alt="img"
                           onClick={() => collapseOpenedResult(result)}
                           className="link-collapse-icon"

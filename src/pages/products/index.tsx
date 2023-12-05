@@ -13,7 +13,7 @@ const Products = () => {
   // get all products from stripe on startup
   useEffect(()=> {
     const storedUser = localStorage.getItem("user");
-    let user
+    let user: any
     if (storedUser) {
       const userData = JSON.parse(storedUser);
       user = userData.email
@@ -25,11 +25,14 @@ const Products = () => {
 
     axios.post(`/api/getProducts` , requestData)
         .then((res:any)=> {
-          const products = res.data.customerSubscriptions.map((subscription:any) => subscription.plan.product);
-
-          setCustomerSubscriptions(products)
-          setProductsData(res.data.stripeProducts)
-          console.log('getProducts response' , res.data)
+          if(user) {
+            const products = res.data.customerSubscriptions.map((subscription:any) => subscription.plan.product);
+            setCustomerSubscriptions(products)
+            setProductsData(res.data.stripeProducts)
+          } else {
+            setProductsData(res.data.stripeProducts)
+          }
+          
         })
         .catch((err:any)=> {
           console.log('error getting products' , err)
@@ -78,7 +81,7 @@ const Products = () => {
   return (
     <div>
       <div className='product-page-body'>
-        <img src='graph-logo.png' alt='logo' style={{ width: '50px' }} />
+        <img src='graph-logoold.png' alt='logo' style={{ width: '50px' }} />
         <h3 style={{ marginLeft: '12px', color: '#616161' }}>TCM Weaver</h3>
       </div>
 
@@ -89,7 +92,7 @@ const Products = () => {
 
             <div style={{marginBottom: '22px' , minHeight:'75px' }}>
               <span className='product-name'>
-                {customerSubscriptions.includes(product.id) ? (
+                {customerSubscriptions && customerSubscriptions.includes(product.id) ? (
                   <div style={{position: "relative"}}>
                     
                     {product.name}
@@ -104,8 +107,7 @@ const Products = () => {
                     {product.name}
                   </>
 
-                ) 
-                }
+                )}
               </span>
               <span className='product-description'>
                 {product.description}

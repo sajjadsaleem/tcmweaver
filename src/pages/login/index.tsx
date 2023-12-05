@@ -98,7 +98,7 @@ const Login = () => {
       <div className="account-page">
         <div className="logo">
           <div>
-            <img src="/graph-logo.png" alt="img" />
+            <img src="/graph-logoold.png" alt="img" />
           </div>
           <p>TCM Weaver</p>
         </div>

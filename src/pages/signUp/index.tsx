@@ -199,7 +199,7 @@ const Signup = () => {
                     <Link href="/login" style={{textDecoration: 'none'}}>
                         <div className="signup-top">
                             <div>
-                                <img src="/graph-logo.png" alt="img" />
+                                <img src="/graph-logoold.png" alt="img" />
                             </div>
                             <p>TCM Weaver</p>
                         </div>

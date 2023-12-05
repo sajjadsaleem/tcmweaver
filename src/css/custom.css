@@ -3,20 +3,20 @@
 }
 
 
-/* =====================================Homepage================================= */
 
+/* =====================================Homepage================================= */
 /* =====================================Sidebar================================== */
 
 .side-nav {
     width: 346px;
     height: 100vh;
-    background-color: #f4f4f4;
+    background-color: #EDEDED;
     position: fixed;
     z-index: 11;
 }
 
 .side-nav.night-mode {
-    background-color: #000;
+    background-color: #323232;
 }
 
 .side-nav.active {
@@ -54,9 +54,22 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #D9D9D9;
+    background: #CFCCC7;
     border-radius: 10px;
 }
+
+.night-mode ::-webkit-scrollbar-thumb {
+    background: #565959;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6C655C;
+}
+
+.night-mode ::-webkit-scrollbar-thumb:hover {
+    background: #B3B3B5;
+}
+
 
 .node-preview-detail::-webkit-scrollbar-thumb,
 .opened-result-detail::-webkit-scrollbar-thumb {
@@ -69,9 +82,7 @@
     background: transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #616161;
-}
+
 
 
 /* .navVc {
@@ -81,6 +92,7 @@
     height: 100%;
  
 } */
+
 
 
 
@@ -108,15 +120,21 @@
     cursor: pointer;
 }
 
-.night-mode .icon-profile div:nth-child(1) img,
+/* .night-mode .icon-profile div:nth-child(1) img,
 .night-mode .icon-profile div:nth-child(2) img {
     filter: brightness(10);
-}
+} */
 
 .icon-profile img {
     width: 20px;
     height: auto;
+    /* filter: invert(98%) sepia(11%) saturate(289%) hue-rotate(312deg) brightness(87%) contrast(85%); */
 }
+
+.night-mode .themeChanger {
+    padding-top: 7px;
+}
+
 
 
 .menus {
@@ -183,7 +201,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #dbd9d9;
+    /* background-color: #dbd9d9; */
     cursor: pointer;
     position: relative;
 }
@@ -210,10 +228,15 @@
     transform: scale(0.85);
 }
 
+.copy-icon img {
+    width: 20px;
+    height: auto;
+}
+
 .menuBtn input {
-    border: 1px solid #616161;
+    border: 1px solid #CFCCC7;
     background-color: transparent;
-    color: #888888 !important;
+    color: #6C655C !important;
     border-radius: 40px;
     width: 100%;
     height: 40px;
@@ -226,19 +249,17 @@
 }
 
 
-
-
 .night-mode .menuBtn input {
-    border: 1px solid #bfbfbf;
-    color: #fff !important;
+    border: 1px solid #565959;
+    color: #B3B3B5 !important;
 }
 
 .menuBtn input::placeholder {
-    color: #acacac !important;
+    color: #c4beb7;
 }
 
 .night-mode .menuBtn input::placeholder {
-    color: #fff !important;
+    color: #72706d !important;
 }
 
 .menuBtn input:focus {
@@ -292,15 +313,6 @@
     margin-left: 9px;
 }
 
-/* 
-.filter-data p {
-    font-size: 1rem;
-    margin: 0px;
-    font-weight: 700;
-    margin-left: 9px;
-} */
-
-
 
 .filter-data .note {
     font-size: 0.938rem;
@@ -311,20 +323,20 @@
     text-overflow: ellipsis;
     width: 280px;
     white-space: nowrap;
+    color: #6C655C;
 }
 
 .night-mode .filter-data .note {
-    color: #fff;
+    color: #B3B3B5;
 }
 
 .night-mode .filter-data h1 {
-    color: #fff;
+    color: #B3B3B5;
 
 }
 
 .night-mode .filter-data p {
-    color: #fff;
-
+    color: #B3B3B5;
 }
 
 
@@ -332,27 +344,47 @@
 
 .filter-data .note span,
 .filter-data h1 span {
-    background-color: #666262;
+    background-color: #CFCCC7;
     display: inline-block;
 }
 
-/* .night-mode .filter-data .note span, */
+.night-mode .filter-data .note span,
 .night-mode .filter-data h1 span {
-    background-color: #666262;
+    background-color: #565959;
+}
+
+
+.results-title {
+    margin-bottom: 5px;
+
+}
+
+.results-title span {
+    font-weight: 700;
+    color: #6C655C;
+}
+
+.results-title h1 {
+    color: #6C655C;
 }
 
 
 
 
+/* ===================================Homepage========================================== */
+/* ===================================Main============================================== */
+/* ===================================Sidebar=========================================== */
+/* ===================================Filters=========================================== */
+
 .accordion-item {
     background-color: transparent !important;
-    border: 1px solid #b7b7b7 !important;
+    border: 1px solid #CFCCC7 !important;
     border-radius: 0px !important;
     margin-bottom: 4px !important;
 }
 
 .night-mode .accordion-item {
-    border: 1px solid #bfbfbf !important;
+    border: 1px solid #565959 !important;
 }
 
 
@@ -361,10 +393,11 @@
 .accordion-header button {
     background-color: transparent;
     padding: 6px;
+    color: #6C655C !important;
 }
 
 .night-mode .accordion-header button {
-    color: #fff;
+    color: #B3B3B5 !important;
     transition: none !important;
 }
 
@@ -376,8 +409,9 @@
 
 
 
+
 .accordion-body {
-    border-top: 1px solid #b7b7b7;
+    border-top: 1px solid #CFCCC7;
     transition: all 1s ease;
     height: auto;
     padding: 5px 0px !important;
@@ -392,7 +426,7 @@
 }
 
 .night-mode .accordion-body {
-    border-top: 1px solid #bfbfbf;
+    border-top: 1px solid #565959;
 }
 
 .accordion-body:after {
@@ -406,7 +440,7 @@
 }
 
 .night-mode .accordion-body:after {
-    background: #bfbfbf;
+    background: #565959;
 }
 
 .form-check-input:checked[type=checkbox] {
@@ -454,6 +488,10 @@
     background-color: #c5c5c5;
 }
 
+.form-check-label {
+    color: #6C655C;
+}
+
 .form-check-input[disabled]~.form-check-label,
 .form-check-input:disabled~.form-check-label {
     cursor: default;
@@ -461,14 +499,14 @@
 }
 
 .night-mode .form-check-input~.form-check-label {
-    color: #fff;
+    color: #B3B3B5;
 }
 
 .night-mode .form-check-input[disabled]~.form-check-label,
 .night-mode .form-check-input:disabled~.form-check-label {
     cursor: default;
     opacity: 1 !important;
-    color: #fff;
+    color: #B3B3B5;
 }
 
 .form-check-inline {
@@ -479,11 +517,13 @@
 
 .accordion-button:not(.collapsed) {
     background-color: transparent !important;
+
 }
 
 .night-mode .accordion-button:not(.collapsed) {
     background-color: transparent !important;
-    filter: brightness(10);
+    box-shadow: none !important;
+    /* filter: brightness(10); */
 }
 
 .customCheckBackground {
@@ -528,7 +568,7 @@
 
 .accordion-button::after {
     content: "";
-    background-image: url('/angle-down.svg') !important;
+    background-image: url('/angle-downnew.svg') !important;
     background-size: cover;
     position: absolute;
     left: 10px;
@@ -536,7 +576,7 @@
 
 .accordion-button.collapsed::after {
     content: "";
-    background-image: url('/angle-down.svg') !important;
+    background-image: url('/angle-downnew.svg') !important;
     background-size: cover;
     position: absolute;
     left: 10px;
@@ -626,34 +666,25 @@
 }
 
 .sidebar-user-div img {
-    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+    width: 22px;
+    height: auto;
+    /* filter: invert(98%) sepia(11%) saturate(289%) hue-rotate(312deg) brightness(87%) contrast(85%); */
 }
 
-.night-mode .note-icon img {
+/* .night-mode .note-icon img {
     filter: invert(1) !important;
-}
+} */
 
 .remove-search-result {
     height: 15px;
     cursor: pointer;
 }
 
-.results-title {
-    margin-bottom: 5px;
-
-}
-
-.results-title span {
-    /* transform: translateX(-17px); */
-    font-weight: 700;
-    /* margin-left: -10px; */
 
 
-}
-
-.night-mode img {
+/* .night-mode img {
     filter: invert(1);
-}
+} */
 
 .night-mode .profile-avatar img {
     filter: invert(0) !important;
@@ -667,13 +698,14 @@
 .night-mode p,
 .night-mode h4,
 .night-mode h1 {
-    color: #fff;
+    color: #B3B3B5 !important;
 }
 
 .forces-container {
     width: 284px;
     margin-left: 26px;
     margin-top: 10px;
+    color: #6C655C;
     /* border: 1px solid red; */
 }
 
@@ -714,7 +746,16 @@
     cursor: pointer;
 }
 
+
+
 /* ==========================================Homepage============================= */
+
+.workspace-content {
+    background-color: #EDEDED;
+}
+
+
+
 /* ==========================================Main=================================*/
 
 .main {
@@ -729,7 +770,7 @@
 
 .workspace-content.night-mode .main,
 .workspace-content.night-mode .main-homepage {
-    background-color: #242424;
+    background-color: #323232;
 }
 
 .main-homepage {
@@ -757,7 +798,7 @@
 }
 
 .workspace-content.night-mode .graph-container {
-    background-color: #242424;
+    background-color: #323232;
 }
 
 
@@ -995,14 +1036,16 @@
     margin: 0;
     width: 84%;
     font-size: 20px;
+    color: #6C655C;
 }
 
 .view-panel-title h3 {
     font-size: 28px;
+    color: #6C655C;
 }
 
 .night-mode .view-panel-title h3 {
-    color: white;
+    color: #B3B3B5;
 
 }
 
@@ -1022,8 +1065,11 @@
     min-width: 340px;
     max-width: 340px;
     padding: 16px;
-    border-right: 1px solid rgb(223, 214, 214);
-    /* margin-left: 16px; */
+    border-right: 1px solid #CFCCC7;
+}
+
+.night-mode .opened-results {
+    border-right: 1px solid #565959;
 }
 
 .opened-result-detail {
@@ -1031,23 +1077,30 @@
     overflow-y: scroll;
     width: 100%;
     height: calc(100vh - 80px);
+}
 
+.opened-result-detail p {
+    color: #6C655C;
 }
 
 .opened-result-detail h1 {
     font-size: 2.2rem;
+    color: #6C655C;
 }
 
 .opened-result-detail h2 {
     font-size: 2.0rem;
+    color: #6C655C;
 }
 
 .opened-result-detail h3 {
     font-size: 1.7rem;
+    color: #6C655C;
 }
 
 .opened-result-detail h4 {
     font-size: 1.5rem;
+    color: #6C655C;
 }
 
 .highlighted-heading {
@@ -1077,13 +1130,13 @@
     justify-content: space-between;
 }
 
-.node-click-options img {
+/* .node-click-options img {
     filter: invert(0);
 }
 
 .night-mode .node-click-options img {
     filter: invert(1);
-}
+} */
 
 .node-remove-icon,
 .node-text-icon,
@@ -1204,7 +1257,7 @@
 .sign-btn button {
     border: 1px solid #616161;
     background-color: #616161;
-    color: #fff;
+    color: #fff !important;
     border-radius: 40px;
     width: 400px;
     height: 60px;
@@ -1310,6 +1363,7 @@
     /* padding: 8px; */
     z-index: 999;
     width: 156px;
+    color: #6C655C !important;
 }
 
 .night-mode .account-options-container {
@@ -1387,6 +1441,11 @@
     justify-content: center;
     align-items: center;
     background-color: #C2BDBD;
+}
+
+.user-logout-div h2,
+button {
+    color: #6C655C !important;
 }
 
 
@@ -1843,7 +1902,7 @@
 
 
 
-/* -------Products Page */
+/* =======================================Products Page============================= */
 
 .product-page-body {
     display: flex;
@@ -1888,7 +1947,7 @@
 
 .product-button {
     background-color: #1565c0;
-    color: white;
+    color: white !important;
     outline: none;
     border: none;
     border-radius: 5px;

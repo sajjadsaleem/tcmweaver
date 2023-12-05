@@ -14,7 +14,12 @@ const FullPageComponentLoading = () => {
     <>
       <div className="fullpagecomponentLoading text-center" style={{ backgroundColor: currTheme ? '#fff' : '#242424' }}>
         <div className='page-loading'>
-          <img src="graph-logo.png" height="90" alt="Logo" />
+          {currTheme ? (
+            <img src="graph-logo-light.png" height="90" alt="Logo" />
+          ) : (
+            <img src="graph-logoold.png" height="90" alt="Logo" />
+          )}
+
         </div>
       </div>
     </>

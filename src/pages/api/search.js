@@ -39,7 +39,7 @@ export default async function search(req, res) {
         }
         // console.log('rows nnowowerjwelrj', rows)
         const datasets = rows
-        console.log('datasets', datasets)
+        // console.log('datasets', datasets)
 
         // const datasets = await db.select().from(dataset);
         // console.log('datasets', datasets)
