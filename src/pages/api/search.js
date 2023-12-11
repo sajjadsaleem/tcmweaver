@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { sql as drizzleSql } from "drizzle-orm";
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
@@ -23,14 +24,18 @@ export default async function search(req, res) {
 
         const db = drizzle(sql)
 
-        const client = await pool.connect();
+        // const client = await pool.connect();
 
 
         let rows = []
 
         for (const table of tableNames) {
-            const selectQuery = `SELECT * FROM ${table}`;
-            const queryResult = await client.query(selectQuery);
+            const selectQuery = drizzleSql`SELECT * FROM `;
+            const selectQueryJoint = `${table}`
+            selectQuery.queryChunks[0].value[0] += selectQueryJoint
+            const queryResult = await db.execute(drizzleSql`${selectQuery}`);
+            // const selectQuery = `SELECT * FROM ${table}`;
+            // const queryResult = await client.query(selectQuery);
             for (const item of queryResult.rows) {
                 if (typeof item === 'object' && item !== null) {
                     rows.push(item);
@@ -39,6 +44,7 @@ export default async function search(req, res) {
         }
         // console.log('rows nnowowerjwelrj', rows)
         const datasets = rows
+        // console.log(datasets.length)
         // console.log('datasets', datasets)
 
         // const datasets = await db.select().from(dataset);
@@ -53,13 +59,6 @@ export default async function search(req, res) {
                 fileName: item.filename.replace(/\.md$/, '')
             };
         });
-
-        // console.log('extensionRemovedData', extensionRemovedData)
-
-        // remove filters file from other data
-        const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "SAMPLE FILTERS");
-
-        // console.log('filesWithoutFilters', filesWithoutFilters[0])
 
 
         // filter the data
@@ -80,7 +79,7 @@ export default async function search(req, res) {
         let newTestFiles = [];
         let newEntries = [];
 
-        for (const file of filesWithoutFilters) {
+        for (const file of extensionRemovedData) {
             let inputExpression = inputValue;
             const fzf = new Fzf([file], options);
             for (const word of wordsArray) {
@@ -126,18 +125,24 @@ export default async function search(req, res) {
         }
         // console.log('newEntries: ', newEntries)
 
-        // const datasets = await prisma.dataset.findMany({
-        //     where: {
-        //         OR: wordsArray.map((word) => ({
-        //             OR: [
-        //                 { filename: { contains: word } }, // Match word in filename
-        //                 { content: { contains: word } },  // Match word in content
-        //             ],
-        //         })),
-        //     },
+        // Remove ".md" extension
+        // const extensionRemovedData = newEntries.map(item => {
+        //     return {
+        //         ...item,
+        //         fileName: item.filename.replace(/\.md$/, '')
+        //     };
         // });
 
+        // // console.log('extensionRemovedData', extensionRemovedData)
+
+        // // remove filters file from other data
+        // const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "SAMPLE FILTERS");
+
+        // console.log('filesWithoutFilters', filesWithoutFilters[0])
+
+
         console.log('newEntries = ', newEntries.length)
+
 
         res.status(200).json(newEntries);
     } catch (error) {

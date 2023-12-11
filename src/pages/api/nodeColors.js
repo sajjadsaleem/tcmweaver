@@ -10,14 +10,14 @@ export default async function nodeColors(req, res) {
 
         const configVault = await db.select({ reference_table: vaultsTable.reference_table })
             .from(vaultsTable).where(eq(vaultsTable.vault_name, 'CONFIG'))
-        console.log('configvault', configVault[0].reference_table)
+        console.log('node-colors configvault table', configVault[0].reference_table)
 
         const selectQuery = drizzleSql`SELECT * FROM `;
         const selectQueryJoint = `${configVault[0].reference_table}`
         selectQuery.queryChunks[0].value[0] += selectQueryJoint
         var nodeColorsData = await db.execute(drizzleSql`${selectQuery}`);
 
-        // // console.log('configData', configData.rows)
+
 
         // // remove .md extension from Filenames
         nodeColorsData = nodeColorsData.rows.map(obj => ({
@@ -26,7 +26,7 @@ export default async function nodeColors(req, res) {
         }));
 
         const nodeColors = nodeColorsData.filter(obj => obj.filename.toLowerCase().includes('color'));
-        // console.log(nodeColors)
+        console.log(nodeColors)
 
 
         res.status(200).json({ nodeColors });

@@ -32,11 +32,11 @@
     font-size: 30px;
     margin: 0px;
     padding: 3px 0px;
-    color: #616161;
+    color: #6C655C;
 }
 
 .night-mode .site-name p {
-    color: #fff;
+    color: #B3B3B5;
 }
 
 
@@ -574,6 +574,10 @@
     left: 10px;
 }
 
+.night-mode .accordion-button::after {
+    background-image: url('/angle-down-dark.svg') !important;
+}
+
 .accordion-button.collapsed::after {
     content: "";
     background-image: url('/angle-downnew.svg') !important;
@@ -583,7 +587,7 @@
 }
 
 .night-mode .accordion-button.collapsed::after {
-    filter: brightness(10);
+    background-image: url('/angle-down-dark.svg') !important;
 }
 
 
@@ -1096,6 +1100,11 @@
 .opened-result-detail h3 {
     font-size: 1.7rem;
     color: #6C655C;
+}
+
+.night-mode .opened-result-detail h3 {
+    font-size: 1.7rem;
+    color: #B3B3B5 !important;
 }
 
 .opened-result-detail h4 {

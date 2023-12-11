@@ -23,7 +23,7 @@ export default async function search(req, res) {
             const wordsArrayRaw = req.query.q.split(',');
             const uniqueWordsSet = new Set(wordsArrayRaw);
             const wordsArray = Array.from(uniqueWordsSet);
-            // console.log('wordsArray', wordsArray);
+            console.log('tableNames', tableNames);
 
             const db = drizzle(sql)
 
@@ -42,7 +42,7 @@ export default async function search(req, res) {
                 }
             }
 
-            // console.log('datasets', datasets)
+            console.log('datasets', datasets.length)
             // console.log('rows nnowowerjwelrj', rows)
 
             // Remove ".md" extension

@@ -68,17 +68,12 @@ const Sidebar = () => {
     contentWithRemovedBrackets: string;
   }
 
-  interface Node {
-    id: string;
-    tag: string;
-    // Add other properties here as needed
-  }
+  // interface Node {
+  //   id: string;
+  //   tag: string;
+  //   // Add other properties here as needed
+  // }
 
-  interface Link {
-    source: string;
-    target: string;
-    // Add other properties here as needed
-  }
 
   interface CustomNode extends d3.SimulationNodeDatum {
     id: string;
@@ -155,6 +150,9 @@ const Sidebar = () => {
   const [rawSearchResults , setRawSearchResults] = useState<any>([])
   const [textSearchLoader , setTextSearchLoader] = useState<any>(false)
   const [graphSearchLoader , setGraphSearchLoader] = useState<any>(false)
+  const [graphSize, setGraphSize] = useState({ width: 0, height: 0 });
+  const [checkGraphStatus , setCheckGraphStatus] = useState<any>(false)
+  const [previousGraphData , setPreviousGraphData] = useState<any>({})
   
   
 
@@ -163,7 +161,7 @@ const Sidebar = () => {
   // console.log("checkboxes: ", checkboxes);
   // console.log("searchResults", searchResults);
   // console.log("allCheckboxes: ", allCheckboxes);
-  // console.log('themchangeicon' , themeChangericon)
+  // console.log('themeChangeicon' , themeChangericon)
   // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
@@ -182,6 +180,8 @@ const Sidebar = () => {
   // console.log('shouldShowFilters' , shouldShowFilters)
   // console.log('searchResults' , searchResults)
   // console.log(textColorForNode)
+  // console.log('previousGraphData' , previousGraphData)
+  // console.log('checkGraphStatus', checkGraphStatus)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -226,6 +226,30 @@ const Sidebar = () => {
   }, []);
 
 
+  // set graph width and height
+  useEffect(() => {
+    const updateGraphSize = () => {
+      const element = document.getElementById('graph-div');
+      if (element) {
+        const newWidth = element.offsetWidth;
+        const newHeight = element.offsetHeight;
+        setGraphSize({ width: newWidth, height: newHeight });
+      }
+    };
+
+    updateGraphSize();
+
+    // Add event listeners or other mechanisms to update size on window resize, etc.
+    window.addEventListener('resize', updateGraphSize);
+
+    // Clean up event listeners when the component unmounts
+    return () => {
+      window.removeEventListener('resize', updateGraphSize);
+    };
+  }, []);
+
+
+  // setting theme icon, text color for node, graph link color on theme change
   useEffect(() => {
     const storedTheme:any = localStorage.getItem('theme');
     const checkTheme = JSON.parse(storedTheme)
@@ -235,6 +259,7 @@ const Sidebar = () => {
   }, []);
 
 
+  // close user options dropdown
   useEffect(() => {
     const handleOutsideClick = (event:any) => {
       // console.log('event' , event)
@@ -391,6 +416,34 @@ const Sidebar = () => {
       .then((res:any) => {
         // console.log('res from fetching node colors' , res.data.nodeColors)
 
+        const regex = /# (Dark Mode|Light Mode) Graph Nodes:[\s\S]*?(?=# (Dark Mode|Light Mode)|$)/g;
+
+        // Extract matches from content
+        const matches = [];
+        let match;
+        while ((match = regex.exec(res.data.nodeColors[0].content)) !== null) {
+            const mode = match[1].toLowerCase();
+            const content = match[0];
+        
+            // Regular expression to match tags and colors within each mode
+            const modeRegex = /# (\S+) \n([\S]+)/g;
+        
+            // Extract matches for tags and colors within each mode
+            const modeMatches = [];
+            let modeMatch;
+            while ((modeMatch = modeRegex.exec(content)) !== null) {
+                const tag = modeMatch[1].replace(/^#/, '');
+                const color = `#${modeMatch[2]}`;
+                modeMatches.push({ tag, color });
+            }
+        
+            // Add the mode-specific matches to the main array
+            matches.push({ mode, data: modeMatches });
+        }
+        
+        setShowAddGraphNodeColor(matches)
+        // console.log(matches);
+
       })
       .catch((err:any) => {
         console.log('Error fetching node colors' , err)
@@ -405,22 +458,30 @@ const Sidebar = () => {
 
 
   useEffect(()=> {
-    if(sliderValue !== -40) {
-      makeGraph(graphData)
+    if(!graphOrTextView){
+      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {    
+        handleGraphForces(graphData)
+      }
     }
-  }, [sliderValue])
-
-
-  useEffect(()=> {
-    if(!graphOrTextView)
-      makeGraph(graphData)
   }, [centerForceValue])
 
 
   useEffect(()=> {
-    if(!graphOrTextView)
-      makeGraph(graphData)
+    if(!graphOrTextView){
+      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {    
+        handleGraphForces(graphData)
+      }
+    }
   }, [linkForceValue])
+
+
+  useEffect(()=> {
+    if(!graphOrTextView){
+      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+        handleGraphForces(graphData)
+      }
+    }
+  }, [sliderValue])
 
 
   useEffect(() => {
@@ -445,6 +506,670 @@ const Sidebar = () => {
     // Call makeGraph whenever showAddGraphNodeColor changes
     // makeGraph(graphData);
   }, [showAddGraphNodeColor]);
+
+
+  const handleGraphForces = async (graphNewData: any) => {
+    let element: any = document.getElementById("graph-div");
+    let graphWidth = element.offsetWidth;
+    let graphHeight = element.offsetHeight;
+
+    function WanderGraph(
+      { nodes, links }: { nodes: any; links: any },
+      {
+        nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
+        nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
+        nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
+        nodeTitle = null, // given d in nodes, a title string
+        nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
+        nodeStroke = "#fff", // node stroke color
+        nodeStrokeWidth = 0, // node stroke width, in pixels
+        nodeStrokeOpacity = 1, // node stroke opacity
+        nodeRadius = 5, // node radius, in pixels
+        nodeStrength = -30,
+        linkSource = ({ source }: { source: string }) => source, // Specify the type as string
+        linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
+        linkStroke = graphLinkColor, // link stroke color
+        linkStrokeOpacity = 1, // link stroke opacity
+        linkStrokeWidth = 1, // given d in links, returns a stroke width in pixels
+        linkStrokeLinecap = "round", // link stroke linecap
+        linkStrength = 0.3,
+        colors = d3.schemeTableau10, // an array of color strings, for the node groups
+        width = 640, // outer width, in pixels
+        height = 400, // outer height, in pixels
+        invalidation = undefined // when this promise resolves, stop the simulation
+      } = {}
+    ) {
+        // Compute values.
+        const N = d3.map(nodes, nodeId).map(intern);
+        const LS = d3.map(links, linkSource).map(intern);
+        const LT = d3.map(links, linkTarget).map(intern);
+        if (nodeTitle === null) {
+          let nodeTitle = (_: any, i: any) => N[i];
+        }
+        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+        // Replace the input nodes and links with mutable objects for the simulation.
+
+        
+
+
+        let formattingNodes:any = []
+        let notFoundNodes:any = []
+
+        nodes.forEach((eachNode:any) => {
+          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
+
+          if (matchingNodeIndex !== -1) {
+            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+          } else {
+            notFoundNodes.push(eachNode)
+            // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
+            // console.log('nodeArray' , nodeArray)
+            // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+            // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
+            // console.log('currentNodeMap',currentNodeMap)
+          }
+        });
+
+        // setPreviousGraphData({})
+
+        // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
+        // const allNodes = formattingNodes.concat(notFoundNodesMap);
+        // nodes = [...allNodes]
+
+        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+        // const linksCopy = _.cloneDeep(links)
+        // console.log('nodes' , nodes,'links' , links)
+
+        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+        let formattingNodeCopy = formattingNodes;
+
+        nodes.forEach((node:any , index:any) => {
+          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
+          if(nodeReplacement) {
+            nodeReplacement.fx = nodeReplacement.x;
+            nodeReplacement.fy = nodeReplacement.y;
+        
+            // Update the node in the nodes array
+            nodes[index] = nodeReplacement;
+          }
+        })
+
+        nodes.forEach((node:any) => {
+          node.fx = null;
+          node.fy = null;
+        });
+        
+
+        links.forEach((link:any , index:any) => {
+          if (typeof link.source === 'string') {
+            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
+            if (sourceObject) {
+              links[index].source = sourceObject
+            }
+          }
+        
+          // Check if target is a string, and convert it to an object if needed
+          if (typeof link.target === 'string') {
+            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
+            if (targetObject) {
+              links[index].target = targetObject
+            }
+          }
+        });
+
+
+        // Compute default domains.
+        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+        // Construct the scales.
+        // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+        // Construct the forces.
+        const forceNode = d3.forceManyBody();
+        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+        function ticked() {
+
+          console.log('ticked')
+        
+          link
+            .attr("x1", (d: any) => {
+              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+                return checkEachNode.id === d.source.id
+              })
+              if(xmark) {
+                return xmark.x
+              }
+              else {
+                // console.log('d',d)
+                if(nodes) {
+                  const sourceXMark = nodes.find((checkEachNode:any) => {
+                    return checkEachNode.id === d.source.id
+                  })
+                  if(sourceXMark) {
+                    return sourceXMark.x
+                  }
+                } 
+              }
+            })
+            .attr("y1", (d: any) => {
+              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+                return checkEachNode.id === d.source.id
+              })
+              if(xmark) {
+                return xmark.y
+              }
+              else {
+                // console.log('d',d)
+                if(nodes) {
+                  const sourceXMark = nodes.find((checkEachNode:any) => {
+                    return checkEachNode.id === d.source.id
+                  })
+                  if(sourceXMark) {
+                    return sourceXMark.y
+                  }
+                } 
+              }
+            })
+            .attr("x2", (d: any) => {
+              return d.target.x
+            })
+            .attr("y2", (d: any) => {
+              return  d.target.y
+            });
+            
+          node
+            .attr('cx' , (d:any) => d.x)
+            .attr('cy' , (d:any) => d.y)
+            // .attr("cx", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.x
+            //   }
+            //   else {
+            //     return d.x
+            //   }
+            // })
+            // .attr("x", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.x
+            //   }
+            //   else {
+            //     return d.x
+            //   }
+            // })
+            // .attr("y", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.y
+            //   }
+            //   else {
+            //     return d.y
+            //   }
+            // })
+            // .attr("cy", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.y
+            //   }
+            //   else {
+            //     return d.y
+            //   }
+            // });
+
+          nodeText
+          .attr("x", (d: any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.x - (getNodeTextWidth(d) / 4.5)
+            }
+            else {
+              return d.x - (getNodeTextWidth(d) / 4.5)
+            }
+            
+          })
+          .attr("y", (d: any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.y + 12
+            }
+            else {
+              return d.y + 12
+            }
+            
+          });
+
+
+          nodeTitles
+          .text((d:any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.id
+            }
+            else {
+              return d.id
+            }
+          });
+
+          formattingNodes = []
+          formattingNodeCopy = []
+
+
+          // console.log('link',link)
+        }
+
+        function zoomed(event: any) {
+          container.attr("transform", event.transform);
+        }
+
+        function getColorByTag(tag: string) {
+          const tagColors: Record<string, string> = {};
+          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+
+          themeBasedColors.data.forEach((colorGroup:any) => {
+            const tag = colorGroup.tag;
+            tagColors[tag] = colorGroup.color;
+          });
+
+          return tagColors[tag] || nodeFill;
+        }
+
+        function handleNodeClick(event: any, d: any) {
+          // console.log(event, d);
+          setFileOpenedFromGraph(d);
+          // Get the div element and set its content based on the clicked node
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+          // Position the div over the clicked node
+          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+          
+
+          // Show the div
+          nodeInfoDiv.style.display = "flex";
+
+          // Prevent the click event from propagating further (e.g., to zoom or drag)
+          event.stopPropagation();
+        }
+
+        function hideNodeInfo() {
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          if (nodeInfoDiv) {
+            nodeInfoDiv.style.display = "none";
+          }
+        }
+
+        function intern(value: any) {
+          return value !== null && typeof value === "object" ? value.valueOf() : value;
+        }
+
+        function getNodeTextWidth(d: any) {
+          // Create a hidden div to measure the text width
+          const tempDiv:any = d3.select('body')
+            .append('div')
+            .attr('class', 'temp-text-container')
+            .style('position', 'absolute')
+            .style('visibility', 'hidden')
+            .text(d.id);
+        
+          // Get the width of the hidden div
+          const textWidth = tempDiv.node().getBoundingClientRect().width;
+        
+          // Remove the temporary div from the DOM
+          tempDiv.remove();
+        
+          return textWidth;
+        }
+
+        function handleMouseOver(this: any, event: any, d: any) {
+          nodes.forEach((node:any) => {
+            node.fx = null;
+            node.fy = null;
+          });
+          // console.log('event' , event, 'nodes' , nodes)
+          
+          // Set the initial state before transitioning
+          d3.select(this as SVGElement)
+            // .attr("fill", "red") // Change to your desired color
+            .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+            .attr("fill-opacity", 1); // Set initial opacity to 1
+
+          // Initialize the links with their original stroke color and opacity
+          link
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return linkStroke; // Original link color
+              } else {
+                return linkStroke;
+              }
+            })
+            .attr("stroke-opacity", linkStrokeOpacity);
+
+          // Initialize the nodes with their original fill color and opacity
+          node
+            .attr("fill-opacity", (nodeData:any) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
+          
+          nodeText
+            .transition().duration(300)
+            .style('opacity' , (nodeData:any) => {
+              if (nodeData === d) {
+                return 1
+              } else if (areNodesConnected(nodeData , d)) {
+                return 1
+              } else {
+                return 0.1
+              }
+            })
+            .style("font-size", (nodeData:any) => {
+              return nodeData === d ? '12px' : '8px'
+            })
+
+          // Start the transition
+          d3.select(this as SVGElement)
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("r", nodeRadius); // Optionally, increase the node size
+
+          // Change the color of the links directly connected to the hovered node
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return "red"; // Change to your desired link color
+              } else {
+                return linkStroke;
+              }
+            });
+
+          // Transition to reduce the opacity of nodes that are not directly connected
+          node
+            .transition()
+            .duration(600)
+            .attr("fill-opacity", (nodeData:any) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
+
+          // nodeText
+          //   .transition()
+          //   .duration(600)
+          //   .style('opacity' , (nodeData:any) => {
+          //     if (nodeData === d) {
+          //       return 1
+          //     } else if (areNodesConnected(nodeData , d)) {
+          //       return 1
+          //     } else {
+          //       return 0.1
+          //     }
+          //   })
+
+          // Transition to reduce the opacity of links that are not directly connected
+          link
+            .transition()
+            .duration(600)
+            .attr("stroke-opacity", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return 1; // Opacity of links directly connected to the hovered node
+              } else {
+                return 0; // Opacity of other links
+              }
+            });
+
+
+
+          // console.log("Hovered Nodes:", hoveredNodes);
+        }
+
+        function handleMouseOut(this: any) {
+          d3.select(this)
+            // .attr("fill", nodeFill) // Reset to the original node color
+            .attr("r", nodeRadius) // Reset to the original node size
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("fill-opacity", 1); // Reset opacity
+
+          // Reset the color and opacity of all links to their original values with a transition
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", linkStroke)
+            .attr("stroke-opacity", linkStrokeOpacity);
+
+          // Reset the opacity of all nodes to their original value with a transition
+          node.transition().duration(200).attr("fill-opacity", 1);
+          nodeText.transition().duration(200)
+            .style('opacity' , 1)
+            .style('font-size', '8px')
+            
+        }
+
+        function areNodesConnected(node1: any, node2: any) {
+          return links.some((linkData: any) => {
+            return (
+              (linkData.source === node1 && linkData.target === node2) ||
+              (linkData.source === node2 && linkData.target === node1)
+            );
+          });
+        }
+
+        function drag(simulation: any) {
+          function dragstarted(event: any) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+          }
+
+          function dragged(event: any) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+          }
+
+          function dragended(event: any) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+          }
+
+          
+          return d3
+            .drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+        }
+
+        const customNodes: any = nodes;
+
+
+        const simulation = d3
+          .forceSimulation(customNodes)
+          .force("link", forceLink)
+          .force("charge", d3.forceManyBody().strength(sliderValue))
+          .force("center", d3.forceCenter().strength(centerForceValue))
+          .alphaTarget(0)
+          .on("tick", ticked);
+
+
+        // const svg = d3
+        // .create("svg")
+        // .attr("width", width)
+        // .attr("height", height)
+        // .attr("viewBox", [-width / 2, -height / 2, width, height])
+        // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+        // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+        
+        // const svg:any = document.querySelector("#graph-div svg");
+        const svgContainer = d3.select('#graph-div');
+        const gElement = svgContainer.select('svg');
+        const svg = gElement.select('g');
+      
+        const container = svg
+
+        container.select("#links-g-tag").remove();
+        const link = container
+          .append("g")
+          .attr("id", "links-g-tag")
+          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+          .attr("stroke-opacity", linkStrokeOpacity)
+          .attr(
+            "stroke-width",
+            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+          )
+          .attr("stroke-linecap", linkStrokeLinecap)
+          .selectAll("line")
+          .data(links)
+          .join("line");
+
+        
+
+
+        container.select("#nodes-g-tag").remove();
+        const node = container
+          .append("g")
+          .attr("id", "nodes-g-tag")
+          .attr("fill", nodeFill)
+          .attr("stroke", nodeStroke)
+          .attr("stroke-opacity", nodeStrokeOpacity)
+          .attr("stroke-width", nodeStrokeWidth)
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .attr("id", (d:any) => `node-${d.id}`)
+          .attr("r", nodeRadius)
+          .attr("fill", (d: any) => {
+            const color = getColorByTag(d.tag);
+            return color;
+          })
+          .on("mouseover", handleMouseOver) // Add mouseover event listener
+          .on("mouseout", handleMouseOut)
+          .on("click", handleNodeClick)
+          .classed("node-pointer", true)
+          .call(drag(simulation) as any, drag(simulation));
+
+        // // Append text labels to the container, positioned near the nodes
+        container.select("#text-g-tag").remove();
+        const nodeText = container
+          .append("g")
+          .attr("id", "text-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("text")
+          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+          .attr("y", (d: any) => d.y + nodeRadius + 12)
+          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+          .style("font-size", "8px") // Adjust the font size based on your preference
+          .text((d:any) => d.id)
+          .attr('fill' , textColorForNode);
+
+        container.select("#titles-g-tag").remove();
+        const nodeTitles = container
+          .append("g")
+          .attr("id", "titles-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("title")
+          .text((d:any) => d.id);
+
+
+        const zoom: any = d3.zoom().on("zoom", zoomed);
+        svg.call(zoom);
+
+        document.addEventListener("click", hideNodeInfo);
+
+        // // In the ticked function, update the positions of text and title elements
+
+        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+        // if (G && color) {
+        //   node.attr("fill", (_:any, i:any) => color(G[i]));
+        // }
+        if (T) {
+          node.append("title").text((d: any, i: any) => String(T[i]));
+        }
+
+        if (invalidation != null) {
+          (invalidation as Promise<void>).then(() => {
+            // Handle invalidation here
+            simulation.stop();
+          });
+        }
+        
+        const svgElement = svg.node() as SVGSVGElement;
+        const result = {
+          // scales: { color },
+          svg: svgElement,
+        };
+
+
+        
+
+        const previousNodes = [...nodes]
+        const previousLinks = [...links]
+
+        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+        
+
+        return result;
+
+        // return Object.assign(svg.node(), { scales: { color } });
+    }
+
+    const options: any = {
+      nodeFill: "#808080",
+      nodeStroke: "#808080",
+      width: graphWidth,
+      height: graphHeight,
+    };
+
+    let svgResult:any
+      svgResult = WanderGraph(graphNewData, options)
+  }
 
 
   const handleSearch = async (event: any) => {
@@ -483,7 +1208,7 @@ const Sidebar = () => {
     const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
       (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
     );
-    console.log("words array: ", wordsArray);
+    // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
     wordsArray.forEach((word: any) => {
@@ -505,7 +1230,7 @@ const Sidebar = () => {
           }
         }
       } else if (!word.startsWith("-")) {
-        console.log('inside wordsArray else')
+        // console.log('inside wordsArray else')
         for (const category of allCheckboxes as any[]) {
           for (const item of category.items) {
             // console.log("item: ", item);
@@ -585,7 +1310,7 @@ const Sidebar = () => {
 
     wordToSearch = wordsToSearch;
 
-    console.log("word to search", wordToSearch);
+    // console.log("word to search", wordToSearch);
 
     const options: FzfOptions<File> = {
       selector: (item: any) => `${item.fileName} (${item.content})`,
@@ -624,7 +1349,7 @@ const Sidebar = () => {
       internalId = setTimeout(async() => {
         try {
 
-          
+          setTextSearchLoader(true)
           // searchRequest += 1;
           // const currentRequest = searchRequest;
           
@@ -657,12 +1382,14 @@ const Sidebar = () => {
           // console.log("newEntries: ", newEntries);
 
           setSearchResults(newEntries);
+          setTextSearchLoader(false)
 
           // console.log(responseJson.data);
           // console.log('responseJson' , responseJson)
           // responseJson = await response.json();
           // console.log("responseJson: ", responseJson);
         } catch (error) {
+          setTextSearchLoader(false)
           console.log("Error fetching search results:", error);
         }
 
@@ -1060,6 +1787,7 @@ const Sidebar = () => {
       controller = new AbortController()
 
       try {
+        setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
         const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
@@ -1084,8 +1812,10 @@ const Sidebar = () => {
       // console.log("newEntries: ", newEntries);
 
       setSearchResults(newEntries);
+      setGraphSearchLoader(false)
       generateGraphfromSearch(newEntries , inputValue);
       } catch (error) {
+        setGraphSearchLoader(false)
         console.error("Error fetching search results:", error);
       }
      
@@ -1301,6 +2031,9 @@ const Sidebar = () => {
     
     sethideFiltersForPreview(true);
     setGraphNodeOpened([])
+    setCheckGraphStatus(false)
+    setPreviousGraphData([])
+    setGraphData([])
 
     if(graphOrTextView){
       setShouldShowFilters(true);
@@ -1488,7 +2221,6 @@ const Sidebar = () => {
     if(!themeChangericon){
       setTextColorForNode('#6C655C')
       setGraphLinkColor('#CFCCC7')
-      
     } else {
       setTextColorForNode('#B3B3B5')
       setGraphLinkColor('#565959')
@@ -1727,6 +2459,7 @@ const Sidebar = () => {
         const resultData:any = {nodes , links}
 
         setTimeout(()=> {
+
           setGraphData(resultData);
           makeGraph(resultData);
         }, 200)
@@ -1965,13 +2698,19 @@ const Sidebar = () => {
         // console.log('resultData' , resultData)
 
         setTimeout(() => {
-          setGraphData(resultData);
-          makeGraph(resultData);
-          setOpenedResults(updatedOpenedResults);
+          if(resultData.nodes.length === 0 ) {
+
+          } else {
+            setGraphData(resultData);
+            makeGraph(resultData);
+            setOpenedResults(updatedOpenedResults);
+          }
+          
         }, 200);
       }
 
     } else {
+      setCheckGraphStatus(false)
       const graphDiv:any = document.getElementById('graph-div');
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
@@ -1994,18 +2733,20 @@ const Sidebar = () => {
 
   const makeGraph = (graphNewData: any) => {
     let element: any = document.getElementById("graph-div");
-    if (element) {
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
-    }
+    // if (element) {
+    //   while (element.firstChild) {
+    //     element.removeChild(element.firstChild);
+    //   }
+    // }
+    
 
     // Calculate the width and height
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
+    
 
     function ForceGraph(
-      { nodes, links }: { nodes: Node[]; links: Link[] },
+      { nodes, links }: { nodes: any; links: any },
       {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
@@ -2030,341 +2771,1042 @@ const Sidebar = () => {
         invalidation = undefined, // when this promise resolves, stop the simulation
       } = {}
     ) {
-      // Compute values.
-      const N = d3.map(nodes, nodeId).map(intern);
-      const LS = d3.map(links, linkSource).map(intern);
-      const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-      const W =
-        typeof linkStrokeWidth !== "function"
-          ? null
-          : d3.map(links, linkStrokeWidth);
-      const L =
-        typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+        // Compute values.
+        const N = d3.map(nodes, nodeId).map(intern);
+        const LS = d3.map(links, linkSource).map(intern);
+        const LT = d3.map(links, linkTarget).map(intern);
+        if (nodeTitle === null) {
+          let nodeTitle = (_: any, i: any) => N[i];
+        }
+        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
-      // Replace the input nodes and links with mutable objects for the simulation.
-      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+        // Replace the input nodes and links with mutable objects for the simulation.
+        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
 
-      // console.log("nodes", nodes);
+        // console.log("nodes", nodes);
 
-      // Compute default domains.
-      if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+        // Compute default domains.
+        if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
 
-      // Construct the scales.
-      const color =
-        nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+        // Construct the scales.
+        const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
 
-      // Construct the forces.
-      const forceNode = d3.forceManyBody();
-      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+        // Construct the forces.
+        const forceNode = d3.forceManyBody();
+        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
-      // console.log("nodes ", nodes);
-      const customNodes: any = nodes;
+        // console.log("nodes ", nodes);
+        const customNodes: any = nodes;
+        // console.log('nodes in force' , nodes)
 
-      const simulation = d3
-        .forceSimulation(customNodes)
-        .force("link", forceLink)
-        .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .on("tick", ticked);
+        const simulation = d3
+          .forceSimulation(customNodes)
+          .force("link", forceLink)
+          .force("charge", d3.forceManyBody().strength(sliderValue))
+          .force("center", d3.forceCenter().strength(centerForceValue))
+          .force('collide' , d3.forceCollide().strength(0))
+          .on("tick", ticked);
 
-      const svg = d3
-        .create("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-        .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+        const svg = d3
+          .create("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("viewBox", [-width / 2, -height / 2, width, height])
+          .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+          .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
 
-      const container = svg.append("g");
+        const container = svg.append("g");
 
-      const link = container
-        .append("g")
-        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-        .attr("stroke-opacity", linkStrokeOpacity)
-        .attr(
-          "stroke-width",
-          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-        )
-        .attr("stroke-linecap", linkStrokeLinecap)
-        .selectAll("line")
-        .data(links)
-        .join("line");
+        const link = container
+          .append("g")
+          .attr("id", "links-g-tag")
+          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+          .attr("stroke-opacity", linkStrokeOpacity)
+          .attr(
+            "stroke-width",
+            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+          )
+          .attr("stroke-linecap", linkStrokeLinecap)
+          .selectAll("line")
+          .data(links)
+          .join("line");
 
-      const zoom: any = d3.zoom().on("zoom", zoomed);
-      svg.call(zoom);
+        const zoom: any = d3.zoom().on("zoom", zoomed);
+        svg.call(zoom);
 
-      function zoomed(event: any) {
-        // Update the transform of the container based on the zoom event
-        container.attr("transform", event.transform);
-      }
+        function zoomed(event: any) {
+          container.attr("transform", event.transform);
+        }
 
-      function getColorByTag(tag: string) {
-        // Define a mapping of tags to colors
-        const tagColors: Record<string, string> = {};
+        function getColorByTag(tag: string) {
+          // Define a mapping of tags to colors
+          const tagColors: Record<string, string> = {};
 
-        // console.log(showAddGraphNodeColor)
-        showAddGraphNodeColor.forEach((colorGroup:any) => {
-          const tag = colorGroup.tag;
-          tagColors[tag] = colorGroup.color;
-        });
+          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+
+          // console.log(showAddGraphNodeColor)
+          themeBasedColors.data.forEach((colorGroup:any) => {
+            const tag = colorGroup.tag;
+            tagColors[tag] = colorGroup.color;
+          });
+          
+          return tagColors[tag] || nodeFill;
+        }
+
+        function handleNodeClick(event: any, d: any) {
+          // console.log(event, d);
+          setFileOpenedFromGraph(d);
+          // Get the div element and set its content based on the clicked node
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+          // Position the div over the clicked node
+          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+          
+
+          // Show the div
+          nodeInfoDiv.style.display = "flex";
+
+          // Prevent the click event from propagating further (e.g., to zoom or drag)
+          event.stopPropagation();
+        }
+
+        function hideNodeInfo() {
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          if (nodeInfoDiv) {
+            nodeInfoDiv.style.display = "none";
+          }
+        }
+
+        function intern(value: any) {
+          // console.log('hello intern')
+          return value !== null && typeof value === "object" ? value.valueOf() : value;
+        }
+
+        function getNodeTextWidth(d: any) {
+          // Create a hidden div to measure the text width
+          const tempDiv:any = d3.select('body')
+            .append('div')
+            .attr('class', 'temp-text-container')
+            .style('position', 'absolute')
+            .style('visibility', 'hidden')
+            .text(d.id);
         
-        return tagColors[tag] || nodeFill;
-      }
-
-      function handleNodeClick(event: any, d: any) {
-        console.log(event, d);
-        setFileOpenedFromGraph(d);
-        // Get the div element and set its content based on the clicked node
-        const nodeInfoDiv: any = document.getElementById("nodeInfo");
-        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
-
-        // Position the div over the clicked node
-        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
-
-        // Show the div
-        nodeInfoDiv.style.display = "flex";
-
-        // Prevent the click event from propagating further (e.g., to zoom or drag)
-        event.stopPropagation();
-      }
-
-      function hideNodeInfo() {
-        const nodeInfoDiv: any = document.getElementById("nodeInfo");
-        if (nodeInfoDiv) {
-          nodeInfoDiv.style.display = "none";
+          // Get the width of the hidden div
+          const textWidth = tempDiv.node().getBoundingClientRect().width;
+        
+          // Remove the temporary div from the DOM
+          tempDiv.remove();
+        
+          return textWidth;
         }
-      }
+        
+        function ticked() {
+          link
+            .attr("x1", (d: any) => d.source.x)
+            .attr("y1", (d: any) => d.source.y)
+            .attr("x2", (d: any) => d.target.x)
+            .attr("y2", (d: any) => d.target.y);
 
-      document.addEventListener("click", hideNodeInfo);
+          node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+          // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+          nodeTitles.text((d:any) => d.id);
+        }
 
-      const node = container
-        .append("g")
-        .attr("fill", nodeFill)
-        .attr("stroke", nodeStroke)
-        .attr("stroke-opacity", nodeStrokeOpacity)
-        .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
-        .data(nodes)
-        .join("circle")
-        .attr("r", nodeRadius)
-        .attr("fill", (d: any) => {
-          // console.log("d", d);
-          const color = getColorByTag(d.tag);
-          return color;
-        })
-        .on("mouseover", handleMouseOver) // Add mouseover event listener
-        .on("mouseout", handleMouseOut)
-        .on("click", handleNodeClick)
-        .classed("node-pointer", true)
-        .call(drag(simulation) as any, drag(simulation));
+        function handleMouseOver(this: any, event: any, d: any) {
+          // console.log('hello mouseover')
+          // Set the initial state before transitioning
+          d3.select(this as SVGElement)
+            // .attr("fill", "red") // Change to your desired color
+            .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+            .attr("fill-opacity", 1); // Set initial opacity to 1
 
-      // Append text labels to the container, positioned near the nodes
-      const nodeText = container
-        .append("g")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "7px") // Adjust the font size based on your preference
-        .text((d) => d.id)
-        .attr('fill' , textColorForNode);
+          // Initialize the links with their original stroke color and opacity
+          link
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return linkStroke; // Original link color
+              } else {
+                return linkStroke;
+              }
+            })
+            .attr("stroke-opacity", linkStrokeOpacity);
 
-      const nodeTitles = container
-        .append("g")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d) => d.id);
+          // Initialize the nodes with their original fill color and opacity
+          node.attr("fill-opacity", (nodeData) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
 
-      // In the ticked function, update the positions of text and title elements
+            nodeText
+            .transition().duration(300)
+            .style('opacity' , (nodeData:any) => {
+              if (nodeData === d) {
+                return 1
+              } else if (areNodesConnected(nodeData , d)) {
+                return 1
+              } else {
+                return 0.1
+              }
+            })
+            .style("font-size", (nodeData:any) => {
+              return nodeData === d ? '12px' : '8px'
+            })
 
-      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-      if (W) link.attr("stroke-width", (d: Link, i: number) => `${W[i]}`);
-      if (L) link.attr("stroke", (d: Link, i: number) => `${L[i]}`);
-      if (G && color) {
-        node.attr("fill", (_, i) => color(G[i]));
-      }
-      if (T) {
-        node.append("title").text((d: Node, i: number) => String(T[i]));
-      }
+          // Start the transition
+          d3.select(this as SVGElement)
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("r", nodeRadius); // Optionally, increase the node size
 
-      if (invalidation != null) {
-        // invalidation.then(() => {
-        //   // Handle invalidation here
-        //   simulation.stop();
-        // });
-      }
+          // Change the color of the links directly connected to the hovered node
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return "red"; // Change to your desired link color
+              } else {
+                return linkStroke;
+              }
+            });
 
-      function intern(value: any) {
-        return value !== null && typeof value === "object"
-          ? value.valueOf()
-          : value;
-      }
+          // Transition to reduce the opacity of nodes that are not directly connected
+          node
+            .transition()
+            .duration(600)
+            .attr("fill-opacity", (nodeData) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
 
-      function ticked() {
-        link
-          .attr("x1", (d: any) => d.source.x)
-          .attr("y1", (d: any) => d.source.y)
-          .attr("x2", (d: any) => d.target.x)
-          .attr("y2", (d: any) => d.target.y);
-        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-        nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-        nodeTitles.text((d) => d.id);
-      }
+          // Transition to reduce the opacity of links that are not directly connected
+          link
+            .transition()
+            .duration(600)
+            .attr("stroke-opacity", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return 1; // Opacity of links directly connected to the hovered node
+              } else {
+                return 0; // Opacity of other links
+              }
+            });
 
-      function handleMouseOver(this: any, event: any, d: any) {
-        // Set the initial state before transitioning
-        d3.select(this as SVGElement)
-          // .attr("fill", "red") // Change to your desired color
-          .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
-          .attr("fill-opacity", 1); // Set initial opacity to 1
+          // console.log("Hovered Nodes:", hoveredNodes);
+        }
 
-        // Initialize the links with their original stroke color and opacity
-        link
-          .attr("stroke", (linkData) => {
-            if (linkData.source === d || linkData.target === d) {
-              return linkStroke; // Original link color
-            } else {
-              return linkStroke;
-            }
+        function handleMouseOut(this: any) {
+          d3.select(this)
+            // .attr("fill", nodeFill) // Reset to the original node color
+            .attr("r", nodeRadius) // Reset to the original node size
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("fill-opacity", 1); // Reset opacity
+
+          // Reset the color and opacity of all links to their original values with a transition
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", linkStroke)
+            .attr("stroke-opacity", linkStrokeOpacity);
+
+          // Reset the opacity of all nodes to their original value with a transition
+          node.transition().duration(200).attr("fill-opacity", 1);
+
+          nodeText.transition().duration(200)
+            .style('opacity' , 1)
+            .style('font-size', '8px')
+        }
+
+        function areNodesConnected(node1: any, node2: any) {
+          // Check if two nodes are directly connected through a link
+          return links.some((linkData: any) => {
+            return (
+              (linkData.source === node1 && linkData.target === node2) ||
+              (linkData.source === node2 && linkData.target === node1)
+            );
+          });
+        }
+
+        function drag(simulation: any) {
+          function dragstarted(event: any) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+          }
+
+          function dragged(event: any) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+          }
+
+          function dragended(event: any) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+          }
+
+          return d3
+            .drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+        }
+
+        document.addEventListener("click", hideNodeInfo);
+
+        const node = container
+          .append("g")
+          .attr("id", "nodes-g-tag")
+          .attr("fill", nodeFill)
+          .attr("stroke", nodeStroke)
+          .attr("stroke-opacity", nodeStrokeOpacity)
+          .attr("stroke-width", nodeStrokeWidth)
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .attr("r", nodeRadius)
+          .attr("fill", (d: any) => {
+            const color = getColorByTag(d.tag);
+            return color;
           })
-          .attr("stroke-opacity", linkStrokeOpacity);
+          .on("mouseover", handleMouseOver) // Add mouseover event listener
+          .on("mouseout", handleMouseOut)
+          .on("click", handleNodeClick)
+          .classed("node-pointer", true)
+          .call(drag(simulation) as any, drag(simulation));
 
-        // Initialize the nodes with their original fill color and opacity
-        node.attr("fill-opacity", (nodeData) => {
-            if (nodeData === d) {
-              return 1; // Opacity of the hovered node
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1; // Opacity of directly connected nodes
-            } else {
-              return 0.1; // Opacity of other nodes
-            }
-          });
+        // Append text labels to the container, positioned near the nodes
+        const nodeText = container
+          .append("g")
+          .attr("id", "text-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("text")
+          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+          .attr("y", (d: any) => d.y + nodeRadius + 12)
+          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+          .style("font-size", "8px") // Adjust the font size based on your preference
+          .text((d:any) => d.id)
+          .attr('fill' , textColorForNode);
 
-        // Start the transition
-        d3.select(this as SVGElement)
-          .transition()
-          .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+        const nodeTitles = container
+          .append("g")
+          .attr("id", "titles-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("title")
+          .text((d:any) => d.id);
 
-        // Change the color of the links directly connected to the hovered node
-        link
-          .transition()
-          .duration(400)
-          .attr("stroke", (linkData) => {
-            if (linkData.source === d || linkData.target === d) {
-              return "red"; // Change to your desired link color
-            } else {
-              return linkStroke;
-            }
-          });
+        // In the ticked function, update the positions of text and title elements
 
-        // Transition to reduce the opacity of nodes that are not directly connected
-        node
-          .transition()
-          .duration(600)
-          .attr("fill-opacity", (nodeData) => {
-            if (nodeData === d) {
-              return 1; // Opacity of the hovered node
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1; // Opacity of directly connected nodes
-            } else {
-              return 0.1; // Opacity of other nodes
-            }
-          });
+        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+        if (G && color) {
+          node.attr("fill", (_, i) => color(G[i]));
+        }
+        if (T) {
+          node.append("title").text((d: any, i: any) => String(T[i]));
+        }
 
-        // Transition to reduce the opacity of links that are not directly connected
-        link
-          .transition()
-          .duration(600)
-          .attr("stroke-opacity", (linkData) => {
-            if (linkData.source === d || linkData.target === d) {
-              return 1; // Opacity of links directly connected to the hovered node
-            } else {
-              return 0; // Opacity of other links
-            }
-          });
+        if (invalidation != null) {
+          // invalidation.then(() => {
+          //   // Handle invalidation here
+          //   simulation.stop();
+          // });
+        }
 
-        // console.log("Hovered Nodes:", hoveredNodes);
+        const svgElement = svg.node() as SVGSVGElement;
+        const result = {
+          scales: { color },
+          svg: svgElement,
+        };
+
+        setCheckGraphStatus(true)
+        const previousNodes = [...nodes]
+        const previousLinks = [...links]
+
+        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+        
+
+        return result;
+
+        // return Object.assign(svg.node(), { scales: { color } });
       }
 
-      function handleMouseOut(this: any) {
-        d3.select(this)
-          // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", nodeRadius) // Reset to the original node size
-          .transition()
-          .duration(400) // Transition duration in milliseconds
-          .attr("fill-opacity", 1); // Reset opacity
+    function WanderGraph(
+      { nodes, links }: { nodes: any; links: any },
+      {
+        nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
+        nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
+        nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
+        nodeTitle = null, // given d in nodes, a title string
+        nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
+        nodeStroke = "#fff", // node stroke color
+        nodeStrokeWidth = 0, // node stroke width, in pixels
+        nodeStrokeOpacity = 1, // node stroke opacity
+        nodeRadius = 5, // node radius, in pixels
+        nodeStrength = -30,
+        linkSource = ({ source }: { source: string }) => source, // Specify the type as string
+        linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
+        linkStroke = graphLinkColor, // link stroke color
+        linkStrokeOpacity = 1, // link stroke opacity
+        linkStrokeWidth = 1, // given d in links, returns a stroke width in pixels
+        linkStrokeLinecap = "round", // link stroke linecap
+        linkStrength = 0.3,
+        colors = d3.schemeTableau10, // an array of color strings, for the node groups
+        width = 640, // outer width, in pixels
+        height = 400, // outer height, in pixels
+        invalidation = undefined // when this promise resolves, stop the simulation
+      } = {}
+    ) {
+        // Compute values.
+        const N = d3.map(nodes, nodeId).map(intern);
+        const LS = d3.map(links, linkSource).map(intern);
+        const LT = d3.map(links, linkTarget).map(intern);
+        if (nodeTitle === null) {
+          let nodeTitle = (_: any, i: any) => N[i];
+        }
+        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
-        // Reset the color and opacity of all links to their original values with a transition
-        link
-          .transition()
-          .duration(400)
-          .attr("stroke", linkStroke)
-          .attr("stroke-opacity", linkStrokeOpacity);
+        // Replace the input nodes and links with mutable objects for the simulation.
 
-        // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
-      }
 
-      function areNodesConnected(node1: any, node2: any) {
-        // Check if two nodes are directly connected through a link
-        return links.some((linkData: any) => {
-          return (
-            (linkData.source === node1 && linkData.target === node2) ||
-            (linkData.source === node2 && linkData.target === node1)
-          );
+        let formattingNodes:any = []
+        let notFoundNodes:any = []
+
+        nodes.forEach((eachNode:any) => {
+          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
+
+          if (matchingNodeIndex !== -1) {
+            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+          } else {
+            notFoundNodes.push(eachNode)
+            // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
+            // console.log('nodeArray' , nodeArray)
+            // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+            // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
+            // console.log('currentNodeMap',currentNodeMap)
+          }
         });
-      }
 
-      function drag(simulation: any) {
-        function dragstarted(event: any) {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          event.subject.fx = event.subject.x;
-          event.subject.fy = event.subject.y;
+        // setPreviousGraphData({})
+
+        // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
+        // const allNodes = formattingNodes.concat(notFoundNodesMap);
+        // nodes = [...allNodes]
+
+        
+        // console.log('nodes' , nodes)
+        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+        // const linksCopy = _.cloneDeep(links)
+
+        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+        let formattingNodeCopy = formattingNodes;
+
+        nodes.forEach((node:any , index:any) => {
+          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
+          if(nodeReplacement) {
+            nodeReplacement.fx = nodeReplacement.x;
+            nodeReplacement.fy = nodeReplacement.y;
+        
+            // Update the node in the nodes array
+            nodes[index] = nodeReplacement;
+          }
+        })
+        
+
+        links.forEach((link:any , index:any) => {
+          if (typeof link.source === 'string') {
+            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
+            if (sourceObject) {
+              links[index].source = sourceObject
+            }
+          }
+        
+          // Check if target is a string, and convert it to an object if needed
+          if (typeof link.target === 'string') {
+            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
+            if (targetObject) {
+              links[index].target = targetObject
+            }
+          }
+        });
+
+        // console.log('formattingNodeCopy',formattingNodeCopy)
+
+
+        // Compute default domains.
+        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+        // Construct the scales.
+        // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+        // Construct the forces.
+        const forceNode = d3.forceManyBody();
+        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+        function ticked() {
+
+          console.log('helllllo')
+        
+          link
+            .attr("x1", (d: any) => {
+              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+                return checkEachNode.id === d.source.id
+              })
+              if(xmark) {
+                return xmark.x
+              }
+              else {
+                // console.log('d',d)
+                if(nodes) {
+                  const sourceXMark = nodes.find((checkEachNode:any) => {
+                    return checkEachNode.id === d.source.id
+                  })
+                  if(sourceXMark) {
+                    return sourceXMark.x
+                  }
+                } 
+              }
+            })
+            .attr("y1", (d: any) => {
+              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+                return checkEachNode.id === d.source.id
+              })
+              if(xmark) {
+                return xmark.y
+              }
+              else {
+                // console.log('d',d)
+                if(nodes) {
+                  const sourceXMark = nodes.find((checkEachNode:any) => {
+                    return checkEachNode.id === d.source.id
+                  })
+                  if(sourceXMark) {
+                    return sourceXMark.y
+                  }
+                } 
+              }
+            })
+            .attr("x2", (d: any) => {
+              return d.target.x
+            })
+            .attr("y2", (d: any) => {
+              return  d.target.y
+            });
+
+
+          
+            
+          node
+            .attr('cx' , (d:any) => d.x)
+            .attr('cy' , (d:any) => d.y)
+            // .attr("cx", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.x
+            //   }
+            //   else {
+            //     return d.x
+            //   }
+            // })
+            // .attr("x", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.x
+            //   }
+            //   else {
+            //     return d.x
+            //   }
+            // })
+            // .attr("y", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.y
+            //   }
+            //   else {
+            //     return d.y
+            //   }
+            // })
+            // .attr("cy", (d: any) => {
+            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            //     return checkEachNode.id === d.id
+            //   })
+            //   if(xmark) {
+            //     return xmark.y
+            //   }
+            //   else {
+            //     return d.y
+            //   }
+            // });
+
+          nodeText
+          .attr("x", (d: any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.x - (getNodeTextWidth(d) / 4.5)
+            }
+            else {
+              return d.x - (getNodeTextWidth(d) / 4.5)
+            }
+            
+          })
+          .attr("y", (d: any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.y + 12
+            }
+            else {
+              return d.y + 12
+            }
+            
+          });
+
+
+          nodeTitles
+          .text((d:any) => {
+            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+              return checkEachNode.id === d.id
+            })
+            if(xmark) {
+              return xmark.id
+            }
+            else {
+              return d.id
+            }
+          });
+
+          formattingNodes = []
+          formattingNodeCopy = []
+
+
+          // console.log('link',link)
         }
 
-        function dragged(event: any) {
-          event.subject.fx = event.x;
-          event.subject.fy = event.y;
+        function zoomed(event: any) {
+          container.attr("transform", event.transform);
         }
 
-        function dragended(event: any) {
-          if (!event.active) simulation.alphaTarget(0);
-          event.subject.fx = null;
-          event.subject.fy = null;
+        function getColorByTag(tag: string) {
+          const tagColors: Record<string, string> = {};
+          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+
+          themeBasedColors.data.forEach((colorGroup:any) => {
+            const tag = colorGroup.tag;
+            tagColors[tag] = colorGroup.color;
+          });
+
+          return tagColors[tag] || nodeFill;
         }
 
-        return d3
-          .drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended);
-      }
-      // console.log("svg", svg);
-      const svgElement = svg.node() as SVGSVGElement; // Cast svg.node() to SVGSVGElement
-      const result = {
-        scales: { color },
-        svg: svgElement, // Assign the SVG element
-      };
+        function handleNodeClick(event: any, d: any) {
+          // console.log(event, d);
+          setFileOpenedFromGraph(d);
+          // Get the div element and set its content based on the clicked node
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
 
-      return result;
+          // Position the div over the clicked node
+          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
 
-      // return Object.assign(svg.node(), { scales: { color } });
+          
+
+          // Show the div
+          nodeInfoDiv.style.display = "flex";
+
+          // Prevent the click event from propagating further (e.g., to zoom or drag)
+          event.stopPropagation();
+        }
+
+        function hideNodeInfo() {
+          const nodeInfoDiv: any = document.getElementById("nodeInfo");
+          if (nodeInfoDiv) {
+            nodeInfoDiv.style.display = "none";
+          }
+        }
+
+        function intern(value: any) {
+          return value !== null && typeof value === "object" ? value.valueOf() : value;
+        }
+
+        function getNodeTextWidth(d: any) {
+          // Create a hidden div to measure the text width
+          const tempDiv:any = d3.select('body')
+            .append('div')
+            .attr('class', 'temp-text-container')
+            .style('position', 'absolute')
+            .style('visibility', 'hidden')
+            .text(d.id);
+        
+          // Get the width of the hidden div
+          const textWidth = tempDiv.node().getBoundingClientRect().width;
+        
+          // Remove the temporary div from the DOM
+          tempDiv.remove();
+        
+          return textWidth;
+        }
+
+        function handleMouseOver(this: any, event: any, d: any) {
+          nodes.forEach((node:any) => {
+            node.fx = null;
+            node.fy = null;
+          });
+          // console.log('event' , event, 'nodes' , nodes)
+          
+          // Set the initial state before transitioning
+          d3.select(this as SVGElement)
+            // .attr("fill", "red") // Change to your desired color
+            .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+            .attr("fill-opacity", 1); // Set initial opacity to 1
+
+          // Initialize the links with their original stroke color and opacity
+          link
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return linkStroke; // Original link color
+              } else {
+                return linkStroke;
+              }
+            })
+            .attr("stroke-opacity", linkStrokeOpacity);
+
+          // Initialize the nodes with their original fill color and opacity
+          node
+            .attr("fill-opacity", (nodeData:any) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
+          
+          nodeText
+            .transition().duration(300)
+            .style('opacity' , (nodeData:any) => {
+              if (nodeData === d) {
+                return 1
+              } else if (areNodesConnected(nodeData , d)) {
+                return 1
+              } else {
+                return 0.1
+              }
+            })
+            .style("font-size", (nodeData:any) => {
+              return nodeData === d ? '12px' : '8px'
+            })
+
+          // Start the transition
+          d3.select(this as SVGElement)
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("r", nodeRadius); // Optionally, increase the node size
+
+          // Change the color of the links directly connected to the hovered node
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return "red"; // Change to your desired link color
+              } else {
+                return linkStroke;
+              }
+            });
+
+          // Transition to reduce the opacity of nodes that are not directly connected
+          node
+            .transition()
+            .duration(600)
+            .attr("fill-opacity", (nodeData:any) => {
+              if (nodeData === d) {
+                return 1; // Opacity of the hovered node
+              } else if (areNodesConnected(nodeData, d)) {
+                return 1; // Opacity of directly connected nodes
+              } else {
+                return 0.1; // Opacity of other nodes
+              }
+            });
+
+          // nodeText
+          //   .transition()
+          //   .duration(600)
+          //   .style('opacity' , (nodeData:any) => {
+          //     if (nodeData === d) {
+          //       return 1
+          //     } else if (areNodesConnected(nodeData , d)) {
+          //       return 1
+          //     } else {
+          //       return 0.1
+          //     }
+          //   })
+
+          // Transition to reduce the opacity of links that are not directly connected
+          link
+            .transition()
+            .duration(600)
+            .attr("stroke-opacity", (linkData:any) => {
+              if (linkData.source === d || linkData.target === d) {
+                return 1; // Opacity of links directly connected to the hovered node
+              } else {
+                return 0; // Opacity of other links
+              }
+            });
+
+
+
+          // console.log("Hovered Nodes:", hoveredNodes);
+        }
+
+        function handleMouseOut(this: any) {
+          d3.select(this)
+            // .attr("fill", nodeFill) // Reset to the original node color
+            .attr("r", nodeRadius) // Reset to the original node size
+            .transition()
+            .duration(400) // Transition duration in milliseconds
+            .attr("fill-opacity", 1); // Reset opacity
+
+          // Reset the color and opacity of all links to their original values with a transition
+          link
+            .transition()
+            .duration(400)
+            .attr("stroke", linkStroke)
+            .attr("stroke-opacity", linkStrokeOpacity);
+
+          // Reset the opacity of all nodes to their original value with a transition
+          node.transition().duration(200).attr("fill-opacity", 1);
+          nodeText.transition().duration(200)
+            .style('opacity' , 1)
+            .style('font-size', '8px')
+            
+        }
+
+        function areNodesConnected(node1: any, node2: any) {
+          return links.some((linkData: any) => {
+            return (
+              (linkData.source === node1 && linkData.target === node2) ||
+              (linkData.source === node2 && linkData.target === node1)
+            );
+          });
+        }
+
+        function drag(simulation: any) {
+          
+          
+          function dragstarted(event: any) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+          }
+
+          function dragged(event: any) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+          }
+
+          function dragended(event: any) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+          }
+
+          
+          return d3
+            .drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+        }
+
+      
+        
+
+        // console.log("nodes ", nodes);
+        const customNodes: any = nodes;
+
+        const simulation = d3
+          .forceSimulation(customNodes)
+          .force("link", forceLink)
+          .force("charge", d3.forceManyBody().strength(sliderValue))
+          .force("center", d3.forceCenter().strength(centerForceValue))
+          .on("tick", ticked);
+
+
+        // const svg = d3
+        // .create("svg")
+        // .attr("width", width)
+        // .attr("height", height)
+        // .attr("viewBox", [-width / 2, -height / 2, width, height])
+        // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+        // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+        
+        // const svg:any = document.querySelector("#graph-div svg");
+        const svgContainer = d3.select('#graph-div');
+        const gElement = svgContainer.select('svg');
+        const svg = gElement.select('g');
+      
+        const container = svg
+
+        container.select("#links-g-tag").remove();
+        const link = container
+          .append("g")
+          .attr("id", "links-g-tag")
+          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+          .attr("stroke-opacity", linkStrokeOpacity)
+          .attr(
+            "stroke-width",
+            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+          )
+          .attr("stroke-linecap", linkStrokeLinecap)
+          .selectAll("line")
+          .data(links)
+          .join("line");
+
+         
+
+
+        container.select("#nodes-g-tag").remove();
+        // console.log('checkhere now nodes  ' , nodes)
+        const node = container
+          .append("g")
+          .attr("id", "nodes-g-tag")
+          .attr("fill", nodeFill)
+          .attr("stroke", nodeStroke)
+          .attr("stroke-opacity", nodeStrokeOpacity)
+          .attr("stroke-width", nodeStrokeWidth)
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .attr("id", (d:any) => `node-${d.id}`)
+          .attr("r", nodeRadius)
+          .attr("fill", (d: any) => {
+            const color = getColorByTag(d.tag);
+            return color;
+          })
+          .on("mouseover", handleMouseOver) // Add mouseover event listener
+          .on("mouseout", handleMouseOut)
+          .on("click", handleNodeClick)
+          .classed("node-pointer", true)
+          .call(drag(simulation) as any, drag(simulation));
+
+        // // Append text labels to the container, positioned near the nodes
+        container.select("#text-g-tag").remove();
+        const nodeText = container
+          .append("g")
+          .attr("id", "text-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("text")
+          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+          .attr("y", (d: any) => d.y + nodeRadius + 12)
+          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+          .style("font-size", "8px") // Adjust the font size based on your preference
+          .text((d:any) => d.id)
+          .attr('fill' , textColorForNode);
+
+        container.select("#titles-g-tag").remove();
+        const nodeTitles = container
+          .append("g")
+          .attr("id", "titles-g-tag")
+          .selectAll("title")
+          .data(nodes)
+          .join("title")
+          .text((d:any) => d.id);
+
+
+        const zoom: any = d3.zoom().on("zoom", zoomed);
+        svg.call(zoom);
+
+        document.addEventListener("click", hideNodeInfo);
+
+        // // In the ticked function, update the positions of text and title elements
+
+        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+        // if (G && color) {
+        //   node.attr("fill", (_:any, i:any) => color(G[i]));
+        // }
+        if (T) {
+          node.append("title").text((d: any, i: any) => String(T[i]));
+        }
+
+        if (invalidation != null) {
+          (invalidation as Promise<void>).then(() => {
+            // Handle invalidation here
+            simulation.stop();
+          });
+        }
+        
+
+        const svgElement = svg.node() as SVGSVGElement;
+        const result = {
+          // scales: { color },
+          svg: svgElement,
+        };
+
+
+        
+
+        const previousNodes = [...nodes]
+        const previousLinks = [...links]
+
+        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+        
+
+        return result;
+
+        // return Object.assign(svg.node(), { scales: { color } });
     }
 
     const options: any = {
@@ -2374,16 +3816,23 @@ const Sidebar = () => {
       height: graphHeight,
     };
 
-    // console.log("graphData: ", graphData);
-    // console.log("graphNewData", graphNewData);
-
-    let svgResult: any = ForceGraph(graphNewData, options);
-
-    const graphDiv = document.getElementById("graph-div");
-
-    if (graphDiv) {
-      graphDiv.appendChild(svgResult.svg);
+    let svgResult:any
+    if(checkGraphStatus) {
+      // WanderGraph(graphNewData , options)
+      svgResult = WanderGraph(graphNewData, options)
+      
+    } else {
+      svgResult = ForceGraph(graphNewData, options);
+      if(element) {
+        element.appendChild(svgResult.svg);
+      } else {
+        const graphDiv:any = document.getElementById("graph-div");
+          graphDiv.appendChild(svgResult.svg);
+      }
     }
+
+    
+    
   };
 
 
@@ -2512,7 +3961,7 @@ const Sidebar = () => {
       const newDataObject = await response.json();
       // console.log("responseJson: ", responseJson);
 
-      console.log("newDataObject", newDataObject);
+      // console.log("newDataObject", newDataObject);
       marked.setOptions({
         breaks: true,
       });
@@ -2874,6 +4323,7 @@ const Sidebar = () => {
       // console.log('wordsarray' , wordsArray)
       
       try {
+        setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
@@ -2938,6 +4388,7 @@ const Sidebar = () => {
             // let graphNewData = resultData;
           setGraphData(updatedGraphData);
           makeGraph(updatedGraphData);
+          setGraphSearchLoader(false)
           // console.log("match count");
           // Remove HTML tags from underlined word
 
@@ -3004,9 +4455,11 @@ const Sidebar = () => {
           }          
         }
       } catch (error) {
+        setGraphSearchLoader(false)
         console.log("Error getting wander node files:", error);
       }
     } else {
+      setGraphSearchLoader(true)
       console.log("No matching result found.");
       axios.post(`/api/search?q=${fileOpenedFromGraph.id}`).then((response) => {
         console.log("response:", response.data);
@@ -3119,11 +4572,13 @@ const Sidebar = () => {
                     // let graphNewData = resultData;
                     setGraphData(updatedGraphData);
                     makeGraph(updatedGraphData);
+                    setGraphSearchLoader(false)
                     // console.log("match count");
                   }
                 });
             } catch (error) {
               // Handle errors here
+              setGraphSearchLoader(false)
               console.log("Error:", error);
             }
           }
@@ -4837,23 +6292,23 @@ const Sidebar = () => {
         {/* =====Search Bar=======================================  */}
         <div className={"menuBtn"}>
           {graphOrTextView ? (
-            <>
+            <div style={{position: 'relative' , width:'100%'}}>
               {textSearchLoader && (
-                <CircularProgress size={16} style={{color: 'black'}} />
+                <CircularProgress size={16} style={{color: 'black' , position:'absolute' , left: '-24px' , top:'12px' }}/>
               )}
               <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
                 onChange={handleSearch}
               />
-            </>
+           </div>
           ) : (
-            <>
+            <div style={{position: 'relative' , width:'100%'}}>
               {graphSearchLoader && (
-                <CircularProgress size={16} style={{color: 'black'}} />
+                <CircularProgress size={16} style={{color: 'black' , position:'absolute' , left: '-24px' , top:'12px'}}/>
               )}
               <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
                 onChange={handleGraphSearch}
               />
-            </>
+            </div>
           )}
 
           <div className="copy-icon">
@@ -5265,56 +6720,58 @@ const Sidebar = () => {
           <div className="graph-container">
             <div id="graph-div" className="graph-div"></div>
 
-            {showColorSetting ? (
-              <>
-                <div className="graph-color-setting">
+            {/* <div>
+              {showColorSetting ? (
+                <>
+                  <div className="graph-color-setting">
 
-                  <div className="graph-color-setting-close-div">
-                    <h5>Groups</h5>
-                    <button onClick={() => setShowColorSetting(false)}>
-                      <CloseIcon></CloseIcon>
+                    <div className="graph-color-setting-close-div">
+                      <h5>Groups</h5>
+                      <button onClick={() => setShowColorSetting(false)}>
+                        <CloseIcon></CloseIcon>
+                      </button>
+                    </div>
+
+                    {showAddGraphNodeColor.length > 0 && (
+                      <div>
+                        {showAddGraphNodeColor.map((group:any, index:any) => (
+                          <div key={index} className="graph-node-new-color">
+                            <input type="text"
+                              placeholder="Enter tag"
+                              className="node-new-color-text"
+                              value={group.tag}
+                              onChange={(e) => handleNodeColorTagChange(group, e.target.value)}
+                            />
+                            <div className="color-input-wrapper">
+                              <input type='color'
+                                value={group.color}
+                                onChange={(e) => handleNodeColorChange(index, e.target.value)}
+                                onBlur={(e) => handleColorInputBlur(index, e.target.value , group)}
+                                className="node-new-colorpicker "/>
+                            </div>
+                            <button onClick={() => handleRemoveNodeColor(group)}>
+                              <CloseIcon></CloseIcon>
+                            </button>
+                          </div>
+                        ))}
+
+                      </div>
+                    )}
+
+                    <div className="graph-color-group-div">
+                      <button onClick={handleAddNewColor}>New Group</button>
+                    </div>
+                  </div>
+                </>):(
+                <>
+                  <div className="graph-color-setting-icon">
+                    <button onClick={() => setShowColorSetting(true)}>
+                      <SettingsIcon></SettingsIcon>
                     </button>
                   </div>
-
-                  {showAddGraphNodeColor.length > 0 && (
-                    <div>
-                      {showAddGraphNodeColor.map((group:any, index:any) => (
-                        <div key={index} className="graph-node-new-color">
-                          <input type="text"
-                            placeholder="Enter tag"
-                            className="node-new-color-text"
-                            value={group.tag}
-                            onChange={(e) => handleNodeColorTagChange(group, e.target.value)}
-                          />
-                          <div className="color-input-wrapper">
-                            <input type='color'
-                              value={group.color}
-                              onChange={(e) => handleNodeColorChange(index, e.target.value)}
-                              onBlur={(e) => handleColorInputBlur(index, e.target.value , group)}
-                              className="node-new-colorpicker "/>
-                          </div>
-                          <button onClick={() => handleRemoveNodeColor(group)}>
-                            <CloseIcon></CloseIcon>
-                          </button>
-                        </div>
-                      ))}
-
-                    </div>
-                  )}
-
-                  <div className="graph-color-group-div">
-                    <button onClick={handleAddNewColor}>New Group</button>
-                  </div>
-                </div>
-              </>):(
-              <>
-                <div className="graph-color-setting-icon">
-                  <button onClick={() => setShowColorSetting(true)}>
-                    <SettingsIcon></SettingsIcon>
-                  </button>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div> */}
 
             
           </div>
