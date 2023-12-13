@@ -7,14 +7,14 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
 import pg from 'pg';
 
-const { Pool } = pg;
+// const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL + "?sslmode=require",
-})
+// const pool = new Pool({
+//     connectionString: process.env.POSTGRES_URL + "?sslmode=require",
+// })
 
 
-export default async function search(req, res) {
+export default async function wanderNode(req, res) {
     if (req.method === 'GET') {
 
         try {
@@ -23,7 +23,11 @@ export default async function search(req, res) {
             const wordsArrayRaw = req.query.q.split(',');
             const uniqueWordsSet = new Set(wordsArrayRaw);
             const wordsArray = Array.from(uniqueWordsSet);
-            console.log('tableNames', tableNames);
+            const inputValue = req.query.sa.replace(/,/g, ' ');
+            // console.log('req inputValue:', inputValue);
+            const inputWalueCheck = req.query.sa.split(',');
+            // console.log('req graph input check: ', inputWalueCheck)
+            // console.log('tableNames', tableNames);
 
             const db = drizzle(sql)
 
@@ -70,7 +74,7 @@ export default async function search(req, res) {
             const finalObjects = [...matchedObjects, ...missingObjects];
 
             // adding tag to the results
-            const updatedObjects = finalObjects.map((obj) => {
+            let updatedObjects = finalObjects.map((obj) => {
                 // Extract the first word after '#' from the content using a regular expression
                 const match = obj.content.match(/#(\w+)/);
                 const tag = match ? match[1] : null;
@@ -84,11 +88,33 @@ export default async function search(req, res) {
                 };
             });
 
-            // console.log('Updated objects:', updatedObjects);
+            const filteredWords = inputWalueCheck.filter(word => word.startsWith('-'));
 
+            for (let i = 0; i < filteredWords.length; i++) {
+                if (filteredWords[i].startsWith("-")) {
+                    filteredWords[i] = filteredWords[i].substring(1);
+                }
+            }
 
+            console.log('filteredWords', filteredWords)
 
+            const options = {
+                selector: (item) => `${item.fileName} (${item.content})`,
+                casing: "case-insensitive",
+                fuzzy: false,
+            };
 
+            updatedObjects = updatedObjects.filter(obj => {
+                const tag = obj.tag.toLowerCase().replace(/^#/, '');;
+
+                if (filteredWords.includes(`#${tag}`)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            console.log('Updated filtered objects:', updatedObjects);
 
             res.status(200).json(updatedObjects);
         }

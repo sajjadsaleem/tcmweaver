@@ -153,6 +153,7 @@ const Sidebar = () => {
   const [graphSize, setGraphSize] = useState({ width: 0, height: 0 });
   const [checkGraphStatus , setCheckGraphStatus] = useState<any>(false)
   const [previousGraphData , setPreviousGraphData] = useState<any>({})
+  const [graphSearchWordsArray , setGraphSearchWordsArray] = useState<any>([])
   
   
 
@@ -459,7 +460,7 @@ const Sidebar = () => {
 
   useEffect(()=> {
     if(!graphOrTextView){
-      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {    
+      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {    
         handleGraphForces(graphData)
       }
     }
@@ -468,7 +469,7 @@ const Sidebar = () => {
 
   useEffect(()=> {
     if(!graphOrTextView){
-      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {    
+      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {   
         handleGraphForces(graphData)
       }
     }
@@ -477,7 +478,7 @@ const Sidebar = () => {
 
   useEffect(()=> {
     if(!graphOrTextView){
-      if(sliderValue !== -40 && graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         handleGraphForces(graphData)
       }
     }
@@ -1025,18 +1026,7 @@ const Sidebar = () => {
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
-          .alphaTarget(0)
           .on("tick", ticked);
-
-
-        // const svg = d3
-        // .create("svg")
-        // .attr("width", width)
-        // .attr("height", height)
-        // .attr("viewBox", [-width / 2, -height / 2, width, height])
-        // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-        // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
 
         
         // const svg:any = document.querySelector("#graph-div svg");
@@ -1153,8 +1143,6 @@ const Sidebar = () => {
 
         setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
 
-        
-
         return result;
 
         // return Object.assign(svg.node(), { scales: { color } });
@@ -1169,6 +1157,7 @@ const Sidebar = () => {
 
     let svgResult:any
       svgResult = WanderGraph(graphNewData, options)
+      
   }
 
 
@@ -1379,7 +1368,7 @@ const Sidebar = () => {
 
           newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-          // console.log("newEntries: ", newEntries);
+          console.log("newEntries: ", newEntries.length);
 
           setSearchResults(newEntries);
           setTextSearchLoader(false)
@@ -1392,8 +1381,6 @@ const Sidebar = () => {
           setTextSearchLoader(false)
           console.log("Error fetching search results:", error);
         }
-
-        
       }, 300);
         
   };
@@ -1575,13 +1562,7 @@ const Sidebar = () => {
             
       internalId = setTimeout(async() => {
         try {
-
-          
-          // searchRequest += 1;
-          // const currentRequest = searchRequest;
-          
-          // searchRequest +=1
-          // console.log('searchRequest' , searchRequest)
+          setTextSearchLoader(true)
           const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
@@ -1606,9 +1587,9 @@ const Sidebar = () => {
 
           newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-          // console.log("newEntries: ", newEntries);
-
+          console.log("newEntries: ", newEntries);
           setSearchResults(newEntries);
+          setTextSearchLoader(false)
 
           // console.log(responseJson.data);
           // console.log('responseJson' , responseJson)
@@ -1790,6 +1771,7 @@ const Sidebar = () => {
         setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
+        setGraphSearchWordsArray(encodedWords)
         const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
           signal: controller.signal,
         });
@@ -1859,57 +1841,6 @@ const Sidebar = () => {
     const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
       (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
     );
-    // console.log("words array: ", wordsArray);
-
-    //changing filter status for each word in search bar
-    // wordsArray.forEach((word: any) => {
-    //   if (word.startsWith("-")) {
-    //     word = word.replace("-", "");
-    //     for (const category of allCheckboxes as any[]) {
-    //       for (const item of category.items) {
-    //         if (item.value.toLowerCase() === word.toLowerCase()) {
-    //           const categoryTitle = category.category;
-    //           const itemId = item.id;
-    //           // item.state = "checked";
-    //           // item.status = "exclude";
-    //           // console.log("item: ", item);
-
-    //           // console.log(`Word: ${word}`);
-    //           // console.log(`Category: ${categoryTitle}`);
-    //           // console.log(`Item ID: ${itemId}`);
-    //         }
-    //       }
-    //     }
-    //   } else if (!word.startsWith("-")) {
-    //     for (const category of allCheckboxes as any[]) {
-    //       for (const item of category.items) {
-    //         // console.log("item: ", item);
-    //         if (item.value.toLowerCase() === word.toLowerCase()) {
-    //           const categoryTitle = category.category;
-    //           const itemId = item.id;
-    //           item.state = "checked";
-    //           item.status = "include";
-    //         }
-    //       }
-    //     }
-    //   }
-    //   for (const category of allCheckboxes as any[]) {
-    //     for (const item of category.items) {
-    //       const lowerItemValue = item.value.toLowerCase();
-    //       const lowerWordsArray = wordsArray.map((word: any) =>
-    //         word.toLowerCase()
-    //       );
-
-    //       if (
-    //         !lowerWordsArray.includes(lowerItemValue) &&
-    //         !lowerWordsArray.includes(`-${lowerItemValue}`)
-    //       ) {
-    //         item.state = "unchecked";
-    //         item.status = "neutral";
-    //       }
-    //     }
-    //   }
-    // });
 
     const resultCalculateWithOR: any = [];
     let currentPair = [];
@@ -1927,6 +1858,7 @@ const Sidebar = () => {
         currentPair.push(word);
       }
     }
+
     if (currentPair.length > 0) {
       resultCalculateWithOR.push(currentPair);
     }
@@ -1982,12 +1914,13 @@ const Sidebar = () => {
         controller.abort()
       }
 
-      // cancelToken = axios.CancelToken.source()
       controller = new AbortController()
 
       try {
+        setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
+        setGraphSearchWordsArray(encodedWords)
         const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
           signal: controller.signal,
         });
@@ -2006,14 +1939,15 @@ const Sidebar = () => {
           .slice()
           .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
   
-        // console.log("newEntries: ", newEntries);
+        console.log("newEntries: ", newEntries);
+        console.log('graphdata' , graphData)
   
         setSearchResults(newEntries);
         generateGraphfromSearch(newEntries , inputValue);
+        setGraphSearchLoader(false)
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
-      // console.log('response' , responseJson)
 
     }, 300);
   };
@@ -2325,8 +2259,6 @@ const Sidebar = () => {
       const syntheticEvent = {
         target: { value: updatedValue },
       };
-
-
 
       if(graphOrTextView) {
         handleSearchFromFilters(syntheticEvent)
@@ -4295,6 +4227,7 @@ const Sidebar = () => {
 
   const wanderClickedNode = async () => {
     const updatedGraphData: any = { ...graphData };
+    // console.log('rawsearchresults' , rawSearchResults)
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
 
@@ -4308,8 +4241,8 @@ const Sidebar = () => {
       const underlinedWords: any = matchingResult.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
 
-      let count = 0;
-      let finalCount = 1;
+      // let count = 0;
+      // let finalCount = 1;
       let wordsArray
       if(underlinedWords){
         wordsArray = underlinedWords.map((span: any) => {
@@ -4320,14 +4253,14 @@ const Sidebar = () => {
         wordsArray = [matchingResult.fileName];
       }
 
-      // console.log('wordsarray' , wordsArray)
+      // console.log('graphSearchWordsArray',graphSearchWordsArray)
       
       try {
         setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
-        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}`)
+        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}`)
         if(response) {
 
           for (const entry of response.data) {
@@ -4346,7 +4279,7 @@ const Sidebar = () => {
             entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
           }
 
-          // console.log('response' , response.data)
+          console.log('response' , response.data)
 
 
           const linkTags = Object.keys(response.data).map((key) => {
@@ -4458,6 +4391,7 @@ const Sidebar = () => {
         setGraphSearchLoader(false)
         console.log("Error getting wander node files:", error);
       }
+
     } else {
       setGraphSearchLoader(true)
       console.log("No matching result found.");
@@ -5305,7 +5239,6 @@ const Sidebar = () => {
 
 
   const handleCenterForceCommitted = (event: any, newValue: any) => {
-    // console.log(newValue)
     setCenterForceValue(newValue)
   };
 
@@ -6292,30 +6225,31 @@ const Sidebar = () => {
         {/* =====Search Bar=======================================  */}
         <div className={"menuBtn"}>
           {graphOrTextView ? (
-            <div style={{position: 'relative' , width:'100%'}}>
-              {textSearchLoader && (
-                <CircularProgress size={16} style={{color: 'black' , position:'absolute' , left: '-24px' , top:'12px' }}/>
-              )}
+            <>
               <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
                 onChange={handleSearch}
               />
-           </div>
+           </>
           ) : (
-            <div style={{position: 'relative' , width:'100%'}}>
-              {graphSearchLoader && (
-                <CircularProgress size={16} style={{color: 'black' , position:'absolute' , left: '-24px' , top:'12px'}}/>
-              )}
+            <>
               <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
                 onChange={handleGraphSearch}
               />
-            </div>
+            </>
           )}
 
+
           <div className="copy-icon">
-            {themeChangericon ? (
-                <img src="/copy-content.png" alt="img" onClick={handleCopyText} />
-              ) : (
-                <img src="/copy-content-dark.png" alt="img" onClick={handleCopyText} />
+            {textSearchLoader || graphSearchLoader ? (
+              <CircularProgress size={16} style={{color: 'black'}}/>
+            ):(
+              <div onClick={handleCopyText} style={{cursor: 'pointer'}}>
+                {themeChangericon ? (
+                  <img src="/copy-content.png" alt="img" />
+                ) : (
+                  <img src="/copy-content-dark.png" alt="img" />
+                )}
+              </div>
             )}
             {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
             {isCopied && <div className="copy-tooltip">Copied!</div>}

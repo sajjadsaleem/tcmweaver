@@ -6,11 +6,11 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
 import pg from 'pg';
 
-const { Pool } = pg;
+// const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL + "?sslmode=require",
-})
+// const pool = new Pool({
+//     connectionString: process.env.POSTGRES_URL + "?sslmode=require",
+// })
 
 
 export default async function search(req, res) {
@@ -34,22 +34,14 @@ export default async function search(req, res) {
             const selectQueryJoint = `${table}`
             selectQuery.queryChunks[0].value[0] += selectQueryJoint
             const queryResult = await db.execute(drizzleSql`${selectQuery}`);
-            // const selectQuery = `SELECT * FROM ${table}`;
-            // const queryResult = await client.query(selectQuery);
             for (const item of queryResult.rows) {
                 if (typeof item === 'object' && item !== null) {
                     rows.push(item);
                 }
             }
         }
-        // console.log('rows nnowowerjwelrj', rows)
+
         const datasets = rows
-        // console.log(datasets.length)
-        // console.log('datasets', datasets)
-
-        // const datasets = await db.select().from(dataset);
-        // console.log('datasets', datasets)
-
 
 
         // Remove ".md" extension

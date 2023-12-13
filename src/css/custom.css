@@ -189,20 +189,19 @@
     width: 284px;
     margin: auto;
     margin-top: 1.5rem;
-    gap: 10px;
+    gap: 4px;
     height: 6.5%;
 }
 
 .menuBtn .copy-icon {
     margin-right: -20px;
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     /* background-color: #dbd9d9; */
-    cursor: pointer;
     position: relative;
 }
 
@@ -229,7 +228,7 @@
 }
 
 .copy-icon img {
-    width: 20px;
+    width: 16px;
     height: auto;
 }
 
