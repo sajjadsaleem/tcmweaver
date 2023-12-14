@@ -150,10 +150,11 @@ const Sidebar = () => {
   const [rawSearchResults , setRawSearchResults] = useState<any>([])
   const [textSearchLoader , setTextSearchLoader] = useState<any>(false)
   const [graphSearchLoader , setGraphSearchLoader] = useState<any>(false)
-  const [graphSize, setGraphSize] = useState({ width: 0, height: 0 });
+  const [graphSize, setGraphSize] = useState({ width: 640, height: 400 });
   const [checkGraphStatus , setCheckGraphStatus] = useState<any>(false)
   const [previousGraphData , setPreviousGraphData] = useState<any>({})
   const [graphSearchWordsArray , setGraphSearchWordsArray] = useState<any>([])
+  const [graphResizeChecker , setGraphResizeChecker] = useState<any>(false)
   
   
 
@@ -183,6 +184,7 @@ const Sidebar = () => {
   // console.log(textColorForNode)
   // console.log('previousGraphData' , previousGraphData)
   // console.log('checkGraphStatus', checkGraphStatus)
+  // console.log('graphsize' , graphSize)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -227,6 +229,29 @@ const Sidebar = () => {
   }, []);
 
 
+  useEffect(() => {
+    let element: any = document.getElementById("graph-div");
+    if (element && element.children) {
+      const hasSvg = Array.from(element.children).some((child:any) => child.tagName.toLowerCase() === 'svg');
+    console.log('fist if')
+      if (hasSvg) {
+        console.log('inner if')
+        handleGraphForces(graphData)
+      }
+    }
+
+  } , [graphLinkColor])
+
+
+  useEffect(()=> {
+    if(!graphOrTextView){
+      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+        handleGraphForces(graphData)
+      }
+    }
+  }, [graphSize])
+
+
   // set graph width and height
   useEffect(() => {
     const updateGraphSize = () => {
@@ -234,6 +259,7 @@ const Sidebar = () => {
       if (element) {
         const newWidth = element.offsetWidth;
         const newHeight = element.offsetHeight;
+        setGraphResizeChecker(true)
         setGraphSize({ width: newWidth, height: newHeight });
       }
     };
@@ -639,7 +665,7 @@ const Sidebar = () => {
 
         function ticked() {
 
-          console.log('ticked')
+          // console.log('ticked')
         
           link
             .attr("x1", (d: any) => {
@@ -1028,12 +1054,24 @@ const Sidebar = () => {
           .force("center", d3.forceCenter().strength(centerForceValue))
           .on("tick", ticked);
 
+          // const svg = d3
+          // .create("svg")
+          // .attr("width", graphSize.width)
+          // .attr("height", graphSize.height)
+          // .attr("viewBox", [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
+          // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+          // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
         
         // const svg:any = document.querySelector("#graph-div svg");
         const svgContainer = d3.select('#graph-div');
         const gElement = svgContainer.select('svg');
         const svg = gElement.select('g');
-      
+
+        
+        gElement.attr('width' , graphSize.width).attr('height' , graphSize.height)
+        gElement.attr('viewBox' , [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
+
         const container = svg
 
         container.select("#links-g-tag").remove();
@@ -1143,6 +1181,7 @@ const Sidebar = () => {
 
         setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
 
+        console.log('check graph data')
         return result;
 
         // return Object.assign(svg.node(), { scales: { color } });
@@ -1968,6 +2007,8 @@ const Sidebar = () => {
     setCheckGraphStatus(false)
     setPreviousGraphData([])
     setGraphData([])
+    setTextSearchLoader(false)
+    setGraphSearchLoader(false)
 
     if(graphOrTextView){
       setShouldShowFilters(true);
@@ -2152,28 +2193,27 @@ const Sidebar = () => {
 
 
   const handleThemeChangerClick = () => {
+
+   
     if(!themeChangericon){
       setTextColorForNode('#6C655C')
       setGraphLinkColor('#CFCCC7')
     } else {
       setTextColorForNode('#B3B3B5')
-      setGraphLinkColor('#565959')
-      
+      setGraphLinkColor('#565959')      
     }
+
     const currentTheme = !themeChangericon
     setThemeChangerIcon(!themeChangericon);
     const changeTheme = JSON.stringify(currentTheme)
     // console.log(changeTheme)
 
     localStorage.setItem('theme', changeTheme);
+
     const sideNav:any = document.querySelector(`.${"side-nav"}`);
-    // const mainPanel = document.querySelector(`.${"main"}`);
     const workspacePanel:any = document.querySelector(`.${"workspace-content"}`); 
    
     sideNav.classList.toggle("night-mode");
-    // mainPanel.classList.toggle("night-mode");
-  
-    // sideNav.classList.toggle("night-mode");
     workspacePanel.classList.toggle("night-mode");
 
     
@@ -2665,14 +2705,7 @@ const Sidebar = () => {
 
   const makeGraph = (graphNewData: any) => {
     let element: any = document.getElementById("graph-div");
-    // if (element) {
-    //   while (element.firstChild) {
-    //     element.removeChild(element.firstChild);
-    //   }
-    // }
-    
 
-    // Calculate the width and height
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
     
@@ -2688,7 +2721,7 @@ const Sidebar = () => {
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
         nodeStrokeOpacity = 1, // node stroke opacity
-        nodeRadius = 5, // node radius, in pixels
+        nodeRadius = 4, // node radius, in pixels
         nodeStrength = -30,
         linkSource = ({ source }: { source: string }) => source, // Specify the type as string
         linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
@@ -2737,40 +2770,7 @@ const Sidebar = () => {
         const customNodes: any = nodes;
         // console.log('nodes in force' , nodes)
 
-        const simulation = d3
-          .forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force('collide' , d3.forceCollide().strength(0))
-          .on("tick", ticked);
-
-        const svg = d3
-          .create("svg")
-          .attr("width", width)
-          .attr("height", height)
-          .attr("viewBox", [-width / 2, -height / 2, width, height])
-          .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-          .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-        const container = svg.append("g");
-
-        const link = container
-          .append("g")
-          .attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr(
-            "stroke-width",
-            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-          )
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
+        
 
         function zoomed(event: any) {
           container.attr("transform", event.transform);
@@ -3004,6 +3004,46 @@ const Sidebar = () => {
             .on("end", dragended);
         }
 
+        function calculateNodeRadius(d:any) {
+          // console.log('d' , d , links)
+          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
+          if(linkCount <= 4) {
+            return nodeRadius;
+          } else {
+            let checkLinkCount = linkCount - 4
+            let onePercentOfCheckLinkCount = 0.10 * checkLinkCount;
+            console.log(onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
+
+            return onePercentOfCheckLinkCount + 4;
+          }
+        }
+
+
+
+        const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
+          .force("charge", d3.forceManyBody().strength(sliderValue))
+          .force("center", d3.forceCenter().strength(centerForceValue))
+          .force('collide' , d3.forceCollide().strength(0)).on("tick", ticked);
+
+        const svg = d3.create("svg").attr("width", width).attr("height", height)
+          .attr("viewBox", [-width / 2, -height / 2, width, height])
+          .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+          .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+        const container = svg.append("g");
+
+        const link = container.append("g").attr("id", "links-g-tag")
+          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+          .attr("stroke-opacity", linkStrokeOpacity)
+          .attr("stroke-width",typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
+          .attr("stroke-linecap", linkStrokeLinecap)
+          .selectAll("line")
+          .data(links)
+          .join("line");
+
+        const zoom: any = d3.zoom().on("zoom", zoomed);
+        svg.call(zoom);
+
         document.addEventListener("click", hideNodeInfo);
 
         const node = container
@@ -3016,7 +3056,7 @@ const Sidebar = () => {
           .selectAll("circle")
           .data(nodes)
           .join("circle")
-          .attr("r", nodeRadius)
+          .attr("r", calculateNodeRadius)
           .attr("fill", (d: any) => {
             const color = getColorByTag(d.tag);
             return color;
@@ -3100,7 +3140,7 @@ const Sidebar = () => {
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
         nodeStrokeOpacity = 1, // node stroke opacity
-        nodeRadius = 5, // node radius, in pixels
+        nodeRadius = 4, // node radius, in pixels
         nodeStrength = -30,
         linkSource = ({ source }: { source: string }) => source, // Specify the type as string
         linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
@@ -3210,7 +3250,7 @@ const Sidebar = () => {
 
         function ticked() {
 
-          console.log('helllllo')
+          // console.log('helllllo')
         
           link
             .attr("x1", (d: any) => {
@@ -3431,7 +3471,7 @@ const Sidebar = () => {
           // Set the initial state before transitioning
           d3.select(this as SVGElement)
             // .attr("fill", "red") // Change to your desired color
-            .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
             .attr("fill-opacity", 1); // Set initial opacity to 1
 
           // Initialize the links with their original stroke color and opacity
@@ -3534,26 +3574,24 @@ const Sidebar = () => {
           // console.log("Hovered Nodes:", hoveredNodes);
         }
 
-        function handleMouseOut(this: any) {
+        function handleMouseOut(this: any, d:any) {
+          // console.log('d', d.fromElement.getAttribute("id"))
+          let tempMouseOverNode = d.fromElement.getAttribute("id")
+          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
+          
           d3.select(this)
             // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", nodeRadius) // Reset to the original node size
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("fill-opacity", 1); // Reset opacity
+            .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+            .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
 
           // Reset the color and opacity of all links to their original values with a transition
           link
-            .transition()
-            .duration(400)
-            .attr("stroke", linkStroke)
-            .attr("stroke-opacity", linkStrokeOpacity);
+            .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
 
           // Reset the opacity of all nodes to their original value with a transition
           node.transition().duration(200).attr("fill-opacity", 1);
-          nodeText.transition().duration(200)
-            .style('opacity' , 1)
-            .style('font-size', '8px')
+
+          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
             
         }
 
@@ -3594,6 +3632,17 @@ const Sidebar = () => {
             .on("end", dragended);
         }
 
+        function calculateNodeRadius(d:any) {
+          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
+          if(linkCount <= 4) {
+            return nodeRadius;
+          } else {
+            let checkLinkCount = linkCount - 4
+            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
+
+            return onePercentOfCheckLinkCount + 4;
+          }
+        }
       
         
 
@@ -3617,8 +3666,6 @@ const Sidebar = () => {
         // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
 
 
-        
-        // const svg:any = document.querySelector("#graph-div svg");
         const svgContainer = d3.select('#graph-div');
         const gElement = svgContainer.select('svg');
         const svg = gElement.select('g');
@@ -3644,7 +3691,6 @@ const Sidebar = () => {
 
 
         container.select("#nodes-g-tag").remove();
-        // console.log('checkhere now nodes  ' , nodes)
         const node = container
           .append("g")
           .attr("id", "nodes-g-tag")
@@ -3656,7 +3702,7 @@ const Sidebar = () => {
           .data(nodes)
           .join("circle")
           .attr("id", (d:any) => `node-${d.id}`)
-          .attr("r", nodeRadius)
+          .attr("r", calculateNodeRadius)
           .attr("fill", (d: any) => {
             const color = getColorByTag(d.tag);
             return color;
@@ -3734,11 +3780,7 @@ const Sidebar = () => {
 
         setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
 
-        
-
         return result;
-
-        // return Object.assign(svg.node(), { scales: { color } });
     }
 
     const options: any = {
@@ -3763,8 +3805,6 @@ const Sidebar = () => {
       }
     }
 
-    
-    
   };
 
 
@@ -3991,7 +4031,12 @@ const Sidebar = () => {
 
   const handleCopyText = () => {
     const textarea = document.createElement("textarea");
-    textarea.value = searchValue;
+    if(graphOrTextView) {
+      textarea.value = searchValue;
+    } else {
+      textarea.value = graphSearchValue
+    }
+    
     document.body.appendChild(textarea);
 
     textarea.select();
@@ -5912,6 +5957,7 @@ const Sidebar = () => {
             <p>TCM Weaver</p>
           </div>
 
+          {/* ================Top Icons && Popups==================== */}
           <div className={"icon-profile"}>
 
             {/* ==============Theme Change==========================  */}
@@ -6354,20 +6400,19 @@ const Sidebar = () => {
 
 
                   <div className="preview-node-loader">
-                    {previewNodeLinkLoader && (
+                    {previewNodeLinkLoader ? (
                       <CircularProgress size={16} style={{color: 'black'}} />
+                    ):(
+                      <div>
+                        {themeChangericon ? (
+                          <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                        ) : (
+                          <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                        )}
+                      </div>
+
                     )}
-                    {themeChangericon ? (
-                      <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                    ) : (
-                      <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                    )}
-                    {/* <img
-                      src="/collapse.png"
-                      alt="img"
-                      onClick={() => collapseExpandedNode()}
-                      className="link-collapse-icon"
-                    /> */}
+                    
                   </div>
                 </div>
 

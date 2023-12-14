@@ -223,7 +223,7 @@
 }
 
 .menuBtn .copy-icon svg {
-    opacity: 0.8;
+    /* opacity: 0.8; */
     transform: scale(0.85);
 }
 
@@ -645,9 +645,13 @@
     width: 95%;
 }
 
-.night-mode .preview-node-loader span svg {
-    filter: invert(1);
+.preview-node-loader svg {
+    transform: scale(0.85);
 }
+
+/* .night-mode .preview-node-loader span svg {
+    filter: invert(1);
+} */
 
 .node-preview-detail {
     padding-top: 20px;
@@ -1365,9 +1369,9 @@
     left: 90%;
     /* Position it to the right of the icon */
     background-color: white;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     border-radius: 4px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2); */
     /* padding: 8px; */
     z-index: 999;
     width: 156px;
@@ -1376,7 +1380,7 @@
 
 .night-mode .account-options-container {
     background-color: #242424;
-    border: 1px solid #3d3a3a;
+    /* border: 1px solid #3d3a3a; */
 }
 
 .edit-profile-div {
