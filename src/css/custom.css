@@ -834,7 +834,7 @@
 }
 
 .graph-color-setting-icon button:hover {
-    background-color: #DBD9D9;
+    background-color: #6C655C;
 }
 
 .night-mode .graph-color-setting-icon button:hover {
@@ -842,12 +842,9 @@
 }
 
 
-.graph-color-setting-icon button svg {
-    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
-}
-
-.night-mode .graph-color-setting-icon button svg {
-    filter: invert(71%) sepia(93%) saturate(7%) hue-rotate(21deg) brightness(93%) contrast(99%);
+.graph-color-setting-icon button img {
+    width: 20px;
+    height: 20px;
 }
 
 .graph-color-setting {
@@ -855,7 +852,7 @@
     right: 10px;
     top: 10px;
     width: 240px;
-    border: 1px solid grey;
+    border: 1px solid #CFCCC7;
     border-radius: 5px;
     background-color: white;
     padding: 5px 10px 10px 10px;
@@ -863,6 +860,7 @@
 
 .night-mode .graph-color-setting {
     background-color: #242424;
+    border: 1px solid #565959;
 }
 
 
@@ -873,15 +871,21 @@
     padding-bottom: 5px;
 }
 
+.graph-color-setting-close-div h5 {
+    color: #6C655C;
+}
+
 .night-mode .graph-color-setting-close-div h5 {
-    color: #FFFFFF;
+    color: #B3B3B5;
 }
 
 .graph-color-setting-close-div button {
     border: 0;
     outline: 0;
     border-radius: 5px;
-    padding: 2px 4px;
+    /* padding: 0px 4px !important; */
+    width: 28px;
+    height: 28px;
     background-color: white;
 }
 
@@ -890,15 +894,15 @@
 
 }
 
-.night-mode .graph-color-setting-close-div button svg {
-    filter: invert(71%) sepia(93%) saturate(7%) hue-rotate(21deg) brightness(93%) contrast(99%);
-
+.graph-color-setting-close-div button img {
+    width: 17px;
+    /* height: 18px; */
 }
 
 
 
 .graph-color-setting-close-div button:hover {
-    background-color: #DBD9D9;
+    background-color: #6C655C;
 }
 
 .night-mode .graph-color-setting-close-div button:hover {
