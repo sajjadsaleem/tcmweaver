@@ -1111,6 +1111,10 @@
 
 .night-mode .opened-result-detail h3 {
     font-size: 1.7rem;
+}
+
+.night-mode .opened-result-detail h3,
+.night-mode .opened-result-detail h2 {
     color: #B3B3B5 !important;
 }
 

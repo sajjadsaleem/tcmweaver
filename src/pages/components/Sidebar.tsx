@@ -679,7 +679,7 @@ const Sidebar = () => {
           }
         })
 
-        console.log('inside graph checker' , graphResizeChecker)
+        // console.log('inside graph checker' , graphResizeChecker)
         if(!graphResizeChecker) {
           nodes.forEach((node:any) => {
             node.fx = null;
@@ -1138,7 +1138,7 @@ const Sidebar = () => {
         const gElement = svgContainer.select('svg');
         const svg = gElement.select('g');
 
-        console.log('graphsize now ' , graphSize)
+        // console.log('graphsize now ' , graphSize)
         gElement.attr('width' , graphSize.width).attr('height' , graphSize.height)
         gElement.attr('viewBox' , [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
 
@@ -1251,7 +1251,7 @@ const Sidebar = () => {
 
         setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
 
-        console.log('check graph data')
+        // console.log('check graph data')  
        
         return result;
 
@@ -1929,12 +1929,12 @@ const Sidebar = () => {
     };
 
     let svgResult:any
-    console.log('calling function' , makingFrom)
+    // console.log('calling function' , makingFrom)
     if(makingFrom === 'themeChange' || makingFrom === 'resizeScreen'){
-      console.log('wandergraph called')
+      // console.log('wandergraph called')
       svgResult = WanderGraph(graphNewData, options)
     } else if (makingFrom === 'sliderChange') {
-      console.log('slidergraph called')
+      // console.log('slidergraph called')
       svgResult = slidersGraph(graphNewData, options)
     }
   }
@@ -2719,7 +2719,7 @@ const Sidebar = () => {
           .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
   
         console.log("newEntries: ", newEntries);
-        console.log('graphdata' , graphData)
+        // console.log('graphdata' , graphData)
   
         setSearchResults(newEntries);
         generateGraphfromSearch(newEntries , inputValue);
@@ -3083,6 +3083,182 @@ const Sidebar = () => {
 
       (graphOrTextView ? handleSearchFromFilters : handleGraphSearchFromFilters)(syntheticEvent);
     }
+
+  };
+
+  const handleGraphFilters = (category: any, id: any, valueOfFilter:any) => {
+    const graphDataCopy = _.cloneDeep(graphData);
+    const updatedCheckboxes: any = graphTagFilters.map((checkboxCategory: any) => {
+      if (checkboxCategory.category === category) {
+        const updatedItems = checkboxCategory.items.map((item: any) => {
+          if (item.id === id) {
+            let newState;
+            if (item.status === "neutral") {
+              newState = "checked";
+            } else {
+              newState = "unchecked";
+            }
+  
+            let newStatus;
+            if (item.status === "neutral") {
+              newStatus = "exclude";
+            } else {
+              newStatus = "neutral";
+            }
+            // console.log(newState , newStatus)
+  
+            return {
+              ...item,
+              state: newState,
+              status: newStatus,
+            };
+          }
+          return item;
+        });
+  
+        return {
+          ...checkboxCategory,
+          items: updatedItems,
+        };
+      }
+
+      return checkboxCategory;
+    });
+    
+    setGraphTagFilters(updatedCheckboxes);
+
+
+    let filteredGraphData:any = []
+
+    // Step 1: Find items with status "exclude" in updatedCheckboxes
+    const excludedValues:any = [];
+    updatedCheckboxes.forEach((category:any) => {
+      category.items.forEach((item:any) => {
+        if (item.status === "exclude") {
+          excludedValues.push(item.value.substring(1));
+        }
+      });
+    });
+
+    // Step 2: Find corresponding node ids in graphDataCopy
+    const excludedNodeIds:any = [];
+    graphDataCopy.nodes.forEach((node:any) => {
+      if (excludedValues.includes(node.tag)) {
+        excludedNodeIds.push(node.id);
+      }
+    });
+
+    // console.log('excludedNodeIds',excludedNodeIds)
+
+    // Step 3: Remove links with source or target matching excluded node ids
+    filteredGraphData.links = graphDataCopy.links.filter((link:any) => {
+      return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
+    });
+
+    // Step 4: Remove nodes with ids in excludedNodeIds
+    filteredGraphData.nodes = graphDataCopy.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+
+    // Now, graphDataCopy is updated with the desired changes.
+    console.log('filteredGraphData: ', filteredGraphData);
+
+    makeGraph(filteredGraphData)
+
+
+    // const filterTag = graphData.nodes.find(node => node.tag === filterValueOfFilter);
+    // const filteredNodesGraphData = graphData.nodes.filter((node:any) => node.tag !== filterValueOfFilter);
+    
+
+    // let currentValue
+
+    // if(graphOrTextView) {
+    //   currentValue = searchValue
+    // } else {
+    //   currentValue = graphSearchValue
+    // }
+
+    // let valueToInclude = null;
+    // let valueToCheck = null;
+
+    // const foundCategory = updatedCheckboxes.find(
+    //   (checkboxCategory: any) => checkboxCategory.category === category
+    // );
+
+    // // console.log('foundCategory',foundCategory)
+    
+    // if (foundCategory) {
+    //   const foundItem = foundCategory.items.find((item: any) => item.id === id);
+    //   valueToInclude = foundItem ? foundItem.value : null;
+    //   valueToCheck = foundItem ? foundItem.status : null;
+    // }
+
+    // console.log('valuetoinclude' , valueToInclude)
+    // console.log('valueToCheck' , valueToCheck)
+
+    // if (valueToCheck === "include") {
+    //   let updatedValue
+    //   if (!currentValue) {
+    //     updatedValue = `"${valueToInclude}"`
+    //   } else {
+    //     updatedValue = currentValue + ` "${valueToInclude}"`;
+    //   }
+
+    //   const syntheticEvent = {
+    //     target: { value: updatedValue },
+    //   };
+
+    //   if(graphOrTextView) {
+    //     handleSearchFromFilters(syntheticEvent)
+    //   } else {
+    //     handleGraphSearchFromFilters(syntheticEvent)
+    //   }
+
+    // } else
+    //  if (valueToCheck === "exclude") {
+    //   // const valueToAdd = valueToInclude;
+    //   // // console.log('valuetoadd' , valueToAdd , currentValue)
+    //   // let updatedValue = currentValue;
+    //   // if (currentValue.includes(valueToAdd)) {
+
+    //   //   // updatedValue = currentValue
+    //   //   // .replace(new RegExp(`${valueToAdd.replace(/"/g, "")}`, "gi"), "")
+    //   //   // .replace(/""/g, "")
+    //   //   // .trim();
+
+    //   //   const regex = new RegExp(`\\s*(-?["']?${valueToAdd}["']?)(?=\\s*)`, "gi");
+    //   //   updatedValue = currentValue.replace(regex, "").trim();
+
+    //   //   updatedValue += ` -"${valueToAdd}"`;
+    //   //   console.log(updatedValue)
+    //   // } else {
+    //   //     updatedValue = currentValue + ` -"${valueToInclude}"`;
+    //   // }
+
+    //   // const syntheticEvent = {
+    //   //   target: { value: updatedValue },
+    //   // };
+
+    //   // (graphOrTextView ? handleSearchFromFilters : handleGraphSearchFromFilters)(syntheticEvent);
+    //   filteredGraphData.links = graphDataCopy.links.filter((link:any) => {
+    //     const sourceNode = graphData.nodes.find((node:any) => node.id === link.source);
+    //     const targetNode = graphData.nodes.find((node:any) => node.id === link.target);
+    //     return !(sourceNode && sourceNode.tag === filterValueOfFilter) && !(targetNode && targetNode.tag === filterValueOfFilter);
+    //   });
+    //   filteredGraphData.nodes = graphData.nodes.filter((node:any) => node.tag !== filterValueOfFilter);
+  
+    //   console.log('filteredGraphData',filteredGraphData);
+    //   makeGraph(filteredGraphData)
+
+    // } else {
+    //   // const valueToRemove = valueToInclude;
+    //   // const regex = new RegExp(`\\s*(-?["']?${valueToRemove}["']?)(?=\\s*)`, "gi");
+    //   // const updatedValue = currentValue.replace(regex, "").trim();
+    //   // // console.log('updatedValue' , updatedValue)
+    //   // const syntheticEvent = {
+    //   //   target: { value: updatedValue },
+    //   // };
+
+    //   // (graphOrTextView ? handleSearchFromFilters : handleGraphSearchFromFilters)(syntheticEvent);
+    // }
 
   };
   
@@ -3599,7 +3775,7 @@ const Sidebar = () => {
           // Set the initial state before transitioning
           d3.select(this as SVGElement)
             // .attr("fill", "red") // Change to your desired color
-            .attr("r", nodeRadius * 1.2) // Optionally, increase the node size
+            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
             .attr("fill-opacity", 1); // Set initial opacity to 1
 
           // Initialize the links with their original stroke color and opacity
@@ -3686,28 +3862,23 @@ const Sidebar = () => {
           // console.log("Hovered Nodes:", hoveredNodes);
         }
 
-        function handleMouseOut(this: any) {
-          d3.select(this)
-            // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", nodeRadius) // Reset to the original node size
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("fill-opacity", 1); // Reset opacity
+
+        function handleMouseOut(this: any , d:any) {
+          let tempMouseOverNode = d.fromElement.getAttribute("id")
+          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
+          d3.select(this).attr("r", calculateNodeRadius(nodeObject))
+            .transition().duration(400).attr("fill-opacity", 1); 
+
 
           // Reset the color and opacity of all links to their original values with a transition
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", linkStroke)
-            .attr("stroke-opacity", linkStrokeOpacity);
+          link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
 
           // Reset the opacity of all nodes to their original value with a transition
           node.transition().duration(200).attr("fill-opacity", 1);
 
-          nodeText.transition().duration(200)
-            .style('opacity' , 1)
-            .style('font-size', '8px')
+          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
         }
+
 
         function areNodesConnected(node1: any, node2: any) {
           // Check if two nodes are directly connected through a link
@@ -3758,9 +3929,6 @@ const Sidebar = () => {
           }
         }
 
-        
-
-
 
         const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
@@ -3787,10 +3955,11 @@ const Sidebar = () => {
         svg.call(zoom);
 
         document.addEventListener("click", hideNodeInfo);
+        // console.log('nodes' , nodes)
 
         const node = container
           .append("g")
-          .attr("id", "nodes-g-tag")
+          .attr("id" , 'nodes-g-tag')
           .attr("fill", nodeFill)
           .attr("stroke", nodeStroke)
           .attr("stroke-opacity", nodeStrokeOpacity)
@@ -3798,7 +3967,12 @@ const Sidebar = () => {
           .selectAll("circle")
           .data(nodes)
           .join("circle")
-          .attr("r", calculateNodeRadius)
+          .attr("r", function(d) {
+            return calculateNodeRadius(d);
+          })
+          .attr("id", function(d:any) {
+            return "node-" + d.id
+          })
           .attr("fill", (d: any) => {
             const color = getColorByTag(d.tag);
             return color;
@@ -3897,6 +4071,7 @@ const Sidebar = () => {
         invalidation = undefined // when this promise resolves, stop the simulation
       } = {}
     ) {
+      console.log('wander graph ')
         // Compute values.
         const N = d3.map(nodes, nodeId).map(intern);
         const LS = d3.map(links, linkSource).map(intern);
@@ -4430,7 +4605,7 @@ const Sidebar = () => {
           .join("line");
 
          
-
+        
 
         container.select("#nodes-g-tag").remove();
         const node = container
@@ -6637,8 +6812,6 @@ const Sidebar = () => {
     const updatedArray = showAddGraphNodeColor.filter((item: any) => item.id !== e.id);
     setNodeColorRemoveCheck(e.tag)
     setShowAddGraphNodeColor(updatedArray);
-
-
   }
 
 
@@ -7249,21 +7422,11 @@ const Sidebar = () => {
                                           ? "customCheckBackground"
                                           : ""
                                       }`}
-                                      type="checkbox"
-                                      id={`checkbox${category.category}-${item.id}`}
-                                      checked={item.state === "checked"}
-                                      onChange={() =>
-                                        handleCheckboxClick(
-                                          category.category,
-                                          item.id
-                                        )
-                                      }
-                                      value={item.value}
+                                      type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                      checked={item.state === "checked"} value={item.value}
+                                      onChange={() => handleCheckboxClick( category.category,item.id )}
                                     />
-                                    <label
-                                      className="form-check-label"
-                                      htmlFor={`checkbox${category.category}-${item.id}`}
-                                    >
+                                    <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
                                       {item.value}
                                       {item.category}
                                     </label>
@@ -7520,62 +7683,36 @@ const Sidebar = () => {
                       <Accordion>
                         {graphTagFilters.map((category: any, index: any) => (
                           <div key={index}>
-                              <>
-                                <Accordion.Item
-                              eventKey={index.toString()}
-                              key={category.category}
-                              title={category.category}
-                              className="accordion-item"
-                            >
-                              <Accordion.Header className="accordion-header">
-                                {category.category}
-                              </Accordion.Header>
-                              <Accordion.Body className="accordion-body">
-                                <div className="form-check form-check-inline">
-                                  {category.items.map((item: any) => (
-                                    <div
-                                      className="form-check form-check-inline"
-                                      key={item.id}
-                                    >
-                                      <input
-                                        className={`form-check-input ${
-                                          category.items[item.id - 1]["status"] ===
-                                          "exclude"
-                                            ? "customCheckBackground"
-                                            : ""
-                                        }`}
-                                        type="checkbox"
-                                        id={`checkbox${category.category}-${item.id}`}
-                                        checked={item.state === "checked"}
-                                        onChange={() =>
-                                          handleCheckboxClick(
-                                            category.category,
-                                            item.id
-                                          )
-                                        }
-                                        value={item.value}
-                                      />
-                                      <label
-                                        className="form-check-label"
-                                        htmlFor={`checkbox${category.category}-${item.id}`}
-                                      >
-                                        {item.value}
-                                        {item.category}
-                                      </label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </Accordion.Body>
-                                </Accordion.Item>
-                              </>
-                        
+                            <>
+                              <Accordion.Item eventKey={index.toString()} key={category.category} 
+                                title={category.category} className="accordion-item">
+                                <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
+                                <Accordion.Body className="accordion-body">
+                                  <div className="form-check form-check-inline">
+                                    {category.items.map((item: any) => (
+                                      <div className="form-check form-check-inline" key={item.id}>
+                                        <input className={`form-check-input ${
+                                                category.items[item.id - 1]["status"] === "exclude"
+                                                ? "customCheckBackground" : ""
+                                                }`}
+                                          type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                          checked={item.state === "checked"} value={item.value}
+                                          onChange={() => handleGraphFilters( category.category, item.id, item.value )}
+                                        />
+                                        <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                          {item.value}
+                                          {item.category}
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </>
                           </div>
-                          
                         ))}
                       </Accordion>
                     </div>
-                  
-
                   </div>
                 </>
               ):(
