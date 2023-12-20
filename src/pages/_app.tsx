@@ -39,15 +39,17 @@ const myFont = localFont({
 
 const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
   return (
-    <div 
-    className={myFont.className}
-    >
+    <div className={myFont.className}>
       
       <Head>
         <title>TCM Weaver</title>
         <meta name="description" content={`Tcm Weaver – Dashboard`} />
         <meta name="keywords" content="Tcm Weaver Next Js Template" />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" sizes="16x16" href="/favicon.ico"/>
+        <link rel="icon" type="image/png" href="/favicon.png"/>
+        <link rel="apple-touch-icon" href="/favicon.png"/>
       </Head>
 
       <Provider store={store}>

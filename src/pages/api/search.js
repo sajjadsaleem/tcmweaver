@@ -42,6 +42,7 @@ export default async function search(req, res) {
         }
 
         const datasets = rows
+        console.log('rows', rows.length)
 
 
         // Remove ".md" extension

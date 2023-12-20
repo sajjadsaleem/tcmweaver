@@ -2138,6 +2138,7 @@ const Sidebar = () => {
         
           const copySearchResults = _.cloneDeep(responseJson.data);
           setRawSearchResults(copySearchResults);
+          // console.log('copySearchResults',copySearchResults)
 
           newEntries = _.cloneDeep(responseJson.data)
           // console.log('newentries' , newEntries)
@@ -2153,13 +2154,13 @@ const Sidebar = () => {
 
           newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
 
-          console.log("newEntries: ", newEntries.length);
+          // console.log("newEntries: ", newEntries);
 
           setSearchResults(newEntries);
           setTextSearchLoader(false)
           setShowSearchResultToast(true)
           setTimeout(() => {
-            setShowSearchResultToast(false)
+          setShowSearchResultToast(false)
           }, 2200)
 
           // console.log(responseJson.data);
@@ -2946,12 +2947,13 @@ const Sidebar = () => {
     setGraphDataAfterFilters([])
     setTextSearchLoader(false)
     setGraphSearchLoader(false)
+    setShowGraphFilters(false)
 
     if(graphOrTextView){
       setShouldShowFilters(true);
     }
 
-    const updatedCheckboxes :any = allCheckboxes.map((eachCategory: any) => ({
+    const updatedCheckboxes:any = allCheckboxes.map((eachCategory: any) => ({
       ...eachCategory,
       items: eachCategory.items.map((eachItem: any) => ({
         ...eachItem,
@@ -2960,6 +2962,17 @@ const Sidebar = () => {
       })),
     }));
     setAllCheckboxes(updatedCheckboxes)
+
+    const updatedGraphFilters:any = graphTagFilters.map((eachCategory: any) => ({
+      ...eachCategory,
+      items: eachCategory.items.map((eachItem: any) => ({
+        ...eachItem,
+        state: "unchecked",
+        status: "neutral",
+      })),
+    }));
+    setGraphTagFilters(updatedGraphFilters)
+
   };
 
 
@@ -3000,11 +3013,8 @@ const Sidebar = () => {
 
   function highlightSearchWord(newEntries: any, wordToSearch: any) {
     for (const entry of newEntries) {
-      const contentWithHighlightedWords =
-        entry.contentWithRemovedBrackets.replace(
-          new RegExp(`(${wordToSearch.join("|")})`, "gi"),
-          (match: any) => `<span>${match}</span>`
-        );
+      const contentWithHighlightedWords = entry.contentWithRemovedBrackets.replace(
+        new RegExp(`(${wordToSearch.join("|")})`, "gi"), (match: any) => `<span>${match}</span>`);
 
       const fileNameWithHighlightedWords = entry.fileName.replace(
         new RegExp(`(${wordToSearch.join("|")})`, "gi"),
@@ -3731,6 +3741,7 @@ const Sidebar = () => {
         const customNodes: any = nodes;
         // console.log('nodes in force' , nodes)
 
+        console.log('in force graph')
         
 
         function zoomed(event: any) {
@@ -3961,14 +3972,16 @@ const Sidebar = () => {
         }
 
         function calculateNodeRadius(d:any) {
-          // console.log('d' , d , links)
+          console.log('d' , d)
           const linkCount = links.filter((link:any) => link.source.id === d.id).length;
+          console.log('linkcount' , linkCount)
           if(linkCount <= 4) {
+            console.log('less than 4')
             return nodeRadius;
           } else {
             let checkLinkCount = linkCount - 4
             let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-            // console.log(onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
+            console.log(d.id , onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
 
             return onePercentOfCheckLinkCount + 4;
           }
@@ -4002,6 +4015,8 @@ const Sidebar = () => {
         document.addEventListener("click", hideNodeInfo);
         // console.log('nodes' , nodes)
 
+        console.log('links' , links)
+
         const node = container
           .append("g")
           .attr("id" , 'nodes-g-tag')
@@ -4012,8 +4027,9 @@ const Sidebar = () => {
           .selectAll("circle")
           .data(nodes)
           .join("circle")
-          .attr("r", function(d) {
-            return calculateNodeRadius(d);
+          .attr("r", (d:any) => {
+            const radius = calculateNodeRadius(d)
+            return radius;
           })
           .attr("id", function(d:any) {
             return "node-" + d.id
@@ -4773,12 +4789,15 @@ const Sidebar = () => {
 
 
   const openSearchResult = (resultToOpen: any) => {
+    
     const copySearchResults = _.cloneDeep(rawSearchResults);
-    // console.log(copySearchResults)
+    // console.log('rawSearchResults',rawSearchResults)
 
     let matchingFile: any = copySearchResults.find(
       (file: any) => file.fileName === resultToOpen.fileName
     );
+
+    
 
     marked.setOptions({
       breaks: true,
@@ -4789,12 +4808,10 @@ const Sidebar = () => {
     // console.log("markedContent", matchingFile);
 
     const regex = /\[\[([^[\]]+)\]\]/g;
-    const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+    // const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+    const hashtagParagraphRegex = /#\S+/g;
     if (matchingFile) {
-      const contentWithoutHashtags = matchingFile.content.replace(
-        hashtagParagraphRegex,
-        ""
-      );
+      const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex,"");
 
       const contentWithStyledWords = contentWithoutHashtags.replace(
         regex,
@@ -4847,6 +4864,8 @@ const Sidebar = () => {
           });
         });
       }, 10);
+    } else {
+      console.log('no matching file found')
     }
   };
 
@@ -4902,39 +4921,37 @@ const Sidebar = () => {
         breaks: true,
       });
 
-      newDataObject.content = marked(newDataObject.content);
-      newDataObject.contentWithRemovedBrackets = marked(newDataObject.content);
+      let editedResult = newDataObject.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+
+      // newDataObject.contentWithRemovedBrackets = marked(editedResult);
+      newDataObject.content = marked(editedResult);
+
 
       const regex = /\[\[([^[\]]+)\]\]/g;
-      const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
+      const hashtagParagraphRegex = /#\S+/g;
       if (newDataObject) {
         // console.log("newDataObject", newDataObject);
-        const contentWithoutHashtags = newDataObject.content.replace(
-          hashtagParagraphRegex,
-          ""
-        );
-        const contentWithStyledWords = contentWithoutHashtags.replace(
-          regex,
-          (match: any, word: any) =>
-            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        const contentWithoutHashtags = newDataObject.content.replace( hashtagParagraphRegex , "" );
+
+        const contentWithStyledWords = contentWithoutHashtags.replace( regex,
+          (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
         // console.log("contentwithstyledword", contentWithStyledWords);
+        // console.log('openedresults' , openedResults, linkClickedFromFile)
+        const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile );
+        // console.log('index' , index)
 
-        const index = openedResults.findIndex(
-          (item: any) => item.fileName === linkClickedFromFile
-        );
         if (index !== -1) {
           const updatedResults = {
-            ...newDataObject,
-            content: contentWithStyledWords,
-            openedFromResults: false,
+            ...newDataObject, 
+            content: contentWithStyledWords, 
+            openedFromResults: false
           };
 
-          const doesExist = openedResults.some(
-            (result) => result.fileName === updatedResults.fileName
-          );
+          const doesExist = openedResults.some((result) => result.fileName === updatedResults.fileName);
 
           if (!doesExist) {
+            // console.log('found')
             // Create a copy of the openedResults array
             const updatedOpenedResults = [...openedResults];
 
@@ -4946,12 +4963,9 @@ const Sidebar = () => {
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
           } else {
-            const resultsWithRemovedLink = openedResults.filter(
-              (item: any) => item.fileName !== updatedResults.fileName
-            );
-            const index = resultsWithRemovedLink.findIndex(
-              (item: any) => item.fileName === linkClickedFromFile
-            );
+            // console.log('not found')
+            const resultsWithRemovedLink = openedResults.filter((item: any) => item.fileName !== updatedResults.fileName);
+            const index = resultsWithRemovedLink.findIndex((item: any) => item.fileName === linkClickedFromFile);
 
             const updatedOpenedResults = [...resultsWithRemovedLink];
 
@@ -4973,11 +4987,8 @@ const Sidebar = () => {
                 if (h4.textContent === linkClicked.toUpperCase()) {
                   // console.log("h4", h4);
                   h4.classList.add("highlighted-heading");
-                  h4.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                    inline: "center",
-                  });
+                  h4.scrollIntoView({behavior: "smooth", block: "start", inline: "center",});
+
                   setTimeout(() => {
                     h4.classList.remove("highlighted-heading");
                   }, 3000);
@@ -6714,28 +6725,14 @@ const Sidebar = () => {
               {themeChangericon ? (
                 <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
               ) : (
-                <img src="/xmark-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+                <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
               )}
-              
-              {/* <img
-                src="xmark.png"
-                alt="img"
-                className="node-remove-icon"
-                onClick={removeClickedNode}
-              /> */}
 
               {themeChangericon ? (
                 <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
               ) : (
                 <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
               )}
-
-              {/* <img
-                src="node-text.svg"
-                alt="img"
-                className="node-text-icon"
-                onClick={showNodeClickedFile}
-              /> */}
 
               {themeChangericon ? (
                 <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
@@ -6939,21 +6936,22 @@ const Sidebar = () => {
                       </div>
                     ) : (
                       <div>
-                        <img
-                          src="/collapsenew.png"
-                          alt="img"
-                          onClick={() => collapseOpenedResult(result)}
-                          className="link-collapse-icon"
-                        />
+                        {themeChangericon ? (
+                          <img src="/collapsenew.png" alt="img" onClick={() => collapseOpenedResult(result)}
+                            className="link-collapse-icon"
+                          />
+                        ):(
+                          <img src="/collapse-dark.png" alt="img" onClick={() => collapseOpenedResult(result)}
+                            className="link-collapse-icon"
+                          />
+                        )}
+                        
                       </div>
                     )}
                   </div>
 
                   <div className="opened-result-detail">
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: result.content,
-                      }}
+                    <p dangerouslySetInnerHTML={{ __html: result.content, }}
                       className="opened-result-description"
                       onClick={(e: any) => {
                         if (
@@ -6970,10 +6968,10 @@ const Sidebar = () => {
               ))
             ) : (
               <div className="homepage-opened-file">
-                <div className="view-panel-title">
+                {/* <div className="view-panel-title">
                   <h3>Homepage</h3>
-                </div>
-                <div className="opened-result-detail">
+                </div> */}
+                <div className="homepage-content-container">
                   {homepageFile.length === 0 ? (
                     <p className="opened-result-description">Home.md not found</p>
                   ) : (
