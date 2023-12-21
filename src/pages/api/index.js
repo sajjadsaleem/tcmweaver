@@ -1,22 +1,24 @@
 
 import { sql } from '@vercel/postgres';
+import { sql as drizzleSql } from "drizzle-orm";
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { filtersTable } from '../../db/schema/filters'
 import { packagesTable } from '../../db/schema/packages';
 import { vaultsTable } from '../..//db/schema/vaults'
 import { eq, lt, gte, ne, or } from "drizzle-orm";
-import pg from 'pg';
 
-const { Pool } = pg;
+// import pg from 'pg';
 
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL + "?sslmode=require",
-})
+// const { Pool } = pg;
+
+// const pool = new Pool({
+//   connectionString: process.env.POSTGRES_URL + "?sslmode=require",
+// })
 
 
 export default async function handler(req, res) {
 
-  const client = await pool.connect();
+  // const client = await pool.connect();
   try {
     const db = drizzle(sql)
 
@@ -24,9 +26,15 @@ export default async function handler(req, res) {
       .where(eq(vaultsTable.vault_name, 'CONFIG'))
     // console.log('configvault', configVault)
 
-    const query = `SELECT * FROM ${configVault[0].reference_table}`;
-    let configData = await client.query(query);
+    // const query = `SELECT * FROM ${configVault[0].reference_table}`;
+    // let configData = await client.query(query);
     // console.log('configData', configData.rows)
+
+    const selectQuery = drizzleSql`SELECT * FROM `;
+    const selectQueryJoint = `${configVault[0].reference_table}`
+    selectQuery.queryChunks[0].value[0] += selectQueryJoint
+    var configData = await db.execute(drizzleSql`${selectQuery}`);
+    // console.log('nodecolorsdata', nodeColorsData)
 
     // remove .md extension from Filenames
     configData = configData.rows.map(obj => ({
@@ -46,7 +54,8 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Error reading files:', error);
     res.status(500).json({ error: 'Failed to read files.' });
-  } finally {
-    client.release();
   }
+  // finally {
+  //   client.release();
+  // }
 }

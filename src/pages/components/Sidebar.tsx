@@ -22,6 +22,8 @@ import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -6225,843 +6227,879 @@ const Sidebar = () => {
     setAnimationKey((prevKey) => prevKey + 1);
     setPreviewNodeLinkLoader(false)
   }
+
+
+  const moveResult = (fromIndex:any, toIndex:any) => {
+    const updatedResults = [...openedResults];
+    const [movedResult] = updatedResults.splice(fromIndex, 1);
+    updatedResults.splice(toIndex, 0, movedResult);
+
+    setOpenedResults(updatedResults);
+  };
+
+
+  const DraggableOpenedResult = ({ result, index, moveResult }: { result: any; index:any; moveResult: any }) => {
+    const [, ref] = useDrag({type: 'OPENED_RESULT', item: { index },})
+  
+    const [, drop] = useDrop({
+      accept: 'OPENED_RESULT',
+      hover: (draggedItem:any) => {
+        if (draggedItem.index !== index) {
+          moveResult(draggedItem.index, index);
+          draggedItem.index = index;
+        }
+      },
+    });
+  
+    return (
+      <div ref={(node) => ref(drop(node))} className="opened-results">
+        <div className="view-panel-title">
+          <h4>{result.fileName.toUpperCase()}</h4>
+            {result.openedFromResults ? (
+              <div className="view-panel-title-icons">
+                {themeChangericon ? (
+                    <img src="/arrow-leftnew.png" alt="img" onClick={() => collapseOpenedResult(result)} />
+                  ) : (
+                    <img src="/arrow-left-dark.png" alt="img" onClick={() => collapseOpenedResult(result)} />
+                )}
+
+                {themeChangericon ? (
+                    <img src="/xmarknew.png" alt="img" onClick={() => removeBothSearchResults(result)} />
+                  ) : (
+                    <img src="/xmark-dark.png" alt="img" onClick={() => removeBothSearchResults(result)} />
+                )}
+              </div>
+            ) : (
+              <div>
+                {themeChangericon ? (
+                  <img src="/collapsenew.png" alt="img" onClick={() => collapseOpenedResult(result)}
+                    className="link-collapse-icon"
+                  />
+                ):(
+                  <img src="/collapse-dark.png" alt="img" onClick={() => collapseOpenedResult(result)}
+                    className="link-collapse-icon"
+                  />
+                )}
+                
+              </div>
+            )}
+        </div>
+
+        <div className="opened-result-detail">
+          <p dangerouslySetInnerHTML={{ __html: result.content, }} className="opened-result-description"
+            onClick={(e: any) => {
+              if (
+                e.target.tagName === "SPAN" &&
+                e.target.style.textDecoration === "underline"
+              ) {
+                const clickedWord = e.target.textContent;
+                handleLinkClick(result.fileName, clickedWord);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+
  
 
   return (
-    <div className="homepage-container">
-      <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
-        <div className={"logoVc"}>
+    <DndProvider backend={HTML5Backend}>
+      <div className="homepage-container">
+        <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
+          <div className={"logoVc"}>
 
-          <div className="site-name" onClick={handleSiteNameClick}>
-            <p>TCM Weaver</p>
-          </div>
-
-          {/* ================Top Icons && Popups==================== */}
-          <div className={"icon-profile"}>
-
-            {/* ==============Theme Change==========================  */}
-            <div className="themeChanger">
-              {themeChangericon ? (
-                <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
-              ) : (
-                <img src="/light-modenew.svg" alt="img" onClick={handleThemeChangerClick} />
-              )}
+            <div className="site-name" onClick={handleSiteNameClick}>
+              <p>TCM Weaver</p>
             </div>
 
-            {/* =============Graph or Text View=======================*/}
-            <div>
-              {graphOrTextView ? (
-                <div className="simple-icon">
-                  {themeChangericon ? (
-                    <img src="/graph-logo-light.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                    ) : (
-                    <img src="/graph-logo-dark.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                  )}
-                </div>
-              ) : (
-                <div className={"note-icon"}>
-                  {themeChangericon ? (
-                    <img src="/text-logo.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                    ) : (
-                    <img src="/text-logo-night.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                  )}
-                </div>
-              )}
-            </div>
-            
-            {/* =============Users Options=========================== */}
-            <div className="sidebar-user-div">
-              {themeChangericon ? (
-                  <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+            {/* ================Top Icons && Popups==================== */}
+            <div className={"icon-profile"}>
+
+              {/* ==============Theme Change==========================  */}
+              <div className="themeChanger">
+                {themeChangericon ? (
+                  <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
                 ) : (
-                  <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
-              )}
-              {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
-              {showAccountOptions && (
-                <div className="account-options-container" ref={accountOptionsRef}>
-                  <List>
-                    {
-                      _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
-                        <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
-                          <ListItemText primary="Vault Management" />
-                        </ListItem>
-                      )
-                    }
-                    {
-                      _.every(['user_management'], value => _.includes(getPermissions, value)) && (
-                        <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
-                          <ListItemText primary="User Management" />
-                        </ListItem>
-                      )
-                    }
-                    {getUser.user_role === 'User' && (
-                      <>
-                        <ListItem button onClick={() => handleUserOptions("profile")} dense>
-                          <ListItemText primary="Profile" />
-                        </ListItem>
-                        <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
-                          <ListItemText primary="Change Password" />
-                        </ListItem>
-                        {getUser.user_package.length > 0 && (
-                          <ListItem button onClick={() => handleUserOptions("billing")} dense>
-                            <ListItemText primary="Billing" />
-                            {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
-                          </ListItem>
-                        )}
-                      </>
+                  <img src="/light-modenew.svg" alt="img" onClick={handleThemeChangerClick} />
+                )}
+              </div>
+
+              {/* =============Graph or Text View=======================*/}
+              <div>
+                {graphOrTextView ? (
+                  <div className="simple-icon">
+                    {themeChangericon ? (
+                      <img src="/graph-logo-light.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                      ) : (
+                      <img src="/graph-logo-dark.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
                     )}
-                    <ListItem button onClick={() => handleUserOptions("logout")} dense>
-                      <ListItemText primary="Logout" />
-                    </ListItem>
+                  </div>
+                ) : (
+                  <div className={"note-icon"}>
+                    {themeChangericon ? (
+                      <img src="/text-logo.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                      ) : (
+                      <img src="/text-logo-night.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* =============Users Options=========================== */}
+              <div className="sidebar-user-div">
+                {themeChangericon ? (
+                    <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+                  ) : (
+                    <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+                )}
+                {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
+                {showAccountOptions && (
+                  <div className="account-options-container" ref={accountOptionsRef}>
+                    <List>
+                      {
+                        _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
+                          <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
+                            <ListItemText primary="Vault Management" />
+                          </ListItem>
+                        )
+                      }
+                      {
+                        _.every(['user_management'], value => _.includes(getPermissions, value)) && (
+                          <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
+                            <ListItemText primary="User Management" />
+                          </ListItem>
+                        )
+                      }
+                      {getUser.user_role === 'User' && (
+                        <>
+                          <ListItem button onClick={() => handleUserOptions("profile")} dense>
+                            <ListItemText primary="Profile" />
+                          </ListItem>
+                          <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
+                            <ListItemText primary="Change Password" />
+                          </ListItem>
+                          {getUser.user_package.length > 0 && (
+                            <ListItem button onClick={() => handleUserOptions("billing")} dense>
+                              <ListItemText primary="Billing" />
+                              {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
+                            </ListItem>
+                          )}
+                        </>
+                      )}
+                      <ListItem button onClick={() => handleUserOptions("logout")} dense>
+                        <ListItemText primary="Logout" />
+                      </ListItem>
+                    </List>
+                  </div>
+                )}
+              </div>
+
+              {syncPopup ? (
+                <div>
+                  <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                    <DialogTitle>Authorization Required</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                      You will be redirected to the Google consent page to grant this app access to your Google Drive
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseDialog} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={synchronizeFiles} color="primary">
+                        Proceed
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </div>): (<></>
+              )}
+              
+              {foldersPopup && (
+                <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
+                <DialogTitle>Select a Folder</DialogTitle>
+                <DialogContent>
+                  <List>
+                    {folders.map((folder:any) => (
+                      <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
+                        <ListItemText primary={folder.name} />
+                      </ListItem>
+                    ))}
                   </List>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={ handlerFolderPopupClose} color="primary">
+                    Cancel
+                  </Button>
+                </DialogActions>
+                </Dialog>
+              )}
+
+              {userLogoutPopup && (
+                <div >
+                  <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose} className="user-logout-div">
+                    <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                    <DialogActions>
+                      <Button onClick={handleUserLogoutPopupClose} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={userLogout} color="primary">
+                        Logout
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                 </div>
               )}
-            </div>
 
-            {syncPopup ? (
-              <div>
-                <Dialog open={syncPopup} onClose={handleCloseDialog}>
-                  <DialogTitle>Authorization Required</DialogTitle>
+              {showEditUserDialog && (
+                <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
+                  <DialogTitle>Edit Profile</DialogTitle>
                   <DialogContent>
+
                     <DialogContentText>
-                    You will be redirected to the Google consent page to grant this app access to your Google Drive
+                      Please enter the details:
                     </DialogContentText>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleCloseDialog} color="primary">
-                      Cancel
-                    </Button>
-                    <Button onClick={synchronizeFiles} color="primary">
-                      Proceed
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </div>): (<></>
-            )}
-            
-            {foldersPopup && (
-              <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
-              <DialogTitle>Select a Folder</DialogTitle>
-              <DialogContent>
-                <List>
-                  {folders.map((folder:any) => (
-                    <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
-                      <ListItemText primary={folder.name} />
-                    </ListItem>
-                  ))}
-                </List>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={ handlerFolderPopupClose} color="primary">
-                  Cancel
-                </Button>
-              </DialogActions>
-              </Dialog>
-            )}
 
-            {userLogoutPopup && (
-              <div >
-                <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose} className="user-logout-div">
-                  <DialogTitle>Are you sure you want to logout?</DialogTitle>
-                  <DialogActions>
-                    <Button onClick={handleUserLogoutPopupClose} color="primary">
-                      Cancel
-                    </Button>
-                    <Button onClick={userLogout} color="primary">
-                      Logout
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </div>
-            )}
-
-            {showEditUserDialog && (
-              <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
-                <DialogTitle>Edit Profile</DialogTitle>
-                <DialogContent>
-
-                  <DialogContentText>
-                    Please enter the details:
-                  </DialogContentText>
-
-                  <Grid container spacing={2} sx={{paddingTop:1}}>
-                    <Grid item xs={12}>
-                      <div className="edit-profile-div">
-                        <div className="edit-profile-image-div">
-                          {formData.image && formData.image !== null && formData.image !== '' ? (
-                            <img src={formData.image}
+                    <Grid container spacing={2} sx={{paddingTop:1}}>
+                      <Grid item xs={12}>
+                        <div className="edit-profile-div">
+                          <div className="edit-profile-image-div">
+                            {formData.image && formData.image !== null && formData.image !== '' ? (
+                              <img src={formData.image}
+                                style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                alt="Profile Picture"
+                              />
+                            ):(
+                              <img src='/profile-avatar.webp'
                               style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
                               alt="Profile Picture"
+                              />
+                            )}
+                          </div>
+
+                          <div className="edit-profile-button-div">
+                            <button onClick={handleChooseFile} >Change picture</button>
+                            <button onClick={handleEditProfilePicture}>Remove</button>
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }}
+                              onChange={handleFileChange}
                             />
-                          ):(
-                            <img src='/profile-avatar.webp'
-                            style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
-                            alt="Profile Picture"
-                            />
-                          )}
+                          </div>
+
                         </div>
 
-                        <div className="edit-profile-button-div">
-                          <button onClick={handleChooseFile} >Change picture</button>
-                          <button onClick={handleEditProfilePicture}>Remove</button>
-                          <input type="file" ref={fileInputRef} style={{ display: 'none' }}
-                            onChange={handleFileChange}
-                          />
-                        </div>
 
-                      </div>
-
-
-                      <TextField
-                          label="Full Name"
-                          name="fullName"
-                          value={formData.fullName}
+                        <TextField
+                            label="Full Name"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleUserProfileChange}
+                            fullWidth
+                            margin="normal"
+                            size='small'
+                        />
+                        
+                        <TextField
+                          label="Email"
+                          name="email"
+                          value={formData.email}
                           onChange={handleUserProfileChange}
                           fullWidth
                           margin="normal"
                           size='small'
-                      />
-                      
-                      <TextField
-                        label="Email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleUserProfileChange}
-                        fullWidth
-                        margin="normal"
-                        size='small'
-                      />
+                        />
 
-                    </Grid> 
-                  </Grid>
-                </DialogContent>
+                      </Grid> 
+                    </Grid>
+                  </DialogContent>
 
-                <DialogActions>
-                  <Button onClick={closeEditUserDailog} color="primary">
-                    Cancel
-                  </Button>
-                  <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
-                    {editUserLoader ? 'Saving...' : 'Save'}
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            )}
+                  <DialogActions>
+                    <Button onClick={closeEditUserDailog} color="primary">
+                      Cancel
+                    </Button>
+                    <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                      {editUserLoader ? 'Saving...' : 'Save'}
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              )}
 
-            {showChangePasswordDialog && (
-              <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
-                <DialogTitle>Set Password</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Please enter the new password:
-                  </DialogContentText>
-                  <TextField
-                    type={showSetPasswordToggle ? 'text' : 'password'}
-                    label="New Password"
-                    name="newPassword"
-                    value={newPasswordData.newPassword}
-                    onChange={handleSetNewPasswordToggle}
-                    fullWidth
-                    margin="normal"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                            edge="end"
-                          >
-                            {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextField
-                    type={showConfirmPasswordToggle ? 'text' : 'password'}
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    value={newPasswordData.confirmPassword}
-                    onChange={handleSetNewPasswordToggle}
-                    fullWidth
-                    margin="normal"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                            edge="end"
-                          >
-                            {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={closeSetPasswordDialog} color="primary">
-                    Cancel
-                  </Button>
-                  <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                    {updatePasswordLoader ? 'Saving...' : 'Save'}
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            )}
+              {showChangePasswordDialog && (
+                <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
+                  <DialogTitle>Set Password</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      Please enter the new password:
+                    </DialogContentText>
+                    <TextField
+                      type={showSetPasswordToggle ? 'text' : 'password'}
+                      label="New Password"
+                      name="newPassword"
+                      value={newPasswordData.newPassword}
+                      onChange={handleSetNewPasswordToggle}
+                      fullWidth
+                      margin="normal"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                              edge="end"
+                            >
+                              {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <TextField
+                      type={showConfirmPasswordToggle ? 'text' : 'password'}
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      value={newPasswordData.confirmPassword}
+                      onChange={handleSetNewPasswordToggle}
+                      fullWidth
+                      margin="normal"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                              edge="end"
+                            >
+                              {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={closeSetPasswordDialog} color="primary">
+                      Cancel
+                    </Button>
+                    <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                      {updatePasswordLoader ? 'Saving...' : 'Save'}
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              )}
 
-            {showLockedVaultPopup && (
-              <Dialog open={showLockedVaultPopup} onClose={() => setShowLockedVaultPopup(false)}>
-                <DialogTitle>Subscription</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Only Basic Vault is free. Buy Subscription to get full access.
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
-                    Cancel
-                  </Button>
-                  {/* <Button color="primary" onClick={handleVaultCheckout} disabled={isLoading}>
-                    {updatePasswordLoader ? 'Saving...' : 'Buy Now'}
-                  </Button> */}
+              {showLockedVaultPopup && (
+                <Dialog open={showLockedVaultPopup} onClose={() => setShowLockedVaultPopup(false)}>
+                  <DialogTitle>Subscription</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      Only Basic Vault is free. Buy Subscription to get full access.
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
+                      Cancel
+                    </Button>
+                    {/* <Button color="primary" onClick={handleVaultCheckout} disabled={isLoading}>
+                      {updatePasswordLoader ? 'Saving...' : 'Buy Now'}
+                    </Button> */}
 
-                  {/* <Button color="primary">
-                    {updatePasswordLoader ? (
-                        <>
-                          Please Wait {" "}
-                          <span
-                            className="spinner-grow spinner-grow-sm ml-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        </>
-                      ) : (
-                        <>buy now</>
-                      )}
-                  </Button> */}
-                </DialogActions>
-            </Dialog>
-            )}
-
-          </div>
-
-        </div>
-
-
-        {/* =====Search Bar=======================================  */}
-        <div className={"menuBtn"}>
-          {graphOrTextView ? (
-            <>
-              <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
-                onChange={handleSearch}
-              />
-           </>
-          ) : (
-            <>
-              <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
-                onChange={handleGraphSearch}
-              />
-            </>
-          )}
-
-
-          <div className="copy-icon">
-            {textSearchLoader || graphSearchLoader ? (
-              <CircularProgress size={16} style={{color: 'black'}}/>
-            ):(
-              <div onClick={handleCopyText} style={{cursor: 'pointer'}}>
-                {themeChangericon ? (
-                  <img src="/copy-content.png" alt="img" />
-                ) : (
-                  <img src="/copy-content-dark.png" alt="img" />
-                )}
-              </div>
-            )}
-            {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
-            {isCopied && <div className="copy-tooltip">Copied!</div>}
-          </div>
-        </div>
-
-
-        {/* =====Search Results & Graph Node Preview==============  */}
-        {graphOrTextView ? (
-          <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
-            {showSearchResultToast && (
-              <div className="results-toast">
-                <p>{searchResults.length} results found</p>
-              </div>
-            )}
-            
-            {searchValue.length > 0 && (
-              <div>
-                {searchResults.map((result, index) => (
-                  <div className="filter-data" key={index}>
-                    <div className="set set-1">
-                      <div>
-                        <div className="results-title">
-                          <span>
-                            {
-                              (result as { wordOccurence: number })
-                                .wordOccurence
-                            }
-                          </span>
-
-                          <h1
-                            dangerouslySetInnerHTML={{
-                              __html: (
-                                result as {
-                                  fileNameWithHighlightedWords: string;
-                                }
-                              ).fileNameWithHighlightedWords,
-                            }}
-                            // onClick={() => handleFileClick(result["item"])}
-                          />
-                        </div>
-
-                        {themeChangericon ? (
-                        <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
-                         ) : (
-                        <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
+                    {/* <Button color="primary">
+                      {updatePasswordLoader ? (
+                          <>
+                            Please Wait {" "}
+                            <span
+                              className="spinner-grow spinner-grow-sm ml-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                          </>
+                        ) : (
+                          <>buy now</>
                         )}
-                      </div>
+                    </Button> */}
+                  </DialogActions>
+              </Dialog>
+              )}
 
-                      <div>
+            </div>
+
+          </div>
+
+
+          {/* =====Search Bar=======================================  */}
+          <div className={"menuBtn"}>
+            {graphOrTextView ? (
+              <>
+                <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
+                  onChange={handleSearch}
+                />
+            </>
+            ) : (
+              <>
+                <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
+                  onChange={handleGraphSearch}
+                />
+              </>
+            )}
+
+
+            <div className="copy-icon">
+              {textSearchLoader || graphSearchLoader ? (
+                <CircularProgress size={16} style={{color: 'black'}}/>
+              ):(
+                <div onClick={handleCopyText} style={{cursor: 'pointer'}}>
+                  {themeChangericon ? (
+                    <img src="/copy-content.png" alt="img" />
+                  ) : (
+                    <img src="/copy-content-dark.png" alt="img" />
+                  )}
+                </div>
+              )}
+              {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
+              {isCopied && <div className="copy-tooltip">Copied!</div>}
+            </div>
+          </div>
+
+
+          {/* =====Search Results & Graph Node Preview==============  */}
+          {graphOrTextView ? (
+            <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
+              {showSearchResultToast && (
+                <div className="results-toast">
+                  <p>{searchResults.length} results found</p>
+                </div>
+              )}
+              
+              {searchValue.length > 0 && (
+                <div>
+                  {searchResults.map((result, index) => (
+                    <div className="filter-data" key={index}>
+                      <div className="set set-1">
                         <div>
-                          <p
-                            dangerouslySetInnerHTML={{
-                              __html: (
-                                result as {
-                                  totalMarkedData: string;
-                                }
-                              ).totalMarkedData,
-                            }}
-                            className="note"
-                          />
-                        </div>
-                        <div>
+                          <div className="results-title">
+                            <span>
+                              {
+                                (result as { wordOccurence: number })
+                                  .wordOccurence
+                              }
+                            </span>
+
+                            <h1
+                              dangerouslySetInnerHTML={{
+                                __html: (
+                                  result as {
+                                    fileNameWithHighlightedWords: string;
+                                  }
+                                ).fileNameWithHighlightedWords,
+                              }}
+                              // onClick={() => handleFileClick(result["item"])}
+                            />
+                          </div>
+
                           {themeChangericon ? (
-                            <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
                           ) : (
-                            <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
                           )}
+                        </div>
+
+                        <div>
+                          <div>
+                            <p
+                              dangerouslySetInnerHTML={{
+                                __html: (
+                                  result as {
+                                    totalMarkedData: string;
+                                  }
+                                ).totalMarkedData,
+                              }}
+                              className="note"
+                            />
+                          </div>
+                          <div>
+                            {themeChangericon ? (
+                              <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            ) : (
+                              <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            {!hideFiltersForPreview && (
-              <div key={animationKey} className="node-preview">
-                <div className="node-preview-title">
-                  <div className="graph-show-node">
-                    {graphNodeOpened.length === 1 ? (
-                      <div>
-                        {themeChangericon ? (
-                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-                        ) : (
-                          <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
-                        )}
-                        {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
-                          className="graph-node-backarrow-single">
-                        </ArrowBackIcon> */}
-                      </div>
-                    ):(
-                      <div onClick={handleLeftArrowForPreviousFile}>
-                        {themeChangericon ? (
-                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-                        ) : (
-                          <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
-                        )}
-                        {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
-                          className="graph-node-backarrow">
-                        </ArrowBackIcon> */}
-                      </div>
-                    )}
-                    <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
-                  </div>
-
-
-                  <div className="preview-node-loader">
-                    {previewNodeLinkLoader ? (
-                      <CircularProgress size={16} style={{color: 'black'}} />
-                    ):(
-                      <div>
-                        {themeChangericon ? (
-                          <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                        ) : (
-                          <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                        )}
-                      </div>
-
-                    )}
-                    
-                  </div>
+                  ))}
                 </div>
-
-                <div className="node-preview-detail">
-                  <p
-                    dangerouslySetInnerHTML={{
-                      __html: graphNodeOpened[0].content,
-                    }}
-                    className="opened-result-description"
-                    onClick={(e: any) => {
-                      if (
-                        e.target.tagName === "SPAN" &&
-                        e.target.style.textDecoration === "underline"
-                      ) {
-                        const clickedWord = e.target.textContent;
-                        previewNodeLink(clickedWord);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div id="nodeInfo" className="node-click-options">
-              {themeChangericon ? (
-                <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-              ) : (
-                <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-              )}
-
-              {themeChangericon ? (
-                <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-              ) : (
-                <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-              )}
-
-              {themeChangericon ? (
-                <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-              ) : (
-                <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
               )}
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              {!hideFiltersForPreview && (
+                <div key={animationKey} className="node-preview">
+                  <div className="node-preview-title">
+                    <div className="graph-show-node">
+                      {graphNodeOpened.length === 1 ? (
+                        <div>
+                          {themeChangericon ? (
+                            <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                          ) : (
+                            <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
+                          )}
+                          {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+                            className="graph-node-backarrow-single">
+                          </ArrowBackIcon> */}
+                        </div>
+                      ):(
+                        <div onClick={handleLeftArrowForPreviousFile}>
+                          {themeChangericon ? (
+                            <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                          ) : (
+                            <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
+                          )}
+                          {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
+                            className="graph-node-backarrow">
+                          </ArrowBackIcon> */}
+                        </div>
+                      )}
+                      <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
+                    </div>
 
-        {/* =====Filters =========================================  */}
-        <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
-          <div className="menus-link">
-            {!shouldShowFilters ? (
-              <>
-                {hideFiltersForPreview && (
-                  <div className="sub-accordion">
-                    <Accordion>
-                      {allCheckboxes.map((category: any, index: any) => (
-                        <div key={index}>
-                          {graphOrTextView ? (
-                            <>
-                              <Accordion.Item
-                            eventKey={index.toString()}
-                            key={category.category}
-                            title={category.category}
-                            className="accordion-item"
-                          >
-                            <Accordion.Header className="accordion-header">
-                              {category.category}
-                            </Accordion.Header>
-                            <Accordion.Body className="accordion-body">
-                              <div className="form-check form-check-inline">
-                                {category.items.map((item: any) => (
-                                  <div
-                                    className="form-check form-check-inline"
-                                    key={item.id}
-                                  >
-                                    <input
-                                      className={`form-check-input ${
-                                        category.items[item.id - 1]["status"] ===
-                                        "exclude"
-                                          ? "customCheckBackground"
-                                          : ""
-                                      }`}
-                                      type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                      checked={item.state === "checked"} value={item.value}
-                                      onChange={() => handleCheckboxClick( category.category,item.id )}
-                                    />
-                                    <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                      {item.value}
-                                      {item.category}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
-                            </Accordion.Body>
-                              </Accordion.Item>
-                            </>
-                          ):(
-                            <>
-                              {!graphFiltersName.includes(category.category) && (
-                                <Accordion.Item
-                                eventKey={index.toString()}
-                                key={category.category}
-                                title={category.category}
-                                className="accordion-item"
-                              >
-                                <Accordion.Header className="accordion-header">
-                                  {category.category}
-                                </Accordion.Header>
-                                <Accordion.Body className="accordion-body">
-                                  <div className="form-check form-check-inline">
-                                    {category.items.map((item: any) => (
-                                      <div
-                                        className="form-check form-check-inline"
-                                        key={item.id}
-                                      >
-                                        <input
-                                          className={`form-check-input ${
-                                            category.items[item.id - 1]["status"] ===
-                                            "exclude"
-                                              ? "customCheckBackground"
-                                              : ""
-                                          }`}
-                                          type="checkbox"
-                                          id={`checkbox${category.category}-${item.id}`}
-                                          checked={item.state === "checked"}
-                                          onChange={() =>
-                                            handleCheckboxClick(
-                                              category.category,
-                                              item.id
-                                            )
-                                          }
-                                          value={item.value}
-                                        />
-                                        <label
-                                          className="form-check-label"
-                                          htmlFor={`checkbox${category.category}-${item.id}`}
-                                        >
-                                          {item.value}
-                                          {item.category}
-                                        </label>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </Accordion.Body>
-                                </Accordion.Item>
-                              )}
-                            </>
+
+                    <div className="preview-node-loader">
+                      {previewNodeLinkLoader ? (
+                        <CircularProgress size={16} style={{color: 'black'}} />
+                      ):(
+                        <div>
+                          {themeChangericon ? (
+                            <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                          ) : (
+                            <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
                           )}
                         </div>
-                         
-                      ))}
-                    </Accordion>
-                  </div>
-                )}
-              </>
-            ):(
-              <div className="filter-accordion">
-                <Accordion>
-                  <Accordion.Item
-                  eventKey="0"
-                    key="0"
-                    title="filter"
-                    className="accordion-item"
-                  >
-                    <Accordion.Header
-                      className="accordion-header"
-                      onClick={handleAccordionClick}
-                    >
-                      Filters
-                    </Accordion.Header>
-                  </Accordion.Item>
-                </Accordion>
-              </div>
-            )}
 
-          </div>
-        </div>
-
-
-        {/* =====Graph Sliders====================================  */}
-        {graphOrTextView ? (<></>):(
-          <>
-            <div className="forces-container">
-
-              <div>
-                <p style={{margin: '0px'}}>Center force</p>
-                <Slider style={{padding: '8px 0px'}} defaultValue={centerForceValue} size="small" step={0.01}
-                  min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
-                  classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                />
-              </div>
-
-              <div>
-                <p style={{margin: '0px'}}>Link force</p>
-                <Slider style={{padding: '8px 0px'}} size="small" min={0} max={1} defaultValue={linkForceValue}
-                  step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
-                  classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
-                />
-              </div>
-
-              <div>
-                <p style={{margin: '0px'}}>Link distance</p>
-                <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
-                  style={{padding: '8px 0px'}} size="small" min={0} max={1} step={0.01} aria-label="Small"
-                  onChangeCommitted={handleSliderChangeCommitted}
-                  classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
-                />
-              </div>
-
-            </div>
-          </>
-        )}
-
-      </div>
-
-
-      <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
-        {graphOrTextView ? (
-          <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
-            {openedResults.length > 0 ? (
-              openedResults.map((result, index) => (
-                <div key={index} className="opened-results">
-                  <div className="view-panel-title">
-                    <h4>{result.fileName.toUpperCase()}</h4>
-                    {result.openedFromResults ? (
-                      <div className="view-panel-title-icons">
-                        {themeChangericon ? (
-                            <img src="/arrow-leftnew.png" alt="img" onClick={() => collapseOpenedResult(result)} />
-                          ) : (
-                            <img src="/arrow-left-dark.png" alt="img" onClick={() => collapseOpenedResult(result)} />
-                        )}
-
-                        {themeChangericon ? (
-                            <img src="/xmarknew.png" alt="img" onClick={() => removeBothSearchResults(result)} />
-                          ) : (
-                            <img src="/xmark-dark.png" alt="img" onClick={() => removeBothSearchResults(result)} />
-                        )}
-                      </div>
-                    ) : (
-                      <div>
-                        {themeChangericon ? (
-                          <img src="/collapsenew.png" alt="img" onClick={() => collapseOpenedResult(result)}
-                            className="link-collapse-icon"
-                          />
-                        ):(
-                          <img src="/collapse-dark.png" alt="img" onClick={() => collapseOpenedResult(result)}
-                            className="link-collapse-icon"
-                          />
-                        )}
-                        
-                      </div>
-                    )}
+                      )}
+                      
+                    </div>
                   </div>
 
-                  <div className="opened-result-detail">
-                    <p dangerouslySetInnerHTML={{ __html: result.content, }} className="opened-result-description"
+                  <div className="node-preview-detail">
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: graphNodeOpened[0].content,
+                      }}
+                      className="opened-result-description"
                       onClick={(e: any) => {
                         if (
                           e.target.tagName === "SPAN" &&
                           e.target.style.textDecoration === "underline"
                         ) {
                           const clickedWord = e.target.textContent;
-                          handleLinkClick(result.fileName, clickedWord);
+                          previewNodeLink(clickedWord);
                         }
                       }}
                     />
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="homepage-opened-file">
-                <div className="homepage-content-container">
-                  {homepageFile.length === 0 ? (
-                    <p className="opened-result-description">Home.md not found</p>
-                  ) : (
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: filtersData ? homepageFile.content : '',
-                      }}
-                      className="opened-result-description"
-                    />
-                  )}
-                </div>
+              )}
+
+              <div id="nodeInfo" className="node-click-options">
+                {themeChangericon ? (
+                  <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+                ) : (
+                  <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+                )}
+
+                {themeChangericon ? (
+                  <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                ) : (
+                  <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                )}
+
+                {themeChangericon ? (
+                  <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+                ) : (
+                  <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+                )}
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="graph-container">
-            <div id="graph-div" className="graph-div"></div>
-            
-            {/* =====================Graph Filters=============================== */}
-            <div>
-              {showGraphFilters ? (
+            </>
+          )}
+
+          {/* =====Filters =========================================  */}
+          <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
+            <div className="menus-link">
+              {!shouldShowFilters ? (
                 <>
-                  <div className="graph-color-setting">
-
-                    <div className="graph-color-setting-close-div">
-                      <h5>Graph Filters</h5>
-                      <button onClick={() => setShowGraphFilters(false)}>
-                        {themeChangericon ? (
-                        <img src='/xmarknew.png' alt='filter-icon'/>
-
-                      ):(
-                        <img src='/xmark-dark.png' alt='filter-icon'/>
-                      )}
-                      </button>
-                    </div>
-
-                    <div>
+                  {hideFiltersForPreview && (
+                    <div className="sub-accordion">
                       <Accordion>
-                        {graphTagFilters.map((category: any, index: any) => (
+                        {allCheckboxes.map((category: any, index: any) => (
                           <div key={index}>
-                            <>
-                              <Accordion.Item eventKey={index.toString()} key={category.category} 
-                                title={category.category} className="accordion-item">
-                                <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
-                                <Accordion.Body className="accordion-body">
-                                  <div className="form-check form-check-inline">
-                                    {category.items.map((item: any) => (
-                                      <div className="form-check form-check-inline" key={item.id}>
-                                        <input className={`form-check-input ${
-                                                category.items[item.id - 1]["status"] === "exclude"
-                                                ? "customCheckBackground" : ""
-                                                }`}
-                                          type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                          checked={item.state === "checked"} value={item.value}
-                                          onChange={() => handleGraphFilters( category.category, item.id, item.value )}
-                                        />
-                                        <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                          {item.value}
-                                          {item.category}
-                                        </label>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </Accordion.Body>
-                              </Accordion.Item>
-                            </>
+                            {graphOrTextView ? (
+                              <>
+                                <Accordion.Item
+                              eventKey={index.toString()}
+                              key={category.category}
+                              title={category.category}
+                              className="accordion-item"
+                            >
+                              <Accordion.Header className="accordion-header">
+                                {category.category}
+                              </Accordion.Header>
+                              <Accordion.Body className="accordion-body">
+                                <div className="form-check form-check-inline">
+                                  {category.items.map((item: any) => (
+                                    <div
+                                      className="form-check form-check-inline"
+                                      key={item.id}
+                                    >
+                                      <input
+                                        className={`form-check-input ${
+                                          category.items[item.id - 1]["status"] ===
+                                          "exclude"
+                                            ? "customCheckBackground"
+                                            : ""
+                                        }`}
+                                        type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                        checked={item.state === "checked"} value={item.value}
+                                        onChange={() => handleCheckboxClick( category.category,item.id )}
+                                      />
+                                      <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                        {item.value}
+                                        {item.category}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </Accordion.Body>
+                                </Accordion.Item>
+                              </>
+                            ):(
+                              <>
+                                {!graphFiltersName.includes(category.category) && (
+                                  <Accordion.Item
+                                  eventKey={index.toString()}
+                                  key={category.category}
+                                  title={category.category}
+                                  className="accordion-item"
+                                >
+                                  <Accordion.Header className="accordion-header">
+                                    {category.category}
+                                  </Accordion.Header>
+                                  <Accordion.Body className="accordion-body">
+                                    <div className="form-check form-check-inline">
+                                      {category.items.map((item: any) => (
+                                        <div
+                                          className="form-check form-check-inline"
+                                          key={item.id}
+                                        >
+                                          <input
+                                            className={`form-check-input ${
+                                              category.items[item.id - 1]["status"] ===
+                                              "exclude"
+                                                ? "customCheckBackground"
+                                                : ""
+                                            }`}
+                                            type="checkbox"
+                                            id={`checkbox${category.category}-${item.id}`}
+                                            checked={item.state === "checked"}
+                                            onChange={() =>
+                                              handleCheckboxClick(
+                                                category.category,
+                                                item.id
+                                              )
+                                            }
+                                            value={item.value}
+                                          />
+                                          <label
+                                            className="form-check-label"
+                                            htmlFor={`checkbox${category.category}-${item.id}`}
+                                          >
+                                            {item.value}
+                                            {item.category}
+                                          </label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </Accordion.Body>
+                                  </Accordion.Item>
+                                )}
+                              </>
+                            )}
                           </div>
+                          
                         ))}
                       </Accordion>
                     </div>
-                  </div>
+                  )}
                 </>
               ):(
-                <>
-                  <div className="graph-color-setting-icon">
-                    <button onClick={() => setShowGraphFilters(true)}>
-                      {themeChangericon ? (
-                        <img src='/filter-icon-light.svg' alt='filter-icon'/>
-
-                      ):(
-                        <img src='/filter-icon-dark.svg' alt='filter-icon'/>
-                      )}
-                    </button>
-                  </div>
-                </>
+                <div className="filter-accordion">
+                  <Accordion>
+                    <Accordion.Item
+                    eventKey="0"
+                      key="0"
+                      title="filter"
+                      className="accordion-item"
+                    >
+                      <Accordion.Header
+                        className="accordion-header"
+                        onClick={handleAccordionClick}
+                      >
+                        Filters
+                      </Accordion.Header>
+                    </Accordion.Item>
+                  </Accordion>
+                </div>
               )}
+
             </div>
           </div>
-        )}
 
+
+          {/* =====Graph Sliders====================================  */}
+          {graphOrTextView ? (<></>):(
+            <>
+              <div className="forces-container">
+
+                <div>
+                  <p style={{margin: '0px'}}>Center force</p>
+                  <Slider style={{padding: '8px 0px'}} defaultValue={centerForceValue} size="small" step={0.01}
+                    min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
+                    classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+                <div>
+                  <p style={{margin: '0px'}}>Link force</p>
+                  <Slider style={{padding: '8px 0px'}} size="small" min={0} max={1} defaultValue={linkForceValue}
+                    step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
+                    classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+                <div>
+                  <p style={{margin: '0px'}}>Link distance</p>
+                  <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
+                    style={{padding: '8px 0px'}} size="small" min={0} max={1} step={0.01} aria-label="Small"
+                    onChangeCommitted={handleSliderChangeCommitted}
+                    classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+              </div>
+            </>
+          )}
+
+        </div>
+
+
+        <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
+          {graphOrTextView ? (
+            <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
+              {openedResults.length > 0 ? (
+                openedResults.map((result, index) => (
+                  <DraggableOpenedResult key={index} result={result} index={index} moveResult={moveResult} />
+                  // <div key={index} className="opened-results">
+                    
+                  // </div>
+                ))
+              ) : (
+                <div className="homepage-opened-file">
+                  <div className="homepage-content-container">
+                    {homepageFile.length === 0 ? (
+                      <p className="opened-result-description"></p>
+                    ) : (
+                      <p
+                        dangerouslySetInnerHTML={{
+                          __html: filtersData ? homepageFile.content : '',
+                        }}
+                        className="opened-result-description"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="graph-container">
+              <div id="graph-div" className="graph-div"></div>
+              
+              {/* =====================Graph Filters=============================== */}
+              <div>
+                {showGraphFilters ? (
+                  <>
+                    <div className="graph-color-setting">
+
+                      <div className="graph-color-setting-close-div">
+                        <h5>Graph Filters</h5>
+                        <button onClick={() => setShowGraphFilters(false)}>
+                          {themeChangericon ? (
+                          <img src='/xmarknew.png' alt='filter-icon'/>
+
+                        ):(
+                          <img src='/xmark-dark.png' alt='filter-icon'/>
+                        )}
+                        </button>
+                      </div>
+
+                      <div>
+                        <Accordion>
+                          {graphTagFilters.map((category: any, index: any) => (
+                            <div key={index}>
+                              <>
+                                <Accordion.Item eventKey={index.toString()} key={category.category} 
+                                  title={category.category} className="accordion-item">
+                                  <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
+                                  <Accordion.Body className="accordion-body">
+                                    <div className="form-check form-check-inline">
+                                      {category.items.map((item: any) => (
+                                        <div className="form-check form-check-inline" key={item.id}>
+                                          <input className={`form-check-input ${
+                                                  category.items[item.id - 1]["status"] === "exclude"
+                                                  ? "customCheckBackground" : ""
+                                                  }`}
+                                            type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                            checked={item.state === "checked"} value={item.value}
+                                            onChange={() => handleGraphFilters( category.category, item.id, item.value )}
+                                          />
+                                          <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                            {item.value}
+                                            {item.category}
+                                          </label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </Accordion.Body>
+                                </Accordion.Item>
+                              </>
+                            </div>
+                          ))}
+                        </Accordion>
+                      </div>
+                    </div>
+                  </>
+                ):(
+                  <>
+                    <div className="graph-color-setting-icon">
+                      <button onClick={() => setShowGraphFilters(true)}>
+                        {themeChangericon ? (
+                          <img src='/filter-icon-light.svg' alt='filter-icon'/>
+
+                        ):(
+                          <img src='/filter-icon-dark.svg' alt='filter-icon'/>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      
+        <ToastContainer />
       </div>
-    
-      <ToastContainer />
-    </div>
+    </DndProvider>
+   
   );
 };
 
