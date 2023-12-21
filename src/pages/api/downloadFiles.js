@@ -136,7 +136,7 @@ export default async function handler(request, response) {
 
 
                 } else {
-                    console.log(folder)
+                    // console.log(folder)
                     const tableNameToDelete = await db.select().from(vaultsTable)
                         .where(eq(vaultsTable.vault_name, folder.option));
 
@@ -157,19 +157,18 @@ export default async function handler(request, response) {
                 }
             }
 
-            console.log('results', totalObjects)
+            // console.log('results', totalObjects)
 
             response.status(200).json({
                 message: `${totalObjects}`,
                 data: results
             });
 
-
-
         } catch (error) {
             console.error("Error fetching file:", error.message);
             response.status(500).json({ error: "Internal Server Error" });
         }
+
     } else {
         response.status(405).end(); // Method Not Allowed
     }

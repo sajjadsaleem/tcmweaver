@@ -3,8 +3,6 @@ import { OAuth2Client } from 'google-auth-library';
 
 export default async function handler(req, res) {
 
-
-
     if (req.method === "GET") {
         try {
 

@@ -6951,8 +6951,7 @@ const Sidebar = () => {
                   </div>
 
                   <div className="opened-result-detail">
-                    <p dangerouslySetInnerHTML={{ __html: result.content, }}
-                      className="opened-result-description"
+                    <p dangerouslySetInnerHTML={{ __html: result.content, }} className="opened-result-description"
                       onClick={(e: any) => {
                         if (
                           e.target.tagName === "SPAN" &&
@@ -6968,9 +6967,6 @@ const Sidebar = () => {
               ))
             ) : (
               <div className="homepage-opened-file">
-                {/* <div className="view-panel-title">
-                  <h3>Homepage</h3>
-                </div> */}
                 <div className="homepage-content-container">
                   {homepageFile.length === 0 ? (
                     <p className="opened-result-description">Home.md not found</p>
