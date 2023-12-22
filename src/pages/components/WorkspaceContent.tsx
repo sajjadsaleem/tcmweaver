@@ -2,11 +2,32 @@ import { CircularProgress } from '@mui/material';
 import React from 'react'
 import { useDrag, useDrop } from 'react-dnd';
 
-const WorkspaceContent = ({key, result, index, moveResult,handleLinkClick , themeChangericon , collapseOpenedResult,
-    removeBothSearchResults, linkClickLoader, linkClickedId}: {key:any; result:any; index:any; moveResult:any;
-    handleLinkClick:any;
-    themeChangericon:any;collapseOpenedResult:any; removeBothSearchResults:any; linkClickLoader:any;
-    linkClickedId:any}) => {
+
+interface WorkspaceContentProps {
+    key: any;
+    result: any;
+    index: any;
+    moveResult: any;
+    handleLinkClick: any;
+    themeChangericon: any;
+    collapseOpenedResult: any;
+    removeBothSearchResults: any;
+    linkClickLoader: any;
+    linkClickedId: any;
+}
+
+const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
+    key,
+    result,
+    index,
+    moveResult,
+    handleLinkClick,
+    themeChangericon,
+    collapseOpenedResult,
+    removeBothSearchResults,
+    linkClickLoader,
+    linkClickedId
+  }) => {
 
     const [, ref] = useDrag({type: 'OPENED_RESULT', item: { index },})
       
