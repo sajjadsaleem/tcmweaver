@@ -14,6 +14,7 @@ interface WorkspaceContentProps {
     removeBothSearchResults: any;
     linkClickLoader: any;
     linkClickedId: any;
+    children?: React.ReactNode;
 }
 
 const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
@@ -26,7 +27,8 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
     collapseOpenedResult,
     removeBothSearchResults,
     linkClickLoader,
-    linkClickedId
+    linkClickedId,
+    children
   }) => {
 
     const [, ref] = useDrag({type: 'OPENED_RESULT', item: { index },})
