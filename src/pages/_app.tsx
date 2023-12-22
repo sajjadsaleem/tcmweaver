@@ -10,6 +10,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Provider } from 'react-redux';
 import { store } from '../store/index';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 interface DashboardProps {
   Component: React.ComponentType;
@@ -51,9 +53,11 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
       </Head>
 
-      <Provider store={store}>
+      <DndProvider backend={HTML5Backend}>
+        <Provider store={store}>
           <Component {...pageProps} />
-      </Provider>
+        </Provider>
+      </DndProvider>
     </div>
   );
 };

@@ -6254,7 +6254,7 @@ const Sidebar = () => {
 
 
   return (
-    <DndProvider backend={HTML5Backend}>
+   
       <div className="homepage-container">
         <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
           <div className={"logoVc"}>
@@ -7046,7 +7046,6 @@ const Sidebar = () => {
       
         <ToastContainer />
       </div>
-    </DndProvider>
    
   );
 };
