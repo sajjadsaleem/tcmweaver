@@ -46,7 +46,7 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div ref={(node) => ref(drop(node))} className="opened-results" id={`${result.id}`}>
+            <div ref={(node) => ref(drop(node))} className="opened-results" id={result?.id ?? 'defaultId'}>
                 <div className="view-panel-title">
                     <h4>{result.fileName.toUpperCase()}</h4>
                     {result.openedFromResults ? (
