@@ -27,7 +27,7 @@ export default async function linkFile(req, res) {
             }
         }
 
-        console.log('datasets new', datasets)
+        // console.log('datasets new', datasets)
 
         const updatedDatasets = datasets.map((firstRow) => {
             const dotIndex = firstRow.filename.lastIndexOf('.');
@@ -50,7 +50,10 @@ export default async function linkFile(req, res) {
             return result;
         }, {});
 
+        // console.log('updatedobjects', updatedDatasets)
+
         const desiredFormat = {
+            id: updatedDatasets[0].id,
             fileName: updatedObject.dataset.filename,
             content: updatedObject.dataset.content
         };

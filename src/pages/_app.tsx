@@ -46,10 +46,9 @@ const Dashboard: React.FC<DashboardProps> = ({ Component, pageProps }) => {
         <meta name="description" content={`Tcm Weaver – Dashboard`} />
         <meta name="keywords" content="Tcm Weaver Next Js Template" />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="icon" sizes="16x16" href="/favicon.ico"/>
-        <link rel="icon" type="image/png" href="/favicon.png"/>
-        <link rel="apple-touch-icon" href="/favicon.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
       </Head>
 
       <Provider store={store}>

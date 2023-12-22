@@ -22,11 +22,12 @@ import {stAccessTokenVerify} from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import WorkspaceContent from "./WorkspaceContent";
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
 
 
 var internalId:any = 0
@@ -162,6 +163,8 @@ const Sidebar = () => {
   const [showGraphFilters , setShowGraphFilters] = useState<any>(false)
   const [graphDataAfterFilters , setGraphDataAfterFilters] = useState<any>([])
   const [showSearchResultToast, setShowSearchResultToast] = useState<any>(false)
+  const [linkClickLoader , setLinkClickLoader] = useState<boolean>(false)
+  const [linkClickedId , setLinkClickedId] = useState('')
   
   
 
@@ -2975,6 +2978,11 @@ const Sidebar = () => {
     }));
     setGraphTagFilters(updatedGraphFilters)
 
+    const graphDiv = document.getElementById("graph-div");
+    if (graphDiv) {
+        graphDiv.innerHTML = "";
+    }
+
   };
 
 
@@ -4909,12 +4917,17 @@ const Sidebar = () => {
   };
 
 
-  const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any) => {
+  const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result:any) => {
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
+    // console.log('result' , result.id)
+    setLinkClickedId(result.id)
+
+    setLinkClickLoader(true)
     try {
       const tableNamesStr = userAccessVaults.join(',');
       const response = await fetch(`/api/linkFile?q=${linkClicked}&av=${tableNamesStr}`);
+      // console.log('response' , response)
       const newDataObject = await response.json();
       // console.log("responseJson: ", responseJson);
 
@@ -4939,7 +4952,7 @@ const Sidebar = () => {
           (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
         // console.log("contentwithstyledword", contentWithStyledWords);
-        // console.log('openedresults' , openedResults, linkClickedFromFile)
+        console.log('openedresults' , openedResults)
         const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile );
         // console.log('index' , index)
 
@@ -4964,6 +4977,7 @@ const Sidebar = () => {
 
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
+            setLinkClickLoader(false)
           } else {
             // console.log('not found')
             const resultsWithRemovedLink = openedResults.filter((item: any) => item.fileName !== updatedResults.fileName);
@@ -4976,6 +4990,7 @@ const Sidebar = () => {
 
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
+            setLinkClickLoader(false)
           }
 
           // scroll to where the file is opened
@@ -4987,7 +5002,6 @@ const Sidebar = () => {
               // console.log("h4", h4Elements);
               h4Elements.forEach((h4: any) => {
                 if (h4.textContent === linkClicked.toUpperCase()) {
-                  // console.log("h4", h4);
                   h4.classList.add("highlighted-heading");
                   h4.scrollIntoView({behavior: "smooth", block: "start", inline: "center",});
 
@@ -5002,6 +5016,7 @@ const Sidebar = () => {
       }
     } catch (error) {
       console.error("Error fetching search results:", error);
+      setLinkClickLoader(false)
     }
   };
 
@@ -6238,73 +6253,6 @@ const Sidebar = () => {
   };
 
 
-  const DraggableOpenedResult = ({ result, index, moveResult }: { result: any; index:any; moveResult: any }) => {
-    const [, ref] = useDrag({type: 'OPENED_RESULT', item: { index },})
-  
-    const [, drop] = useDrop({
-      accept: 'OPENED_RESULT',
-      hover: (draggedItem:any) => {
-        if (draggedItem.index !== index) {
-          moveResult(draggedItem.index, index);
-          draggedItem.index = index;
-        }
-      },
-    });
-  
-    return (
-      <div ref={(node) => ref(drop(node))} className="opened-results">
-        <div className="view-panel-title">
-          <h4>{result.fileName.toUpperCase()}</h4>
-            {result.openedFromResults ? (
-              <div className="view-panel-title-icons">
-                {themeChangericon ? (
-                    <img src="/arrow-leftnew.png" alt="img" onClick={() => collapseOpenedResult(result)} />
-                  ) : (
-                    <img src="/arrow-left-dark.png" alt="img" onClick={() => collapseOpenedResult(result)} />
-                )}
-
-                {themeChangericon ? (
-                    <img src="/xmarknew.png" alt="img" onClick={() => removeBothSearchResults(result)} />
-                  ) : (
-                    <img src="/xmark-dark.png" alt="img" onClick={() => removeBothSearchResults(result)} />
-                )}
-              </div>
-            ) : (
-              <div>
-                {themeChangericon ? (
-                  <img src="/collapsenew.png" alt="img" onClick={() => collapseOpenedResult(result)}
-                    className="link-collapse-icon"
-                  />
-                ):(
-                  <img src="/collapse-dark.png" alt="img" onClick={() => collapseOpenedResult(result)}
-                    className="link-collapse-icon"
-                  />
-                )}
-                
-              </div>
-            )}
-        </div>
-
-        <div className="opened-result-detail">
-          <p dangerouslySetInnerHTML={{ __html: result.content, }} className="opened-result-description"
-            onClick={(e: any) => {
-              if (
-                e.target.tagName === "SPAN" &&
-                e.target.style.textDecoration === "underline"
-              ) {
-                const clickedWord = e.target.textContent;
-                handleLinkClick(result.fileName, clickedWord);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  };
-
-
- 
-
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="homepage-container">
@@ -6633,7 +6581,7 @@ const Sidebar = () => {
                 <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
                   onChange={handleSearch}
                 />
-            </>
+              </>
             ) : (
               <>
                 <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
@@ -6990,16 +6938,16 @@ const Sidebar = () => {
 
         </div>
 
-
         <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
           {graphOrTextView ? (
             <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
               {openedResults.length > 0 ? (
                 openedResults.map((result, index) => (
-                  <DraggableOpenedResult key={index} result={result} index={index} moveResult={moveResult} />
-                  // <div key={index} className="opened-results">
-                    
-                  // </div>
+                  <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}
+                    handleLinkClick={handleLinkClick} themeChangericon={themeChangericon} 
+                    collapseOpenedResult={collapseOpenedResult} removeBothSearchResults={removeBothSearchResults}
+                    linkClickLoader={linkClickLoader} linkClickedId={linkClickedId}>
+                  </WorkspaceContent>
                 ))
               ) : (
                 <div className="homepage-opened-file">
