@@ -33,7 +33,9 @@ export default async function search(req, res) {
             const selectQuery = drizzleSql`SELECT * FROM `;
             const selectQueryJoint = `${table}`
             selectQuery.queryChunks[0].value[0] += selectQueryJoint
+            // console.log('selectquery', selectQuery, table)
             const queryResult = await db.execute(drizzleSql`${selectQuery}`);
+            // console.log('queryresult',)
             for (const item of queryResult.rows) {
                 if (typeof item === 'object' && item !== null) {
                     rows.push(item);

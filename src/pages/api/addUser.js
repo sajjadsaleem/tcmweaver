@@ -12,19 +12,6 @@ export default async function addUser(req, res) {
 
             const hashedPassword = await bcrypt.hash(password, 12);
 
-            // Insert the user data into the database using Prisma
-            // const newUser = await prisma.users.create({
-            //     data: {
-            //         role_id: role === 'admin' ? 1 : 2, // Assuming 1 is for admin and 2 is for user
-            //         email,
-            //         password: hashedPassword,
-            //         verification_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
-            //         forgot_password_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
-            //         full_name: fullName,
-            //         username: email,
-            //         status: 'Active',
-            //     },
-            // });
 
             const db = drizzle(sql)
             let newUser = await db.insert(users).values({

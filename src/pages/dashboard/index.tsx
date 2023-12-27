@@ -1653,12 +1653,7 @@ const Dashboard = () => {
                             <Grid item xs={12} sx={{paddingTop:2}}>
                               <FormControl fullWidth>
                                 <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
-                                <MuiSelect
-                                  name="status"
-                                  value={formData.status}
-                                  onChange={handleChange}
-                                  size='small'
-                                >
+                                <MuiSelect name="status" value={formData.status} onChange={handleChange} size='small'>
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
                                 </MuiSelect>
@@ -1669,9 +1664,7 @@ const Dashboard = () => {
                         </Grid>
                       </DialogContent>
                       <DialogActions>
-                        <Button onClick={closeEditUserDailog} color="primary">
-                          Cancel
-                        </Button>
+                        <Button onClick={closeEditUserDailog} color="primary">Cancel</Button>
                         <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
                           {editUserLoader ? 'Saving...' : 'Save'}
                         </Button>
@@ -1690,18 +1683,12 @@ const Dashboard = () => {
                       </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                      <Button onClick={() => setShowVaultDelete(false)} color="primary">
-                        Cancel
-                      </Button>
+                      <Button onClick={() => setShowVaultDelete(false)} color="primary">Cancel</Button>
                       <Button onClick={deleteVault} color="primary">
                         {proccedBtnLoading ? (
                             <>
                               Deleting {" "}
-                              <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
+                              <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                             </>
                           ) : (
                             <>Delete</>
@@ -1806,7 +1793,12 @@ const Dashboard = () => {
 
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
                   onClick={() => setSelectedListItem(2)}>
-                    <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    {themeChangericon ? (
+                      <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    ):(
+                      <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    )}
+                    
                     <ListItemText primary="User Management" />
                 </ListItem>
 
@@ -1835,7 +1827,11 @@ const Dashboard = () => {
 
               <div className='logout-button-div'>
                 <button className="logout-button" onClick={handleLogout} >
-                  <img src='logout.svg'/>
+                  {themeChangericon ? (
+                      <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                  ):(
+                      <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                  )}
                   Logout
                 </button>
               </div> 
@@ -1887,7 +1883,12 @@ const Dashboard = () => {
                       ):(
                         <button className='vault-sync-btn' onClick={() => setSyncPopup(true)}>
                         Sync
-                        <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                        {themeChangericon ? (
+                          <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                        ):(
+                          <img src='sync-dark.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                        )}
+                        
                       </button>
                       )}
                       

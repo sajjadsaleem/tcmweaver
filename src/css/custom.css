@@ -369,6 +369,31 @@
 }
 
 
+.graph-search-results {
+    margin-top: 17px !important;
+    margin-bottom: 6px;
+    min-height: 51.675%;
+    max-height: 51.675%;
+    width: 100%;
+    margin: auto;
+    overflow-y: scroll;
+    padding-left: 10px;
+    position: relative;
+
+}
+
+/* .search-results {
+    margin-top: 17px !important;
+    margin-bottom: 6px;
+    min-height: 67.675%;
+    max-height: 67.675%;
+    width: 100%;
+    margin: auto;
+    overflow-y: scroll;
+    padding-left: 10px;
+    position: relative;
+} */
+
 
 
 /* ===================================Homepage========================================== */
@@ -419,7 +444,7 @@
     flex-direction: column;
     overflow-y: scroll;
     position: relative;
-    padding-left: 25px !important;
+    padding-left: 6px !important;
     transition: none !important;
     font-weight: 600;
 
@@ -709,6 +734,8 @@
 
 }
 
+
+
 .sidebar-user-div img {
     width: 22px;
     height: auto;
@@ -734,9 +761,9 @@
     filter: invert(0) !important;
 }
 
-/* .profile-title h4 {
-    color: #616161;
-} */
+.profile-title h4 {
+    color: #6C655C;
+}
 
 .night-mode span,
 .night-mode p,
@@ -830,6 +857,37 @@
     height: calc(100% - 55px) !important;
     background-color: #000;
 }
+
+
+/* ===================================Homepage========================================== */
+/* ===================================Workspace Content============================================== */
+/* ===================================Graph View=========================================== */
+/* ===================================Filters=========================================== */
+
+.text-filters-div {
+    margin-top: 16px;
+    /* border: 1px solid red; */
+}
+
+.text-filters-div h5 {
+    color: #6C655C;
+}
+
+.night-mode .text-filters-div h5 {
+    color: #B3B3B5;
+}
+
+.text-filters-screen {
+    height: 48.675%;
+    width: 100%;
+    /* overflow-y: scroll; */
+    display: flex;
+    position: relative;
+
+}
+
+
+
 
 
 
@@ -927,6 +985,17 @@
     border-radius: 5px;
     background-color: white;
     padding: 5px 10px 10px 10px;
+    overflow: auto;
+    /* Add this line to enable the scrollbar */
+    max-height: 580px;
+    /* Adjust the maximum height as needed */
+
+}
+
+
+.graph-color-setting::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
 }
 
 .night-mode .graph-color-setting {
@@ -1617,17 +1686,27 @@ button {
 .dashboard-navigation img,
 .dashboard-navigation svg {
     width: 20px;
-    filter: invert(37%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+    filter: invert(30%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
 }
 
-.night-mode .dashboard-navigation img {
+/* .night-mode .dashboard-navigation img {
     filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
-}
+} */
 
 
 .dashboard-navigation-list {
     border-radius: 8px;
 }
+
+.dashboard-navigation-list span {
+    color: #6C655C;
+}
+
+.night-mode .dashboard-navigation-list span {
+    color: #B3B3B5;
+}
+
+
 
 .dashboard-navigation-list:hover {
     background-color: #d4d2d2;
@@ -1659,13 +1738,14 @@ button {
     filter: invert(100%) sepia(7%) saturate(30%) hue-rotate(332deg) brightness(107%) contrast(110%);
 }
 
-.night-mode .dashboard-navigation-list svg {
+/* .night-mode .dashboard-navigation-list svg {
     filter: invert(100%) sepia(7%) saturate(30%) hue-rotate(332deg) brightness(107%) contrast(110%);
-}
+} */
 
-.selected-dashboard-navigation-list img {
+/* .selected-dashboard-navigation-list img {
     filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%) !important;
-}
+} */
+
 
 
 .logout-section {
@@ -1711,8 +1791,10 @@ button {
     background-color: #969696;
     padding: 8px;
     transition: background-color 0.3s ease;
-    color: white;
+    color: #6C655C !important;
 }
+
+
 
 
 
@@ -1734,7 +1816,7 @@ button {
 .logout-button img {
     width: 20px;
     margin-right: 17px;
-    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
+    /* filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%); */
 }
 
 
@@ -1757,9 +1839,17 @@ button {
 
 }
 
-.night-mode .vault-breadcrumbs,
-.night-mode .user-breadcrumbs {
-    color: white;
+.vault-breadcrumbs h5,
+.user-breadcrumbs h5 {
+    color: #6C655C;
+
+}
+
+
+
+.night-mode .vault-breadcrumbs h5,
+.night-mode .user-breadcrumbs h5 {
+    color: #B3B3B5;
 }
 
 .main-setting {
@@ -1771,9 +1861,9 @@ button {
     filter: invert(28%) sepia(0%) saturate(0%) hue-rotate(193deg) brightness(97%) contrast(97%);
 }
 
-.night-mode .main-setting img {
+/* .night-mode .main-setting img {
     filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
-}
+} */
 
 /* .main-setting h5,
 .main-setting h6,
@@ -1781,16 +1871,32 @@ button {
     color: #616161;
 } */
 
-.night-mode .main-setting h5,
+/* .night-mode .main-setting h5,
 .night-mode .main-setting h6,
 .night-mode .main-setting th {
     color: white;
-}
+} */
 
 
 /* .main-setting td span {
     color: #515151;
 } */
+
+.main-setting td {
+    color: #6C655C;
+}
+
+.night-mode .main-setting td {
+    color: #B3B3B5;
+}
+
+.main-setting h6 {
+    color: #6C655C;
+}
+
+.night-mode .main-setting h6 {
+    color: #B3B3B5;
+}
 
 .night-mode .main-setting td span {
     color: white;
@@ -1833,9 +1939,11 @@ button {
 .vault-sync-btn img,
 .add-user img {
     width: 15px;
-    filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%);
+    /* filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%); */
 
+    filter: none;
 }
+
 
 .vault-sync-btn:hover,
 .add-user:hover {

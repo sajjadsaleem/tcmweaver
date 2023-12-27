@@ -4,7 +4,6 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 interface WorkspaceContentProps {
-    key?: any;
     result?: any;
     index?: any;
     moveResult?: any;
@@ -18,7 +17,6 @@ interface WorkspaceContentProps {
 }
 
 const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
-    key,
     result,
     index,
     moveResult,
