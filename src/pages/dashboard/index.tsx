@@ -768,13 +768,10 @@ const Dashboard = () => {
     setShowCurrentSync(true)
 
     axios.get("api/downloadFiles", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              folderId: updatedSelectedFolders,
-            },
-          }).then(async(res:any)=>{
+            headers: { Authorization: `Bearer ${accessToken}`,},
+            params: { folderId: updatedSelectedFolders, },
+          })
+          .then(async(res:any)=>{
               const reqData = res.data.data
               setTotalFilesToSync(res.data.message)
               // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
@@ -844,17 +841,7 @@ const Dashboard = () => {
           }).catch((err:any)=>{
               console.log('err' , err)
           })
-          // Original response
-          // .then((res:any)=> {
-          //   fetchFilenames()
-          //   setTaskCompleted(false);
-          //   setFolderSelectedLoader(true)
-          //   // console.log('res: ' ,res.data)
-    
-          // }).catch((err:any)=> {
-          //   setTaskCompleted(false)
-    
-          // })
+        
 
 
   }

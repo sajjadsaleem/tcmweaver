@@ -372,8 +372,8 @@
 .graph-search-results {
     margin-top: 17px !important;
     margin-bottom: 6px;
-    min-height: 51.675%;
-    max-height: 51.675%;
+    min-height: 43.675%;
+    max-height: 43.675%;
     width: 100%;
     margin: auto;
     overflow-y: scroll;
@@ -1708,6 +1708,7 @@ button {
 
 
 
+
 .dashboard-navigation-list:hover {
     background-color: #d4d2d2;
 }
@@ -1745,6 +1746,10 @@ button {
 /* .selected-dashboard-navigation-list img {
     filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%) !important;
 } */
+
+.css-10hburv-MuiTypography-root {
+    font-family: inherit !important;
+}
 
 
 
@@ -2092,23 +2097,25 @@ button {
     cursor: pointer;
 }
 
-/* .vault-table-row td {
-    color: #515151;
-} */
 
 .night-mode .vault-table-row {
     border-bottom: 2px solid rgb(114, 114, 114);
 }
 
+
+
+
 .night-mode .vault-table-head-row,
 .night-mode .vault-table-body-row {
-    color: rgb(255, 255, 255);
+    color: #B3B3B5 !important;
+    font-family: inherit !important;
 }
 
-/* .vault-table-body-row img {
-    color: #535151;
-    filter: invert(32%) sepia(14%) saturate(15%) hue-rotate(32deg) brightness(93%) contrast(95%) !important;
-} */
+.vault-table-body-row {
+    color: #6C655C !important;
+    font-family: inherit !important;
+}
+
 
 #vaultSelect {
     border: 1px solid #c7c7c7 !important;

@@ -105,6 +105,7 @@ const Sidebar = () => {
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
   const [textColorForNode , setTextColorForNode] = useState<any>()
   const [graphLinkColor , setGraphLinkColor] = useState<any>()
+  const [nodeTextSize , setNodeTextSize] = useState<any>(8)
   const [centerForceValue , setCenterForceValue] = useState(1)
   const [sliderValue, setSliderValue] = useState(-40)
   const [linkForceValue , setLinkForceValue] = useState(0.2)
@@ -165,6 +166,7 @@ const Sidebar = () => {
   const [showSearchResultToast, setShowSearchResultToast] = useState<any>(false)
   const [linkClickLoader , setLinkClickLoader] = useState<boolean>(false)
   const [linkClickedId , setLinkClickedId] = useState('')
+  const [nodeSizeChangeChecker , setNodeSizeChangeChecker] = useState(true)
   
   
 
@@ -509,6 +511,16 @@ const Sidebar = () => {
   }, [getUser, getPermissions, getStAuth]);
 
 
+  useEffect(()=> {
+    if(!graphOrTextView){
+      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+        setGraphResizeChecker(false)
+        setNodeSizeChangeChecker(false)
+        handleGraphForces(graphDataAfterFilters , 'sliderChange')
+      }
+    }
+  }, [nodeTextSize])
+
  
   useEffect(()=> {
     if(!graphOrTextView){
@@ -525,6 +537,7 @@ const Sidebar = () => {
     
         // updateGraphSize();
         setGraphResizeChecker(false)
+        setNodeSizeChangeChecker(true)
         handleGraphForces(graphDataAfterFilters , 'sliderChange')
       }
     }
@@ -546,6 +559,7 @@ const Sidebar = () => {
     
         // updateGraphSize();
         setGraphResizeChecker(false)
+        setNodeSizeChangeChecker(true)
         handleGraphForces(graphDataAfterFilters , 'sliderChange')
       }
     }
@@ -567,6 +581,7 @@ const Sidebar = () => {
     
         // updateGraphSize();
         setGraphResizeChecker(false)
+        setNodeSizeChangeChecker(true)
         handleGraphForces(graphDataAfterFilters , 'sliderChange')
       }
     }
@@ -939,10 +954,7 @@ const Sidebar = () => {
         }
 
         function handleMouseOver(this: any, event: any, d: any) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
-          });
+         
           // console.log('event' , event, 'nodes' , nodes)
           
           // Set the initial state before transitioning
@@ -1087,6 +1099,7 @@ const Sidebar = () => {
 
         function drag(simulation: any) {
           function dragstarted(event: any) {
+          
             if (!event.active) simulation.alphaTarget(0.1).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
@@ -1123,6 +1136,15 @@ const Sidebar = () => {
           }
         }
 
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
+
         const customNodes: any = nodes;
 
 
@@ -1131,6 +1153,12 @@ const Sidebar = () => {
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force('collide' , d3.forceCollide((d) => {
+            let radius = calculateNodeRadius(d)
+            return radius + 15
+          }))
           .on("tick", ticked);
 
           // const svg = d3
@@ -1329,12 +1357,6 @@ const Sidebar = () => {
           }
         });
 
-        // setPreviousGraphData({})
-
-        // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
-        // const allNodes = formattingNodes.concat(notFoundNodesMap);
-        // nodes = [...allNodes]
-
         nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
         links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
         // const linksCopy = _.cloneDeep(links)
@@ -1355,12 +1377,12 @@ const Sidebar = () => {
         })
 
         // console.log('inside graph checker' , graphResizeChecker)
-        // if(!graphResizeChecker) {
+        if(!graphResizeChecker && nodeSizeChangeChecker) {
           nodes.forEach((node:any) => {
             node.fx = null;
             node.fy = null;
           });
-        // }
+        }
         
 
         links.forEach((link:any , index:any) => {
@@ -1605,11 +1627,6 @@ const Sidebar = () => {
         }
 
         function handleMouseOver(this: any, event: any, d: any) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
-          });
-          // console.log('event' , event, 'nodes' , nodes)
           
           // Set the initial state before transitioning
           d3.select(this as SVGElement)
@@ -1652,7 +1669,7 @@ const Sidebar = () => {
               }
             })
             .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
+              return nodeData === d ? '12px' : nodeTextSize
             })
 
           // Start the transition
@@ -1675,8 +1692,7 @@ const Sidebar = () => {
 
           // Transition to reduce the opacity of nodes that are not directly connected
           node
-            .transition()
-            .duration(600)
+            .transition().duration(600)
             .attr("fill-opacity", (nodeData:any) => {
               if (nodeData === d) {
                 return 1; // Opacity of the hovered node
@@ -1735,9 +1751,15 @@ const Sidebar = () => {
 
           // Reset the opacity of all nodes to their original value with a transition
           node.transition().duration(200).attr("fill-opacity", 1);
+          
+
+         
           nodeText.transition().duration(200)
             .style('opacity' , 1)
-            .style('font-size', '8px')
+            .style("font-size", (nodeData:any) => {
+              let orginalNodeSize = nodeTextSize + 'px'
+              return orginalNodeSize
+            })
             
         }
 
@@ -1752,12 +1774,17 @@ const Sidebar = () => {
 
         function drag(simulation: any) {
           function dragstarted(event: any) {
+           
             if (!event.active) simulation.alphaTarget(0.1).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
           }
 
           function dragged(event: any) {
+            nodes.forEach((node:any) => {
+              node.fx = null;
+              node.fy = null;
+            });
             event.subject.fx = event.x;
             event.subject.fy = event.y;
           }
@@ -1788,6 +1815,15 @@ const Sidebar = () => {
           }
         }
 
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
+
         const customNodes: any = nodes;
 
 
@@ -1796,6 +1832,12 @@ const Sidebar = () => {
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force('collide' , d3.forceCollide((d) => {
+            let radius = calculateNodeRadius(d)
+            return radius + 15
+          }))
           .on("tick", ticked);
 
           // const svg = d3
@@ -1873,7 +1915,7 @@ const Sidebar = () => {
           .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
           .attr("y", (d: any) => d.y + nodeRadius + 12)
           .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
+          .style("font-size", nodeTextSize) // Adjust the font size based on your preference
           .style("pointer-events", "none")
           .text((d:any) => d.id)
           .attr('fill' , textColorForNode);
@@ -1951,11 +1993,15 @@ const Sidebar = () => {
   }
 
 
-  const handleSearch = async (event: any) => {
-
+  const searchBarFormation = async (event:any) => {
     const inputValue = event.target.value;
 
-    setSearchValue(inputValue);
+    if(graphOrTextView){
+      setSearchValue(inputValue);
+    } else {
+      setGraphSearchValue(inputValue);
+    }
+    
 
     let wordToSearch: any;
 
@@ -1987,6 +2033,144 @@ const Sidebar = () => {
     const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
       (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
     );
+
+    return { wordToSearch, wordsArray };
+  }
+
+
+  const searchSecondPart = async (wordsArray:any , wordToSearch:any) => {
+    const resultCalculateWithOR: any = [];
+    let currentPair = [];
+    const wordsToSearch = [];
+    const wordsToExclude: any[] = [];
+    const orGateWord: any[] = [];
+
+    for (const word of wordsArray) {
+      if (word === "OR") {
+        if (currentPair.length > 0) {
+          resultCalculateWithOR.push([...currentPair]);
+        }
+        currentPair = [];
+      } else {
+        currentPair.push(word);
+      }
+    }
+
+    if (currentPair.length > 0) {
+      resultCalculateWithOR.push(currentPair);
+    }
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      const word = wordsArray[i];
+      if (word.startsWith("-")) {
+        const wordToExclude = word.substring(1);
+        wordsToExclude.push(wordToExclude);
+      } else if (word === "OR" || word === "or") {
+        if (word === "OR") {
+          if (i > 0) {
+            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
+          }
+          orGateWord.push("OR"); // Capture "OR"
+          if (i < wordsArray.length - 1) {
+            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
+          }
+        }
+      } else {
+        wordsToSearch.push(word);
+      }
+    }
+
+    wordToSearch = wordsToSearch;
+
+    // console.log("word to search", wordToSearch);
+
+    const options: FzfOptions<File> = {
+      selector: (item: any) => `${item.fileName} (${item.content})`,
+      casing: "case-insensitive",
+      fuzzy: false,
+    };
+
+    const fzf: any = new Fzf<File[]>(filesData, options);
+
+    let entries: any = []; // Initialize the array to store results
+
+    for (const word of wordToSearch) {
+      const newResults = fzf.find(word); // Perform search for the current word
+      entries = entries.concat(newResults); // Add new results to the entries array
+    }
+
+    // getting search result data from backend
+    let newEntries: any = [];
+    let responseJson: any = [];
+
+    if(internalId) {
+      clearTimeout(internalId);
+    }
+
+    if(typeof controller != typeof undefined) {
+      controller.abort()
+    }
+
+    controller = new AbortController()
+            
+    internalId = setTimeout(async() => {
+      try {
+        (graphOrTextView ? setTextSearchLoader(true) : setGraphSearchLoader(true));
+
+        
+        const tableNamesStr = userAccessVaults.join(',');
+        const encodedWords = encodeURIComponent(wordsArray.join(","));
+        !graphOrTextView && setGraphSearchWordsArray(encodedWords);
+        responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
+          signal: controller.signal,
+        });
+
+      
+        const copySearchResults = _.cloneDeep(responseJson.data);
+        setRawSearchResults(copySearchResults);
+        // console.log('copySearchResults',copySearchResults)
+
+        newEntries = _.cloneDeep(responseJson.data)
+        // console.log('newentries' , newEntries)
+
+        // Remove Brackets and Calculate Occurence of Words
+        removeBrackets(newEntries, wordToSearch);
+
+        highlightSearchWord(newEntries, wordToSearch);
+
+        markAllData(newEntries , wordToSearch)
+
+
+
+        newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
+
+        // console.log("newEntries: ", newEntries);
+
+        setSearchResults(newEntries);
+        (graphOrTextView ? setTextSearchLoader(false) : setGraphSearchLoader(false));
+        setShowSearchResultToast(true)
+        setTimeout(() => {
+        setShowSearchResultToast(false)
+        }, 2200)
+
+        // console.log(responseJson.data);
+        // console.log('responseJson' , responseJson)
+        // responseJson = await response.json();
+        // console.log("responseJson: ", responseJson);
+      } catch (error) {
+        (graphOrTextView ? setTextSearchLoader(false) : setGraphSearchLoader(false));
+        console.log("Error fetching search results:", error);
+      }
+    }, 300);
+
+  }
+  
+
+  const handleSearch = async (event: any) => {
+
+    let { wordToSearch, wordsArray } = await searchBarFormation(event)
+
+    
     // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -2046,178 +2230,19 @@ const Sidebar = () => {
       }
     });
 
-    const resultCalculateWithOR: any = [];
-    let currentPair = [];
-    const wordsToSearch = [];
-    const wordsToExclude: any[] = [];
-    const orGateWord: any[] = [];
+    searchSecondPart(wordsArray , wordToSearch)
 
-    for (const word of wordsArray) {
-      if (word === "OR") {
-        if (currentPair.length > 0) {
-          resultCalculateWithOR.push([...currentPair]);
-        }
-        currentPair = [];
-      } else {
-        currentPair.push(word);
-      }
-    }
-
-    if (currentPair.length > 0) {
-      resultCalculateWithOR.push(currentPair);
-    }
-
-    for (let i = 0; i < wordsArray.length; i++) {
-      const word = wordsArray[i];
-      if (word.startsWith("-")) {
-        const wordToExclude = word.substring(1);
-        wordsToExclude.push(wordToExclude);
-      } else if (word === "OR" || word === "or") {
-        if (word === "OR") {
-          if (i > 0) {
-            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
-          }
-          orGateWord.push("OR"); // Capture "OR"
-          if (i < wordsArray.length - 1) {
-            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
-          }
-        }
-      } else {
-        wordsToSearch.push(word);
-      }
-    }
-
-    wordToSearch = wordsToSearch;
-
-    // console.log("word to search", wordToSearch);
-
-    const options: FzfOptions<File> = {
-      selector: (item: any) => `${item.fileName} (${item.content})`,
-      casing: "case-insensitive",
-      fuzzy: false,
-    };
-    const fzf: any = new Fzf<File[]>(filesData, options);
-
-    let entries: any = []; // Initialize the array to store results
-
-    for (const word of wordToSearch) {
-      const newResults = fzf.find(word); // Perform search for the current word
-      entries = entries.concat(newResults); // Add new results to the entries array
-    }
-
-    // getting search result data from backend
-    let newEntries: any = [];
-    let responseJson: any = [];
-
-    if(internalId)
-      {
-          clearTimeout(internalId);
-      }
-
-      // if (typeof cancelToken != typeof undefined) {
-      //   cancelToken.cancel("Operation canceled due to new request.")
-      // }
-
-      if(typeof controller != typeof undefined) {
-        controller.abort()
-      }
-
-      // cancelToken = axios.CancelToken.source()
-      controller = new AbortController()
-            
-      internalId = setTimeout(async() => {
-        try {
-
-          setTextSearchLoader(true)
-          // searchRequest += 1;
-          // const currentRequest = searchRequest;
-          
-          // searchRequest +=1
-          // console.log('searchRequest' , searchRequest)
-          const tableNamesStr = userAccessVaults.join(',');
-          const encodedWords = encodeURIComponent(wordsArray.join(","));
-          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
-            signal: controller.signal,
-          });
-
-        
-          const copySearchResults = _.cloneDeep(responseJson.data);
-          setRawSearchResults(copySearchResults);
-          // console.log('copySearchResults',copySearchResults)
-
-          newEntries = _.cloneDeep(responseJson.data)
-          // console.log('newentries' , newEntries)
-
-          // Remove Brackets and Calculate Occurence of Words
-          removeBrackets(newEntries, wordToSearch);
-
-          highlightSearchWord(newEntries, wordToSearch);
-
-          markAllData(newEntries , wordToSearch)
-
-
-
-          newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-
-          // console.log("newEntries: ", newEntries);
-
-          setSearchResults(newEntries);
-          setTextSearchLoader(false)
-          setShowSearchResultToast(true)
-          setTimeout(() => {
-          setShowSearchResultToast(false)
-          }, 2200)
-
-          // console.log(responseJson.data);
-          // console.log('responseJson' , responseJson)
-          // responseJson = await response.json();
-          // console.log("responseJson: ", responseJson);
-        } catch (error) {
-          setTextSearchLoader(false)
-          console.log("Error fetching search results:", error);
-        }
-      }, 300);
+    
         
   };
 
 
   const handleSearchFromFilters = async (event: any) => {
 
-    const inputValue = event.target.value;
+    let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-    setSearchValue(inputValue);
-
-    let wordToSearch: any;
-
-    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
-      wordToSearch = inputValue.trim();
-      wordToSearch = wordToSearch.replace(/^\s+/, "");
-    } else {
-      wordToSearch = inputValue;
-    }
-
-    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
-
-    // Remove extra spaces within words
-    wordToSearch = wordToSearch.replace(/\s+/g, " ");
-
-    // Remove single '-' followed by a space
-    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
-
-    // Remove trailing '-' at the end of the search query
-    wordToSearch = wordToSearch.replace(/-$/g, "");
-
-    // Remove all spaces if the query consists only of spaces
-    if (/^\s*$/.test(wordToSearch)) {
-      wordToSearch = "";
-    }
-
-    // console.log("wordToSearch before split:", wordToSearch);
-
-    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
-      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
-    );
-    console.log("words array: ", wordsArray);
+    
+    // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
     // wordsArray.forEach((word: any) => {
@@ -2276,163 +2301,14 @@ const Sidebar = () => {
     //   }
     // });
 
-    const resultCalculateWithOR: any = [];
-    let currentPair = [];
-    const wordsToSearch = [];
-    const wordsToExclude: any[] = [];
-    const orGateWord: any[] = [];
+    searchSecondPart(wordsArray , wordToSearch)
 
-    for (const word of wordsArray) {
-      if (word === "OR") {
-        if (currentPair.length > 0) {
-          resultCalculateWithOR.push([...currentPair]);
-        }
-        currentPair = [];
-      } else {
-        currentPair.push(word);
-      }
-    }
-
-    if (currentPair.length > 0) {
-      resultCalculateWithOR.push(currentPair);
-    }
-
-    for (let i = 0; i < wordsArray.length; i++) {
-      const word = wordsArray[i];
-      if (word.startsWith("-")) {
-        const wordToExclude = word.substring(1);
-        wordsToExclude.push(wordToExclude);
-      } else if (word === "OR" || word === "or") {
-        if (word === "OR") {
-          if (i > 0) {
-            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
-          }
-          orGateWord.push("OR"); // Capture "OR"
-          if (i < wordsArray.length - 1) {
-            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
-          }
-        }
-      } else {
-        wordsToSearch.push(word);
-      }
-    }
-
-    wordToSearch = wordsToSearch;
-
-    console.log("word to search", wordToSearch);
-
-    const options: FzfOptions<File> = {
-      selector: (item: any) => `${item.fileName} (${item.content})`,
-      casing: "case-insensitive",
-      fuzzy: false,
-    };
-    const fzf: any = new Fzf<File[]>(filesData, options);
-
-    let entries: any = []; // Initialize the array to store results
-
-    for (const word of wordToSearch) {
-      const newResults = fzf.find(word); // Perform search for the current word
-      entries = entries.concat(newResults); // Add new results to the entries array
-    }
-
-    // getting search result data from backend
-    let newEntries: any = [];
-    let responseJson: any = [];
-
-    if(internalId)
-      {
-          clearTimeout(internalId);
-      }
-
-      // if (typeof cancelToken != typeof undefined) {
-      //   cancelToken.cancel("Operation canceled due to new request.")
-      // }
-
-      if(typeof controller != typeof undefined) {
-        controller.abort()
-      }
-
-      // cancelToken = axios.CancelToken.source()
-      controller = new AbortController()
-            
-      internalId = setTimeout(async() => {
-        try {
-          setTextSearchLoader(true)
-          const tableNamesStr = userAccessVaults.join(',');
-          const encodedWords = encodeURIComponent(wordsArray.join(","));
-          responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
-            signal: controller.signal,
-          });
-
-        
-          const copySearchResults = _.cloneDeep(responseJson.data);
-          setRawSearchResults(copySearchResults);
-
-          newEntries = _.cloneDeep(responseJson.data)
-          // console.log('newentries' , newEntries)
-
-          // Remove Brackets and Calculate Occurence of Words
-          removeBrackets(newEntries, wordToSearch);
-
-          highlightSearchWord(newEntries, wordToSearch);
-
-          markAllData(newEntries , wordToSearch)
-
-
-
-          newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-
-          console.log("newEntries: ", newEntries.length);
-          setSearchResults(newEntries);
-          setTextSearchLoader(false)
-          setShowSearchResultToast(true)
-          setTimeout(() => {
-            setShowSearchResultToast(false)
-          }, 2200)
-
-        } catch (error) {
-          console.log("Error fetching search results:", error);
-        }
-      }, 300);
   };
 
 
   const handleGraphSearch = async (event: any) => {
 
-    const inputValue = event.target.value;
-
-    setGraphSearchValue(inputValue);
-
-    let wordToSearch: any;
-
-    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
-      wordToSearch = inputValue.trim();
-      wordToSearch = wordToSearch.replace(/^\s+/, "");
-    } else {
-      wordToSearch = inputValue;
-    }
-
-    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
-
-    // Remove extra spaces within words
-    wordToSearch = wordToSearch.replace(/\s+/g, " ");
-
-    // Remove single '-' followed by a space
-    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
-
-    // Remove trailing '-' at the end of the search query
-    wordToSearch = wordToSearch.replace(/-$/g, "");
-
-    // Remove all spaces if the query consists only of spaces
-    if (/^\s*$/.test(wordToSearch)) {
-      wordToSearch = "";
-    }
-
-    // console.log("wordToSearch before split:", wordToSearch);
-
-    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
-      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
-    );
+    let { wordToSearch, wordsArray } = await searchBarFormation(event)
     // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -2486,280 +2362,15 @@ const Sidebar = () => {
       }
     });
 
-    const resultCalculateWithOR: any = [];
-    let currentPair = [];
-    const wordsToSearch = [];
-    const wordsToExclude: any[] = [];
-    const orGateWord: any[] = [];
-
-    for (const word of wordsArray) {
-      if (word === "OR") {
-        if (currentPair.length > 0) {
-          resultCalculateWithOR.push([...currentPair]);
-        }
-        currentPair = [];
-      } else {
-        currentPair.push(word);
-      }
-    }
-    if (currentPair.length > 0) {
-      resultCalculateWithOR.push(currentPair);
-    }
-
-    for (let i = 0; i < wordsArray.length; i++) {
-      const word = wordsArray[i];
-      if (word.startsWith("-")) {
-        const wordToExclude = word.substring(1);
-        wordsToExclude.push(wordToExclude);
-      } else if (word === "OR" || word === "or") {
-        if (word === "OR") {
-          if (i > 0) {
-            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
-          }
-          orGateWord.push("OR"); // Capture "OR"
-          if (i < wordsArray.length - 1) {
-            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
-          }
-        }
-      } else {
-        wordsToSearch.push(word);
-      }
-    }
-
-    wordToSearch = wordsToSearch;
-
-    // console.log("word to search", wordToSearch);
-
-    const options: FzfOptions<File> = {
-      selector: (item: any) => `${item.fileName} (${item.content})`,
-      casing: "case-insensitive",
-      fuzzy: false,
-    };
-    const fzf: any = new Fzf<File[]>(filesData, options);
-
-    let entries: any = []; // Initialize the array to store results
-
-    for (const word of wordToSearch) {
-      const newResults = fzf.find(word); // Perform search for the current word
-      entries = entries.concat(newResults); // Add new results to the entries array
-    }
-
-    // getting search result data from backend
-    let newEntries: any = [];
-    let responseJson: any = [];
-
-    if(internalId){
-        clearTimeout(internalId);
-    }
-    internalId = setTimeout(async() => {
-
-      if(typeof controller != typeof undefined) {
-        controller.abort()
-      }
-
-      // cancelToken = axios.CancelToken.source()
-      controller = new AbortController()
-
-      try {
-        setGraphSearchLoader(true)
-        const tableNamesStr = userAccessVaults.join(',');
-        const encodedWords = encodeURIComponent(wordsArray.join(","));
-        setGraphSearchWordsArray(encodedWords)
-        const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
-          signal: controller.signal,
-        });
-        responseJson = await response.json();
-
-        // console.log('responseJson',responseJson)
-
-        const copySearchResults = _.cloneDeep(responseJson);
-        setRawSearchResults(copySearchResults);
-        // console.log("responseJson: ", responseJson);
-         // console.log('response' , responseJson)
-
-      
-      newEntries = responseJson;
-
-      removeBrackets(newEntries, wordToSearch);
-
-      highlightSearchWord(newEntries, wordToSearch);
-
-      markAllData(newEntries , wordToSearch)
-
-      newEntries = newEntries.slice().sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-
-      // console.log("newEntries: ", newEntries);
-
-      setSearchResults(newEntries);
-      setGraphSearchLoader(false)
-      setShowSearchResultToast(true)
-      setTimeout(() => {
-        setShowSearchResultToast(false)
-      }, 2200)
-      // console.log('newentries'  , newEntries)
-
-      // generateGraphfromSearch(newEntries , inputValue);
-      } catch (error) {
-        setGraphSearchLoader(false)
-        console.error("Error fetching search results:", error);
-      }
-     
-    }, 300);
+    searchSecondPart(wordsArray , wordToSearch)
   };
 
 
   const handleGraphSearchFromFilters = async (event: any) => {
-    // console.log("graph search", event.target.value);
-    const inputValue = event.target.value;
-    setGraphSearchValue(inputValue);
-    // setSearchValue(inputValue)
 
-    let wordToSearch: any;
+    let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-    if (inputValue.endsWith(" ") || inputValue.startsWith(" ")) {
-      wordToSearch = inputValue.trim();
-      wordToSearch = wordToSearch.replace(/^\s+/, "");
-    } else {
-      wordToSearch = inputValue;
-    }
-
-    wordToSearch = wordToSearch.replace(/-\s+/g, "-");
-
-    // Remove extra spaces within words
-    wordToSearch = wordToSearch.replace(/\s+/g, " ");
-
-    // Remove single '-' followed by a space
-    wordToSearch = wordToSearch.replace(/-\s(?=\S)/g, "-");
-
-    // Remove trailing '-' at the end of the search query
-    wordToSearch = wordToSearch.replace(/-$/g, "");
-
-    // Remove all spaces if the query consists only of spaces
-    if (/^\s*$/.test(wordToSearch)) {
-      wordToSearch = "";
-    }
-
-    // console.log("wordToSearch before split:", wordToSearch);
-
-    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
-      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
-    );
-
-    const resultCalculateWithOR: any = [];
-    let currentPair = [];
-    const wordsToSearch = [];
-    const wordsToExclude: any[] = [];
-    const orGateWord: any[] = [];
-
-    for (const word of wordsArray) {
-      if (word === "OR") {
-        if (currentPair.length > 0) {
-          resultCalculateWithOR.push([...currentPair]);
-        }
-        currentPair = [];
-      } else {
-        currentPair.push(word);
-      }
-    }
-
-    if (currentPair.length > 0) {
-      resultCalculateWithOR.push(currentPair);
-    }
-
-    for (let i = 0; i < wordsArray.length; i++) {
-      const word = wordsArray[i];
-      if (word.startsWith("-")) {
-        const wordToExclude = word.substring(1);
-        wordsToExclude.push(wordToExclude);
-      } else if (word === "OR" || word === "or") {
-        if (word === "OR") {
-          if (i > 0) {
-            orGateWord.push(wordsArray[i - 1]); // Capture word before "OR"
-          }
-          orGateWord.push("OR"); // Capture "OR"
-          if (i < wordsArray.length - 1) {
-            orGateWord.push(wordsArray[i + 1]); // Capture word after "OR"
-          }
-        }
-      } else {
-        wordsToSearch.push(word);
-      }
-    }
-
-    wordToSearch = wordsToSearch;
-
-    // console.log("word to search", wordToSearch);
-
-    const options: FzfOptions<File> = {
-      selector: (item: any) => `${item.fileName} (${item.content})`,
-      casing: "case-insensitive",
-      fuzzy: false,
-    };
-    const fzf: any = new Fzf<File[]>(filesData, options);
-
-    let entries: any = []; // Initialize the array to store results
-
-    for (const word of wordToSearch) {
-      const newResults = fzf.find(word); // Perform search for the current word
-      entries = entries.concat(newResults); // Add new results to the entries array
-    }
-
-    // getting search result data from backend
-    let newEntries: any = [];
-    let responseJson: any = [];
-
-    if(internalId){
-        clearTimeout(internalId);
-    }
-    internalId = setTimeout(async() => {
-
-      if(typeof controller != typeof undefined) {
-        controller.abort()
-      }
-
-      controller = new AbortController()
-
-      try {
-        setGraphSearchLoader(true)
-        const tableNamesStr = userAccessVaults.join(',');
-        const encodedWords = encodeURIComponent(wordsArray.join(","));
-        setGraphSearchWordsArray(encodedWords)
-        const response = await fetch(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`, {
-          signal: controller.signal,
-        });
-        responseJson = await response.json();
-
-        const copySearchResults = _.cloneDeep(responseJson);
-        setRawSearchResults(copySearchResults);
-        // console.log("responseJson: ", responseJson);
-
-        newEntries = responseJson;
-
-        removeBrackets(newEntries, wordToSearch);
-  
-        highlightSearchWord(newEntries, wordToSearch);
-  
-        markAllData(newEntries , wordToSearch)
-  
-        newEntries = newEntries
-          .slice()
-          .sort((a: any, b: any) => b.wordOccurence - a.wordOccurence);
-  
-        // console.log("newEntries: ", newEntries);
-        // console.log('graphdata' , graphData)
-  
-        setSearchResults(newEntries);
-        // generateGraphfromSearch(newEntries);
-        setGraphSearchLoader(false)
-        setShowSearchResultToast(true)
-        setTimeout(() => {
-        setShowSearchResultToast(false)
-        }, 2200)
-      } catch (error) {
-        console.error("Error fetching search results:", error);
-      }
-
-    }, 300);
+    searchSecondPart(wordsArray , wordToSearch)
   };
 
 
@@ -2921,7 +2532,8 @@ const Sidebar = () => {
         filteredGraphData.nodes = resultData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
 
         // Now, graphDataCopy is updated with the desired changes.
-        console.log('filteredGraphData: ', filteredGraphData);
+        // console.log('filteredGraphData: ', filteredGraphData);
+        // console.log('resultData',resultData)
 
         // makeGraph(filteredGraphData)
         
@@ -2966,83 +2578,27 @@ const Sidebar = () => {
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
-      let tempNodes: any = []
-      let count = 0;
-      let finalCount = 0;
+      // let tempNodes: any = []
+      // let count = 0;
+      // let finalCount = 0;
       const nodeExists = (id: any) => {return nodes.some((node: any) => node.id === id)};
 
       // Iterate through each object
       if (searchResultsForGraph.length > 0 ) {
-        // console.log("search results for graph: ", searchResultsForGraph);
-        // If search bar has words
-        
-        // If files are not open in workspace
-        // console.log("search Results", searchResults);
 
-        const updatedOpenedResults: any = []
         // console.log('updatedOpenedResults ', updatedOpenedResults)
-
+        
         const searchResultsForGraphCopy = _.cloneDeep(searchResultsForGraph);
+        const updatedOpenedResults: any = searchResultsForGraphCopy
   
-        searchResultsForGraphCopy.forEach((result:any) => {
-          let matchingFile: any = result;
-          marked.setOptions({
-            breaks: true,
-          });
-
-          let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
-          matchingFile.content = marked(editedResult);
-
-          // const regex = /\[\[([^[\]]+)\]\]/g;
-         
-
+        // searchResultsForGraphCopy.forEach((result:any) => {
           
+        // });
 
-          // matchingFile.content = marked(matchingFile.content);
-          // console.log("markedContent", matchingFile);
-
-          const regex = /\[\[([^[\]]+)\]\]/g;
-          const hashtagParagraphRegex = /#\S+/g;
-          if (matchingFile) {
-            // console.log('matching file: ' , matchingFile)
-            const contentWithoutHashtags = matchingFile.content.replace(
-              hashtagParagraphRegex,
-              ""
-            );
-            // console.log("contentWithoutHashtags", contentWithoutHashtags);
-
-            const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex,
-              (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-            );
-            // console.log("contentwithstyledwords", contentWithStyledWords);
-
-            const updatedResultToOpen = {
-              ...result,
-              content: contentWithStyledWords,
-              openedFromResults: true,
-            };
-
-            // const doesExist = openedResults.some(
-            //   (result) => result.fileName === updatedResultToOpen.fileName
-            // );
-            const doesExist = updatedOpenedResults.some((result: any) => 
-              result.fileName === updatedResultToOpen.fileName
-            );
-
-            if (!doesExist) {
-              updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
-            } else {
-              console.log("An object with the same fileName already exists.");
-            }
-          }
-        });
-
-        finalCount = updatedOpenedResults.length;
+        // finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
 
-        updatedOpenedResults.forEach(async (result:any) => {
+        searchResultsForGraphCopy.forEach(async (result:any) => {
           const nodeId = result.fileName
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
           const nodeTag = match ? match[0] : null;
@@ -3052,7 +2608,7 @@ const Sidebar = () => {
           }
         })
 
-        updatedOpenedResults.map((result:any) => {
+        searchResultsForGraph.map((result:any) => {
           const nodeId = result.fileName
 
           const underlinedWords: any = result.content.match(
@@ -3122,13 +2678,13 @@ const Sidebar = () => {
         
        
         
-        console.log('filteredGraphData: ', filteredGraphData);
+        // console.log('filteredGraphData: ', filteredGraphData);
         // makeGraph(filteredGraphData)
         
 
         setTimeout(()=> {
           setOpenedResults(updatedOpenedResults)
-          setGraphData(filteredGraphData);
+          setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraphFromGraphResults(filteredGraphData);
         }, 200)
@@ -4248,13 +3804,29 @@ const Sidebar = () => {
           }
         }
 
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
+
 
         const simulation = d3.forceSimulation(customNodes)
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
-          .force('collide' , d3.forceCollide().strength(0))
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force('collide' , d3.forceCollide((d) => {
+            let radius = calculateNodeRadius(d)
+            return radius + 15
+          }))
           .on("tick", ticked);
+
+          simulation.tick()
 
         const svg = d3.create("svg").attr("width", width).attr("height", height)
           .attr("viewBox", [-width / 2, -height / 2, width, height])
@@ -4706,10 +4278,7 @@ const Sidebar = () => {
         }
 
         function handleMouseOver(this: any, event: any, d: any) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
-          });
+        
           // console.log('event' , event, 'nodes' , nodes)
           
           // Set the initial state before transitioning
@@ -4852,12 +4421,17 @@ const Sidebar = () => {
           
           
           function dragstarted(event: any) {
+          
             if (!event.active) simulation.alphaTarget(0.3).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
           }
 
           function dragged(event: any) {
+            nodes.forEach((node:any) => {
+              node.fx = null;
+              node.fy = null;
+            });
             event.subject.fx = event.x;
             event.subject.fy = event.y;
           }
@@ -4887,6 +4461,17 @@ const Sidebar = () => {
             return onePercentOfCheckLinkCount + 4;
           }
         }
+
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
+
+       
       
         
 
@@ -4898,6 +4483,12 @@ const Sidebar = () => {
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force('collide' , d3.forceCollide((d) => {
+            let radius = calculateNodeRadius(d)
+            return radius + 15
+          }))
           .on("tick", ticked);
 
 
@@ -5366,11 +4957,27 @@ const Sidebar = () => {
           }
         }
 
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
+
 
         const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
-          .force('collide' , d3.forceCollide().strength(0)).on("tick", ticked);
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force('collide' , d3.forceCollide((d) => {
+            let radius = calculateNodeRadius(d)
+            // console.log('node radius' , radius)
+            return radius + 15
+          }))
+          .on("tick", ticked);
 
         const svg = d3.create("svg").attr("width", width).attr("height", height)
           .attr("viewBox", [-width / 2, -height / 2, width, height])
@@ -5814,10 +5421,7 @@ const Sidebar = () => {
         }
 
         function handleMouseOver(this: any, event: any, d: any) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
-          });
+         
           // console.log('event' , event, 'nodes' , nodes)
           
           // Set the initial state before transitioning
@@ -5960,12 +5564,17 @@ const Sidebar = () => {
           
           
           function dragstarted(event: any) {
+          
             if (!event.active) simulation.alphaTarget(0.3).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
           }
 
           function dragged(event: any) {
+            nodes.forEach((node:any) => {
+              node.fx = null;
+              node.fy = null;
+            });
             event.subject.fx = event.x;
             event.subject.fy = event.y;
           }
@@ -5995,6 +5604,16 @@ const Sidebar = () => {
             return onePercentOfCheckLinkCount + 4;
           }
         }
+
+
+        function hasLinks(node:any) {
+          // Assuming links is your array of links
+          // Replace links with your actual links data structure
+          const links:any = [];  // Replace this with your actual links data
+        
+          // Check if the node's ID is present in any link's source or target
+          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        }
       
         
 
@@ -6005,11 +5624,11 @@ const Sidebar = () => {
           .force("link", forceLink)
           .force("charge", d3.forceManyBody().strength(sliderValue))
           .force("center", d3.forceCenter().strength(centerForceValue))
+          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
+          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
           .force('collide' , d3.forceCollide((d) => {
             let radius = calculateNodeRadius(d)
-            console.log('node radius' , radius)
-            return radius + 10
-
+            return radius + 15
           }))
           .on("tick", ticked);
 
@@ -6254,24 +5873,79 @@ const Sidebar = () => {
     let element: any = document.getElementById("graph-div");
 
     if (element && element.querySelector('svg')) {
-        console.log('The "graph-div" contains an SVG element.');
+        // console.log('The "graph-div" contains an SVG element.');
 
-        const { nodes } = graphData;
-        const nodeFilenames = nodes.map((node: any) => node.id);
+        // const { nodes } = graphData;
+        // const nodeFilenames = nodes.map((node: any) => node.id);
 
         // console.log('nodefilenames' , nodeFilenames)
+        // console.log('graphdatanow' , graphData)
+        // console.log('openedresult' , openedResults)
 
-        const filteredResults = searchResults.filter((result: any) =>
-          nodeFilenames.includes(result.fileName))
+
+
+
+
+        let matchingFile: any = resultToOpen;
+          marked.setOptions({
+            breaks: true,
+          });
+
+          let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+          matchingFile.content = marked(editedResult);
+
+          const regex = /\[\[([^[\]]+)\]\]/g;
+          const hashtagParagraphRegex = /#\S+/g;
+          if (matchingFile) {
+            // console.log('matching file: ' , matchingFile)
+            const contentWithoutHashtags = matchingFile.content.replace(
+              hashtagParagraphRegex,
+              ""
+            );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex,
+              (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            // console.log("contentwithstyledwords", contentWithStyledWords);
+
+            const updatedResultToOpen = {
+              ...resultToOpen,
+              content: contentWithStyledWords,
+              openedFromResults: true,
+            };
+
+            // console.log('openedresults' , openedResults)
+            // console.log('updatedresulttoopen' , updatedResultToOpen)
+            // const doesExist = openedResults.some(
+            //   (result) => result.fileName === updatedResultToOpen.fileName
+            // );
+            const doesExist = openedResults.some((result: any) => 
+              result.fileName === updatedResultToOpen.fileName
+            );
+
+            if (!doesExist) {
+              const resultArray = [...openedResults, updatedResultToOpen];
+
+              // console.log('resultArray',resultArray)
+
+              generateGraphfromGraphResult(resultArray);
+              // updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
+            } else {
+              console.log("An object with the same fileName already exists.");
+            }
+          }
+
+
+
+        // const filteredResults = searchResults.filter((result: any) =>
+          // nodeFilenames.includes(result.fileName))
 
         // console.log('filteredResults' , filteredResults)
 
-        const resultArray = [...filteredResults, resultToOpen];
-
-        // console.log('resultArray' , resultArray)
-
-
-        generateGraphfromGraphResult(resultArray);
+        
     } else {
         console.log('The "graph-div" does not contain an SVG element.');
         const resultArray = [resultToOpen];
@@ -6372,7 +6046,7 @@ const Sidebar = () => {
           (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
         // console.log("contentwithstyledword", contentWithStyledWords);
-        console.log('openedresults' , openedResults)
+        // console.log('openedresults' , openedResults)
         const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile );
         // console.log('index' , index)
 
@@ -7100,6 +6774,11 @@ const Sidebar = () => {
   };
 
 
+  const handleNodeTextSizeCommitted = (event:any , newValue:any) => {
+    setNodeTextSize(newValue)
+  }
+
+
   const handleCenterForceCommitted = (event: any, newValue: any) => {
     setCenterForceValue(newValue)
   };
@@ -7115,224 +6794,6 @@ const Sidebar = () => {
 
     setSliderValue(mappedValue)
   };
-
-  
-  // const sliderNewGraph = () => {
-  //   // console.log('graphdata' , graphData)
-  //   if (!graphOrTextView) {
-  //     setShouldShowFilters(false);
-  //     const nodes: any = [];
-  //     const links: any = [];
-  //     let count = 0;
-  //     let finalCount = 0;
-  //     const nodeExists = (id: any) => {
-  //       return nodes.some((node: any) => node.id === id);
-  //     };
-
-  //     // Iterate through each object
-  //     if (openedResults.length > 0) {
-  //       // If files are open in workspace
-  //       finalCount = openedResults.length;
-  //       openedResults.forEach((result) => {
-  //         // Create a node for the fileName
-  //         const nodeId = result.fileName;
-  //         // console.log("result", result);
-  //         const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-  //         const nodeTag = match ? match[1] : null;
-  //         if (!nodeExists(nodeId)) {
-  //           nodes.push({ id: nodeId, group: 1, tag: nodeTag });
-  //         }
-
-  //         // Parse the content to extract underlined words
-  //         const underlinedWords: any = result.content.match(
-  //           /<span[^>]*>(.*?)<\/span>/g
-  //         );
-  //         // console.log("underlinedWords", underlinedWords);
-  //         let wordsArray: any = [];
-  //         if (underlinedWords && Array.isArray(underlinedWords)) {
-  //           wordsArray = underlinedWords.map((span: any) => {
-  //             // Use a regular expression to extract the text content between the <span> tags
-  //             const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-  //             // Check if a match was found and return the extracted text, or an empty string if not
-  //             return match ? match[1] : "";
-  //           });
-
-  //           // Now you can use wordsArray safely
-  //         }
-  //         // console.log("wordsArray: ", wordsArray);
-  //         axios
-  //           .post("/api/getTags?q=" + wordsArray.join(","))
-  //           .then((res) => {
-  //             // console.log(res.data);
-  //             count = count + 1;
-  //             const linkTags = Object.keys(res.data).map((key) => {
-  //               return {
-  //                 name: key,
-  //                 category: res.data[key],
-  //               };
-  //             });
-  //             if (res) {
-  //               // console.log("linkTags", linkTags);
-  //               linkTags.forEach((word: any) => {
-  //                 // Remove HTML tags from underlined word
-  //                 // console.log("word", word);
-  //                 if (!nodeExists(word.name)) {
-  //                   nodes.push({ id: word.name, group: 2, tag: word.category });
-  //                 }
-
-  //                 // Create a link between fileName and underlined word
-  //                 links.push({ source: nodeId, target: word.name, value: 1 });
-  //               });
-  //             }
-  //             // console.log("finalCount", finalCount);
-  //             // console.log("count", count);
-  //             if (finalCount == count) {
-  //               const resultData: any = { nodes, links };
-  //               setGraphData(resultData);
-  //               makeGraph(resultData);
-  //               // console.log("match count");
-  //             }
-  //           })
-  //           .catch((err) => {
-  //             console.log("err=", err);
-  //           });
-  //       });
-  //     } else {
-  //       // If files are not open in workspace
-  //       // console.log("search Results", searchResults);
-
-  //       const updatedOpenedResults: any = openedResults.slice();
-
-  //       searchResults.forEach((result) => {
-  //         let matchingFile: any = result;
-  //         marked.setOptions({
-  //           breaks: true,
-  //         });
-
-  //         matchingFile.content = marked(matchingFile.content);
-  //         // console.log("markedContent", matchingFile);
-
-  //         const regex = /\[\[([^[\]]+)\]\]/g;
-  //         const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
-  //         if (matchingFile) {
-  //           const contentWithoutHashtags = matchingFile.content.replace(
-  //             hashtagParagraphRegex,
-  //             ""
-  //           );
-  //           // console.log("contentWithoutHashtags", contentWithoutHashtags);
-
-  //           const contentWithStyledWords = contentWithoutHashtags.replace(
-  //             regex,
-  //             (match: any, word: any) =>
-  //               `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-  //           );
-  //           // console.log("contentwithstyledwords", contentWithStyledWords);
-
-  //           const updatedResultToOpen = {
-  //             ...result,
-  //             content: contentWithStyledWords,
-  //             openedFromResults: true,
-  //           };
-
-  //           // const doesExist = openedResults.some(
-  //           //   (result) => result.fileName === updatedResultToOpen.fileName
-  //           // );
-  //           const doesExist = updatedOpenedResults.some(
-  //             (result: any) => result.fileName === updatedResultToOpen.fileName
-  //           );
-
-  //           if (!doesExist) {
-  //             updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
-  //           }
-  //         }
-  //       });
-  //       finalCount = updatedOpenedResults.length;
-  //       // console.log("updatedOpenedResults: ", updatedOpenedResults);
-  //       updatedOpenedResults.forEach(async (result: any) => {
-  //         // Create a node for the fileName
-  //         const nodeId = result.fileName;
-  //         const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-  //         const nodeTag = match ? match[0] : null;
-  //         if (!nodeExists(nodeId)) {
-  //           nodes.push({ id: nodeId, group: 1, tag: nodeTag });
-  //         }
-
-  //         // Parse the content to extract underlined words
-  //         const underlinedWords = result.content.match(
-  //           /<span[^>]*>(.*?)<\/span>/g
-  //         );
-  //         // console.log("underlinedWords", underlinedWords);
-  //         let wordsArray
-  //         if(underlinedWords){
-  //           wordsArray = underlinedWords.map((span: any) => {
-  //             // Use a regular expression to extract the text content between the <span> tags
-  //             const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-  //             // Check if a match was found and return the extracted text, or an empty string if not
-  //             return match ? match[1] : "";
-  //           });
-  //         } else if (underlinedWords === null) {
-  //           wordsArray = [result.fileName];
-  
-  //           // Handle the case where underlinedWords is null or undefined
-  //         }
-          
-  //         // console.log("wordsArray: ", wordsArray);
-
-  //         try {
-  //           // console.log("wordsArray", wordsArray);
-  //           const response = await axios.post(
-  //             "/api/getTags?q=" + wordsArray.join(",")
-  //           );
-  //           // console.log("res", response);
-  //           // Handle the response data here
-
-  //           if (response) {
-  //             count = count + 1;
-  //             const linkTags = Object.keys(response.data).map((key) => {
-  //               return {
-  //                 name: key,
-  //                 category: response.data[key],
-  //               };
-  //             });
-  //             // let nodeArray = [];
-  //             // console.log("linkTags", linkTags);
-  //             linkTags.forEach((word: any) => {
-  //               const existingNodeIndex = nodes.findIndex((node:any) => node.id === word.name);
-  //               if (existingNodeIndex !== -1) {
-  //                 // Node already exists, update its tag
-  //                 nodes[existingNodeIndex].tag = word.category;
-  //               } else {
-  //                 // Node doesn't exist, create a new one
-  //                 nodes.push({ id: word.name, tag: word.category });
-  //               }
-  //               // Create a link between fileName and underlined word
-  //               links.push({ source: nodeId, target: word.name, value: 1 });
-  //             });
-  //           }
-  //           // console.log("finalCount", finalCount);
-  //           // console.log("count", count);
-  //           if (finalCount == count) {
-  //             const resultData: any = { nodes, links };
-  //             // let graphNewData = resultData;
-  //             setGraphData(resultData);
-  //             makeGraph(resultData);
-  //             // console.log("match count");
-  //           }
-  //         } catch (error) {
-  //           // Handle errors here
-  //           console.log("Error:", error);
-  //         }
-  //       });
-  //       setOpenedResults(updatedOpenedResults);
-  //     }
-
-  //     // Create the final object in the desired format
-
-  //     // setTimeout(() => {}, 400);
-  //   } else {
-  //     setShouldShowFilters(true);
-  //   }
-  // };
 
 
   const mapValueToState = (value:any , min1:any , max1:any , min2:any , max2:any) => {
@@ -7493,22 +6954,13 @@ const Sidebar = () => {
   const closeEditUserDailog = () => {
     setShowEditUserDialog(false)
     setShowAccountOptions(false)
-    setFormData({
-      fullName: '',
-      email: '',
-      role: '',
-      status: '',
-      image: ''
-    });
+    setFormData({ fullName: '', email: '', role: '', status: '', image: '' });
   }
 
 
   const handleUserProfileChange = (e:any) => {
     const { name, value } = e.target;
-        setFormData({
-          ...formData,
-          [name]: value,
-        });
+    setFormData({ ...formData, [name]: value, });
   }
 
 
@@ -7528,13 +6980,7 @@ const Sidebar = () => {
       toggleAccountOptions()
       setEditUserLoader(false)
       toast.success('Account updated successfully!');
-      setFormData({
-        fullName: '',
-        email: '',
-        role: '',
-        status: '',
-        image: ''
-      });
+      setFormData({ fullName: '', email: '', role: '', status: '', image: '' });
 
       dispatch(stAccessTokenVerify({
         user: res.data.allUsers[0],
@@ -7558,14 +7004,10 @@ const Sidebar = () => {
 
   const closeSetPasswordDialog = () => {
     setShowChangePasswordDialog(false)
-    setNewPasswordData({
-      newPassword: '',
-      confirmPassword:''
-    });
+    setNewPasswordData({ newPassword: '', confirmPassword:'' });
     setShowAccountOptions(false)
     setShowSetPasswordToggle(false)
     setShowConfirmPasswordToggle(false)
-
   }
 
 
@@ -8430,6 +7872,13 @@ const Sidebar = () => {
             hideFiltersForPreview && (
               <>
                 <div className="forces-container">
+                  <div>
+                    <p style={{margin: '0px'}}>Text Size</p>
+                    <Slider style={{padding: '8px 0px'}} defaultValue={nodeTextSize} size="small" step={0.1}
+                      min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
+                      classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                    />
+                  </div>
 
                   <div>
                     <p style={{margin: '0px'}}>Center force</p>

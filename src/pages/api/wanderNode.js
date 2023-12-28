@@ -96,7 +96,7 @@ export default async function wanderNode(req, res) {
                 }
             }
 
-            console.log('filteredWords', filteredWords)
+            // console.log('filteredWords', filteredWords)
 
             const options = {
                 selector: (item) => `${item.fileName} (${item.content})`,
@@ -114,7 +114,7 @@ export default async function wanderNode(req, res) {
                 return true;
             });
 
-            console.log('Updated filtered objects:', updatedObjects);
+            // console.log('Updated filtered objects:', updatedObjects);
 
             res.status(200).json(updatedObjects);
         }
