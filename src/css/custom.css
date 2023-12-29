@@ -189,7 +189,7 @@
     align-items: center;
     width: 284px;
     margin: auto;
-    margin-top: 1.5rem;
+    margin-top: 10px;
     gap: 4px;
     height: 6.5%;
 }
@@ -370,7 +370,7 @@
 
 
 .graph-search-results {
-    margin-top: 17px !important;
+    margin-top: 6px !important;
     margin-bottom: 6px;
     min-height: 43.675%;
     max-height: 43.675%;
@@ -393,6 +393,18 @@
     padding-left: 10px;
     position: relative;
 } */
+
+.search-results-found {
+
+    display: flex;
+    justify-content: space-around;
+    height: 26px;
+}
+
+.search-results-found p {
+    margin: 0px;
+    color: #6C655C;
+}
 
 
 
@@ -622,7 +634,7 @@
 }
 
 .search-results {
-    margin-top: 17px !important;
+    margin-top: 6px !important;
     margin-bottom: 6px;
     min-height: 67.675%;
     max-height: 67.675%;
@@ -2188,6 +2200,11 @@ button {
     margin-bottom: 20px;
 }
 
+.product-div:hover {
+    background-color: #ebebeb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .product-name {
     font-weight: bold;
     font-size: 20px;
@@ -2255,7 +2272,7 @@ button {
 
 
 
-/* -------- SIGN UP PAGE ------ */
+/* ====================================SIGN UP PAGE============================== */
 
 .signup-page-container {
     width: 100%;
@@ -2313,7 +2330,7 @@ button {
     border-color: #616161;
 }
 
-/* ----- forgot passowrd page ------- */
+/* =================================forgot passowrd page======================= */
 
 .forgot-password-container {
     width: 100%;
@@ -2339,4 +2356,21 @@ button {
     width: 400px;
     padding: 13px 15px;
     border-color: #616161;
+}
+
+
+/* ====================================reset passowrd page========================== */
+
+.reset-password-credentials {
+    width: 100%;
+    height: 78vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+}
+
+.reset-page-btn {
+    margin-top: 35px;
 }

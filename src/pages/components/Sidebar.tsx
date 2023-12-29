@@ -200,6 +200,8 @@ const Sidebar = () => {
   // console.log('graphTagFilters' , graphTagFilters)
   // console.log('graphDataAfterFilters', graphDataAfterFilters)
   // console.log('showSearchResultToast',showSearchResultToast)
+  // console.log('rawSearchResults' , rawSearchResults)
+  // console.log('search value' , searchValue)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -2149,10 +2151,10 @@ const Sidebar = () => {
 
         setSearchResults(newEntries);
         (graphOrTextView ? setTextSearchLoader(false) : setGraphSearchLoader(false));
-        setShowSearchResultToast(true)
-        setTimeout(() => {
-        setShowSearchResultToast(false)
-        }, 2200)
+        // setShowSearchResultToast(true)
+        // setTimeout(() => {
+        // setShowSearchResultToast(false)
+        // }, 2200)
 
         // console.log(responseJson.data);
         // console.log('responseJson' , responseJson)
@@ -3201,13 +3203,11 @@ const Sidebar = () => {
       const links: any = [];
       let finalCount = 0;
 
-      const nodeExists = (id: any) => {
-        return nodes.some((node: any) => node.id === id);
-      };
+      const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id);};
 
       // Iterate through each object
       if (openedResults.length > 0) {
-        // console.log('search results opened')
+        console.log('search results opened')
         // If files are open in workspace
         finalCount = openedResults.length;
 
@@ -3215,6 +3215,7 @@ const Sidebar = () => {
         openedResults.forEach(async (result) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
+          console.log('result' , result)
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
           // console.log('match' , match)
           let nodeTag:any = match ? match[0] : null;
@@ -3230,6 +3231,8 @@ const Sidebar = () => {
           }
           
         })
+
+        console.log('nodes' ,nodes)
 
         openedResults.map((result:any)=> {
           const nodeId = result.fileName
@@ -6024,13 +6027,17 @@ const Sidebar = () => {
       const tableNamesStr = userAccessVaults.join(',');
       const response = await fetch(`/api/linkFile?q=${linkClicked}&av=${tableNamesStr}`);
       // console.log('response' , response)
-      const newDataObject = await response.json();
-      // console.log("responseJson: ", responseJson);
+      const linkFile = await response.json();
 
-      // console.log("newDataObject", newDataObject);
-      marked.setOptions({
-        breaks: true,
-      });
+      const newDataObject = _.cloneDeep(linkFile)
+
+      let textToConvert = newDataObject.content;
+      const regexForRemovedBrackets = /\[\[([^[\]]+)\]\]/g;
+
+      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets,(match: any, word: any) => `${word}`);
+      newDataObject.contentWithRemovedBrackets = contentWithRemovedBrackets;
+      
+      marked.setOptions({breaks: true,});
 
       let editedResult = newDataObject.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
 
@@ -7469,6 +7476,18 @@ const Sidebar = () => {
               {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
               {isCopied && <div className="copy-tooltip">Copied!</div>}
             </div>
+          </div>
+
+          <div className="search-results-found">
+            {(searchValue.length > 0 || graphSearchValue.length > 0) && (
+              <>
+                {searchResults.length > 0 ? (
+                  <p>{searchResults.length} {searchResults.length === 1 ? 'Result' : 'Results'}</p>
+                ):(
+                  <p>{searchResults.length} results found</p>
+                )}
+              </>
+            )}   
           </div>
 
 

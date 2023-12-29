@@ -106,6 +106,7 @@ const Dashboard = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [getUser, setUser] = useState<any>({})
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
+  const [vaultFileToView , setVaultFileToView] = useState({})
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -826,10 +827,20 @@ const Dashboard = () => {
 
   const handleVaultRowClick = (vault:any) => {
     setShowVaultFiles(true)
-    console.log(vault)
+    // console.log(vault)
     setVaultFilesToShow(vault)
     setOriginalVaultFilesToShow(vault)
   }
+
+
+  const handleFileView = (file:any) => {
+    console.log(file)
+  }
+
+
+
+
+
   
   const vaultFileSearch = (event:any ) => {
     //  console.log(event.target.value)
@@ -1110,17 +1121,9 @@ const Dashboard = () => {
               <div className={"icon-profile"}>
                 <div className={"themeChanger"}>
                   {themeChangericon ? (
-                    <img
-                      src="/dark-mode.png"
-                      alt="img"
-                      onClick={handleThemeChangerClick}
-                    />
+                    <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
                   ) : (
-                    <img
-                      src="/light-mode.png"
-                      alt="img"
-                      onClick={handleThemeChangerClick}
-                    />
+                    <img src="/light-mode.png" alt="img" onClick={handleThemeChangerClick} />
                   )}
                 </div>
 
@@ -1506,65 +1509,69 @@ const Dashboard = () => {
                   </>
                 )}
 
-                {showSetPassword ? (<>
-                  <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
-                      <DialogTitle>Set Password</DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          Please enter the new password:
-                        </DialogContentText>
-                        <TextField
-                          type={showSetPasswordToggle ? 'text' : 'password'}
-                          label="New Password"
-                          name="newPassword"
-                          value={newPasswordData.newPassword}
-                          onChange={handleSetNewPasswordToggle}
-                          fullWidth
-                          margin="normal"
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                                  edge="end"
-                                >
-                                  {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                        <TextField
-                          type={showConfirmPasswordToggle ? 'text' : 'password'}
-                          label="Confirm Password"
-                          name="confirmPassword"
-                          value={newPasswordData.confirmPassword}
-                          onChange={handleSetNewPasswordToggle}
-                          fullWidth
-                          margin="normal"
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                                  edge="end"
-                                >
-                                  {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={closeSetPasswordDialog} color="primary">
-                          Cancel
-                        </Button>
-                        <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                          {updatePasswordLoader ? 'Saving...' : 'Save'}
-                        </Button>
-                      </DialogActions>
-                    </Dialog></>): (<></>
+                {showSetPassword ? (
+                  <>
+                    <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
+                        <DialogTitle>Set Password</DialogTitle>
+                        <DialogContent>
+                          <DialogContentText>
+                            Please enter the new password:
+                          </DialogContentText>
+                          <TextField
+                            type={showSetPasswordToggle ? 'text' : 'password'}
+                            label="New Password"
+                            name="newPassword"
+                            value={newPasswordData.newPassword}
+                            onChange={handleSetNewPasswordToggle}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                                    edge="end"
+                                  >
+                                    {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                          <TextField
+                            type={showConfirmPasswordToggle ? 'text' : 'password'}
+                            label="Confirm Password"
+                            name="confirmPassword"
+                            value={newPasswordData.confirmPassword}
+                            onChange={handleSetNewPasswordToggle}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                                    edge="end"
+                                  >
+                                    {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={closeSetPasswordDialog} color="primary">
+                            Cancel
+                          </Button>
+                          <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                            {updatePasswordLoader ? 'Saving...' : 'Save'}
+                          </Button>
+                        </DialogActions>
+                    </Dialog>
+                  </>
+                ):(
+                  <></>
                 )}
 
                 {showEditUserDialog && (
@@ -1761,6 +1768,34 @@ const Dashboard = () => {
                   </>
                 )}
 
+                {/* {syncPopup && (
+                  <div>
+                    <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                      <DialogTitle>Authorization Required</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>
+                        You will be redirected to the Google consent page to grant this app access to your Google Drive
+                        </DialogContentText>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleCloseDialog} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={synchronizeFiles} color="primary">
+                          {proccedBtnLoading ? (
+                            <>
+                              <span className="processing-text">Please Wait</span>
+                              <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                            </>
+                          ):(
+                            <>Proceed</>
+                          )}
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </div>
+                )} */}
+
               </div>
             </div>
 
@@ -1896,6 +1931,9 @@ const Dashboard = () => {
                                 <TableCell sx={{borderTopRightRadius: '17px'}}>
                                   <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
                                 </TableCell>
+                                {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
+                                </TableCell> */}
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -1907,6 +1945,14 @@ const Dashboard = () => {
                                 >
                                   <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
                                   <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                  {/* <TableCell className='vault-table-body-row'>
+                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                      <img src="eye.png" alt="File View" className='vault-view-icon'
+                                        style={{ width: '20px', height: '20px', marginRight: '10px' }}
+                                        onClick={() => handleFileView(row)}
+                                      />
+                                    </span>
+                                  </TableCell> */}
                                 </TableRow>
                               ))}
                             </TableBody>

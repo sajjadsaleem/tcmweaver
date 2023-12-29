@@ -114,15 +114,6 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              {/* <input
-                type={showPassword ? 'text' : 'password'}
-                className="form-control"
-                aria-describedby="emailHelp"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                
-              /> */}
 
               <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
                 <input

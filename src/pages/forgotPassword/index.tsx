@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-// import axios from 'axios';
-// import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,23 +9,15 @@ import AuthLayout from "@/pages/components/AuthLayout";
 import * as Helpers from '../../util/Helpers';
 
 
-const LoginPage = () => {
+const ResetPasswordPage = () => {
   const router = useRouter();
 
   const [btnLoading, setBtnLoading] = useState(false);
 
   const [get_email, set_email] = useState("");
-  const [validationErrors, setValidationErrors] = useState<any>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [validationErrors, setValidationErrors] = useState<any>({email: '',password: '',confirmPassword: '',});
 
-  const [formData, setFormData] = useState<any>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [formData, setFormData] = useState<any>({email: '',password: '',confirmPassword: '',});
 
   const submitBtn = () => {
     setBtnLoading(true);
@@ -67,41 +57,41 @@ const LoginPage = () => {
     }
 
 
-    // setBtnLoading(true)
+    setBtnLoading(true)
 
     let payload = {
       email: formData.email,
     }
 
-    // axios.post('/api/auth/forgot-password', payload)
-    //   .then((res) => {
-    //       setBtnLoading(false)
-    //       toast.success(res.data.message, {
-    //         position: "top-right",
-    //         autoClose: 1500,
-    //         pauseOnHover: true,
-    //         theme: "colored",
-    //       });
-    //   })
-    //   .catch(err => {
-    //       console.log('err=',err.response.data)
-    //       setBtnLoading(false)
-    //   });
+    axios.post('/api/auth/forgot-password', payload)
+      .then((res) => {
+          setBtnLoading(false)
+          toast.success(res.data.message, {
+            position: "top-right",
+            autoClose: 1500,
+            pauseOnHover: true,
+            theme: "colored",
+          });
+      })
+      .catch(err => {
+          console.log('err=',err.response.data)
+          toast.error(err.response.data.message, {
+            position: "top-right",
+            autoClose: 1500,
+            pauseOnHover: true,
+            theme: "colored",
+          });
+          setBtnLoading(false)
+      });
 
 
   }
 
   const handleChange = (e:any) => {
     const { name, value } = e.target;
-    setFormData({
-        ...formData,
-        [name]: value,
-    });
+    setFormData({ ...formData, [name]: value,});
 
-    setValidationErrors({
-        ...validationErrors,
-        [name]: '',
-    });
+    setValidationErrors({ ...validationErrors,[name]: '', });
   };
 
   return (
@@ -123,33 +113,22 @@ const LoginPage = () => {
           <div>          
             <form onSubmit={handleSubmit}>
               <div className="forgotpassword-page-input">
-                <input
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    aria-describedby="emailHelp"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
+                <input type="email" name="email" className="form-control" aria-describedby="emailHelp"
+                    placeholder="Email" value={formData.email} onChange={handleChange} required
                 />
                 <span className="signup-error-message">{validationErrors.email}</span>
 
                 <div className="sign-btn">
-                    <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
-                        {btnLoading ? (
-                        <>
-                            Please Wait{" "}
-                            <span
-                            className="spinner-grow spinner-grow-sm ml-2"
-                            role="status"
-                            aria-hidden="true"
-                            ></span>
-                        </>
-                        ) : (
-                        <>Reset Password</>
-                        )}
-                    </button>
+                  <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+                    {btnLoading ? (
+                      <>
+                        Please Wait{" "}
+                        <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true" ></span>
+                      </>
+                    ) : (
+                      <>Email Me</>
+                    )}
+                  </button>
                 </div>
 
               </div>
@@ -167,4 +146,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;
