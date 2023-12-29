@@ -361,6 +361,102 @@ const Dashboard = () => {
       })
   }
 
+  const handleDataSync = ()=> {
+    console.log('now in handleDataSync')
+    setTaskCompleted(true)
+    // console.log('selectedfolders now' , selectedFolders)
+    const updatedSelectedFolders = selectedFolders.map((folder:any) => {
+      if (!folder.option || folder.option === 'Create new vault') {
+        return { ...folder, option: 'Create new vault' };
+      }
+      return folder;
+    });
+
+    // setShowFolderComparison(true)
+
+    setFolderSelectedLoader(true)
+    setCurrentSync(true)
+    setShowCurrentSync(true)
+
+    axios.get("api/downloadFiles", {
+            headers: { Authorization: `Bearer ${accessToken}`,},
+            params: { folderId: updatedSelectedFolders, },
+          })
+          .then(async(res:any)=>{
+              const reqData = res.data.data
+              setTotalFilesToSync(res.data.message)
+              // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
+              //   position: "top-right",
+              //   autoClose: 1500,
+              //   hideProgressBar: false,
+              //   closeOnClick: true,
+              //   pauseOnHover: true,
+              //   draggable: true,
+              //   type: "success",
+              //   progress: undefined,
+              //   theme: "light",
+              // });
+              
+              const chunkSize = 50;
+              var currentlySyncronizingFiles = 0
+              
+
+              for (let i = 0; i < reqData.length; i++) {
+                const downloadedFiles = reqData[i].downloadedFiles;
+              
+                // Split downloadedFiles into chunks
+                for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
+                  const chunk = downloadedFiles.slice(j, j + chunkSize);
+
+                  currentlySyncronizingFiles = currentlySyncronizingFiles + chunk.length
+
+                  setCurrentSyncedFiles(currentlySyncronizingFiles)
+              
+                  const requestData = {
+                    name: reqData[i].name,
+                    option: reqData[i].option,
+                    downloadedFiles: chunk,
+                  };
+                  
+
+                  await axios.post('api/downFilesCheck', requestData,{
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`
+                    }
+                  })
+                  .then((res:any)=>{
+                    // console.log('res' , res.data)
+                    
+                    // setTaskCompleted(false);
+                    // setShowFolderComparison(false)
+                    
+                    // setFolderSelectedLoader(true)
+
+
+                  }).catch((err:any)=>{
+                    console.log('err' , err)
+                    // setTaskCompleted(false);
+                  })
+              
+                }
+
+              }
+              fetchFilenames()
+              // setTaskCompleted(false)
+              // setFolderSelectedLoader(true)
+              // setSelectedFolders([])
+              setTaskCompleted(false)
+              setShowCurrentSync(false)
+
+
+          }).catch((err:any)=>{
+              console.log('err' , err)
+          })
+        
+
+
+  }
+
 
   const handlerFolderPopupClose = async () => {
     setFoldersPopup(false)
@@ -750,101 +846,7 @@ const Dashboard = () => {
   }
 
 
-  const handleDataSync = ()=> {
-    console.log('now in handleDataSync')
-    setTaskCompleted(true)
-    // console.log('selectedfolders now' , selectedFolders)
-    const updatedSelectedFolders = selectedFolders.map((folder:any) => {
-      if (!folder.option || folder.option === 'Create new vault') {
-        return { ...folder, option: 'Create new vault' };
-      }
-      return folder;
-    });
-
-    // setShowFolderComparison(true)
-
-    setFolderSelectedLoader(true)
-    setCurrentSync(true)
-    setShowCurrentSync(true)
-
-    axios.get("api/downloadFiles", {
-            headers: { Authorization: `Bearer ${accessToken}`,},
-            params: { folderId: updatedSelectedFolders, },
-          })
-          .then(async(res:any)=>{
-              const reqData = res.data.data
-              setTotalFilesToSync(res.data.message)
-              // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
-              //   position: "top-right",
-              //   autoClose: 1500,
-              //   hideProgressBar: false,
-              //   closeOnClick: true,
-              //   pauseOnHover: true,
-              //   draggable: true,
-              //   type: "success",
-              //   progress: undefined,
-              //   theme: "light",
-              // });
-              
-              const chunkSize = 100;
-              var currentlySyncronizingFiles = 0
-              
-
-              for (let i = 0; i < reqData.length; i++) {
-                const downloadedFiles = reqData[i].downloadedFiles;
-              
-                // Split downloadedFiles into chunks
-                for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
-                  const chunk = downloadedFiles.slice(j, j + chunkSize);
-
-                  currentlySyncronizingFiles = currentlySyncronizingFiles + chunk.length
-
-                  setCurrentSyncedFiles(currentlySyncronizingFiles)
-              
-                  const requestData = {
-                    name: reqData[i].name,
-                    option: reqData[i].option,
-                    downloadedFiles: chunk,
-                  };
-                  
-
-                  await axios.post('api/downFilesCheck', requestData,{
-                    headers: {
-                      Authorization: `Bearer ${accessToken}`
-                    }
-                  })
-                  .then((res:any)=>{
-                    // console.log('res' , res.data)
-                    
-                    // setTaskCompleted(false);
-                    // setShowFolderComparison(false)
-                    
-                    // setFolderSelectedLoader(true)
-
-
-                  }).catch((err:any)=>{
-                    console.log('err' , err)
-                    // setTaskCompleted(false);
-                  })
-              
-                }
-
-              }
-              fetchFilenames()
-              // setTaskCompleted(false)
-              // setFolderSelectedLoader(true)
-              // setSelectedFolders([])
-              setTaskCompleted(false)
-              setShowCurrentSync(false)
-
-
-          }).catch((err:any)=>{
-              console.log('err' , err)
-          })
-        
-
-
-  }
+  
 
 
   const handleDeleteVault = (vault:any) => {

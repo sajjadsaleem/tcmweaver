@@ -1139,7 +1139,7 @@ const Sidebar = () => {
         function hasLinks(node:any) {
           // Assuming links is your array of links
           // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
+          // const links:any = [];  // Replace this with your actual links data
         
           // Check if the node's ID is present in any link's source or target
           return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
@@ -1818,7 +1818,8 @@ const Sidebar = () => {
         function hasLinks(node:any) {
           // Assuming links is your array of links
           // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
+          // const links:any = [];  // Replace this with your actual links data
+          
         
           // Check if the node's ID is present in any link's source or target
           return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
@@ -4960,7 +4961,7 @@ const Sidebar = () => {
         function hasLinks(node:any) {
           // Assuming links is your array of links
           // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
+          // const links:any = [];  // Replace this with your actual links data
         
           // Check if the node's ID is present in any link's source or target
           return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
@@ -5609,7 +5610,8 @@ const Sidebar = () => {
         function hasLinks(node:any) {
           // Assuming links is your array of links
           // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
+          // const links:any = [];  // Replace this with your actual links data
+
         
           // Check if the node's ID is present in any link's source or target
           return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
@@ -6813,8 +6815,7 @@ const Sidebar = () => {
 
   const synchronizeFiles = async () => {
 
-    axios
-      .get("/api/googleDriveFiles")
+    axios.get("/api/googleDriveFiles")
       .then((res) => {
         // console.log('res: ' , res)
         if (res.data && res.data.authUrl) {
