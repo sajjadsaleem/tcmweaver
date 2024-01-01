@@ -22,6 +22,7 @@ export default async (req, res) => {
 
         try {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
+            console.log('event type ', event.type)
 
             if (event.type === 'checkout.session.completed') {
                 // console.log('event', event.data.object.subscription)

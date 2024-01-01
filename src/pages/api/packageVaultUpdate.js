@@ -15,20 +15,28 @@ export default async function packageVaultUpdate(req, res) {
         const db = drizzle(sql)
 
         const newArray = req.body.selectedVaults.map(item => ({ name: item.value }));
+        console.log('newarray', newArray)
 
         const updateProductFeatures = await stripe.products.update(
             req.body.packageId, { features: newArray, }
         );
 
+        console.log('updateproductfeatures', updateProductFeatures)
+
         if (updateProductFeatures) {
             const allVaultsData = await db.select().from(vaultsTable)
+            console.log('allVaultsData', allVaultsData)
 
             const matchingIds = allVaultsData
                 .filter(vault => newArray.some(item => item.name === vault.vault_name))
                 .map(vault => vault.id);
 
+            console.log('matchingIds', matchingIds)
+
             const packageIdToUpdate = await db.select({ packageId: packagesTable.id })
                 .from(packagesTable).where(eq(packagesTable.stripe_prod_id, req.body.packageId))
+
+            console.log('packageidtoupdate', packageIdToUpdate)
 
             // console.log('packageidtoudpate', packageIdToUpdate[0].packageId, 'matchingIds', matchingIds)
 
