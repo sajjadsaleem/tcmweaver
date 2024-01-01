@@ -22,7 +22,7 @@ export default async (req, res) => {
 
         try {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
-            console.log('event type ', event.type)
+            // console.log('event type ', event.type)
 
             if (event.type === 'checkout.session.completed') {
                 // console.log('event', event.data.object.subscription)
@@ -97,17 +97,6 @@ export default async (req, res) => {
 
             }
 
-            if (event.type === 'product.updated') {
-                // console.log('event type', event)
-                const productId = event.data.object.id
-                const productName = event.data.object.name
-                // console.log('prod id', productId, event.data.object.name)
-                const updatedPackage = await db.insert(packagesTable).values({ name: productName, stripe_prod_id: productId })
-                    .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { name: productName } })
-
-                // console.log('Package update result:', packageUpdate);
-            }
-
             if (event.type === 'customer.subscription.deleted') {
                 console.log('sub id', event.data.object.id)
                 const subscriptionDeletion = await db.delete(userPackagesTable)
@@ -127,6 +116,25 @@ export default async (req, res) => {
 
 
             }
+
+            if (event.type === 'product.updated') {
+                // console.log('event type', event)
+                const productId = event.data.object.id
+                const productName = event.data.object.name
+                // console.log('prod id', productId, event.data.object.name)
+                const updatedPackage = await db.insert(packagesTable).values({ name: productName, stripe_prod_id: productId })
+                    .onConflictDoUpdate({ target: packagesTable.stripe_prod_id, set: { name: productName } })
+
+                // console.log('Package update result:', packageUpdate);
+            }
+
+            if (event.type === 'product.deleted') {
+                // console.log('event type', event)
+                const productId = event.data.object.id
+                const updatedPackage = await db.delete(packagesTable)
+                    .where(eq(packagesTable.stripe_prod_id, event.data.object.id))
+            }
+
 
             return res.status(200).json({ message: 'Stripe Webhook handled successfully.' });
         } catch (error) {

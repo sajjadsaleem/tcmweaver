@@ -27,11 +27,16 @@ const UserForgotPasswordPage = () => {
     const [get_confirm_password_type, set_confirm_password_type] = useState(false)
 
 
-    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword , setShowConfirmPassword] = useState(false)
     const [signUpBtnLoading, setSignUpBtnLoading] = useState(false)
     const [isFocused, setIsFocused] = useState(false);
+    const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false)
+    const [showRedirection , setShowRedirection] = useState(false)
+
+    // console.log('password' , password , 'confirmpassword' , confirmPassword)
 
     // const submitBtn = () => {
     //     setBtnLoading(true)
@@ -59,56 +64,53 @@ const UserForgotPasswordPage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        if (!email || !password) {
-            // Display an error message or handle the case where fields are empty
-            console.log("Email and password are required.");
-            return;
-        }
         setBtnLoading(true);
 
-
         let payload = {
-            email: email,
             password: password,
-        };
+            confirm_password: confirmPassword,
+            user_id: user_id,
+            forgot_password_token: forgot_password_token,
+        }
 
-        axios
-            .post("/api/auth/login", payload)
+        axios.post('/api/auth/reset-password', payload)
             .then((res) => {
-                // console.log('res: ' , res.data)
-                setBtnLoading(false);
-                Helpers.setAccessToken(res.data.token)
-                Helpers.setUser(res.data.user)
-                router.push({
-                    pathname: "/",
-                    // query: { dashboard: true },
-                });
-            })
-            .catch((err) => {
-                console.log("err=", err.response.data);
-                setBtnLoading(false);
-                toast("Login Failed", {
+                setBtnLoading(false)
+                toast.success(res.data.message, {
                     position: "top-right",
                     autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
                     pauseOnHover: true,
-                    draggable: true,
-                    type: "error",
-                    progress: undefined,
-                    theme: "light",
+                    theme: "colored",
                 });
 
+                setShowRedirection(true)
+
+                
+
+                setTimeout(()=> {
+                    router.push('/login')
+                },5000)
+
+                
+            })
+            .catch(err => {
+                console.log('err=',err.response.data)
+                setBtnLoading(false)
             });
+        
+
+
     };
 
-    const handleSignUpBtn = async () => {
-        setSignUpBtnLoading(true)
-    }
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
+
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    }
 
     return (
         <>
@@ -127,32 +129,38 @@ const UserForgotPasswordPage = () => {
 
                     <div>
                         <form 
-                        // onSubmit={handleSubmit}
+                            onSubmit={handleSubmit}
                         >
                             <div className="sign-input">
-                                <input
-                                    type="email"
-                                    className="form-control"
-                                    aria-describedby="emailHelp"
-                                    placeholder="Password"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                                
-
-                                <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
+                                <div className={`input-group login-page-password 
+                                        ${isFocused ? 'focused' : ''}`}>
                                     <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        className="form-control"
-                                        aria-describedby="emailHelp"
-                                        placeholder="Confirm Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        onFocus={() => setIsFocused(true)}
+                                        type={showPassword ? 'text' : 'password'} className="form-control"
+                                        aria-describedby="emailHelp" placeholder="Password"
+                                        value={password} onChange={(e) => setPassword(e.target.value)}
+                                        onFocus={() => setIsFocused(true)} 
                                         onBlur={() => setIsFocused(false)}
                                     />
-                                    <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
+                                    <span className="input-group-text" id="basic-addon1" 
+                                        onClick={togglePasswordVisibility}>
                                         {showPassword ? <Visibility /> : <VisibilityOff />}
+                                    </span>
+                                </div>
+                                
+
+                                <div className={`input-group login-page-password 
+                                    ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        className="form-control" value={confirmPassword}
+                                        aria-describedby="emailHelp" placeholder="Confirm Password"
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        onFocus={() => setIsFocusedConfirmPassword(true)} 
+                                        onBlur={() => setIsFocusedConfirmPassword(false)}
+                                    />
+                                    <span className="input-group-text" id="basic-addon1" 
+                                        onClick={toggleConfirmPasswordVisibility}>
+                                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
                                     </span>
                                 </div>
 
@@ -176,6 +184,15 @@ const UserForgotPasswordPage = () => {
                                 </button>
                             </div>
                         </form>
+
+                        {showRedirection ? (
+                            <div style={{textAlign: 'center'}} className="mt-3">
+                                <p>You will be redirected to login page ...</p>
+                            </div>
+                            ): (
+                            <>
+                            </>
+                        )}
                     </div>
 
 
@@ -241,6 +258,8 @@ const UserForgotPasswordPage = () => {
                             <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
                         </div>
                     </div> */}
+
+                    <ToastContainer />
 
                 </div>
             </LayoutWrapper>
