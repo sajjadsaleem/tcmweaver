@@ -6,11 +6,7 @@ import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
 import pg from 'pg';
 
-// const { Pool } = pg;
 
-// const pool = new Pool({
-//     connectionString: process.env.POSTGRES_URL + "?sslmode=require",
-// })
 
 
 export default async function search(req, res) {

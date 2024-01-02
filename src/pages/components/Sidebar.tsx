@@ -167,6 +167,7 @@ const Sidebar = () => {
   const [linkClickLoader , setLinkClickLoader] = useState<boolean>(false)
   const [linkClickedId , setLinkClickedId] = useState('')
   const [nodeSizeChangeChecker , setNodeSizeChangeChecker] = useState(true)
+  const [showSearchResultsFound , setShowSearchResultsFound] = useState(false)
   
   
 
@@ -202,6 +203,7 @@ const Sidebar = () => {
   // console.log('showSearchResultToast',showSearchResultToast)
   // console.log('rawSearchResults' , rawSearchResults)
   // console.log('search value' , searchValue)
+  // console.log('hideFiltersForPreview',hideFiltersForPreview)
 
 
   // Check to see if this is a redirect back from Checkout
@@ -2151,6 +2153,7 @@ const Sidebar = () => {
 
         setSearchResults(newEntries);
         (graphOrTextView ? setTextSearchLoader(false) : setGraphSearchLoader(false));
+        setShowSearchResultsFound(true)
         // setShowSearchResultToast(true)
         // setTimeout(() => {
         // setShowSearchResultToast(false)
@@ -2170,6 +2173,7 @@ const Sidebar = () => {
   
 
   const handleSearch = async (event: any) => {
+    setShowSearchResultsFound(false)
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
@@ -2241,6 +2245,7 @@ const Sidebar = () => {
 
 
   const handleSearchFromFilters = async (event: any) => {
+    setShowSearchResultsFound(false)
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
@@ -2310,6 +2315,7 @@ const Sidebar = () => {
 
 
   const handleGraphSearch = async (event: any) => {
+    setShowSearchResultsFound(false)
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
     // console.log("words array: ", wordsArray);
@@ -2370,6 +2376,9 @@ const Sidebar = () => {
 
 
   const handleGraphSearchFromFilters = async (event: any) => {
+
+    setShowSearchResultsFound(false)
+
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
@@ -3207,7 +3216,7 @@ const Sidebar = () => {
 
       // Iterate through each object
       if (openedResults.length > 0) {
-        console.log('search results opened')
+        // console.log('search results opened')
         // If files are open in workspace
         finalCount = openedResults.length;
 
@@ -3215,7 +3224,7 @@ const Sidebar = () => {
         openedResults.forEach(async (result) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
-          console.log('result' , result)
+          // console.log('result' , result)
           const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
           // console.log('match' , match)
           let nodeTag:any = match ? match[0] : null;
@@ -6366,23 +6375,18 @@ const Sidebar = () => {
 
 
   const wanderClickedNode = async () => {
+
+
     const updatedGraphData: any = { ...graphData };
     // console.log('rawsearchresults' , rawSearchResults)
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
 
-    const nodeExists = (id: any) => {
-      return updatedGraphData.nodes.some((node: any) => node.id === id);
-    };
+    const nodeExists = (id: any) => { return updatedGraphData.nodes.some((node: any) => node.id === id)};
 
     if (matchingResult) {
-      // console.log("Matching result found:", matchingResult);
-      // console.log("updatedGraphData: ", updatedGraphData);
       const underlinedWords: any = matchingResult.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
-
-      // let count = 0;
-      // let finalCount = 1;
       let wordsArray
       if(underlinedWords){
         wordsArray = underlinedWords.map((span: any) => {
@@ -6400,64 +6404,128 @@ const Sidebar = () => {
         const tableNamesStr = userAccessVaults.join(',');
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
-        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}`)
+        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
+        console.log('response' , response)
         if(response) {
 
-          for (const entry of response.data) {
-            let textToConvert = entry.content;
+          // for (const entry of response.data.updatedObjects) {
+          //   let textToConvert = entry.content;
+          //   const regex = /\[\[([^[\]]+)\]\]/g;
+      
+          //   const contentWithRemovedBrackets = textToConvert.replace(
+          //     regex,
+          //     (match: any, word: any) => `${word}`
+          //   );
+          //   entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
+          // }
+
+          // for (const entry of response.data.updatedObjectsForBacklinks) {
+          //   let textToConvert = entry.content;
+          //   const regex = /\[\[([^[\]]+)\]\]/g;
+      
+          //   const contentWithRemovedBrackets = textToConvert.replace(
+          //     regex,
+          //     (match: any, word: any) => `${word}`
+          //   );
+          //   entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
+          // }
+
+
+          function removeDoubleBrackets(content:any) {
             const regex = /\[\[([^[\]]+)\]\]/g;
-      
-            // entry.content = textToConvert.replace(
-            //   regex,
-            //   (match: any, word: any) => `${word}`
-            // );
-      
-            const contentWithRemovedBrackets = textToConvert.replace(
-              regex,
-              (match: any, word: any) => `${word}`
-            );
-            entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
+            return content.replace(regex, (match:any, word:any) => `${word}`);
           }
+          
+          // Assuming response.data.updatedObjects and response.data.updatedObjectsForBacklinks are arrays of objects.
+          
+          // Process updatedObjects
+          response.data.updatedObjects.forEach((entry:any) => {
+            entry.contentWithRemovedBrackets = removeDoubleBrackets(entry.content);
+          });
+          
+          // Process updatedObjectsForBacklinks
+          response.data.updatedObjectsForBacklinks.forEach((entry:any) => {
+            entry.contentWithRemovedBrackets = removeDoubleBrackets(entry.content);
+          });
+          
 
           // console.log('response' , response.data)
 
 
-          const linkTags = Object.keys(response.data).map((key) => {
-            return {
-              name: response.data[key].fileName,
-              category: response.data[key].tag,
-            };
-          });
+          // let linkTags = Object.keys(response.data.updatedObjects).map((key) => {
+          //   return {
+          //     name: response.data.updatedObjects[key].fileName,
+          //     category: response.data.updatedObjects[key].tag,
+          //   };
+          // });
+
+          // // console.log('linkTags' , linkTags)
+
+          // const linkTagsForBacklinks = Object.keys(response.data.updatedObjectsForBacklinks).map((key) => {
+          //   return {
+          //     name: response.data.updatedObjectsForBacklinks[key].fileName,
+          //     category: response.data.updatedObjectsForBacklinks[key].tag,
+          //   };
+          // });
+
+          type YourObjectType = {
+            fileName: any;
+            tag: any;
+          };
+          
+          function generateLinkTags(objects: Record<string, YourObjectType>): { name: any; category: any }[] {
+            return Object.values(objects).map(({ fileName, tag }: YourObjectType) => ({ name: fileName, category: tag }));
+          }
+          
+          const linkTags = generateLinkTags(response.data.updatedObjects);
+          const linkTagsForBacklinks = generateLinkTags(response.data.updatedObjectsForBacklinks);
+          
+
+          // console.log('linkTagsForBacklinks' , linkTagsForBacklinks)
+
+
 
           const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || [])
           .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
           // Use filter to remove objects that match any word in searchWords with a hyphen
-          const filteredData = linkTags.filter((item: any) => {
+          const filteredData = linkTags.filter((item: any) => !searchWords.includes(`-${item.name}`));
+
+          const filteredDataForBacklinks = linkTagsForBacklinks.filter((item: any) => {
             return !searchWords.includes(`-${item.name}`);
           });
 
+
+
+
           filteredData.forEach((word: any) => {
             if (!nodeExists(word.name)) {
-              updatedGraphData.nodes.push({
-                id: word.name,
-                tag: word.category,
-              });
+              updatedGraphData.nodes.push({ id: word.name, tag: word.category });
+
               openedResults.forEach((result) => {
                 // Check if the name exists in the content
                 if (result.content.includes(word.name)) {
-                  // Add a link to newLinks
-                  updatedGraphData.links.push({
-                    source: result.fileName,
-                    target: word.name,
-                  });
+                  updatedGraphData.links.push({ source: result.fileName, target: word.name });
                 }
               });
-              // console.log("nodes:", nodes);
             }
           });
 
-          console.log('updatedGraphData',updatedGraphData)
+          filteredDataForBacklinks.forEach((word:any) => {
+            if (!nodeExists(word.name)) {
+              updatedGraphData.nodes.push({ id: word.name, tag: word.category });
+              // openedResults.forEach((result) => {
+              //   // Check if the name exists in the content
+              //   if (result.content.includes(word.name)) {
+              //     // Add a link to newLinks
+              updatedGraphData.links.push({ source: word.name, target: fileOpenedFromGraph.id });
+              //   }
+              // });
+              // console.log("nodes:", nodes);
+            }
+          })
+
+          // console.log('updatedGraphData',updatedGraphData)
           let filteredGraphData:any = []
 
           // Step 1: Find items with status "exclude" in updatedCheckboxes
@@ -6489,7 +6557,7 @@ const Sidebar = () => {
           filteredGraphData.nodes = updatedGraphData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
 
           // Now, graphDataCopy is updated with the desired changes.
-          console.log('filteredGraphData: ', filteredGraphData);
+          // console.log('filteredGraphData: ', filteredGraphData);
 
           // makeGraph(filteredGraphData)
 
@@ -6500,16 +6568,19 @@ const Sidebar = () => {
           makeGraph(filteredGraphData);
           setGraphSearchLoader(false)
 
-          const originalArray = response.data;
+          const originalArray = response.data.updatedObjects;
+          const originalArrayForBacklinks = response.data.updatedObjectsForBacklinks
           const copiedArray = _.cloneDeep(originalArray);
+          const copiedArrayForBacklinks = _.cloneDeep(originalArrayForBacklinks);
           // console.log('copiedArray',copiedArray)
 
           let updatedOpenedResults:any = [];
+
           copiedArray.forEach((result:any) => {
+
             let matchingFile: any = result;
-            marked.setOptions({
-              breaks: true,
-            });
+
+            marked.setOptions({breaks: true,});
 
             matchingFile.content = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
             matchingFile.content = marked(matchingFile.content);
@@ -6517,16 +6588,42 @@ const Sidebar = () => {
             const hashtagParagraphRegex = /#\S+/g;
             const regex = /\[\[([^[\]]+)\]\]/g;
 
-            const contentWithoutHashtags = matchingFile.content.replace(
-              hashtagParagraphRegex,
-              ""
-            );
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex , "" );
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
 
             const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex,
-              (match: any, word: any) =>
+              regex, (match: any, word: any) =>
+                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            );
+            // console.log("contentwithstyledwords", contentWithStyledWords);
+
+            matchingFile.content = contentWithStyledWords;
+
+            updatedOpenedResults.push({
+              ...matchingFile,
+              openedFromResults: true,
+            });
+          })
+
+          copiedArrayForBacklinks.forEach((result:any) => {
+
+            let matchingFile: any = result;
+
+            marked.setOptions({breaks: true,});
+
+            matchingFile.content = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+            matchingFile.content = marked(matchingFile.content);
+
+            const hashtagParagraphRegex = /#\S+/g;
+            const regex = /\[\[([^[\]]+)\]\]/g;
+
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex , "" );
+            // console.log("contentWithoutHashtags", contentWithoutHashtags);
+
+
+            const contentWithStyledWords = contentWithoutHashtags.replace(
+              regex, (match: any, word: any) =>
                 `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
@@ -6568,6 +6665,7 @@ const Sidebar = () => {
       }
 
     } else {
+      console.log('should not be here. wanderClickedNode>else')
       setGraphSearchLoader(true)
       console.log("No matching result found.");
       axios.post(`/api/search?q=${fileOpenedFromGraph.id}`)
@@ -7123,6 +7221,11 @@ const Sidebar = () => {
   };
 
 
+  const handleFiltersClose = () => {
+    setShouldShowFilters(true)
+  }
+
+
   return (
    
       <div className="homepage-container">
@@ -7482,9 +7585,17 @@ const Sidebar = () => {
             {(searchValue.length > 0 || graphSearchValue.length > 0) && (
               <>
                 {searchResults.length > 0 ? (
-                  <p>{searchResults.length} {searchResults.length === 1 ? 'Result' : 'Results'}</p>
+                  <>
+                    {showSearchResultsFound && (
+                      <p>{searchResults.length} {searchResults.length === 1 ? 'Result' : 'Results'}</p>
+                    )}
+                  </>
                 ):(
-                  <p>{searchResults.length} results found</p>
+                  <>
+                    {showSearchResultsFound && (
+                      <p>{searchResults.length} results found</p>
+                    )}
+                  </>
                 )}
               </>
             )}   
@@ -7785,89 +7896,100 @@ const Sidebar = () => {
                   <>
                     {hideFiltersForPreview && (
                       <div className="sub-accordion">
-                        <Accordion>
-                          {allCheckboxes.map((category: any, index: any) => (
-                            <div key={index}>
-                              {graphOrTextView ? (
-                                <>
-                                  <Accordion.Item
-                                eventKey={index.toString()}
-                                key={category.category}
-                                title={category.category}
-                                className="accordion-item"
-                              >
-                                <Accordion.Header className="accordion-header">
-                                  {category.category}
-                                </Accordion.Header>
-                                <Accordion.Body className="accordion-body">
-                                  <div className="form-check form-check-inline">
-                                    {category.items.map((item: any) => (
-                                      <div
-                                        className="form-check form-check-inline"
-                                        key={item.id}
-                                      >
-                                        <input
-                                          className={`form-check-input ${
-                                            category.items[item.id - 1]["status"] ===
-                                            "exclude"
-                                              ? "customCheckBackground"
-                                              : ""
-                                          }`}
-                                          type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                          checked={item.state === "checked"} value={item.value}
-                                          onChange={() => handleCheckboxClick( category.category,item.id )}
-                                        />
-                                        <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                          {item.value}
-                                          {item.category}
-                                        </label>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </Accordion.Body>
-                                  </Accordion.Item>
-                                </>
-                              ):(
-                                <>
-                                  {!graphFiltersName.includes(category.category) && (
-                                    <Accordion.Item eventKey={index.toString()} key={category.category}
-                                      title={category.category} className="accordion-item"
-                                    >
-                                    <Accordion.Header className="accordion-header">
-                                      {category.category}
-                                    </Accordion.Header>
-                                    <Accordion.Body className="accordion-body">
-                                      <div className="form-check form-check-inline">
-                                        {category.items.map((item: any) => (
-                                          <div className="form-check form-check-inline" key={item.id} >
-                                            <input
-                                              className={`form-check-input ${
-                                                category.items[item.id - 1]["status"] ===
-                                                "exclude" ? "customCheckBackground" : ""
-                                              }`} type="checkbox"
-                                              id={`checkbox${category.category}-${item.id}`}
-                                              checked={item.state === "checked"} value={item.value}
-                                              onChange={() => handleCheckboxClick( category.category, item.id )}
-                                            />
-                                            <label
-                                              className="form-check-label"
-                                              htmlFor={`checkbox${category.category}-${item.id}`}
-                                            >
-                                              {item.value}
-                                              {item.category}
-                                            </label>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </Accordion.Body>
+                        <div className="filters-collapse-div">
+                          <div onClick={handleFiltersClose}>
+                            <p>Collapse</p>
+                            <img src="/collapse-dark.png" alt="collapse filter" className="filters-collapse-icon"/>
+
+                          </div>
+                        </div>
+                     
+
+                        <div className="filters-scroll">
+                          <Accordion>
+                            {allCheckboxes.map((category: any, index: any) => (
+                              <div key={index}>
+                                {graphOrTextView ? (
+                                  <>
+                                    <Accordion.Item
+                                  eventKey={index.toString()}
+                                  key={category.category}
+                                  title={category.category}
+                                  className="accordion-item"
+                                >
+                                  <Accordion.Header className="accordion-header">
+                                    {category.category}
+                                  </Accordion.Header>
+                                  <Accordion.Body className="accordion-body">
+                                    <div className="form-check form-check-inline">
+                                      {category.items.map((item: any) => (
+                                        <div
+                                          className="form-check form-check-inline"
+                                          key={item.id}
+                                        >
+                                          <input
+                                            className={`form-check-input ${
+                                              category.items[item.id - 1]["status"] ===
+                                              "exclude"
+                                                ? "customCheckBackground"
+                                                : ""
+                                            }`}
+                                            type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                            checked={item.state === "checked"} value={item.value}
+                                            onChange={() => handleCheckboxClick( category.category,item.id )}
+                                          />
+                                          <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                            {item.value}
+                                            {item.category}
+                                          </label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </Accordion.Body>
                                     </Accordion.Item>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                            
-                          ))}
-                        </Accordion>
+                                  </>
+                                ):(
+                                  <>
+                                    {!graphFiltersName.includes(category.category) && (
+                                      <Accordion.Item eventKey={index.toString()} key={category.category}
+                                        title={category.category} className="accordion-item"
+                                      >
+                                      <Accordion.Header className="accordion-header">
+                                        {category.category}
+                                      </Accordion.Header>
+                                      <Accordion.Body className="accordion-body">
+                                        <div className="form-check form-check-inline">
+                                          {category.items.map((item: any) => (
+                                            <div className="form-check form-check-inline" key={item.id} >
+                                              <input
+                                                className={`form-check-input ${
+                                                  category.items[item.id - 1]["status"] ===
+                                                  "exclude" ? "customCheckBackground" : ""
+                                                }`} type="checkbox"
+                                                id={`checkbox${category.category}-${item.id}`}
+                                                checked={item.state === "checked"} value={item.value}
+                                                onChange={() => handleCheckboxClick( category.category, item.id )}
+                                              />
+                                              <label
+                                                className="form-check-label"
+                                                htmlFor={`checkbox${category.category}-${item.id}`}
+                                              >
+                                                {item.value}
+                                                {item.category}
+                                              </label>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </Accordion.Body>
+                                      </Accordion.Item>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                              
+                            ))}
+                          </Accordion>
+                        </div>
                       </div>
                     )}
                   </>

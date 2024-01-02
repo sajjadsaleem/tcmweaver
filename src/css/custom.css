@@ -161,6 +161,14 @@
     display: flex;
 }
 
+/* .filters-scroll {
+    overflow-y: scroll;
+    width: 100%;
+    height: 36%;
+   
+}
+
+*/
 .filters-graph-screen {
     height: 48.675%;
     margin-top: 1.5rem !important;
@@ -633,6 +641,53 @@
     padding-bottom: 1px;
 }
 
+.sub-accordion {
+    display: flex;
+    flex-direction: column;
+}
+
+.filters-collapse-div {
+    position: sticky;
+    display: flex;
+    top: 0px;
+    background-color: #EDEDED;
+    z-index: 12;
+    justify-content: flex-end;
+}
+
+.night-mode .filters-collapse-div {
+    background-color: #323232;
+
+}
+
+
+.filters-collapse-div div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.filters-collapse-div p {
+    margin: 0;
+    font-size: 14px;
+    color: #6C655C;
+}
+
+
+
+
+.filters-collapse-icon {
+    width: 13px;
+    transform: rotate(270deg);
+    /* position: fixed; */
+    /* top: 5px; */
+    /* left: 5px; */
+    /* cursor: pointer; */
+    /* margin-top: 5px; */
+
+}
+
 .search-results {
     margin-top: 6px !important;
     margin-bottom: 6px;
@@ -738,8 +793,8 @@
 
 
 .results-height {
-    min-height: 36.6vh;
-    max-height: 36.6vh;
+    min-height: 38.6vh;
+    max-height: 38.6vh;
     overflow-y: scroll;
     /* overflow-x: hidden; */
     /* width: auto; */
