@@ -1863,7 +1863,7 @@ button {
     background-color: #969696;
     padding: 8px;
     transition: background-color 0.3s ease;
-    color: #6C655C !important;
+    color: #6C655C;
 }
 
 
@@ -1881,7 +1881,7 @@ button {
 }
 
 .night-mode .logout-button {
-    color: white;
+    color: #dad6d6 !important;
 
 }
 
@@ -2032,7 +2032,7 @@ button {
 
 .night-mode .vault-sync-btn,
 .night-mode .add-user {
-    color: white;
+    color: #dad6d6 !important;
 }
 
 .user-action-icon {

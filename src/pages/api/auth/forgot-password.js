@@ -68,9 +68,6 @@ export default async function handler(req, res) {
         const forgot_password_token = updatedUser[0]['forgot_password_token']
         // console.log('forgot_password_token', forgot_password_token)
 
-        console.log(process.env.MAIL_HOST, process.env.MAIL_PORT, process.env.MAIL_USERNAME, process.env.MAIL_PASSWORD,
-            process.env.MAIL_FROM, process.env.MAIL_SENDER_EMAIL)
-
 
         // Create a transporter with your email service settings
         const transporter = nodemailer.createTransport({

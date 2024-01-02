@@ -107,6 +107,7 @@ const Dashboard = () => {
   const [getUser, setUser] = useState<any>({})
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
   const [vaultFileToView , setVaultFileToView] = useState({})
+  const [userLogoutPopup , setUserLogoutPopup] = useState(false)
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -628,26 +629,19 @@ const Dashboard = () => {
 
     setIsLoading(true)
     await axios.post('/api/inviteUser' , formData)
-    .then(async (res:any)=>{
-      setOriginalUsers(res.data.allUsers);
-      setSearchedUsers(res.data.allUsers)
-      setShowAddUser(false)
-      setIsLoading(false)
-      toast.success(res.data.message);
-      setFormData({
-        fullName: '',
-        email: '',
-        role: 'User',
-        password: '',
-        confirmPassword: '',
-        status: ''
-      });
-    })
-    .catch((error:any)=>{
-      setIsLoading(false)
-      console.log('error' , error)
-      toast.error('Failed to invite user');
-    }) 
+      .then(async (res:any)=>{
+        setOriginalUsers(res.data.allUsers);
+        setSearchedUsers(res.data.allUsers)
+        setShowAddUser(false)
+        setIsLoading(false)
+        toast.success(res.data.message);
+        setFormData({ fullName: '', email: '', role: 'User', password: '', confirmPassword: '', status: ''});
+      })
+      .catch((error:any)=>{
+        setIsLoading(false)
+        console.log('error' , error)
+        toast.error('Failed to invite user');
+      }) 
   }
 
 
@@ -1381,7 +1375,7 @@ const Dashboard = () => {
                   
                 )}
 
-                {showAddUser ? (
+                {showAddUser && (
                   <div>
                     <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550 , margin: 'auto' }} >
                       <DialogTitle>Add User</DialogTitle>
@@ -1391,96 +1385,62 @@ const Dashboard = () => {
                           <Grid item xs={12}>
                             <FormControl fullWidth>
                               <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
-                              <MuiSelect
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
+                              <MuiSelect name="role" value={formData.role} onChange={handleChange}
                                 size='small'
                               >
                                 <MenuItem value="User">User</MenuItem>
                                 <MenuItem value="Admin">Admin</MenuItem>
                               </MuiSelect>
                             </FormControl>
-                            <TextField
-                              label="Email"
-                              type='email'
-                              name="email"
-                              value={formData.email}
-                              onChange={handleChange}
-                              fullWidth
-                              margin="normal"
-                              size='small'
-                              required
+                            <TextField label="Email" type='email' name="email" value={formData.email}
+                              onChange={handleChange} fullWidth margin="normal" size='small'required
                             />
                             <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
                               <Typography variant="body1">
                                 Invite User by Sending Email Notification
                               </Typography>
-                              <Switch
-                                checked={showInviteFields}
-                                onChange={toggleInviteFields}
+                              <Switch checked={showInviteFields} onChange={toggleInviteFields}
                                 color="primary"
                               />
                             </div>
-                            {showInviteFields ? (<></>):(
+
+                            {!showInviteFields && (
                               <>
-                                <TextField
-                                  label="Full Name"
-                                  name="fullName"
-                                  value={formData.fullName}
-                                  onChange={handleChange}
-                                  fullWidth
-                                  margin="normal"
-                                  size='small'
-                                  required/>
-                                <TextField
-                                  type={showPassword ? 'text' : 'password'}
-                                  label="Password"
-                                  name="password"
-                                  value={formData.password}
-                                  onChange={handleChange}
-                                  fullWidth
-                                  margin="normal"
-                                  size='small'
+                                <TextField label="Full Name" name="fullName" value={formData.fullName}
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
                                   required
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        <IconButton
-                                          onClick={() => setShowPassword(!showPassword)}
-                                          edge="end"
-                                        >
-                                          {showPassword ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                      </InputAdornment>
-                                    ),
-                                  }}
                                 />
+
                                 <TextField
-                                  type={showPassword ? 'text' : 'password'}
-                                  label="Confirm password"
-                                  name="confirmPassword"
-                                  value={formData.confirmPassword}
-                                  onChange={handleChange}
-                                  fullWidth
-                                  margin="normal"
-                                  size='small'
-                                  required
-                                  InputProps={{
-                                    endAdornment: (
+                                  type={showPassword ? 'text' : 'password'} label="Password"
+                                  name="password" value={formData.password} required
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
+                                  InputProps={{ endAdornment: (
+                                      <InputAdornment position="end">
+                                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                      </InputAdornment>
+                                  ),}}
+                                />
+
+                                <TextField
+                                  type={showPassword ? 'text' : 'password'} label="Confirm password"
+                                  name="confirmPassword"  required value={formData.confirmPassword}
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
+                                  InputProps={{ endAdornment: (
                                       <InputAdornment position="end">
                                         <IconButton
-                                          onClick={() => setShowPassword(!showPassword)}
-                                          edge="end"
+                                          onClick={() => setShowPassword(!showPassword)} edge="end"
                                         >
                                           {showPassword ? <Visibility /> : <VisibilityOff />}
                                         </IconButton>
                                       </InputAdornment>
-                                    ),
-                                  }}
+                                  ),}}
                                 />
                               </>
                             )}
+
                           </Grid> 
                         </Grid>
                       </DialogContent>
@@ -1504,12 +1464,9 @@ const Dashboard = () => {
                       </DialogActions>
                     </Dialog>
                   </div>
-                ):(
-                  <>
-                  </>
                 )}
 
-                {showSetPassword ? (
+                {showSetPassword && (
                   <>
                     <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
                         <DialogTitle>Set Password</DialogTitle>
@@ -1570,8 +1527,6 @@ const Dashboard = () => {
                         </DialogActions>
                     </Dialog>
                   </>
-                ):(
-                  <></>
                 )}
 
                 {showEditUserDialog && (
@@ -1768,6 +1723,22 @@ const Dashboard = () => {
                   </>
                 )}
 
+                {userLogoutPopup && (
+                  <div >
+                    <Dialog open={userLogoutPopup} onClose={() => setUserLogoutPopup(false)} className="user-logout-div">
+                      <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                      <DialogActions>
+                        <Button onClick={() => setUserLogoutPopup(false)} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={handleLogout} color="primary">
+                          Logout
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </div>
+                )}
+
                 {/* {syncPopup && (
                   <div>
                     <Dialog open={syncPopup} onClose={handleCloseDialog}>
@@ -1850,7 +1821,7 @@ const Dashboard = () => {
               </div>
 
               <div className='logout-button-div'>
-                <button className="logout-button" onClick={handleLogout} >
+                <button className="logout-button" onClick={() => setUserLogoutPopup(true)} >
                   {themeChangericon ? (
                       <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
                   ):(
@@ -1858,7 +1829,7 @@ const Dashboard = () => {
                   )}
                   Logout
                 </button>
-              </div> 
+              </div>
             </div>
 
           </div>
