@@ -1842,396 +1842,411 @@ const Dashboard = () => {
 
               {selectedListItem === 1 && (
                 <div className='main-vault'>
-                  <div className="vault-breadcrumbs">
-                    {showVaultFiles ? (
-                      <>
-                        <h5>
-                          <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
-                            Vault 
-                          </span>
-                          / {vaultFilesToShow.vault_name}
-                        </h5></>):(<>
-                        <h5>Vaults</h5>
-                      </>
-                    )}
-                    
-                  </div>
-
-                  <div className="vault-search">
-                    <div>
+                  <div className='vault-header'>
+                    <div className="vault-breadcrumbs">
                       {showVaultFiles ? (
                         <>
-                        <input className='vault-searchbar' placeholder='Search file' value={searched}
-                        onChange={vaultFileSearch} />
+                          <h5>
+                            <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
+                              Vault 
+                            </span>
+                            / {vaultFilesToShow.vault_name}
+                          </h5></>):(<>
+                          <h5>Vaults</h5>
                         </>
-                      ):(
-                        <input className='vault-searchbar' placeholder='Search file' value={searched}
-                        onChange={requestSearch} />
-                      )}
-                    </div>
-                    <div>
-                      {showVaultFiles ? (
-                        <button className='vault-sync-btn' onClick={() => {
-                          setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
-                        back
-                      </button>
-                      ):(
-                        <button className='vault-sync-btn' onClick={() => setSyncPopup(true)}>
-                        Sync
-                        {themeChangericon ? (
-                          <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                        ):(
-                          <img src='sync-dark.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                        )}
-                        
-                      </button>
                       )}
                       
+                    </div>
+
+                    <div className="vault-search">
+                      <div>
+                        {showVaultFiles ? (
+                          <>
+                          <input className='vault-searchbar' placeholder='Search file' value={searched}
+                          onChange={vaultFileSearch} />
+                          </>
+                        ):(
+                          <input className='vault-searchbar' placeholder='Search file' value={searched}
+                          onChange={requestSearch} />
+                        )}
+                      </div>
+                      <div>
+                        {showVaultFiles ? (
+                          <button className='vault-sync-btn' onClick={() => {
+                            setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
+                          back
+                        </button>
+                        ):(
+                          <button className='vault-sync-btn' onClick={() => setSyncPopup(true)}>
+                          Sync
+                          {themeChangericon ? (
+                            <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                          ):(
+                            <img src='sync-dark.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                          )}
+                          
+                        </button>
+                        )}
+                        
+                      </div>
                     </div>
                   </div>
 
                   {showVaultFiles ? (
-                      <div className="vault-table"> 
-                        <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                      <div className="vault-table">
+                        <Paper className='vault-table-paper'>
+                          <TableContainer className='vault-table-scroll'>
+                            <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                              <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                                <TableRow className='vault-table-row'>
+                                  <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                                  </TableCell>
+                                  <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+                                  </TableCell>
+                                  {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
+                                  </TableCell> */}
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {vaultFilesToShow.files.map((row:any , index:any) => (
+                                  <TableRow
+                                    key={index}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    className='vault-table-row vault-file-hover'
+                                  >
+                                    <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                                    <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                    {/* <TableCell className='vault-table-body-row'>
+                                      <span style={{ display: 'flex', alignItems: 'center' }}>
+                                        <img src="eye.png" alt="File View" className='vault-view-icon'
+                                          style={{ width: '20px', height: '20px', marginRight: '10px' }}
+                                          onClick={() => handleFileView(row)}
+                                        />
+                                      </span>
+                                    </TableCell> */}
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Paper>
+                      </div>
+                  ):(
+                    <div className="vault-table"> 
+                      <Paper className='vault-table-paper'>
+                        <TableContainer className='vault-table-scroll'>
                           <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
                             <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                               <TableRow className='vault-table-row'>
                                 <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
-                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                    No#
+                                  </Typography>
                                 </TableCell>
-                                <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+
+                                <TableCell sx={{width: '45%'}} >
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                    Vaults
+                                  </Typography>
                                 </TableCell>
-                                {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
+
+                                {/* <TableCell sx={{width: '15%'}} >
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
+                                    Price
+                                  </Typography>
                                 </TableCell> */}
+
+                                <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                  <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
+                                    Actions
+                                  </Typography>
+                                </TableCell>
                               </TableRow>
                             </TableHead>
+
                             <TableBody>
-                              {vaultFilesToShow.files.map((row:any , index:any) => (
-                                <TableRow
-                                  key={index}
-                                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                  className='vault-table-row vault-file-hover'
+                              {vaultFiles.map((row:any , index) => (
+                                <TableRow key={index} className='vault-table-row hover-row'
+                                  sx={{ '&:last-child td, &  :last-child th': { border: 0 } }} 
+                                  onDoubleClick={() => handleVaultRowClick(row)}
                                 >
                                   <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                                  <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
-                                  {/* <TableCell className='vault-table-body-row'>
+
+                                  <TableCell className='vault-table-body-row'>
+                                    <span style={{ display: 'flex', alignItems: 'center', userSelect: 'none' }}>
+                                      <img src="vault.svg" alt="Folder Icon"
+                                        style={{ width: '17px', height: '17px', marginRight: '10px' }} />
+                                      {row.vault_name}
+                                    </span>
+                                  </TableCell>
+                                  
+                                  <TableCell scope="row" className='vault-table-body-row'>
                                     <span style={{ display: 'flex', alignItems: 'center' }}>
-                                      <img src="eye.png" alt="File View" className='vault-view-icon'
+                                      <img src="eye.png" alt="Folder Icon" className='vault-view-icon'
                                         style={{ width: '20px', height: '20px', marginRight: '10px' }}
-                                        onClick={() => handleFileView(row)}
+                                        onClick={() => handleVaultRowClick(row)}
+                                      />
+
+                                      <img src="delete.png" alt="Folder Icon" className='vault-view-icon'
+                                        style={{ width: '18px', height: '18px', marginRight: '10px' }}
+                                        onClick={() => handleDeleteVault(row)}
                                       />
                                     </span>
-                                  </TableCell> */}
+                                    
+                                    
+
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
                           </Table>
                         </TableContainer>
-                      </div>
-                  ):(
-                    <div className="vault-table"> 
-                      <TableContainer component={Paper} sx={{ borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                            <TableRow className='vault-table-row'>
-                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  No#
-                                </Typography>
-                              </TableCell>
-
-                              <TableCell sx={{width: '45%'}} >
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  Vaults
-                                </Typography>
-                              </TableCell>
-
-                              {/* <TableCell sx={{width: '15%'}} >
-                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
-                                  Price
-                                </Typography>
-                              </TableCell> */}
-
-                              <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
-                                  Actions
-                                </Typography>
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>
-
-                          <TableBody>
-                            {vaultFiles.map((row:any , index) => (
-                              <TableRow key={index} className='vault-table-row hover-row'
-                                sx={{ '&:last-child td, &  :last-child th': { border: 0 } }} 
-                                onDoubleClick={() => handleVaultRowClick(row)}
-                              >
-                                <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-
-                                <TableCell className='vault-table-body-row'>
-                                  <span style={{ display: 'flex', alignItems: 'center', userSelect: 'none' }}>
-                                    <img src="vault.svg" alt="Folder Icon"
-                                      style={{ width: '17px', height: '17px', marginRight: '10px' }} />
-                                    {row.vault_name}
-                                  </span>
-                                </TableCell>
-                                
-                                <TableCell scope="row" className='vault-table-body-row'>
-                                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                                    <img src="eye.png" alt="Folder Icon" className='vault-view-icon'
-                                      style={{ width: '20px', height: '20px', marginRight: '10px' }}
-                                      onClick={() => handleVaultRowClick(row)}
-                                    />
-
-                                    <img src="delete.png" alt="Folder Icon" className='vault-view-icon'
-                                      style={{ width: '18px', height: '18px', marginRight: '10px' }}
-                                      onClick={() => handleDeleteVault(row)}
-                                    />
-                                  </span>
-                                  
-                                  
-
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
+                      </Paper>
                     </div>
                   )}
+                 
                   
                 </div>
               )}
 
               {selectedListItem === 2 && (
                 <div className='main-user-management'>
-                  <div className="user-breadcrumbs">
-                    <h5>User Management/Users</h5>
-                  </div>
-
-                  <div className="user-search">
-                    <div>
-                      <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
-                      onChange={requestUserSearch} />
+                  <div className='vault-header'>
+                    <div className="user-breadcrumbs">
+                      <h5>User Management/Users</h5>
                     </div>
-                    <div>
-                      <button className='add-user' onClick={showAddUserPopup}>
-                        Add User
-                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                      </button>
+
+                    <div className="user-search">
+                      <div>
+                        <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
+                        onChange={requestUserSearch} />
+                      </div>
+                      <div>
+                        <button className='add-user' onClick={showAddUserPopup}>
+                          Add User
+                          <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   <div className="user-table">
-                    <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                      <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                    <Paper className='vault-table-paper'>
+                      <TableContainer sx={{ overflowX: 'inherit' }} className='vault-table-scroll'>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
 
-                        <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                          <TableRow className='vault-table-row'>
+                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                            <TableRow className='vault-table-row'>
 
-                            <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width:'20%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '25%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '7%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '8%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '18%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{width: '18%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
-                            </TableCell>
-
-                            <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        
-                        <TableBody>
-                          {searchedUsers.map((row:any , index) => (
-                            <TableRow
-                              key={row.email}
-                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                              className='vault-table-row user-row-hover'
-                            >
-                              <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.email}</TableCell>
-                              <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
-                              <TableCell className='vault-table-body-row' style={{ color: row.status === 'Active' ? '#28C76F' : 'inherit' }}>
-                                {row.status}
+                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                               </TableCell>
-                                
-                              <TableCell>
-                                {row.vaults && row.vaults.length > 0 ? (
+
+                              <TableCell sx={{width:'20%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '25%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '7%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '8%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '18%'}}>
+                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{width: '18%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
+                              </TableCell>
+
+                              <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          
+                          <TableBody>
+                            {searchedUsers.map((row:any , index) => (
+                              <TableRow
+                                key={row.email}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                className='vault-table-row user-row-hover'
+                              >
+                                <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                                <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
+                                <TableCell className='vault-table-body-row'>{row.email}</TableCell>
+                                <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
+                                <TableCell className='vault-table-body-row' style={{ color: row.status === 'Active' ? '#28C76F' : 'inherit' }}>
+                                  {row.status}
+                                </TableCell>
+                                  
+                                <TableCell>
+                                  {row.vaults && row.vaults.length > 0 ? (
+                                      <>
+                                        {row.vaults.map((vault:any , index:any) => (
+                                          <button className="package-vaults" key={index}>
+                                            {vault}
+                                          </button>
+                                        ))}
+                                      </>
+                                      ):(
+                                      <>
+                                        <p style={{display: 'inline'}}>No vault attached</p>
+                                        
+                                      </>
+                                  )}
+                                    
+                                  <img src="attach-vault.png" alt="logo" 
+                                    style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                    onClick={() => handleShowUserVaultAddPopup(row)}
+                                  />
+                                </TableCell>
+
+                                <TableCell>
+                                  {row.subscriptions && row.subscriptions.length > 0 ? (
                                     <>
-                                      {row.vaults.map((vault:any , index:any) => (
+                                      {row.subscriptions.map((subscription:any, index:any) => (
                                         <button className="package-vaults" key={index}>
-                                          {vault}
+                                          {subscription}
                                         </button>
                                       ))}
                                     </>
-                                    ):(
+                                  ) : (
                                     <>
-                                      <p style={{display: 'inline'}}>No vault attached</p>
-                                      
+                                      <p style={{ display: 'inline' }}>No subscriptions</p>
                                     </>
-                                )}
-                                  
-                                <img src="attach-vault.png" alt="logo" 
-                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
-                                  onClick={() => handleShowUserVaultAddPopup(row)}
-                                />
-                              </TableCell>
-
-                              <TableCell>
-                                {row.subscriptions && row.subscriptions.length > 0 ? (
-                                  <>
-                                    {row.subscriptions.map((subscription:any, index:any) => (
-                                      <button className="package-vaults" key={index}>
-                                        {subscription}
-                                      </button>
-                                    ))}
-                                  </>
-                                ) : (
-                                  <>
-                                    <p style={{ display: 'inline' }}>No subscriptions</p>
-                                  </>
-                                )}
-                              </TableCell>
-
-                              <TableCell className='vault-table-body-row'>
-                                <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
-                                  <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
-                                  {showOptions === index+1 && (
-                                    <div className='options-div'>
-                                      <div onClick={() => handleEditClick(index)}>Edit</div>
-                                      <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
-                                      <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
-                                        {isDeleting ? 'Deleting...' : 'Delete'}
-                                      </div>
-                                    </div>
                                   )}
-                                </div>
-                              </TableCell>
-                          
-                            </TableRow>
-                          ))}
-                        </TableBody>
+                                </TableCell>
 
-                      </Table>
-                    </TableContainer>
+                                <TableCell className='vault-table-body-row'>
+                                  <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
+                                    <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
+                                    {showOptions === index+1 && (
+                                      <div className='options-div'>
+                                        <div onClick={() => handleEditClick(index)}>Edit</div>
+                                        <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
+                                        <div onClick={(e) => { e.stopPropagation(); handleDeleteClick(index); }}>
+                                          {isDeleting ? 'Deleting...' : 'Delete'}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                            
+                              </TableRow>
+                            ))}
+                          </TableBody>
+
+                        </Table>
+                      </TableContainer>
+                    </Paper>
                   </div>
                 </div>
               )}
 
               {selectedListItem == 3 && (
                 <div className='main-user-management'>
-                  <div className="user-breadcrumbs">
-                    <h5>Packages</h5>
-                  </div>
-
-                  <div className="user-search">
-                    <div>
-                      <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
-                      onChange={requestPackageSearch} />
+                  <div className='vault-header'>
+                    <div className="user-breadcrumbs">
+                      <h5>Packages</h5>
                     </div>
-                    {/* <div>
-                      <button className='add-user' onClick={showAddUserPopup}>
-                        Add Package
-                        <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                      </button>
-                    </div> */}
+
+                    <div className="user-search">
+                      <div>
+                        <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
+                        onChange={requestPackageSearch} />
+                      </div>
+                      {/* <div>
+                        <button className='add-user' onClick={showAddUserPopup}>
+                          Add Package
+                          <img src='plus.png' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                        </button>
+                      </div> */}
+                    </div>
                   </div>
 
-                <div className="user-table">
-                  <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                      <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                        <TableRow className='vault-table-row'>
-                          <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                          </TableCell>
-                          <TableCell sx={{width: '25%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
-                          </TableCell>
-                          <TableCell sx={{width: '10%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
-                          </TableCell>
-                          <TableCell sx={{width: '10%'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
-                          </TableCell>
-                          <TableCell sx={{ width: '30%'}} >
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
-                          </TableCell>
-                          {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
-                            <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
-                          </TableCell> */}
-                        </TableRow>
-                      </TableHead>
+                  <div className="user-table">
+                    <Paper className='vault-table-paper'>
+                      <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                            <TableRow className='vault-table-row'>
+                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                              </TableCell>
+                              <TableCell sx={{width: '25%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
+                              </TableCell>
+                              <TableCell sx={{width: '10%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
+                              </TableCell>
+                              <TableCell sx={{width: '10%'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
+                              </TableCell>
+                              <TableCell sx={{ width: '30%'}} >
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
+                              </TableCell>
+                              {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
+                              </TableCell> */}
+                            </TableRow>
+                          </TableHead>
 
-                      <TableBody>
-                        {searchedStripePackages.map((row:any , index) => (
-                          <TableRow
-                            key={row.id}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            className='vault-table-row user-row-hover'
-                          >
-                              <TableCell component="th" scope="row" className='vault-table-body-row'>
-                                {index + 1}
-                              </TableCell>
-                              <TableCell className='vault-table-body-row'>{row.name}</TableCell>
-                              <TableCell className='vault-table-body-row'>
-                                {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
-                              </TableCell>
-                              <TableCell className='vault-table-body-row'>
-                                {convertUnixTimestampToDateTime(row.created)}
-                              </TableCell>
-                              <TableCell>
-                                {row.features && row.features.length > 0 ? (
-                                  <>
-                                    {row.features.map((feature:any , index:any) => (
-                                      <button className="package-vaults" key={index}>
-                                        {feature.name}
-                                      </button>
-                                    ))}
-                                  </>
-                                  ):(
-                                  <>
-                                    <p style={{display: 'inline'}}>No vault attached</p>
+                          <TableBody>
+                            {searchedStripePackages.map((row:any , index) => (
+                              <TableRow
+                                key={row.id}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                className='vault-table-row user-row-hover'
+                              >
+                                  <TableCell component="th" scope="row" className='vault-table-body-row'>
+                                    {index + 1}
+                                  </TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+                                  <TableCell className='vault-table-body-row'>
+                                    {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                                  </TableCell>
+                                  <TableCell className='vault-table-body-row'>
+                                    {convertUnixTimestampToDateTime(row.created)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {row.features && row.features.length > 0 ? (
+                                      <>
+                                        {row.features.map((feature:any , index:any) => (
+                                          <button className="package-vaults" key={index}>
+                                            {feature.name}
+                                          </button>
+                                        ))}
+                                      </>
+                                      ):(
+                                      <>
+                                        <p style={{display: 'inline'}}>No vault attached</p>
+                                        
+                                      </>
+                                    )}
                                     
-                                  </>
-                                )}
-                                
-                                <img src="attach-vault.png" alt="logo" 
-                                  style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
-                                  onClick={() => handleShowVaultAddPopup(row)}
-                                />
-                              </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </div>
+                                    <img src="attach-vault.png" alt="logo" 
+                                      style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+                                      onClick={() => handleShowVaultAddPopup(row)}
+                                    />
+                                  </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Paper>
+                  </div>
               </div>
 
               )}

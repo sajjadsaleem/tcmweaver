@@ -1892,16 +1892,55 @@ button {
 }
 
 
+
+
 /* Dashboard - My Vault  */
 
-.main-vault,
-.main-user-management,
+/* .main-vault, */
+/* .main-user-management, */
 .main-package-management {
     /* border: 1px solid red; */
     /* background-color: lightcoral; */
     padding-left: 20px;
     padding-right: 20px;
     width: 100%;
+
+}
+
+.main-user-management,
+.main-vault {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+}
+
+.vault-header {
+    padding: 0 20px;
+    /* background-color: red; */
+    /* height: 130px; */
+}
+
+.vault-table-paper {
+    /* width: '100%'; */
+    overflow: hidden;
+    margin: 0px 10px 0px 20px;
+    border-top-left-radius: 17px !important;
+    border-top-right-radius: 16px !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+}
+
+
+.vault-table-scroll {
+    height: calc(100vh - 135px);
+    overflow-y: auto;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+
 
 }
 
@@ -2132,6 +2171,20 @@ button {
 
 .night-mode .vault-table-head {
     background-color: rgb(85, 84, 84);
+    z-index: 13;
+    position: sticky;
+    top: 0px;
+
+
+}
+
+.vault-table-head {
+    position: sticky;
+    top: 0px;
+    /* background-color: red; */
+    background-color: #F4F4F4;
+    z-index: 13;
+
 
 }
 
