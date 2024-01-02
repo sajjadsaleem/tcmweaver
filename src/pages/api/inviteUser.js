@@ -10,6 +10,7 @@ import nodemailer from 'nodemailer';
 export default async function inviteUser(req, res) {
     if (req.method === 'POST') {
         try {
+
             const data = req.body;
             // console.log('data', data)
 
@@ -22,6 +23,18 @@ export default async function inviteUser(req, res) {
             };
 
             const db = drizzle(sql)
+
+            const userExists = await db.select({ email: users.email, }).from(users)
+                .where(eq(data.email, users.email));
+
+            if (userExists.length > 0) {
+                return res.status(500).send({
+                    success: false,
+                    status: "error",
+                    message: 'User already exists'
+                });
+            }
+
             let newUser = await db.insert(users).values({
                 role_id: userData.role_id,
                 email: userData.email,

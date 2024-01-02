@@ -116,6 +116,7 @@ const UserForgotPasswordPage = () => {
         <>
             <LayoutWrapper layout={AuthLayout} >
                 <div className="reset-password-credentials">
+
                     <div className="logo">
                         <Link href="/login" style={{ textDecoration: 'none' }}>
                             <div>
@@ -128,9 +129,7 @@ const UserForgotPasswordPage = () => {
                     </div>
 
                     <div>
-                        <form 
-                            onSubmit={handleSubmit}
-                        >
+                        <form onSubmit={handleSubmit} >
                             <div className="sign-input">
                                 <div className={`input-group login-page-password 
                                         ${isFocused ? 'focused' : ''}`}>

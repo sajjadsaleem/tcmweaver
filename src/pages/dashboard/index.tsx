@@ -640,7 +640,7 @@ const Dashboard = () => {
       .catch((error:any)=>{
         setIsLoading(false)
         console.log('error' , error)
-        toast.error('Failed to invite user');
+        toast.error(error.response.data.message);
       }) 
   }
 
