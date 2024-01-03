@@ -1814,6 +1814,7 @@ button {
     filter: invert(100%) sepia(0%) saturate(7493%) hue-rotate(342deg) brightness(97%) contrast(100%) !important;
 } */
 
+.css-yb0lig,
 .css-10hburv-MuiTypography-root {
     font-family: inherit !important;
 }
@@ -2220,6 +2221,10 @@ button {
 
 .night-mode .vault-table-row {
     border-bottom: 2px solid rgb(114, 114, 114);
+}
+
+.vault-table-head-row {
+    border-top-left-radius: 17px;
 }
 
 

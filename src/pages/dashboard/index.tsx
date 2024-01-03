@@ -4,10 +4,8 @@ import AuthLayout from '../components/AuthLayout'
 import { ToastContainer, toast } from "react-toastify";
 import Link from 'next/link';
 import * as Helpers from '../../util/Helpers'
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  FormControl,
-    Grid,  IconButton,  Input,  InputAdornment,  InputLabel,  List, ListItem, ListItemText, MenuItem, Paper,
-    Select as MuiSelect, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
-      Typography } from '@mui/material';
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,      FormControl, Grid,  IconButton,  Input,  InputAdornment,  InputLabel,  List, ListItem, ListItemText,  MenuItem, Paper,Select as MuiSelect, Switch, Table, TableBody, TableCell, TableContainer, TableHead,  TableRow, TextField, Typography } from '@mui/material';
+import { DialogProps } from '@mui/material/Dialog';
 import axios from 'axios';
 import router from 'next/router';
 import AdminLayout from '../components/AdminLayout';
@@ -18,6 +16,7 @@ import makeAnimated from 'react-select/animated';
 import { useDispatch, useSelector } from 'react-redux';
 import { FullPageComponentLoading } from '@/util/FullPageComponentLoading';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 const animatedComponents = makeAnimated();
@@ -108,6 +107,11 @@ const Dashboard = () => {
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
   const [vaultFileToView , setVaultFileToView] = useState({})
   const [userLogoutPopup , setUserLogoutPopup] = useState(false)
+  const [viewIndividualFile , setViewIndividualFile] = useState<any>({})
+  const [showViewIndividualFile , setShowViewIndividualFile] = useState(false)
+  const [filenameToView , setFilenameToView] = useState('')
+  const [scroll, setScroll] = useState<DialogProps['scroll']>('paper');
+  const [viewIndividualFileLoader, setViewIndividualFileLoader] = useState(false)
 
     // console.log('original vault' , originalVault)
     // console.log('vaultFiles' , vaultFiles)
@@ -130,6 +134,7 @@ const Dashboard = () => {
     // console.log('selectallvaults to ' , allVaultsToSelect)
     // console.log('defaultVault' , defaultVaultsInPackage)
     // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
+    // console.log('viewIndividualFile',viewIndividualFile)
 
   useEffect(() => {
     const getInit = () => {
@@ -828,14 +833,43 @@ const Dashboard = () => {
 
 
   const handleFileView = (file:any) => {
-    console.log(file)
+    setFilenameToView(file.filename)
+    setShowViewIndividualFile(true)
+    setViewIndividualFileLoader(true)
+
+    axios.get(`/api/getIndividualFile?q=${file.filename}&vn=${vaultFilesToShow.vault_name}`)
+      .then((res) => {
+        setViewIndividualFile(res.data)
+        setViewIndividualFileLoader(false)
+      })
+      .catch((err) => {
+        console.log('err' , err)
+        setViewIndividualFileLoader(false)
+      })
   }
 
 
+  const descriptionElementRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+      if (showViewIndividualFile) {
+        const { current: descriptionElement } = descriptionElementRef;
+        if (descriptionElement !== null) {
+          descriptionElement.focus();
+        }
+      }
+  }, [showViewIndividualFile]);
 
 
 
-  
+
+
+  const closeViewIndivualFileDialog = () => {
+    setShowViewIndividualFile(false)
+    setViewIndividualFile({})
+
+  }
+
+
   const vaultFileSearch = (event:any ) => {
     //  console.log(event.target.value)
       setSearched(event.target.value)
@@ -849,9 +883,6 @@ const Dashboard = () => {
       setVaultFilesToShow({ ...originalVaultFilesToShow, files: filteredRows });
 
   }
-
-
-  
 
 
   const handleDeleteVault = (vault:any) => {
@@ -1739,33 +1770,41 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* {syncPopup && (
-                  <div>
-                    <Dialog open={syncPopup} onClose={handleCloseDialog}>
-                      <DialogTitle>Authorization Required</DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                        You will be redirected to the Google consent page to grant this app access to your Google Drive
+                {showViewIndividualFile && (
+                  <>
+                    <Dialog open={showViewIndividualFile} onClose={closeViewIndivualFileDialog}
+                      scroll={scroll} aria-labelledby="scroll-dialog-title"
+                      aria-describedby="scroll-dialog-description"
+                      PaperProps={{sx: {width: '500px',height: '400px'},}}
+                    >
+
+                      <DialogTitle id="scroll-dialog-title">
+                        {filenameToView}
+                        {viewIndividualFileLoader && <CircularProgress size={16} style={{ marginLeft: 20 }} />}
+                        </DialogTitle>
+
+                      <DialogContent dividers={scroll === 'paper'}>
+                        <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef}
+                          tabIndex={-1}
+                        >
+                          <Grid container spacing={2} sx={{paddingTop:1}}>
+                            <Grid item xs={12}>
+                              <Typography gutterBottom>
+                                {viewIndividualFile.content}
+                              </Typography>
+
+                            </Grid> 
+                          </Grid>
                         </DialogContentText>
                       </DialogContent>
+
                       <DialogActions>
-                        <Button onClick={handleCloseDialog} color="primary">
-                          Cancel
-                        </Button>
-                        <Button onClick={synchronizeFiles} color="primary">
-                          {proccedBtnLoading ? (
-                            <>
-                              <span className="processing-text">Please Wait</span>
-                              <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
-                            </>
-                          ):(
-                            <>Proceed</>
-                          )}
-                        </Button>
+                        <Button onClick={closeViewIndivualFileDialog} color="primary">Close</Button>
                       </DialogActions>
-                    </Dialog>
-                  </div>
-                )} */}
+                      </Dialog>
+                  
+                  </>
+                )}
 
               </div>
             </div>
@@ -1899,34 +1938,32 @@ const Dashboard = () => {
                             <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
                               <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
                                 <TableRow className='vault-table-row'>
-                                  <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                  <TableCell sx={{width: '15%'}}>
                                     <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                                   </TableCell>
-                                  <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                  <TableCell sx={{width: '45%'}}>
                                     <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
                                   </TableCell>
-                                  {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                  <TableCell sx={{borderTopRightRadius: '17px'}}>
                                     <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
-                                  </TableCell> */}
+                                  </TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
                                 {vaultFilesToShow.files.map((row:any , index:any) => (
-                                  <TableRow
-                                    key={index}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    className='vault-table-row vault-file-hover'
+                                  <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    key={index} className='vault-table-row vault-file-hover'
                                   >
                                     <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
                                     <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
-                                    {/* <TableCell className='vault-table-body-row'>
+                                    <TableCell className='vault-table-body-row'>
                                       <span style={{ display: 'flex', alignItems: 'center' }}>
                                         <img src="eye.png" alt="File View" className='vault-view-icon'
                                           style={{ width: '20px', height: '20px', marginRight: '10px' }}
                                           onClick={() => handleFileView(row)}
                                         />
                                       </span>
-                                    </TableCell> */}
+                                    </TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
@@ -1979,7 +2016,7 @@ const Dashboard = () => {
                                     <span style={{ display: 'flex', alignItems: 'center', userSelect: 'none' }}>
                                       <img src="vault.svg" alt="Folder Icon"
                                         style={{ width: '17px', height: '17px', marginRight: '10px' }} />
-                                      {row.vault_name}
+                                      {row.vault_name}&nbsp;&nbsp;&nbsp;({row.files.length})
                                     </span>
                                   </TableCell>
                                   
@@ -2007,8 +2044,6 @@ const Dashboard = () => {
                       </Paper>
                     </div>
                   )}
-                 
-                  
                 </div>
               )}
 

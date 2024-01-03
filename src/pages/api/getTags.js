@@ -73,5 +73,4 @@ export default async function getTags(req, res) {
         console.error('Error reading files:', error);
         res.status(500).json({ error: 'Failed to read files.' });
     }
-
 }

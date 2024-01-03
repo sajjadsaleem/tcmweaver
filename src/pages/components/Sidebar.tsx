@@ -2165,6 +2165,7 @@ const Sidebar = () => {
         // console.log("responseJson: ", responseJson);
       } catch (error) {
         (graphOrTextView ? setTextSearchLoader(false) : setGraphSearchLoader(false));
+        setShowSearchResultsFound(true)
         console.log("Error fetching search results:", error);
       }
     }, 300);
