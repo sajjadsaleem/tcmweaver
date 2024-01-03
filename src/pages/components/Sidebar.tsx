@@ -2415,10 +2415,11 @@ const Sidebar = () => {
   
         searchResultsForGraphCopy.forEach((result:any) => {
           let matchingFile: any = result;
+
           marked.setOptions({
             breaks: true,
           });
-
+          
           let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
           matchingFile.content = marked(editedResult);
 

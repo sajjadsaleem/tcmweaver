@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FullPageComponentLoading } from '@/util/FullPageComponentLoading';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import CircularProgress from '@mui/material/CircularProgress';
+import { marked } from "marked";
 
 
 const animatedComponents = makeAnimated();
@@ -839,6 +840,14 @@ const Dashboard = () => {
 
     axios.get(`/api/getIndividualFile?q=${file.filename}&vn=${vaultFilesToShow.vault_name}`)
       .then((res) => {
+
+        marked.setOptions({
+          breaks: true,
+        });
+
+        let editedResult = res.data.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+        res.data.content = marked(editedResult);
+        console.log(res.data)
         setViewIndividualFile(res.data)
         setViewIndividualFileLoader(false)
       })
@@ -1790,7 +1799,8 @@ const Dashboard = () => {
                           <Grid container spacing={2} sx={{paddingTop:1}}>
                             <Grid item xs={12}>
                               <Typography gutterBottom>
-                                {viewIndividualFile.content}
+                                {/* {viewIndividualFile.content} */}
+                                <p dangerouslySetInnerHTML={{ __html: viewIndividualFile.content ?? '' }} />
                               </Typography>
 
                             </Grid> 
