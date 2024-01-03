@@ -1789,7 +1789,7 @@ const Dashboard = () => {
 
                       <DialogTitle id="scroll-dialog-title">
                         {filenameToView}
-                        {viewIndividualFileLoader && <CircularProgress size={16} style={{ marginLeft: 20 }} />}
+                        {viewIndividualFileLoader && <CircularProgress size={13} style={{color: 'black', marginLeft: 20 }} />}
                         </DialogTitle>
 
                       <DialogContent dividers={scroll === 'paper'}>

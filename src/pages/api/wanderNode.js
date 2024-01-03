@@ -59,30 +59,30 @@ export default async function wanderNode(req, res) {
                 };
             });
 
-            // code to get backlinks
+
             const dataToCheckBacklinks = _.cloneDeep(extensionRemovedData)
-            console.log('dataToCheckBacklinks', dataToCheckBacklinks.length)
+            // console.log('dataToCheckBacklinks', dataToCheckBacklinks.length)
 
             const escapedWord = backlinksValueCheck.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`\\[\\[${escapedWord}\\]\\]`);
-            console.log('regex to check backlinks', regex)
+            // console.log('regex to check backlinks', regex)
 
             const filteredObjectsForBacklinks = dataToCheckBacklinks.filter(obj => regex.test(obj.content));
-            console.log('filteredObjectsForBacklinks', filteredObjectsForBacklinks)
+            // console.log('filteredObjectsForBacklinks', filteredObjectsForBacklinks)
 
             let updatedObjectsForBacklinks = filteredObjectsForBacklinks.map((obj) => {
-                // Extract the first word after '#' from the content using a regular expression
-                const match = obj.content.match(/#(\w+)/);
-                const tag = match ? match[1] : null;
+                const matches = obj.content.match(/#(\w+-?\w*)/g);
+                const tag = matches ? matches.map(match => match.substring(1)) : [];
 
                 // console.log('tag', tag)
 
                 // Add the 'tag' property to the object
                 return {
                     ...obj,
-                    tag: tag || 'file not found',
+                    tag: tag.length > 0 ? tag : ['file not found'],
                 };
             });
+
 
             const filteredWords = inputWalueCheck.filter(word => word.startsWith('-'));
 
@@ -95,9 +95,9 @@ export default async function wanderNode(req, res) {
             // console.log('filteredWords', filteredWords)
 
             updatedObjectsForBacklinks = updatedObjectsForBacklinks.filter(obj => {
-                const tag = obj.tag.toLowerCase().replace(/^#/, '');;
+                const tag = obj.tag.map(checkTag => checkTag.toLowerCase().replace(/^#/, ''));
 
-                if (filteredWords.includes(`#${tag}`)) {
+                if (tag.some(checkTag => filteredWords.includes(`#${checkTag}`))) {
                     return false;
                 }
 
@@ -105,12 +105,9 @@ export default async function wanderNode(req, res) {
             });
 
 
-
             // console.log('extensionRemovedData', extensionRemovedData)
 
-            const matchedObjects = _.filter(extensionRemovedData, (obj) =>
-                wordsArray.includes(obj.fileName)
-            );
+            const matchedObjects = _.filter(extensionRemovedData, (obj) => wordsArray.includes(obj.fileName));
 
             const missingFilenames = wordsArray.filter((filename) =>
                 !matchedObjects.some((obj) => obj.fileName === filename)
@@ -118,7 +115,7 @@ export default async function wanderNode(req, res) {
 
             // console.log('missingFilenames', missingFilenames)
 
-            const missingObjects = missingFilenames.map((filename) => ({ fileName: filename, content: '', tag: 'file not found' }));
+            const missingObjects = missingFilenames.map((filename) => ({ fileName: filename, content: '', tag: ['file not found'] }));
 
             const finalObjects = [...matchedObjects, ...missingObjects];
 
@@ -127,17 +124,18 @@ export default async function wanderNode(req, res) {
             // adding tag to the results
             let updatedObjects = finalObjects.map((obj) => {
                 // Extract the first word after '#' from the content using a regular expression
-                const match = obj.content.match(/#(\w+)/);
-                const tag = match ? match[1] : null;
+                const matches = obj.content.match(/#(\w+-?\w*)/g);
+                // Create an array of tags from the matches
+                const tag = matches ? matches.map(match => match.substring(1)) : [];
 
-                // console.log('tag', tag)
-
-                // Add the 'tag' property to the object
+                // Add the 'tags' property to the object
                 return {
                     ...obj,
-                    tag: tag || 'file not found',
+                    tag: tag.length > 0 ? tag : ['file not found'],
                 };
             });
+
+            // console.log('updatedObjects', updatedObjects)
 
             // const filteredWords = inputWalueCheck.filter(word => word.startsWith('-'));
 
@@ -149,10 +147,21 @@ export default async function wanderNode(req, res) {
 
             // console.log('filteredWords', filteredWords)
 
-            updatedObjects = updatedObjects.filter(obj => {
-                const tag = obj.tag.toLowerCase().replace(/^#/, '');;
+            // updatedObjects = updatedObjects.filter(obj => {
+            //     const tag = obj.tag.toLowerCase().replace(/^#/, '');;
 
-                if (filteredWords.includes(`#${tag}`)) {
+            //     if (filteredWords.includes(`#${tag}`)) {
+            //         return false;
+            //     }
+
+            //     return true;
+            // });
+
+            updatedObjects = updatedObjects.filter(obj => {
+                const tags = obj.tag.map(checkTag => checkTag.toLowerCase().replace(/^#/, ''));
+
+                // Check if any of the tags exist in the filteredWords array
+                if (tags.some(checkTag => filteredWords.includes(`#${checkTag}`))) {
                     return false;
                 }
 

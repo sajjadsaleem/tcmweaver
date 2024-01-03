@@ -3159,9 +3159,18 @@ const Sidebar = () => {
 
     // console.log('graphDatacopy' ,graphDataCopy)
     if(graphDataCopy.nodes.length > 0) {
+      // graphDataCopy.nodes.forEach((node:any) => {
+      //   if (excludedValues.includes(node.tag)) {
+      //     excludedNodeIds.push(node.id);
+      //   }
+      // });
+
       graphDataCopy.nodes.forEach((node:any) => {
-        if (excludedValues.includes(node.tag)) {
-          excludedNodeIds.push(node.id);
+        const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+    
+        // Check if any of the tags exist in the excludedValues array
+        if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
         }
       });
 
@@ -3186,10 +3195,6 @@ const Sidebar = () => {
     } else {
       console.log('No graph data found , handleGraphFilters')
     }
-    
-
-
-   
 
   };
   
@@ -3212,38 +3217,33 @@ const Sidebar = () => {
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
-      let finalCount = 0;
+      // let finalCount = 0;
 
       const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id);};
 
       // Iterate through each object
       if (openedResults.length > 0) {
-        // console.log('search results opened')
-        // If files are open in workspace
-        finalCount = openedResults.length;
+
+        // finalCount = openedResults.length;
 
          // add all nodes
         openedResults.forEach(async (result) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
           // console.log('result' , result)
-          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
           // console.log('match' , match)
-          let nodeTag:any = match ? match[0] : null;
-          let cleanedTag
-          
-          if(nodeTag === null){
-            cleanedTag = 'tagnotfound'
-          } else {
-            cleanedTag = nodeTag.substring(1);
-          }
+          // let nodeTag:any = match ? match[0] : null;
+          let nodeTag:any = matches ? matches.map(match => match.substring(1)) : ["tagnotfound"];
+          // const tag = matches ? matches.map(match => match.substring(1)) : [];
+      
+
           if (!nodeExists(nodeId)) {
-            nodes.push({ id: nodeId, tag: cleanedTag });
+            nodes.push({ id: nodeId, tag: nodeTag });
           }
-          
         })
 
-        console.log('nodes' ,nodes)
+        // console.log('nodes' ,nodes)
 
         openedResults.map((result:any)=> {
           const nodeId = result.fileName
@@ -3260,8 +3260,6 @@ const Sidebar = () => {
               // Check if a match was found and return the extracted text, or an empty string if not
               return match ? match[1] : "";
             });
-
-            // Now you can use wordsArray safely
           }
 
           wordsArray.forEach((word:any) => {
@@ -3293,10 +3291,19 @@ const Sidebar = () => {
 
         // Step 2: Find corresponding node ids in graphDataCopy
         const excludedNodeIds:any = [];
+        // resultData.nodes.forEach((node:any) => {
+        //   if (excludedValues.includes(node.tag)) {
+        //     excludedNodeIds.push(node.id);
+        //   }
+        // });
+
         resultData.nodes.forEach((node:any) => {
-          if (excludedValues.includes(node.tag)) {
-            excludedNodeIds.push(node.id);
-          }
+            const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+            // Check if any of the tags exist in the excludedValues array
+            if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+                excludedNodeIds.push(node.id);
+            }
         });
 
         // console.log('excludedNodeIds',excludedNodeIds)
@@ -3381,27 +3388,35 @@ const Sidebar = () => {
           }
         });
 
-        finalCount = updatedOpenedResults.length;
+        // finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
 
         // add all nodes
         updatedOpenedResults.forEach(async (result: any) => {
           const nodeId = result.fileName;
-          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          const nodeTag = match ? match[0] : null;
-          const cleanedTag = nodeTag.substring(1);
+          const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
+          // console.log('match' , match)
+          // let nodeTag:any = match ? match[0] : null;
+          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          // const tag = matches ? matches.map(match => match.substring(1)) : [];
+      
+
           if (!nodeExists(nodeId)) {
-            nodes.push({ id: nodeId, tag: cleanedTag });
+            nodes.push({ id: nodeId, tag: nodeTag });
           }
+          // const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          // const nodeTag = match ? match[0] : null;
+          // const cleanedTag = nodeTag.substring(1);
+          // if (!nodeExists(nodeId)) {
+          //   nodes.push({ id: nodeId, tag: cleanedTag });
+          // }
         })
 
         
 
         updatedOpenedResults.map((node:any) => {
           const nodeId = node.fileName;
-          const underlinedWords = node.content.match(
-            /<span[^>]*>(.*?)<\/span>/g
-          );
+          const underlinedWords = node.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
           let wordsArray
 
@@ -3448,9 +3463,18 @@ const Sidebar = () => {
 
         // Step 2: Find corresponding node ids in graphDataCopy
         const excludedNodeIds:any = [];
+        // resultData.nodes.forEach((node:any) => {
+        //   if (excludedValues.includes(node.tag)) {
+        //     excludedNodeIds.push(node.id);
+        //   }
+        // });
+
         resultData.nodes.forEach((node:any) => {
-          if (excludedValues.includes(node.tag)) {
-            excludedNodeIds.push(node.id);
+          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+          // Check if any of the tags exist in the excludedValues array
+          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+              excludedNodeIds.push(node.id);
           }
         });
 
@@ -3579,13 +3603,15 @@ const Sidebar = () => {
           container.attr("transform", event.transform);
         }
 
-        function getColorByTag(tag: string) {
+        function getColorByTag(tag: any) {
           // Define a mapping of tags to colors
+          
+          tag = tag[0].split('-')[0];
+
           const tagColors: Record<string, string> = {};
 
           const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
 
-          // console.log(showAddGraphNodeColor)
           themeBasedColors.data.forEach((colorGroup:any) => {
             const tag = colorGroup.tag;
             tagColors[tag] = colorGroup.color;
@@ -4232,6 +4258,7 @@ const Sidebar = () => {
         }
 
         function getColorByTag(tag: string) {
+          tag = tag[0].split('-')[0];
           const tagColors: Record<string, string> = {};
           const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
 
@@ -6378,7 +6405,6 @@ const Sidebar = () => {
 
   const wanderClickedNode = async () => {
 
-
     const updatedGraphData: any = { ...graphData };
     // console.log('rawsearchresults' , rawSearchResults)
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
@@ -6407,38 +6433,14 @@ const Sidebar = () => {
           const encodedWords = encodeURIComponent(wordsArray.join(","));
           // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
         const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
-        console.log('response' , response)
+        // console.log('response from wander api' , response)
         if(response) {
-
-          // for (const entry of response.data.updatedObjects) {
-          //   let textToConvert = entry.content;
-          //   const regex = /\[\[([^[\]]+)\]\]/g;
-      
-          //   const contentWithRemovedBrackets = textToConvert.replace(
-          //     regex,
-          //     (match: any, word: any) => `${word}`
-          //   );
-          //   entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
-          // }
-
-          // for (const entry of response.data.updatedObjectsForBacklinks) {
-          //   let textToConvert = entry.content;
-          //   const regex = /\[\[([^[\]]+)\]\]/g;
-      
-          //   const contentWithRemovedBrackets = textToConvert.replace(
-          //     regex,
-          //     (match: any, word: any) => `${word}`
-          //   );
-          //   entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
-          // }
-
 
           function removeDoubleBrackets(content:any) {
             const regex = /\[\[([^[\]]+)\]\]/g;
             return content.replace(regex, (match:any, word:any) => `${word}`);
           }
           
-          // Assuming response.data.updatedObjects and response.data.updatedObjectsForBacklinks are arrays of objects.
           
           // Process updatedObjects
           response.data.updatedObjects.forEach((entry:any) => {
@@ -6453,27 +6455,7 @@ const Sidebar = () => {
 
           // console.log('response' , response.data)
 
-
-          // let linkTags = Object.keys(response.data.updatedObjects).map((key) => {
-          //   return {
-          //     name: response.data.updatedObjects[key].fileName,
-          //     category: response.data.updatedObjects[key].tag,
-          //   };
-          // });
-
-          // // console.log('linkTags' , linkTags)
-
-          // const linkTagsForBacklinks = Object.keys(response.data.updatedObjectsForBacklinks).map((key) => {
-          //   return {
-          //     name: response.data.updatedObjectsForBacklinks[key].fileName,
-          //     category: response.data.updatedObjectsForBacklinks[key].tag,
-          //   };
-          // });
-
-          type YourObjectType = {
-            fileName: any;
-            tag: any;
-          };
+          type YourObjectType = {fileName: any; tag: any};
           
           function generateLinkTags(objects: Record<string, YourObjectType>): { name: any; category: any }[] {
             return Object.values(objects).map(({ fileName, tag }: YourObjectType) => ({ name: fileName, category: tag }));
@@ -6481,6 +6463,9 @@ const Sidebar = () => {
           
           const linkTags = generateLinkTags(response.data.updatedObjects);
           const linkTagsForBacklinks = generateLinkTags(response.data.updatedObjectsForBacklinks);
+
+          // console.log('linkTags',linkTags)
+          // console.log('linkTagsForBacklinks',linkTagsForBacklinks)
           
 
           // console.log('linkTagsForBacklinks' , linkTagsForBacklinks)
@@ -6542,11 +6527,30 @@ const Sidebar = () => {
 
           // Step 2: Find corresponding node ids in graphDataCopy
           const excludedNodeIds:any = [];
+          // updatedGraphData.nodes.forEach((node:any) => {
+          //   if (excludedValues.includes(node.tag)) {
+          //     excludedNodeIds.push(node.id);
+          //   }
+          // });
+        //   updatedGraphData.nodes.forEach((node:any) => {
+        //     const tags = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        
+        //     // Check if any of the tags exist in the excludedValues array
+        //     if (tags.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+        //         excludedNodeIds.push(node.id);
+        //     }
+        // });
+
+          // console.log('updatedgraphdata' , updatedGraphData)
+
           updatedGraphData.nodes.forEach((node:any) => {
-            if (excludedValues.includes(node.tag)) {
-              excludedNodeIds.push(node.id);
+            const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        
+            // Check if any of the tags exist in the excludedValues array
+            if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+                excludedNodeIds.push(node.id);
             }
-          });
+        });
 
           // console.log('excludedNodeIds',excludedNodeIds)
 
@@ -6655,10 +6659,6 @@ const Sidebar = () => {
             // console.log('filteredUpdatedResults' , filteredUpdatedResults)
             setOpenedResults(filteredUpdatedResults)
 
-          
-            // Log the updated array to verify the changes
-            // console.log('newOpenedResults:', newOpenedResults);
-            // setOpenedResults(newOpenedResults)
           }          
         }
       } catch (error) {
@@ -8087,8 +8087,9 @@ const Sidebar = () => {
           ) : (
             <div className="graph-container">
               <div id="graph-div" className="graph-div"></div>
+
               
-              {/* =====================Graph Filters=============================== */}
+              {/* ==============================Filters=============================== */}
               <div>
                 {showGraphFilters ? (
                   <>
@@ -8141,10 +8142,11 @@ const Sidebar = () => {
                         </Accordion>
                       </div>
 
+
+
+                      {/* =======================Text Filters==============================  */}
                       <div className="text-filters-div">
                         <h5>Text Filters</h5>
-
-                        {/* =====Text Filters =========================================  */}
 
                         {!graphOrTextView && (
                           <div className={`${graphOrTextView ? '' : 'text-filters-screen'}`}>
