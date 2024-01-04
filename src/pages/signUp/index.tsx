@@ -194,20 +194,15 @@ const Signup = () => {
     return ( 
         <LayoutWrapper layout={AuthLayout} >
             <div className="signup-page-container">
+               
+                <Link href="/login" style={{textDecoration: 'none'}}>
+                    <div className="logo">
+                        <img src="/graph-logoold.png" alt="img" />
+                        <p>TCM Weaver</p>
+                    </div>
+                </Link>
 
-                <div style={{marginTop: '60px'}}>
-                    <Link href="/login" style={{textDecoration: 'none'}}>
-                        <div className="signup-top">
-                            <div>
-                                <img src="/graph-logoold.png" alt="img" />
-                            </div>
-                            <p>TCM Weaver</p>
-                        </div>
-                    </Link>
-                </div>
-
-                <div>
-
+               
                     <div className="edit-profile-div">
                         <div className="edit-profile-image-div">
                             {formData.image && formData.image !== null && formData.image !== '' ? (
@@ -335,7 +330,7 @@ const Signup = () => {
                         </>
                     )}
 
-                </div> 
+              
                                              
                 <div className="mb-3 mt-3 text-center">
                     <p>Already have an account? <Link className='text-base' href={`/login`}>Sign in</Link></p>
