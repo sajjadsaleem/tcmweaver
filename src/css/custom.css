@@ -1745,6 +1745,10 @@ button {
 
 @media screen and (max-width: 480px) {
 
+    .login-page-container {
+        height: calc(100vh - 50px);
+    }
+
     .login-page-container form {
         max-width: 75%;
         margin: 1rem auto;
