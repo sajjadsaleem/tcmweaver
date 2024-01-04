@@ -100,76 +100,75 @@ const Login = () => {
           <img src="/graph-logoold.png" alt="img" />
           <p>TCM Weaver</p>
         </div>
-        
      
-          <form onSubmit={handleSubmit}>
-            <div className="sign-input">
+        <form onSubmit={handleSubmit}>
+          <div className="sign-input">
+            <input
+              type="email"
+              className="form-control"
+              aria-describedby="emailHelp"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
               <input
-                type="email"
+                type={showPassword ? 'text' : 'password'}
                 className="form-control"
                 aria-describedby="emailHelp"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
               />
-
-              <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  className="form-control"
-                  aria-describedby="emailHelp"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                />
-                <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
-                  {showPassword ? <Visibility /> : <VisibilityOff />}
-                </span>
-              </div>
-
-              <div className="forgot-psd">
-                <Link className="forgot-password" href={`/forgotPassword`}>
-                  Password Reset
-                </Link>
-              </div>
-            </div>
-            <div className="sign-btn">
-              <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
-                {btnLoading ? (
-                  <>
-                    Please Wait{" "}
-                    <span
-                      className="spinner-grow spinner-grow-sm ml-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                  </>
-                ) : (
-                  <>Sign in</>
-                )}
-              </button>
+              <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
+                {showPassword ? <Visibility /> : <VisibilityOff />}
+              </span>
             </div>
 
-            <div className="sign-up">
-            <p>or</p>
-            <Link href={'/signUp'}>
-              <button type="submit" disabled={signUpBtnLoading} onClick={handleSignUpBtn}>
-                {signUpBtnLoading ? (
-                  <>
-                    Please Wait{" "}
-                    <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
-                  </>
-                ): (
-                  <>Sign up</>
-                )}
-              </button>
-            </Link>
+            <div className="forgot-psd">
+              <Link className="forgot-password" href={`/forgotPassword`}>
+                Password Reset
+              </Link>
             </div>
+          </div>
+          <div className="sign-btn">
+            <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+              {btnLoading ? (
+                <>
+                  Please Wait{" "}
+                  <span
+                    className="spinner-grow spinner-grow-sm ml-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                </>
+              ) : (
+                <>Sign in</>
+              )}
+            </button>
+          </div>
+
+          <div className="sign-up">
+          <p>or</p>
+          <Link href={'/signUp'}>
+            <button type="submit" disabled={signUpBtnLoading} onClick={handleSignUpBtn}>
+              {signUpBtnLoading ? (
+                <>
+                  Please Wait{" "}
+                  <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                </>
+              ): (
+                <>Sign up</>
+              )}
+            </button>
+          </Link>
+          </div>
 
 
-          </form>
+        </form>
           
         <ToastContainer />
       </div>

@@ -83,8 +83,6 @@ const ResetPasswordPage = () => {
           });
           setBtnLoading(false)
       });
-
-
   }
 
   const handleChange = (e:any) => {
@@ -99,42 +97,36 @@ const ResetPasswordPage = () => {
       <LayoutWrapper layout={AuthLayout} >
         <div className="forgot-password-container">
 
-          <div style={{marginTop: '10px'}}>
-              <Link href="/login" style={{textDecoration: 'none'}}>
-                  <div className="signup-top">
-                      <div>
-                          <img src="/graph-logoold.png" alt="img" />
-                      </div>
-                      <p>TCM Weaver</p>
-                  </div>
-              </Link>
-          </div>
-          
-          <div>          
-            <form onSubmit={handleSubmit}>
-              <div className="forgotpassword-page-input">
-                <input type="email" name="email" className="form-control" aria-describedby="emailHelp"
-                    placeholder="Email" value={formData.email} onChange={handleChange} required
-                />
-                <span className="signup-error-message">{validationErrors.email}</span>
-
-                <div className="sign-btn">
-                  <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
-                    {btnLoading ? (
-                      <>
-                        Please Wait{" "}
-                        <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true" ></span>
-                      </>
-                    ) : (
-                      <>Email Me</>
-                    )}
-                  </button>
-                </div>
-
+          <Link href="/login" style={{textDecoration: 'none'}}>
+              <div className="logo">
+                <img src="/graph-logoold.png" alt="img" /> 
+                <p>TCM Weaver</p>
               </div>
-            </form>
-          </div>
+          </Link>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="forgotpassword-page-input">
+              <input type="email" name="email" className="form-control" aria-describedby="emailHelp"
+                  placeholder="Email" value={formData.email} onChange={handleChange} required
+              />
+              <span className="signup-error-message">{validationErrors.email}</span>
+            </div>
 
+            <div className="sign-btn">
+              <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+                {btnLoading ? (
+                  <>
+                    Please Wait{" "}
+                    <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true" ></span>
+                  </>
+                ) : (
+                  <>Email Me</>
+                )}
+              </button>
+            </div>
+
+          </form>
+        
           <div className="mb-3 mt-3 text-center">
               <p>Already have an account?{" "}<Link className="text-base" href={`/login`}>Login</Link></p>
           </div>
