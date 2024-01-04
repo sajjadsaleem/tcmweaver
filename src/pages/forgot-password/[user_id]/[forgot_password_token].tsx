@@ -19,14 +19,10 @@ const UserForgotPasswordPage = () => {
     const router = useRouter()
     const { user_id, forgot_password_token } = router.query;
     const [btnLoading, setBtnLoading] = useState(false)
-
     const [get_password, set_password] = useState("");
     const [get_confirm_password, set_confirm_password] = useState("");
-
     const [get_password_type, set_password_type] = useState(false)
     const [get_confirm_password_type, set_confirm_password_type] = useState(false)
-
-
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +31,7 @@ const UserForgotPasswordPage = () => {
     const [isFocused, setIsFocused] = useState(false);
     const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false)
     const [showRedirection , setShowRedirection] = useState(false)
+    const [validationErrors, setValidationErrors] = useState<any>({password: '',confirmPassword: '',});
 
     // console.log('password' , password , 'confirmpassword' , confirmPassword)
 
@@ -59,10 +56,37 @@ const UserForgotPasswordPage = () => {
     //         });
     // };
 
+    const handlePasswordChange = (e: any) => {
+        const { value } = e.target;
+        setPassword(value);
+        setValidationErrors({ ...validationErrors, password: '' });
+    };
+
+    const handleConfirmPasswordChange = (e: any) => {
+        const { value } = e.target;
+        setConfirmPassword(value);
+        setValidationErrors({ ...validationErrors, confirmPassword: '' });
+    };
 
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+
+        const newValidationErrors:any = {};
+     
+        if (!password) {
+        newValidationErrors.password = 'Password is required';
+        }
+
+        if (!confirmPassword) {
+        newValidationErrors.confirmPassword = 'Confirm Password is required';
+        }
+
+        if (Object.keys(newValidationErrors).length > 0) {
+        // Validation failed, update state to display error messages
+        setValidationErrors(newValidationErrors);
+        return;
+        }
 
         setBtnLoading(true);
 
@@ -115,148 +139,73 @@ const UserForgotPasswordPage = () => {
     return (
         <>
             <LayoutWrapper layout={AuthLayout} >
-                <div className="reset-password-credentials">
+                <div className="reset-password-container">
 
-                    <div className="logo">
-                        <Link href="/login" style={{ textDecoration: 'none' }}>
-                            <div>
-                                <img src="/graph-logoold.png" alt="img" />
-                            </div>
-                        </Link>
-                        <Link href="/login" style={{ textDecoration: 'none' }}>
+                    <Link href="/login" style={{textDecoration: 'none'}}>
+                        <div className="logo">
+                            <img src="/graph-logoold.png" alt="img" /> 
                             <p>TCM Weaver</p>
-                        </Link>
-                    </div>
-
-                    <div>
-                        <form onSubmit={handleSubmit} >
-                            <div className="sign-input">
-                                <div className={`input-group login-page-password 
-                                        ${isFocused ? 'focused' : ''}`}>
-                                    <input
-                                        type={showPassword ? 'text' : 'password'} className="form-control"
-                                        aria-describedby="emailHelp" placeholder="Password"
-                                        value={password} onChange={(e) => setPassword(e.target.value)}
-                                        onFocus={() => setIsFocused(true)} 
-                                        onBlur={() => setIsFocused(false)}
-                                    />
-                                    <span className="input-group-text" id="basic-addon1" 
-                                        onClick={togglePasswordVisibility}>
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                    </span>
-                                </div>
-                                
-
-                                <div className={`input-group login-page-password 
-                                    ${isFocusedConfirmPassword ? 'focused' : ''}`}>
-                                    <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        className="form-control" value={confirmPassword}
-                                        aria-describedby="emailHelp" placeholder="Confirm Password"
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        onFocus={() => setIsFocusedConfirmPassword(true)} 
-                                        onBlur={() => setIsFocusedConfirmPassword(false)}
-                                    />
-                                    <span className="input-group-text" id="basic-addon1" 
-                                        onClick={toggleConfirmPasswordVisibility}>
-                                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                                    </span>
-                                </div>
-
-                            </div>
-                            <div className="sign-btn reset-page-btn">
-                                <button type="submit" disabled={btnLoading}
-                                //  onClick={handleSubmit}
-                                 >
-                                    {btnLoading ? (
-                                        <>
-                                            Please Wait{" "}
-                                            <span
-                                                className="spinner-grow spinner-grow-sm ml-2"
-                                                role="status"
-                                                aria-hidden="true"
-                                            ></span>
-                                        </>
-                                    ) : (
-                                        <>Reset Password</>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-
-                        {showRedirection ? (
-                            <div style={{textAlign: 'center'}} className="mt-3">
-                                <p>You will be redirected to login page ...</p>
-                            </div>
-                            ): (
-                            <>
-                            </>
-                        )}
-                    </div>
-
-
-
-
-
-
-
-
-
-
-
-                    {/* <div className='authForm'>
-
-                        <div className="mb-3">
-                            <label for="password" className="form-label">Password</label>
-                            <div className="inputIcon">
-                                <input type={get_password_type ? ("text") : ("password")} className="form-control" id="password" value={get_password} onChange={e => set_password(e.target.value)} />
-                                <div className="inputIcons">
-                                    {
-                                        get_password_type ?
-                                            (
-                                                <button type="button" onClick={() => { set_password_type(false) }} className="eyeOff"><Icon.EyeOff /></button>
-                                            ) : (
-                                                <button type="button" onClick={() => { set_password_type(true) }} className="eye"><Icon.Eye /></button>
-                                            )
-                                    }
-                                </div>
-                            </div>
                         </div>
-
-                        <div className="mb-3">
-                            <label for="confirm_password" className="form-label">Confirm Password</label>
-                            <div className="inputIcon">
-                                <input type={get_confirm_password_type ? ("text") : ("password")} className="form-control" id="confirm_password" value={get_confirm_password} onChange={e => set_confirm_password(e.target.value)} />
-                                <div className="inputIcons">
-                                    {
-                                        get_confirm_password_type ?
-                                            (
-                                                <button type="button" onClick={() => { set_confirm_password_type(false) }} className="eyeOff"><Icon.EyeOff /></button>
-                                            ) : (
-                                                <button type="button" onClick={() => { set_confirm_password_type(true) }} className="eye"><Icon.Eye /></button>
-                                            )
-                                    }
-                                </div>
+                    </Link>
+                   
+                    <form onSubmit={handleSubmit} >
+                        <div className="sign-input">
+                            <div className={`input-group login-page-password 
+                                    ${isFocused ? 'focused' : ''}`}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'} className="form-control"
+                                    aria-describedby="emailHelp" placeholder="Password" name="password"
+                                    value={password} onChange={handlePasswordChange}
+                                    onFocus={() => setIsFocused(true)} 
+                                    onBlur={() => setIsFocused(false)}
+                                />
+                                <span className="input-group-text" id="basic-addon1" 
+                                    onClick={togglePasswordVisibility}>
+                                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                                </span>
                             </div>
-                        </div>
+                            <span className="signup-error-message">{validationErrors.password}</span>
+                            
 
-                        <div className="d-grid mb-4">
-                            <button type="submit" class="btn btn-primary btn-block" disabled={btnLoading} onClick={submitBtn}>
-                                {
-                                    btnLoading ?
-                                        (
-                                            <>Please Wait <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span></>
-                                        ) : (
-                                            <>Reset Password</>
-                                        )
-                                }
+                            <div className={`input-group login-page-password 
+                                ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                                <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    className="form-control" value={confirmPassword}
+                                    aria-describedby="emailHelp" placeholder="Confirm Password"
+                                    onChange={handleConfirmPasswordChange}
+                                    onFocus={() => setIsFocusedConfirmPassword(true)} 
+                                    onBlur={() => setIsFocusedConfirmPassword(false)}
+                                />
+                                <span className="input-group-text" id="basic-addon1" 
+                                    onClick={toggleConfirmPasswordVisibility}>
+                                    {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                                </span>
+                            </div>
+                            <span className="signup-error-message">{validationErrors.confirmPassword}</span>
+
+                        </div>
+                        <div className="sign-btn reset-page-btn">
+                            <button type="submit" disabled={btnLoading}>
+                                {btnLoading ? (
+                                    <>
+                                        Please Wait{" "}
+                                        <span
+                                            className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true">
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>Reset Password</>
+                                )}
                             </button>
                         </div>
+                    </form>
 
-                        <div className="mb-3 text-center">
-                            <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
+                    {showRedirection && (
+                        <div style={{textAlign: 'center'}} className="mt-3">
+                            <p>You will be redirected to login page ...</p>
                         </div>
-                    </div> */}
+                    )}
 
                     <ToastContainer />
 

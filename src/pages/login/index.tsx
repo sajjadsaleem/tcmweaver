@@ -19,25 +19,6 @@ const Login = () => {
   const [isFocused, setIsFocused] = useState(false);
 
 
-  // Check to see if this is a redirect back from Checkout
-  // useEffect(() => {
-  //   const query = new URLSearchParams(window.location.search);
-  //   if(query){
-  //     const sessionId = query.get('session_id');
-  //     // console.log('sessionid' , sessionId)
-
-    
-  //     // console.log('query' , query)
-  //     if (query.get('success')) {
-  //       console.log('Order placed! You will receive an email confirmation.');
-  //     }
-
-  //     if (query.get('canceled')) {
-  //       console.log('Order canceled -- continue to shop around and checkout when you’re ready.');
-  //     }
-  //   }
-  // }, []);
-
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -47,6 +28,7 @@ const Login = () => {
       console.log("Email and password are required.");
       return;
     }
+
     setBtnLoading(true);
 
 
@@ -103,13 +85,8 @@ const Login = () => {
      
         <form onSubmit={handleSubmit}>
           <div className="sign-input">
-            <input
-              type="email"
-              className="form-control"
-              aria-describedby="emailHelp"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+            <input type="email" className="form-control" aria-describedby="emailHelp" placeholder="Email"
+              value={email} onChange={(e) => setEmail(e.target.value)}
             />
 
             <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
