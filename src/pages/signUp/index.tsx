@@ -201,137 +201,129 @@ const Signup = () => {
                         <p>TCM Weaver</p>
                     </div>
                 </Link>
-
                
-                    <div className="edit-profile-div">
-                        <div className="edit-profile-image-div">
-                            {formData.image && formData.image !== null && formData.image !== '' ? (
-                                <img src={formData.image}
+                <div className="edit-profile-div">
+                    <div className="edit-profile-image-div">
+                        {formData.image && formData.image !== null && formData.image !== '' ? (
+                            <img src={formData.image}
+                            style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                            alt="Profile Picture"
+                            />
+                        ):(
+                            <>
+                                <img src='/profile-avatar.webp'
                                 style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
                                 alt="Profile Picture"
                                 />
-                            ):(
-                                <>
-                                    <img src='/profile-avatar.webp'
-                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
-                                    alt="Profile Picture"
-                                    />
-                                </>
-                            )}
-                            
-                        </div>
-
-                        <div className="edit-profile-button-div">
-                            <button onClick={handleChooseFile} >
-                                Change picture
-                            </button>
-                            <button onClick={handleEditProfilePicture} >
-                                Remove
-                            </button>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                style={{ display: 'none' }}
-                                onChange={handleImageChange}
-                            />
-                        </div>
+                            </>
+                        )}
+                        
                     </div>
 
+                    <div className="edit-profile-button-div">
+                        <button onClick={handleChooseFile} >
+                            Change picture
+                        </button>
+                        <button onClick={handleEditProfilePicture} >
+                            Remove
+                        </button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleImageChange}
+                        />
+                    </div>
+                </div>
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="signup-page-input">
+                <form onSubmit={handleSubmit}>
+                    <div className="signup-page-input">
+                        <input
+                            type="text"
+                            name="fullName"
+                            className="form-control"
+                            aria-describedby="fullName"
+                            placeholder="Full Name"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            required
+                        />
+                        <span className="signup-error-message">{validationErrors.fullName}</span>
 
+                        <input
+                            type="email"
+                            name="email"
+                            className="form-control"
+                            aria-describedby="emailHelp"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                        <span className="signup-error-message">{validationErrors.email}</span>
+
+                        <div ref={divRefPassword} className={`input-group login-page-password ${isFocusedPassword ? 'focused' : ''}`}>
                             <input
-                                type="text"
-                                name="fullName"
+                                type={showPassword ? 'text' : 'password'}
                                 className="form-control"
-                                aria-describedby="fullName"
-                                placeholder="Full Name"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                required
-                            />
-                            <span className="signup-error-message">{validationErrors.fullName}</span>
-
-                            <input
-                                type="email"
-                                name="email"
-                                className="form-control"
+                                name="password"
                                 aria-describedby="emailHelp"
-                                placeholder="Email"
-                                value={formData.email}
+                                placeholder="Password"
+                                value={formData.password}
                                 onChange={handleChange}
-                                required
+                                onFocus={() => setIsFocusedPassword(true)}
+                                onBlur={() => setIsFocusedPassword(false)}
                             />
-                            <span className="signup-error-message">{validationErrors.email}</span>
-
-                            <div ref={divRefPassword} className={`input-group login-page-password ${isFocusedPassword ? 'focused' : ''}`}>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    className="form-control"
-                                    name="password"
-                                    aria-describedby="emailHelp"
-                                    placeholder="Password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    onFocus={() => setIsFocusedPassword(true)}
-                                    onBlur={() => setIsFocusedPassword(false)}
-                                />
-                                <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
-                                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                                </span>
-                            </div>
-                            <span className="signup-error-message">{validationErrors.password}</span>
-
-                            <div ref={divRefConfirmPassword} className={`input-group login-page-password ${isFocusedConfirmPassword ? 'focused' : ''}`}>
-                                <input
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    className="form-control"
-                                    name="confirmPassword"
-                                    aria-describedby="emailHelp"
-                                    placeholder="Password"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    onFocus={() => setIsFocusedConfirmPassword(true)}
-                                    onBlur={() => setIsFocusedConfirmPassword(false)}
-                                />
-                                <span className="input-group-text" id="basic-addon1" onClick={toggleConfirmPasswordVisibility}>
-                                    {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                                </span>
-                            </div>
-                            <span className="signup-error-message">{validationErrors.confirmPassword}</span>
-
-                            <div className="sign-btn">
-                                <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
-                                    {btnLoading ? (
-                                    <>
-                                        Please Wait{" "}
-                                        <span
-                                        className="spinner-grow spinner-grow-sm ml-2"
-                                        role="status"
-                                        aria-hidden="true"
-                                        ></span>
-                                    </>
-                                    ) : (
-                                    <>Sign up</>
-                                    )}
-                                </button>
-                            </div>
-
+                            <span className="input-group-text" id="basic-addon1" onClick={togglePasswordVisibility}>
+                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                            </span>
                         </div>
-                    </form>
+                        <span className="signup-error-message">{validationErrors.password}</span>
 
-                    {showRedirection ?(
-                        <div style={{textAlign: 'center'}} className="mt-3">
-                            <p>You will be redirected to login page ...</p>
+                        <div ref={divRefConfirmPassword} className={`input-group login-page-password ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                            <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                className="form-control"
+                                name="confirmPassword"
+                                aria-describedby="emailHelp"
+                                placeholder="Password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                onFocus={() => setIsFocusedConfirmPassword(true)}
+                                onBlur={() => setIsFocusedConfirmPassword(false)}
+                            />
+                            <span className="input-group-text" id="basic-addon1" onClick={toggleConfirmPasswordVisibility}>
+                                {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                            </span>
                         </div>
-                        ): (
-                        <>
-                        </>
-                    )}
+                        <span className="signup-error-message">{validationErrors.confirmPassword}</span>
 
-              
-                                             
+                        <div className="sign-btn">
+                            <button type="submit" disabled={btnLoading} onClick={handleSubmit}>
+                                {btnLoading ? (
+                                <>
+                                    Please Wait{" "}
+                                    <span
+                                    className="spinner-grow spinner-grow-sm ml-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                    ></span>
+                                </>
+                                ) : (
+                                <>Sign up</>
+                                )}
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+                {showRedirection &&(
+                    <div style={{textAlign: 'center'}} className="mt-3">
+                        <p>You will be redirected to login page ...</p>
+                    </div>
+                )}
+                         
                 <div className="mb-3 mt-3 text-center">
                     <p>Already have an account? <Link className='text-base' href={`/login`}>Sign in</Link></p>
                 </div>

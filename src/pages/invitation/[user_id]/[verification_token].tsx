@@ -9,8 +9,6 @@ import { useRouter } from "next/router";
 
 import LayoutWrapper from "@/pages/components/LayoutWrapper";
 import AuthLayout from "@/pages/components/AuthLayout";
-import * as Helpers from '../../../util/Helpers';
-import { FullPageComponentLoading } from '../../../util/FullPageComponentLoading'
 import { TextField, InputAdornment, IconButton, Icon, Button, Grid, Paper, Typography } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -134,87 +132,79 @@ const UserVerificationPage = () => {
 
             <div className="complete-registration-page">
 
-                <div className="logo">
-                    <Link href="/login" style={{ textDecoration: 'none' }}>
-                        <div>
-                            <img src="/graph-logoold.png" alt="img" />
-                        </div>
-                    </Link>
-                    <Link href="/login" style={{ textDecoration: 'none' }}>
+                <Link href="/login" style={{textDecoration: 'none'}}>
+                    <div className="logo">
+                        <img src="/graph-logoold.png" alt="img" />
                         <p>TCM Weaver</p>
-                    </Link>
-                </div>
+                    </div>
+                </Link>
 
-                <div>
-                    <form onSubmit={handleSubmit} >
-                        <div className="sign-input">
+                <form onSubmit={handleSubmit} >
+                    <div className="sign-input">
 
-                            <div>
-                                <input type="text" className="form-control" aria-describedby="emailHelp"
-                                    placeholder="Full Name" value={fullname} name="fullname"
-                                    onChange={handleFullnameChange}
-                                />
-                            </div>
-                            <span className="signup-error-message">{validationErrors.fullname}</span>
+                        <input type="text" className="form-control" aria-describedby="emailHelp"
+                            placeholder="Full Name" value={fullname} name="fullname"
+                            onChange={handleFullnameChange}
+                        />
+                        <span className="signup-error-message">{validationErrors.fullname}</span>
 
 
-                            <div className={`input-group login-page-password 
-                                    ${isFocused ? 'focused' : ''}`}>
-                                <input
-                                    type={showPassword ? 'text' : 'password'} className="form-control"
-                                    aria-describedby="emailHelp" placeholder="Password"
-                                    value={password} onChange={handlePasswordChange}
-                                    onFocus={() => setIsFocused(true)} 
-                                    onBlur={() => setIsFocused(false)}
-                                />
-                                <span className="input-group-text" id="basic-addon1" 
-                                    onClick={togglePasswordVisibility}>
-                                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                                </span>
-                            </div>
-                            <span className="signup-error-message">{validationErrors.password}</span>
-                            
-
-                            <div className={`input-group login-page-password 
-                                ${isFocusedConfirmPassword ? 'focused' : ''}`}>
-                                <input
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    className="form-control" value={confirmPassword}
-                                    aria-describedby="emailHelp" placeholder="Confirm Password"
-                                    onChange={handleConfirmPasswordChange}
-                                    onFocus={() => setIsFocusedConfirmPassword(true)} 
-                                    onBlur={() => setIsFocusedConfirmPassword(false)}
-                                />
-                                <span className="input-group-text" id="basic-addon1" 
-                                    onClick={toggleConfirmPasswordVisibility}>
-                                    {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                                </span>
-                            </div>
-                            <span className="signup-error-message">{validationErrors.confirmPassword}</span>
-
+                        <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
+                            <input
+                                type={showPassword ? 'text' : 'password'} className="form-control"
+                                aria-describedby="emailHelp" placeholder="Password"
+                                value={password} onChange={handlePasswordChange}
+                                onFocus={() => setIsFocused(true)} 
+                                onBlur={() => setIsFocused(false)}
+                            />
+                            <span className="input-group-text" id="basic-addon1" 
+                                onClick={togglePasswordVisibility}>
+                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                            </span>
                         </div>
-                        <div className="sign-btn reset-page-btn">
-                            <button type="submit" disabled={btnLoading}>
-                                {btnLoading ? (
-                                    <>
-                                        Please Wait{" "}
-                                        <span className="spinner-grow spinner-grow-sm ml-2"
-                                            role="status" aria-hidden="true">
-                                        </span>
-                                    </>
-                                ) : (
-                                    <>Complete Account</>
-                                )}
-                            </button>
-                        </div>
-                    </form>
+                        <span className="signup-error-message">{validationErrors.password}</span>
+                        
 
-                    {showRedirection && (
-                        <div style={{textAlign: 'center'}} className="mt-3">
-                            <p>You will be redirected to login page ...</p>
+                        <div className={`input-group login-page-password 
+                            ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                            <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                className="form-control" value={confirmPassword}
+                                aria-describedby="emailHelp" placeholder="Confirm Password"
+                                onChange={handleConfirmPasswordChange}
+                                onFocus={() => setIsFocusedConfirmPassword(true)} 
+                                onBlur={() => setIsFocusedConfirmPassword(false)}
+                            />
+                            <span className="input-group-text" id="basic-addon1" 
+                                onClick={toggleConfirmPasswordVisibility}>
+                                {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                            </span>
                         </div>
-                    )}
-                </div>
+                        <span className="signup-error-message">{validationErrors.confirmPassword}</span>
+
+                    </div>
+
+                    <div className="sign-btn reset-page-btn">
+                        <button type="submit" disabled={btnLoading}>
+                            {btnLoading ? (
+                                <>
+                                    Please Wait{" "}
+                                    <span className="spinner-grow spinner-grow-sm ml-2"
+                                        role="status" aria-hidden="true">
+                                    </span>
+                                </>
+                            ) : (
+                                <>Complete Account</>
+                            )}
+                        </button>
+                    </div>
+                </form>
+
+                {showRedirection && (
+                    <div style={{textAlign: 'center'}} className="mt-3">
+                        <p>You will be redirected to login page ...</p>
+                    </div>
+                )}
 
                 <div className="mb-3 mt-3 text-center">
                     <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>

@@ -2451,11 +2451,6 @@ button {
 .signup-page-container {
     width: calc(100vw - 10px);
     padding: 35px 0px;
-    /* display: flex; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    /* flex-direction: column; */
-    /* min-height: 100vh; */
 }
 
 .signup-page-container form {
@@ -2587,13 +2582,21 @@ button {
 /* =====================================Complete Registration Page=================*/
 
 .complete-registration-page {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     display: flex;
-    /* justify-content: center; */
+    justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding-top: 20px;
+    /* background-color: orange; */
+}
+
+.complete-registration-page form {
+    width: 400px;
+}
+
+.complete-registration-page form .signup-error-message {
+    margin-top: -8px;
 }
 
 
@@ -2631,6 +2634,8 @@ button {
 }
 
 @media screen and (min-width: 481px) and (max-width: 767px) {
+
+    .complete-registration-page,
     .forgot-password-container {
         height: 550px;
     }
@@ -2656,6 +2661,7 @@ button {
 
 @media screen and (max-width: 480px) {
 
+    .complete-registration-page form,
     .forgot-password-container form {
         max-width: 75%;
         margin: 1rem auto;
