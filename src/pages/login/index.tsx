@@ -95,15 +95,13 @@ const Login = () => {
 
   return (
     <LayoutWrapper layout={AuthLayout}>
-      <div className="account-page">
+      <div className="login-page-container">
         <div className="logo">
-          <div>
-            <img src="/graph-logoold.png" alt="img" />
-          </div>
+          <img src="/graph-logoold.png" alt="img" />
           <p>TCM Weaver</p>
         </div>
         
-        <div>
+     
           <form onSubmit={handleSubmit}>
             <div className="sign-input">
               <input
@@ -153,9 +151,8 @@ const Login = () => {
                 )}
               </button>
             </div>
-          </form>
 
-          <div className="sign-up">
+            <div className="sign-up">
             <p>or</p>
             <Link href={'/signUp'}>
               <button type="submit" disabled={signUpBtnLoading} onClick={handleSignUpBtn}>
@@ -169,8 +166,11 @@ const Login = () => {
                 )}
               </button>
             </Link>
-          </div>
-        </div>
+            </div>
+
+
+          </form>
+          
         <ToastContainer />
       </div>
     </LayoutWrapper>

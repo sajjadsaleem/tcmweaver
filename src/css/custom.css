@@ -4,6 +4,7 @@
 
 
 
+
 /* =====================================Homepage================================= */
 /* =====================================Sidebar================================== */
 
@@ -1421,8 +1422,24 @@
 
 /*  ===================================Login Page===================================== */
 
+.login-page-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    /* background-color: orange; */
+}
+
+.login-page-container form {
+    width: 400px;
+    /* background-color: red; */
+}
+
+
 .login-page-password {
-    width: 400px !important;
+    width: 100%;
     border: 1px solid #616161;
     border-radius: 40px;
 
@@ -1454,17 +1471,6 @@
 
 }
 
-
-.account-page {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-
 .logo {
     display: flex;
     justify-content: center;
@@ -1473,14 +1479,9 @@
 }
 
 
-.logo div {
+.logo img {
     width: 120px;
     height: auto;
-}
-
-.logo div img {
-    width: 100%;
-    height: 100%;
 }
 
 .logo p {
@@ -1501,7 +1502,7 @@
 
 .sign-input input {
     border-radius: 40px;
-    width: 400px;
+    width: 100%;
     padding: 13px 15px;
     border-color: #616161;
 }
@@ -1529,7 +1530,7 @@
     background-color: #616161;
     color: #fff !important;
     border-radius: 40px;
-    width: 400px;
+    width: 100%;
     height: 60px;
     font-weight: 600;
     font-size: 1.75rem;
@@ -1571,7 +1572,7 @@
     background-color: transparent;
     color: #616161;
     border-radius: 40px;
-    width: 400px;
+    width: 100%;
     height: 60px;
     font-weight: 600;
     font-size: 1.75rem;
@@ -1603,7 +1604,7 @@
 }
 
 .page-loading img {
-    animation: loading-rotate 5s infinite;
+    animation: loading-rotate 5s linear infinite;
 }
 
 @keyframes loading-rotate {
@@ -1716,6 +1717,100 @@
 .user-logout-div h2,
 button {
     color: #6C655C !important;
+}
+
+@media screen and (min-width: 481px) and (max-width: 767px) {
+    .login-page-container {
+        /* max-width: 75%;
+        margin: 1rem auto; */
+        height: 550px;
+    }
+
+    .logo img {
+        width: 90px;
+    }
+
+    .logo p {
+        font-size: 24px;
+    }
+
+    .sign-input input {
+        padding: 7px 15px;
+        font-size: .875rem;
+    }
+
+    .sign-btn button {
+        height: 40px;
+        font-size: 1.15rem;
+    }
+
+    .sign-up button {
+        height: 40px;
+        font-size: 1.15rem;
+    }
+
+
+
+}
+
+
+
+@media screen and (max-width: 480px) {
+
+    .login-page-container form {
+        max-width: 75%;
+        margin: 1rem auto;
+    }
+
+    .logo img {
+        width: 90px;
+    }
+
+    .logo p {
+        font-size: 24px;
+    }
+
+    .sign-input {
+        margin-top: 0rem !important;
+    }
+
+    .sign-input input {
+        padding: 7px 15px;
+        font-size: .875rem;
+    }
+
+    .forgot-psd a {
+        font-size: 0.8rem;
+    }
+
+
+
+    .sign-btn button {
+        height: 40px;
+        font-size: 1.15rem;
+    }
+
+
+
+    .sign-up p {
+
+        font-size: 1.25rem;
+
+    }
+
+    .sign-up button {
+
+        height: 40px;
+
+        font-size: 1.15rem;
+    }
+
+
+
+
+
+
+
 }
 
 
