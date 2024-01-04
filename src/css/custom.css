@@ -2451,11 +2451,11 @@ button {
 .signup-page-container {
     width: calc(100vw - 10px);
     padding: 35px 0px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    min-height: 100vh;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* flex-direction: column; */
+    /* min-height: 100vh; */
 }
 
 .signup-page-container form {
