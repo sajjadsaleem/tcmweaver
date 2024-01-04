@@ -897,6 +897,9 @@ const Sidebar = () => {
         }
 
         function getColorByTag(tag: string) {
+
+          tag = tag[0].split('-')[0];
+
           const tagColors: Record<string, string> = {};
           const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
 
@@ -1570,6 +1573,9 @@ const Sidebar = () => {
         }
 
         function getColorByTag(tag: string) {
+          
+          tag = tag[0].split('-')[0];
+
           const tagColors: Record<string, string> = {};
           const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
 
@@ -2432,15 +2438,11 @@ const Sidebar = () => {
           const hashtagParagraphRegex = /#\S+/g;
           if (matchingFile) {
             // console.log('matching file: ' , matchingFile)
-            const contentWithoutHashtags = matchingFile.content.replace(
-              hashtagParagraphRegex,
-              ""
-            );
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex,"");
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
             const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex,
-              (match: any, word: any) =>
+              regex, (match: any, word: any) =>
                 `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
@@ -2472,11 +2474,12 @@ const Sidebar = () => {
 
         updatedOpenedResults.forEach(async (result:any) => {
           const nodeId = result.fileName
-          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          const nodeTag = match ? match[0] : null;
-          const cleanedTag = nodeTag.substring(1);
+          const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
+          // const nodeTag = match ? match[0] : null;
+          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          // const cleanedTag = nodeTag.substring(1);
           if (!nodeExists(nodeId)) {
-                nodes.push({ id: nodeId, tag: cleanedTag});
+                nodes.push({ id: nodeId, tag: nodeTag});
           }
         })
 
@@ -2530,8 +2533,11 @@ const Sidebar = () => {
         // Step 2: Find corresponding node ids in graphDataCopy
         const excludedNodeIds:any = [];
         resultData.nodes.forEach((node:any) => {
-          if (excludedValues.includes(node.tag)) {
-            excludedNodeIds.push(node.id);
+          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+          // Check if any of the tags exist in the excludedValues array
+          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+              excludedNodeIds.push(node.id);
           }
         });
 
@@ -2614,13 +2620,20 @@ const Sidebar = () => {
 
         searchResultsForGraphCopy.forEach(async (result:any) => {
           const nodeId = result.fileName
-          const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          const nodeTag = match ? match[0] : null;
-          const cleanedTag = nodeTag.substring(1);
+          // const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
+          const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
+          // const nodeTag = match ? match[0] : null;
+          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          // const cleanedTag = nodeTag.substring(1);
           if (!nodeExists(nodeId)) {
-                nodes.push({ id: nodeId, tag: cleanedTag});
+                nodes.push({ id: nodeId, tag: nodeTag});
           }
         })
+
+        
+          // console.log('match' , match)
+          // let nodeTag:any = match ? match[0] : null;
+          
 
         searchResultsForGraph.map((result:any) => {
           const nodeId = result.fileName
@@ -2672,10 +2685,18 @@ const Sidebar = () => {
         // Step 2: Find corresponding node ids in graphDataCopy
         const excludedNodeIds:any = [];
         resultData.nodes.forEach((node:any) => {
-          if (excludedValues.includes(node.tag)) {
-            excludedNodeIds.push(node.id);
+          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+          // Check if any of the tags exist in the excludedValues array
+          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+              excludedNodeIds.push(node.id);
           }
         });
+        // resultData.nodes.forEach((node:any) => {
+        //   if (excludedValues.includes(node.tag)) {
+        //     excludedNodeIds.push(node.id);
+        //   }
+        // });
 
         // console.log('excludedNodeIds',excludedNodeIds)
 
@@ -6246,30 +6267,9 @@ const Sidebar = () => {
     setGraphNodeOpened([]);
   };
 
-
-  const removeClickedNode = (event: any) => {
-    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
-    // console.log("graphData: ", graphData);
-    // console.log("openedResults", openedResults);
-
-    // removeing nodes
-    const updatedGraphData = removeNodeAndConnected(
-      graphData,
-      fileOpenedFromGraph.id
-    );
-    // console.log("updatedGraphData", updatedGraphData);
-    // console.log("graphData: ", graphData);
-    setGraphData(updatedGraphData)
-    makeGraph(updatedGraphData);
-
-    removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
-  };
-
-
   const removeNodeAndConnected = (graphData: any, nodeId: any) => {
-    // Create a copy of the graphData object
+
     const updatedGraphData = { ...graphData };
-    // console.log("updatedGraphData", updatedGraphData);
 
     // Find the index of the node to remove
     const nodeIndexToRemove = updatedGraphData.nodes.findIndex(
@@ -6288,7 +6288,7 @@ const Sidebar = () => {
           link.source === nodeToRemove || link.target === nodeToRemove
       );
 
-      console.log("connectedLinks", connectedLinks);
+      // console.log("connectedLinks", connectedLinks);
 
       // // Remove the node and connected links from the graphData object
       updatedGraphData.nodes.splice(nodeIndexToRemove, 1);
@@ -6339,6 +6339,90 @@ const Sidebar = () => {
 
     return updatedGraphData;
   };
+
+
+  const removeClickedNode = async (event: any) => {
+   
+    const updatedGraphData =await removeNodeAndConnected(
+      graphData,
+      fileOpenedFromGraph.id
+    );
+
+    setGraphData(updatedGraphData)
+
+    let graphDataCopy:any = {...updatedGraphData}
+
+
+
+
+    let filteredGraphData:any = []
+
+    // Step 1: Find items with status "exclude" in updatedCheckboxes
+    const excludedValues:any = [];
+    graphTagFilters.forEach((category:any) => {
+      category.items.forEach((item:any) => {
+        if (item.status === "exclude") {
+          excludedValues.push(item.value.substring(1));
+        }
+      });
+    });
+
+    // console.log('excluded' , excludedValues)
+
+    // Step 2: Find corresponding node ids in graphDataCopy
+    const excludedNodeIds:any = [];
+
+    if(graphDataCopy.nodes.length > 0) {
+      graphDataCopy.nodes.forEach((node:any) => {
+        const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+    
+    //     // Check if any of the tags exist in the excludedValues array
+        if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
+        }
+      });
+
+    
+    
+
+      console.log('excluded ids' , excludedNodeIds)
+  
+  
+      // Step 3: Remove links with source or target matching excluded node ids
+      filteredGraphData.links = graphDataCopy.links.filter((link:any) => {
+        return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
+      });
+  
+      // Step 4: Remove nodes with ids in excludedNodeIds
+      filteredGraphData.nodes = graphDataCopy.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+  
+      // Now, graphDataCopy is updated with the desired changes.
+      // console.log('filteredGraphData: ', filteredGraphData);
+  
+      setGraphDataAfterFilters(filteredGraphData)
+      makeGraph(filteredGraphData)
+
+    } else {
+        console.log('No graph data found , handleGraphFilters')
+      }
+
+
+
+
+
+
+
+
+    // console.log("updatedGraphData", updatedGraphData);
+    // console.log("graphData: ", graphData);
+    
+    // makeGraph(updatedGraphData);
+
+    removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
+  };
+
+
+  
 
 
   const previewNodeLink = (node: any) => {
@@ -7320,7 +7404,7 @@ const Sidebar = () => {
                 )}
               </div>
 
-              {syncPopup ? (
+              {syncPopup && (
                 <div>
                   <Dialog open={syncPopup} onClose={handleCloseDialog}>
                     <DialogTitle>Authorization Required</DialogTitle>
@@ -7338,7 +7422,7 @@ const Sidebar = () => {
                       </Button>
                     </DialogActions>
                   </Dialog>
-                </div>): (<></>
+                </div>
               )}
               
               {foldersPopup && (
@@ -7549,7 +7633,7 @@ const Sidebar = () => {
           </div>
 
 
-          {/* =====Search Bar=======================================  */}
+          {/* =======================Search Bar=======================================  */}
           <div className={"menuBtn"}>
             {graphOrTextView ? (
               <>
@@ -7604,7 +7688,7 @@ const Sidebar = () => {
           </div>
 
 
-          {/* =====Search Results & Graph Node Preview==============  */}
+          {/* =======================Search Results & Graph Node Options==============  */}
           {graphOrTextView ? (
             <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
               {showSearchResultToast && (
@@ -8141,7 +8225,6 @@ const Sidebar = () => {
                           ))}
                         </Accordion>
                       </div>
-
 
 
                       {/* =======================Text Filters==============================  */}

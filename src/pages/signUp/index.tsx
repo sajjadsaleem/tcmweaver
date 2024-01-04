@@ -286,7 +286,7 @@ const Signup = () => {
                                 className="form-control"
                                 name="confirmPassword"
                                 aria-describedby="emailHelp"
-                                placeholder="Password"
+                                placeholder="Confirm Password"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 onFocus={() => setIsFocusedConfirmPassword(true)}

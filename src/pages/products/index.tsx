@@ -13,30 +13,28 @@ const Products = () => {
   // get all products from stripe on startup
   useEffect(()=> {
     const storedUser = localStorage.getItem("user");
-    let user: any
+    let user: any = {}
     if (storedUser) {
       const userData = JSON.parse(storedUser);
-      user = userData.email
+      user = {user: userData.email}
     }
 
-    const requestData:any = {
-      user: user,
-    };
+    console.log('user' , user)
 
-    axios.post(`/api/getProducts` , requestData)
-        .then((res:any)=> {
-          if(user) {
-            const products = res.data.customerSubscriptions.map((subscription:any) => subscription.plan.product);
-            setCustomerSubscriptions(products)
-            setProductsData(res.data.stripeProducts)
-          } else {
-            setProductsData(res.data.stripeProducts)
-          }
-          
-        })
-        .catch((err:any)=> {
-          console.log('error getting products' , err)
-        })
+    axios.post(`/api/getProducts` , user)
+      .then((res:any)=> {
+        if(user) {
+          const products = res.data.customerSubscriptions.map((subscription:any) => subscription.plan.product);
+          setCustomerSubscriptions(products)
+          setProductsData(res.data.stripeProducts)
+        } else {
+          setProductsData(res.data.stripeProducts)
+        }
+        
+      })
+      .catch((err:any)=> {
+        console.log('error getting products' , err)
+      })
 
   } , [])
 
@@ -81,8 +79,8 @@ const Products = () => {
   return (
     <div>
       <div className='product-page-body'>
-        <img src='graph-logoold.png' alt='logo' style={{ width: '50px' }} />
-        <h3 style={{ marginLeft: '12px', color: '#616161' }}>TCM Weaver</h3>
+        <img src='graph-logoold.png' alt='logo' style={{ width: '70px' }} />
+        <h3 style={{ marginLeft: '12px', color: '#616161', marginBottom: '0px' }}>TCM Weaver</h3>
       </div>
 
       <div className='products-container'>
