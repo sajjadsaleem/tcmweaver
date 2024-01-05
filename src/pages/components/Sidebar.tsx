@@ -180,8 +180,8 @@ const Sidebar = () => {
   // console.log('themeChangeicon' , themeChangericon)
   // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
-  // console.log("graphData: ", graphData);
-  // console.log('graphDataAfterFilters', graphDataAfterFilters)
+  console.log("graphData: ", graphData);
+  console.log('graphDataAfterFilters', graphDataAfterFilters)
   // console.log("searchValue: ", searchValue);
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
@@ -190,7 +190,7 @@ const Sidebar = () => {
   // console.log('allVaults' , allVaults)
   // console.log('getpackage' , getPackage)
   // console.log('clickedvault' , clickedVault)
-  console.log('homepagefile', homepageFile)
+  // console.log('homepagefile', homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
   // console.log('slidervalue' , sliderValue)
@@ -4786,7 +4786,7 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: string) {
-        // Define a mapping of tags to colors
+        tag = tag[0].split('-')[0];
         const tagColors: Record<string, string> = {};
 
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
@@ -5427,6 +5427,7 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: string) {
+        tag = tag[0].split('-')[0];
         const tagColors: Record<string, string> = {};
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
@@ -7738,7 +7739,6 @@ const Sidebar = () => {
                         <div className="note">
                           <p
                             dangerouslySetInnerHTML={{ __html: (result as { totalMarkedData: string; }).totalMarkedData, }}
-
                           />
                         </div>
                         <div>
@@ -7770,95 +7770,6 @@ const Sidebar = () => {
             )}
           </div>
         ) : (
-          // <>
-          //   {!hideFiltersForPreview && (
-          //     <div key={animationKey} className="node-preview">
-          //       <div className="node-preview-title">
-          //         <div className="graph-show-node">
-          //           {graphNodeOpened.length === 1 ? (
-          //             <div>
-          //               {themeChangericon ? (
-          //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-          //               ) : (
-          //                 <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
-          //               )}
-          //               {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
-          //                 className="graph-node-backarrow-single">
-          //               </ArrowBackIcon> */}
-          //             </div>
-          //           ):(
-          //             <div onClick={handleLeftArrowForPreviousFile}>
-          //               {themeChangericon ? (
-          //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-          //               ) : (
-          //                 <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
-          //               )}
-          //               {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
-          //                 className="graph-node-backarrow">
-          //               </ArrowBackIcon> */}
-          //             </div>
-          //           )}
-          //           <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
-          //         </div>
-
-
-          //         <div className="preview-node-loader">
-          //           {previewNodeLinkLoader ? (
-          //             <CircularProgress size={16} style={{color: 'black'}} />
-          //           ):(
-          //             <div>
-          //               {themeChangericon ? (
-          //                 <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-          //               ) : (
-          //                 <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-          //               )}
-          //             </div>
-
-          //           )}
-
-          //         </div>
-          //       </div>
-
-          //       <div className="node-preview-detail">
-          //         <p
-          //           dangerouslySetInnerHTML={{
-          //             __html: graphNodeOpened[0].content,
-          //           }}
-          //           className="opened-result-description"
-          //           onClick={(e: any) => {
-          //             if (
-          //               e.target.tagName === "SPAN" &&
-          //               e.target.style.textDecoration === "underline"
-          //             ) {
-          //               const clickedWord = e.target.textContent;
-          //               previewNodeLink(clickedWord);
-          //             }
-          //           }}
-          //         />
-          //       </div>
-          //     </div>
-          //   )}
-
-          //   <div id="nodeInfo" className="node-click-options">
-          //     {themeChangericon ? (
-          //       <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-          //     ) : (
-          //       <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-          //     )}
-
-          //     {themeChangericon ? (
-          //       <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-          //     ) : (
-          //       <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-          //     )}
-
-          //     {themeChangericon ? (
-          //       <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-          //     ) : (
-          //       <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-          //     )}
-          //   </div>
-          // </>
           <>
             {!hideFiltersForPreview ? (
               <div key={animationKey} className="node-preview">
@@ -7928,12 +7839,6 @@ const Sidebar = () => {
               </div>
             ) : (
               <div className={`graph-search-results`} >
-                {showSearchResultToast && (
-                  <div className="results-toast">
-                    <p>{searchResults.length} results found</p>
-                  </div>
-                )}
-
                 {graphSearchValue.length > 0 && (
                   <div>
                     {searchResults.map((result, index) => (
@@ -7959,12 +7864,11 @@ const Sidebar = () => {
                             )}
                           </div>
 
-                          <div>
-                            <div>
+                          <div className="search-result-description">
+                            <div className="note">
                               <p dangerouslySetInnerHTML={{
-                                __html: (result as { totalMarkedData: string; })
-                                  .totalMarkedData,
-                              }} className="note"
+                                __html: (result as { totalMarkedData: string; }).totalMarkedData,
+                              }}
                               />
                             </div>
                             <div>
