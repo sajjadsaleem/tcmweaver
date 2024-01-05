@@ -18,7 +18,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useDispatch, useSelector } from 'react-redux'
-import {stAccessTokenVerify} from '../../store/apps/auth'
+import { stAccessTokenVerify } from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -28,20 +28,21 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WorkspaceContent from "./WorkspaceContent";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import MenuIcon from '@mui/icons-material/Menu';
 
 
-var internalId:any = 0
+var internalId: any = 0
 // let searchRequest = 0
 // let cancelToken:any
-let controller:any
+let controller: any
 
 
 
 
 const Sidebar = () => {
-  
+
   const dispatch = useDispatch()
-  const getStAuth = useSelector((state:any) => state.stAuth)
+  const getStAuth = useSelector((state: any) => state.stAuth)
 
   const router = useRouter();
 
@@ -103,21 +104,21 @@ const Sidebar = () => {
   const [fileOpenedFromGraph, setFileOpenedFromGraph] = useState<any>({});
   const [hideFiltersForPreview, sethideFiltersForPreview] = useState(true);
   const [graphNodeOpened, setGraphNodeOpened] = useState<any>([]);
-  const [textColorForNode , setTextColorForNode] = useState<any>()
-  const [graphLinkColor , setGraphLinkColor] = useState<any>()
-  const [nodeTextSize , setNodeTextSize] = useState<any>(8)
-  const [centerForceValue , setCenterForceValue] = useState(1)
+  const [textColorForNode, setTextColorForNode] = useState<any>()
+  const [graphLinkColor, setGraphLinkColor] = useState<any>()
+  const [nodeTextSize, setNodeTextSize] = useState<any>(8)
+  const [centerForceValue, setCenterForceValue] = useState(1)
   const [sliderValue, setSliderValue] = useState(-40)
-  const [linkForceValue , setLinkForceValue] = useState(0.2)
+  const [linkForceValue, setLinkForceValue] = useState(0.2)
   const [accessToken, setAccessToken] = useState('');
   const [syncPopup, setSyncPopup] = useState(false);
   const [folders, setFolders] = useState([]);
   const [foldersPopup, setFoldersPopup] = useState(false);
   const [showAccountOptions, setShowAccountOptions] = useState(false);
   const [getUser, setUser] = useState<any>({})
-  const [getPermissions , setPermissions] = useState([])
-  const [userLogoutPopup , setUserLogoutPopup] = useState(false)
-  const [showEditUserDialog , setShowEditUserDialog] = useState(false)
+  const [getPermissions, setPermissions] = useState([])
+  const [userLogoutPopup, setUserLogoutPopup] = useState(false)
+  const [showEditUserDialog, setShowEditUserDialog] = useState(false)
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -125,51 +126,51 @@ const Sidebar = () => {
     status: '',
     image: ''
   });
-  const [editUserLoader , setEditUserLoader] = useState(false)
-  const [showChangePasswordDialog , setShowChangePasswordDialog] = useState(false)
+  const [editUserLoader, setEditUserLoader] = useState(false)
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false)
   const [newPasswordData, setNewPasswordData] = useState({
     newPassword: '',
-    confirmPassword:''
+    confirmPassword: ''
   });
-  const [showSetPasswordToggle , setShowSetPasswordToggle] = useState(false)
-  const [showConfirmPasswordToggle , setShowConfirmPasswordToggle] = useState(false)
+  const [showSetPasswordToggle, setShowSetPasswordToggle] = useState(false)
+  const [showConfirmPasswordToggle, setShowConfirmPasswordToggle] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
-  const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
-  const [homepageFile , setHomepageFile] = useState<any>([])
-  const [getPackage , setPackage] = useState([])
+  const [updatePasswordLoader, setUpdatePasswordLoader] = useState<any>(false)
+  const [homepageFile, setHomepageFile] = useState<any>([])
+  const [getPackage, setPackage] = useState([])
   const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
-  const [showLockedVaultPopup , setShowLockedVaultPopup] = useState(false)
-  const [clickedVault , setClickedVault] = useState('')
-  const [userAccessVaults , setUserAccessVaults] = useState<any>([])
+  const [showLockedVaultPopup, setShowLockedVaultPopup] = useState(false)
+  const [clickedVault, setClickedVault] = useState('')
+  const [userAccessVaults, setUserAccessVaults] = useState<any>([])
   const accountOptionsRef = useRef<any>(null);
   const usersIconRef = useRef<any>(null);
   const fileInputRef = useRef<any>(null);
   const [billingLoader, setBillingLoader] = useState(false)
-  const [previewNodeLinkLoader , setPreviewNodeLinkLoader] = useState<any>(false)
+  const [previewNodeLinkLoader, setPreviewNodeLinkLoader] = useState<any>(false)
   const [animationKey, setAnimationKey] = useState(0);
-  const [showColorSetting , setShowColorSetting] = useState(false)
-  const [showAddGraphNodeColor , setShowAddGraphNodeColor] = useState<any>([])
-  const [nodeColorRemoveCheck , setNodeColorRemoveCheck] = useState<any>('')
-  const [nodeTagsColors , setNodeTagsColors] = useState<any>([])
-  const [rawSearchResults , setRawSearchResults] = useState<any>([])
-  const [textSearchLoader , setTextSearchLoader] = useState<any>(false)
-  const [graphSearchLoader , setGraphSearchLoader] = useState<any>(false)
+  const [showColorSetting, setShowColorSetting] = useState(false)
+  const [showAddGraphNodeColor, setShowAddGraphNodeColor] = useState<any>([])
+  const [nodeColorRemoveCheck, setNodeColorRemoveCheck] = useState<any>('')
+  const [nodeTagsColors, setNodeTagsColors] = useState<any>([])
+  const [rawSearchResults, setRawSearchResults] = useState<any>([])
+  const [textSearchLoader, setTextSearchLoader] = useState<any>(false)
+  const [graphSearchLoader, setGraphSearchLoader] = useState<any>(false)
   const [graphSize, setGraphSize] = useState({ width: 640, height: 400 });
-  const [checkGraphStatus , setCheckGraphStatus] = useState<any>(false)
-  const [previousGraphData , setPreviousGraphData] = useState<any>({})
-  const [graphSearchWordsArray , setGraphSearchWordsArray] = useState<any>([])
-  const [graphResizeChecker , setGraphResizeChecker] = useState<any>(false)
-  const [graphFiltersName , setGraphFiltersName] = useState<any>([])
-  const [graphTagFilters , setGraphTagFilters] = useState<any>([])
-  const [showGraphFilters , setShowGraphFilters] = useState<any>(false)
-  const [graphDataAfterFilters , setGraphDataAfterFilters] = useState<any>([])
+  const [checkGraphStatus, setCheckGraphStatus] = useState<any>(false)
+  const [previousGraphData, setPreviousGraphData] = useState<any>({})
+  const [graphSearchWordsArray, setGraphSearchWordsArray] = useState<any>([])
+  const [graphResizeChecker, setGraphResizeChecker] = useState<any>(false)
+  const [graphFiltersName, setGraphFiltersName] = useState<any>([])
+  const [graphTagFilters, setGraphTagFilters] = useState<any>([])
+  const [showGraphFilters, setShowGraphFilters] = useState<any>(false)
+  const [graphDataAfterFilters, setGraphDataAfterFilters] = useState<any>([])
   const [showSearchResultToast, setShowSearchResultToast] = useState<any>(false)
-  const [linkClickLoader , setLinkClickLoader] = useState<boolean>(false)
-  const [linkClickedId , setLinkClickedId] = useState('')
-  const [nodeSizeChangeChecker , setNodeSizeChangeChecker] = useState(true)
-  const [showSearchResultsFound , setShowSearchResultsFound] = useState(false)
-  
-  
+  const [linkClickLoader, setLinkClickLoader] = useState<boolean>(false)
+  const [linkClickedId, setLinkClickedId] = useState('')
+  const [nodeSizeChangeChecker, setNodeSizeChangeChecker] = useState(true)
+  const [showSearchResultsFound, setShowSearchResultsFound] = useState(false)
+
+
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -180,6 +181,7 @@ const Sidebar = () => {
   // console.log("openedResults: ", openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
+  // console.log('graphDataAfterFilters', graphDataAfterFilters)
   // console.log("searchValue: ", searchValue);
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
@@ -188,7 +190,7 @@ const Sidebar = () => {
   // console.log('allVaults' , allVaults)
   // console.log('getpackage' , getPackage)
   // console.log('clickedvault' , clickedVault)
-  // console.log('homepagefile' , homepageFile)
+  console.log('homepagefile', homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
   // console.log('slidervalue' , sliderValue)
@@ -199,17 +201,19 @@ const Sidebar = () => {
   // console.log('checkGraphStatus', checkGraphStatus)
   // console.log('graphsize' , graphSize)
   // console.log('graphTagFilters' , graphTagFilters)
-  // console.log('graphDataAfterFilters', graphDataAfterFilters)
+
   // console.log('showSearchResultToast',showSearchResultToast)
   // console.log('rawSearchResults' , rawSearchResults)
   // console.log('search value' , searchValue)
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
 
 
+
+
   // Check to see if this is a redirect back from Checkout
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if(query){
+    if (query) {
       const sessionId = query.get('session_id');
       // console.log('sessionid' , sessionId)
       if (query.get('success')) {
@@ -266,7 +270,7 @@ const Sidebar = () => {
 
           let homepageFile = _.cloneDeep(data);
 
-          const markedHomeObjects = homepageFile.homeObjects.map((obj:any) => ({
+          const markedHomeObjects = homepageFile.homeObjects.map((obj: any) => ({
             ...obj,
             content: marked(obj.content),
           }));
@@ -274,7 +278,7 @@ const Sidebar = () => {
           setHomepageFile(markedHomeObjects[0])
 
 
-          const markedFilterObjects = homepageFile.filterObjects.map((obj:any) => ({
+          const markedFilterObjects = homepageFile.filterObjects.map((obj: any) => ({
             ...obj,
             content: marked(obj.content),
           }));
@@ -292,14 +296,14 @@ const Sidebar = () => {
           // setFilesData(filtersFile);
 
           // console.log(data)
-          let filteredData = data.filterObjects.filter((obj:any) => obj.filename.toLowerCase().includes('filter'));
+          let filteredData = data.filterObjects.filter((obj: any) => obj.filename.toLowerCase().includes('filter'));
 
           filteredData = filteredData[0].content
             .split("\n")
             .filter((word: any) => word.trim() !== "");
 
 
-          const trimmedData = filteredData.map((item:any) => item.trim());
+          const trimmedData = filteredData.map((item: any) => item.trim());
 
 
           setFiltersFileData(trimmedData);
@@ -330,7 +334,7 @@ const Sidebar = () => {
           setAllCheckboxes(categories);
 
           // doing this to filter the tag filters in graph view
-          let filterToExcludeInGraph:any = []
+          let filterToExcludeInGraph: any = []
           for (let i = 0; i < trimmedData.length - 1; i++) {
             if (trimmedData[i].startsWith("# ") && trimmedData[i + 1].startsWith("#")) {
               filterToExcludeInGraph.push(trimmedData[i].split(" ")[1])
@@ -340,19 +344,19 @@ const Sidebar = () => {
           setGraphFiltersName(filterToExcludeInGraph)
 
           // saperating tag filters for graph
-          let tagFiltersForGraph:any = []
+          let tagFiltersForGraph: any = []
           let currentCategoriesForGraph = null;
           for (let i = 0; i < trimmedData.length; i++) {
-            if (trimmedData[i].startsWith("# ") && trimmedData[i].length > 2 && trimmedData[i + 1].startsWith("#") ) {
+            if (trimmedData[i].startsWith("# ") && trimmedData[i].length > 2 && trimmedData[i + 1].startsWith("#")) {
               currentCategoriesForGraph = trimmedData[i].slice(2);
               tagFiltersForGraph.push({
                 category: currentCategoriesForGraph,
                 items: [],
               });
             } else if (currentCategoriesForGraph) {
-              if(/^#\S/.test(trimmedData[i])){
+              if (/^#\S/.test(trimmedData[i])) {
                 const categoryIndex = tagFiltersForGraph.length - 1;
-                  tagFiltersForGraph[categoryIndex].items.push({
+                tagFiltersForGraph[categoryIndex].items.push({
                   id: tagFiltersForGraph[categoryIndex].items.length + 1,
                   state: "unchecked",
                   status: "neutral",
@@ -373,41 +377,41 @@ const Sidebar = () => {
 
     const fetchNodeColors = async () => {
       await axios.get(`/api/nodeColors`)
-      .then((res:any) => {
-        // console.log('res from fetching node colors' , res.data.nodeColors)
+        .then((res: any) => {
+          // console.log('res from fetching node colors' , res.data.nodeColors)
 
-        const regex = /# (Dark Mode|Light Mode) Graph Nodes:[\s\S]*?(?=# (Dark Mode|Light Mode)|$)/g;
+          const regex = /# (Dark Mode|Light Mode) Graph Nodes:[\s\S]*?(?=# (Dark Mode|Light Mode)|$)/g;
 
-        // Extract matches from content
-        const matches = [];
-        let match;
-        while ((match = regex.exec(res.data.nodeColors[0].content)) !== null) {
+          // Extract matches from content
+          const matches = [];
+          let match;
+          while ((match = regex.exec(res.data.nodeColors[0].content)) !== null) {
             const mode = match[1].toLowerCase();
             const content = match[0];
-        
+
             // Regular expression to match tags and colors within each mode
             const modeRegex = /# (\S+) \n([\S]+)/g;
-        
+
             // Extract matches for tags and colors within each mode
             const modeMatches = [];
             let modeMatch;
             while ((modeMatch = modeRegex.exec(content)) !== null) {
-                const tag = modeMatch[1].replace(/^#/, '');
-                const color = `#${modeMatch[2]}`;
-                modeMatches.push({ tag, color });
+              const tag = modeMatch[1].replace(/^#/, '');
+              const color = `#${modeMatch[2]}`;
+              modeMatches.push({ tag, color });
             }
-        
+
             // Add the mode-specific matches to the main array
             matches.push({ mode, data: modeMatches });
-        }
-        
-        setShowAddGraphNodeColor(matches)
-        // console.log(matches);
+          }
 
-      })
-      .catch((err:any) => {
-        console.log('Error fetching node colors' , err)
-      })
+          setShowAddGraphNodeColor(matches)
+          // console.log(matches);
+
+        })
+        .catch((err: any) => {
+          console.log('Error fetching node colors', err)
+        })
 
     }
 
@@ -421,7 +425,7 @@ const Sidebar = () => {
   useEffect(() => {
     let element: any = document.getElementById("graph-div");
     if (element && element.children) {
-      const hasSvg = Array.from(element.children).some((child:any) => child.tagName.toLowerCase() === 'svg');
+      const hasSvg = Array.from(element.children).some((child: any) => child.tagName.toLowerCase() === 'svg');
       if (hasSvg) {
         const newWidth = element.offsetWidth;
         const newHeight = element.offsetHeight;
@@ -430,14 +434,14 @@ const Sidebar = () => {
         // handleGraphForces(graphData , 'themeChange')
       }
     }
-  } , [graphLinkColor])
+  }, [graphLinkColor])
 
 
   // make graph on resizing screen
-  useEffect(()=> {
-    if(!graphOrTextView){
-      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
-        handleGraphForces(graphDataAfterFilters , 'resizeScreen')
+  useEffect(() => {
+    if (!graphOrTextView) {
+      if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+        handleGraphForces(graphDataAfterFilters, 'resizeScreen')
       }
     }
   }, [graphSize])
@@ -450,7 +454,7 @@ const Sidebar = () => {
       if (element) {
         const newWidth = element.offsetWidth;
         const newHeight = element.offsetHeight;
-        
+
         setGraphSize({ width: newWidth, height: newHeight });
       }
     };
@@ -469,7 +473,7 @@ const Sidebar = () => {
 
   // setting theme icon, text color for node, graph link color on theme change
   useEffect(() => {
-    const storedTheme:any = localStorage.getItem('theme');
+    const storedTheme: any = localStorage.getItem('theme');
     const checkTheme = JSON.parse(storedTheme)
     setThemeChangerIcon(storedTheme ? JSON.parse(storedTheme) : false);
     setTextColorForNode(checkTheme ? '#6C655C' : '#B3B3B5')
@@ -479,7 +483,7 @@ const Sidebar = () => {
 
   // close user options dropdown
   useEffect(() => {
-    const handleOutsideClick = (event:any) => {
+    const handleOutsideClick = (event: any) => {
       // console.log('event' , event)
       if (
         accountOptionsRef.current &&
@@ -506,7 +510,7 @@ const Sidebar = () => {
       setPackage(getStAuth.stAccessTokenVerify.user_package)
       const userVaultsAccess = getStAuth.stAccessTokenVerify.user_vaultsAccess || [];
 
-      setUserAccessVaults(userVaultsAccess.map((vault:any) => vault.tableName));
+      setUserAccessVaults(userVaultsAccess.map((vault: any) => vault.tableName));
 
       // console.log('stAccessTokenVerify1=',getStAuth.stAccessTokenVerify.user_vaultsAccess)
     }
@@ -515,94 +519,94 @@ const Sidebar = () => {
   }, [getUser, getPermissions, getStAuth]);
 
 
-  useEffect(()=> {
-    if(!graphOrTextView){
-      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+  useEffect(() => {
+    if (!graphOrTextView) {
+      if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         setGraphResizeChecker(false)
         setNodeSizeChangeChecker(false)
-        handleGraphForces(graphDataAfterFilters , 'sliderChange')
+        handleGraphForces(graphDataAfterFilters, 'sliderChange')
       }
     }
   }, [nodeTextSize])
 
- 
-  useEffect(()=> {
-    if(!graphOrTextView){
-      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+
+  useEffect(() => {
+    if (!graphOrTextView) {
+      if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
           const element = document.getElementById('graph-div');
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
-            
+
             setGraphSize({ width: newWidth, height: newHeight });
           }
         };
-    
+
         // updateGraphSize();
         setGraphResizeChecker(false)
         setNodeSizeChangeChecker(true)
-        handleGraphForces(graphDataAfterFilters , 'sliderChange')
+        handleGraphForces(graphDataAfterFilters, 'sliderChange')
       }
     }
   }, [centerForceValue])
 
 
-  useEffect(()=> {
-    if(!graphOrTextView){
-      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+  useEffect(() => {
+    if (!graphOrTextView) {
+      if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
           const element = document.getElementById('graph-div');
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
-            
+
             setGraphSize({ width: newWidth, height: newHeight });
           }
         };
-    
+
         // updateGraphSize();
         setGraphResizeChecker(false)
         setNodeSizeChangeChecker(true)
-        handleGraphForces(graphDataAfterFilters , 'sliderChange')
+        handleGraphForces(graphDataAfterFilters, 'sliderChange')
       }
     }
   }, [linkForceValue])
 
 
-  useEffect(()=> {
-    if(!graphOrTextView){
-      if(graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
+  useEffect(() => {
+    if (!graphOrTextView) {
+      if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
           const element = document.getElementById('graph-div');
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
-            
+
             setGraphSize({ width: newWidth, height: newHeight });
           }
         };
-    
+
         // updateGraphSize();
         setGraphResizeChecker(false)
         setNodeSizeChangeChecker(true)
-        handleGraphForces(graphDataAfterFilters , 'sliderChange')
+        handleGraphForces(graphDataAfterFilters, 'sliderChange')
       }
     }
   }, [sliderValue])
 
 
   useEffect(() => {
-    if(nodeColorRemoveCheck !== '') {
+    if (nodeColorRemoveCheck !== '') {
       // console.log(nodeColorRemoveCheck)
       // console.log('now' , showAddGraphNodeColor)
 
-      const tagExists = graphData.nodes.some((node:any) => node.tag === nodeColorRemoveCheck);
+      const tagExists = graphData.nodes.some((node: any) => node.tag === nodeColorRemoveCheck);
 
-    if (tagExists) {
-      makeGraph(graphData);
-    }
-      
+      if (tagExists) {
+        makeGraph(graphData);
+      }
+
       // makeGraph(graphData)
     }
     setNodeColorRemoveCheck('')
@@ -610,13 +614,13 @@ const Sidebar = () => {
     //   console.log('Updated showAddGraphNodeColor:', showAddGraphNodeColor);
     // }
     // Perform any additional actions or checks here
-  
+
     // Call makeGraph whenever showAddGraphNodeColor changes
     // makeGraph(graphData);
   }, [showAddGraphNodeColor]);
 
 
-  const handleGraphForces = async (graphNewData: any , makingFrom:any) => {
+  const handleGraphForces = async (graphNewData: any, makingFrom: any) => {
     let element: any = document.getElementById("graph-div");
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
@@ -647,237 +651,237 @@ const Sidebar = () => {
         invalidation = undefined // when this promise resolves, stop the simulation
       } = {}
     ) {
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+
+
+
+
+      let formattingNodes: any = []
+      let notFoundNodes: any = []
+
+      nodes.forEach((eachNode: any) => {
+        const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode: any) => prevNode.id === eachNode.id);
+
+        if (matchingNodeIndex !== -1) {
+          formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+        } else {
+          notFoundNodes.push(eachNode)
+          // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
+          // console.log('nodeArray' , nodeArray)
+          // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+          // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
+          // console.log('currentNodeMap',currentNodeMap)
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      });
 
-        // Replace the input nodes and links with mutable objects for the simulation.
+      // setPreviousGraphData({})
 
-        
+      // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
+      // const allNodes = formattingNodes.concat(notFoundNodesMap);
+      // nodes = [...allNodes]
 
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      // const linksCopy = _.cloneDeep(links)
+      // console.log('nodes' , nodes,'links' , links)
 
-        let formattingNodes:any = []
-        let notFoundNodes:any = []
+      // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+      let formattingNodeCopy = formattingNodes;
 
-        nodes.forEach((eachNode:any) => {
-          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
+      nodes.forEach((node: any, index: any) => {
+        const nodeReplacement = formattingNodeCopy.find((eachnode: any) => eachnode.id === node.id);
+        if (nodeReplacement) {
+          nodeReplacement.fx = nodeReplacement.x;
+          nodeReplacement.fy = nodeReplacement.y;
 
-          if (matchingNodeIndex !== -1) {
-            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
-          } else {
-            notFoundNodes.push(eachNode)
-            // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
-            // console.log('nodeArray' , nodeArray)
-            // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-            // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
-            // console.log('currentNodeMap',currentNodeMap)
-          }
+          // Update the node in the nodes array
+          nodes[index] = nodeReplacement;
+        }
+      })
+
+      // console.log('inside graph checker' , graphResizeChecker)
+      if (!graphResizeChecker) {
+        nodes.forEach((node: any) => {
+          node.fx = null;
+          node.fy = null;
         });
+      }
 
-        // setPreviousGraphData({})
 
-        // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
-        // const allNodes = formattingNodes.concat(notFoundNodesMap);
-        // nodes = [...allNodes]
-
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-        // const linksCopy = _.cloneDeep(links)
-        // console.log('nodes' , nodes,'links' , links)
-
-        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
-        let formattingNodeCopy = formattingNodes;
-
-        nodes.forEach((node:any , index:any) => {
-          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
-          if(nodeReplacement) {
-            nodeReplacement.fx = nodeReplacement.x;
-            nodeReplacement.fy = nodeReplacement.y;
-        
-            // Update the node in the nodes array
-            nodes[index] = nodeReplacement;
+      links.forEach((link: any, index: any) => {
+        if (typeof link.source === 'string') {
+          const sourceObject = formattingNodeCopy.find((node: any) => node.id === link.source);
+          if (sourceObject) {
+            links[index].source = sourceObject
           }
-        })
+        }
 
-        // console.log('inside graph checker' , graphResizeChecker)
-        if(!graphResizeChecker) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
+        // Check if target is a string, and convert it to an object if needed
+        if (typeof link.target === 'string') {
+          const targetObject = formattingNodeCopy.find((node: any) => node.id === link.target);
+          if (targetObject) {
+            links[index].target = targetObject
+          }
+        }
+      });
+
+
+      // Compute default domains.
+      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+      function ticked() {
+
+        // console.log('ticked')
+
+        link
+          .attr("x1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.x
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.x
+                }
+              }
+            }
+          })
+          .attr("y1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.y
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.y
+                }
+              }
+            }
+          })
+          .attr("x2", (d: any) => {
+            return d.target.x
+          })
+          .attr("y2", (d: any) => {
+            return d.target.y
           });
-        }
-        
 
-        links.forEach((link:any , index:any) => {
-          if (typeof link.source === 'string') {
-            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
-            if (sourceObject) {
-              links[index].source = sourceObject
-            }
-          }
-        
-          // Check if target is a string, and convert it to an object if needed
-          if (typeof link.target === 'string') {
-            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
-            if (targetObject) {
-              links[index].target = targetObject
-            }
-          }
-        });
+        node
+          .attr('cx', (d: any) => d.x)
+          .attr('cy', (d: any) => d.y)
+        // .attr("cx", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("x", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("y", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // })
+        // .attr("cy", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // });
 
-
-        // Compute default domains.
-        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-        // Construct the scales.
-        // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
-
-
-        function ticked() {
-
-          // console.log('ticked')
-        
-          link
-            .attr("x1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.x
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.x
-                  }
-                } 
-              }
-            })
-            .attr("y1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.y
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.y
-                  }
-                } 
-              }
-            })
-            .attr("x2", (d: any) => {
-              return d.target.x
-            })
-            .attr("y2", (d: any) => {
-              return  d.target.y
-            });
-            
-          node
-            .attr('cx' , (d:any) => d.x)
-            .attr('cy' , (d:any) => d.y)
-            // .attr("cx", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("x", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("y", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // })
-            // .attr("cy", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // });
-
-          nodeText
+        nodeText
           .attr("x", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.x - (getNodeTextWidth(d) / 4.5)
             }
             else {
               return d.x - (getNodeTextWidth(d) / 4.5)
             }
-            
+
           })
           .attr("y", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.y + 12
             }
             else {
               return d.y + 12
             }
-            
+
           });
 
 
-          nodeTitles
-          .text((d:any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        nodeTitles
+          .text((d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.id
             }
             else {
@@ -885,422 +889,422 @@ const Sidebar = () => {
             }
           });
 
-          formattingNodes = []
-          formattingNodeCopy = []
+        formattingNodes = []
+        formattingNodeCopy = []
 
 
-          // console.log('link',link)
+        // console.log('link',link)
+      }
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+
+        tag = tag[0].split('-')[0];
+
+        const tagColors: Record<string, string> = {};
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function intern(value: any) {
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        function getColorByTag(tag: string) {
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-          tag = tag[0].split('-')[0];
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-          const tagColors: Record<string, string> = {};
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
+        return textWidth;
+      }
 
-          return tagColors[tag] || nodeFill;
-        }
+      function handleMouseOver(this: any, event: any, d: any) {
 
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+        // console.log('event' , event, 'nodes' , nodes)
 
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-          
-
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
-
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
-          }
-        }
-
-        function intern(value: any) {
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
-
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-
-        function handleMouseOver(this: any, event: any, d: any) {
-         
-          // console.log('event' , event, 'nodes' , nodes)
-          
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Original link color
-              } else {
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-          
-          nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
-            })
-
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("r", nodeRadius); // Optionally, increase the node size
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition()
-            .duration(600)
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // nodeText
-          //   .transition()
-          //   .duration(600)
-          //   .style('opacity' , (nodeData:any) => {
-          //     if (nodeData === d) {
-          //       return 1
-          //     } else if (areNodesConnected(nodeData , d)) {
-          //       return 1
-          //     } else {
-          //       return 0.1
-          //     }
-          //   })
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition()
-            .duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-                return 0.1; // Opacity of other links
-              }
-            });
-
-
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-        function handleMouseOut(this: any , d:any) {
-
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          
-          d3.select(this)
-            // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-            .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", linkStroke)
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-          nodeText.transition().duration(200)
-            .style('opacity' , 1)
-            .style('font-size', '8px')
-            
-        }
-
-        function areNodesConnected(node1: any, node2: any) {
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
-          });
-        }
-
-        function drag(simulation: any) {
-          function dragstarted(event: any) {
-          
-            if (!event.active) simulation.alphaTarget(0.1).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-        }
-
-        function calculateNodeRadius(d:any) {
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          if(linkCount <= 4) {
-            return nodeRadius;
-          } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-
-            return onePercentOfCheckLinkCount + 4;
-          }
-        }
-
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          // const links:any = [];  // Replace this with your actual links data
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
-        }
-
-        const customNodes: any = nodes;
-
-
-        const simulation = d3
-          .forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            return radius + 15
-          }))
-          .on("tick", ticked);
-
-          // const svg = d3
-          // .create("svg")
-          // .attr("width", graphSize.width)
-          // .attr("height", graphSize.height)
-          // .attr("viewBox", [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
-          // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-          // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-        
-        // const svg:any = document.querySelector("#graph-div svg");
-        const svgContainer = d3.select('#graph-div');
-        const gElement = svgContainer.select('svg');
-        const svg = gElement.select('g');
-
-        // console.log('graphsize now ' , graphSize)
-        gElement.attr('width' , graphSize.width).attr('height' , graphSize.height)
-        gElement.attr('viewBox' , [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
-
-        const container = svg
-
-        container.select("#links-g-tag").remove();
-        const link = container
-          .append("g")
-          .attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr(
-            "stroke-width",
-            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-          )
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-
-        container.select("#nodes-g-tag").remove();
-        const node = container
-          .append("g")
-          .attr("id", "nodes-g-tag")
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("id", (d:any) => `node-${d.id}`)
-          .attr("r", function(d) {
-            return calculateNodeRadius(d);
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
           })
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
-          })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-        // // Append text labels to the container, positioned near the nodes
-        container.select("#text-g-tag").remove();
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
-
-        container.select("#titles-g-tag").remove();
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
-
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
-
-        document.addEventListener("click", hideNodeInfo);
-
-        // // In the ticked function, update the positions of text and title elements
-
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        // if (G && color) {
-        //   node.attr("fill", (_:any, i:any) => color(G[i]));
-        // }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
-        }
-
-        if (invalidation != null) {
-          (invalidation as Promise<void>).then(() => {
-            // Handle invalidation here
-            simulation.stop();
+        // Initialize the nodes with their original fill color and opacity
+        node
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
           });
+
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
+          })
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : '8px'
+          })
+
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
+
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
+
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition()
+          .duration(600)
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // nodeText
+        //   .transition()
+        //   .duration(600)
+        //   .style('opacity' , (nodeData:any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData , d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0.1; // Opacity of other links
+            }
+          });
+
+
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+      function handleMouseOut(this: any, d: any) {
+
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+
+        d3.select(this)
+          // .attr("fill", nodeFill) // Reset to the original node color
+          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+        nodeText.transition().duration(200)
+          .style('opacity', 1)
+          .style('font-size', '8px')
+
+      }
+
+      function areNodesConnected(node1: any, node2: any) {
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+        function dragstarted(event: any) {
+
+          if (!event.active) simulation.alphaTarget(0.1).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
-        
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          // scales: { color },
-          svg: svgElement,
-        };
+
+        function dragged(event: any) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
 
 
-        
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
 
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      function calculateNodeRadius(d: any) {
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        if (linkCount <= 4) {
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+          return onePercentOfCheckLinkCount + 4;
+        }
+      }
 
-        // console.log('check graph data')  
-       
-        return result;
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        // const links:any = [];  // Replace this with your actual links data
 
-        // return Object.assign(svg.node(), { scales: { color } });
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
+
+      const customNodes: any = nodes;
+
+
+      const simulation = d3
+        .forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          return radius + 15
+        }))
+        .on("tick", ticked);
+
+      // const svg = d3
+      // .create("svg")
+      // .attr("width", graphSize.width)
+      // .attr("height", graphSize.height)
+      // .attr("viewBox", [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
+      // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+      // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+      // const svg:any = document.querySelector("#graph-div svg");
+      const svgContainer = d3.select('#graph-div');
+      const gElement = svgContainer.select('svg');
+      const svg = gElement.select('g');
+
+      // console.log('graphsize now ' , graphSize)
+      gElement.attr('width', graphSize.width).attr('height', graphSize.height)
+      gElement.attr('viewBox', [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
+
+      const container = svg
+
+      container.select("#links-g-tag").remove();
+      const link = container
+        .append("g")
+        .attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr(
+          "stroke-width",
+          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+        )
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+
+      container.select("#nodes-g-tag").remove();
+      const node = container
+        .append("g")
+        .attr("id", "nodes-g-tag")
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("id", (d: any) => `node-${d.id}`)
+        .attr("r", function (d) {
+          return calculateNodeRadius(d);
+        })
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // // Append text labels to the container, positioned near the nodes
+      container.select("#text-g-tag").remove();
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "8px") // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
+
+      container.select("#titles-g-tag").remove();
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
+
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      document.addEventListener("click", hideNodeInfo);
+
+      // // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      // if (G && color) {
+      //   node.attr("fill", (_:any, i:any) => color(G[i]));
+      // }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        (invalidation as Promise<void>).then(() => {
+          // Handle invalidation here
+          simulation.stop();
+        });
+      }
+
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        // scales: { color },
+        svg: svgElement,
+      };
+
+
+
+
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
+
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+      // console.log('check graph data')  
+
+      return result;
+
+      // return Object.assign(svg.node(), { scales: { color } });
     }
 
     function slidersGraph(
@@ -1329,231 +1333,231 @@ const Sidebar = () => {
         invalidation = undefined // when this promise resolves, stop the simulation
       } = {}
     ) {
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+
+
+
+
+      let formattingNodes: any = []
+      let notFoundNodes: any = []
+
+      nodes.forEach((eachNode: any) => {
+        const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode: any) => prevNode.id === eachNode.id);
+
+        if (matchingNodeIndex !== -1) {
+          formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+        } else {
+          notFoundNodes.push(eachNode)
+          // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
+          // console.log('nodeArray' , nodeArray)
+          // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+          // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
+          // console.log('currentNodeMap',currentNodeMap)
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      });
 
-        // Replace the input nodes and links with mutable objects for the simulation.
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      // const linksCopy = _.cloneDeep(links)
+      // console.log('nodes' , nodes,'links' , links)
 
-        
+      // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+      let formattingNodeCopy = formattingNodes;
 
+      nodes.forEach((node: any, index: any) => {
+        const nodeReplacement = formattingNodeCopy.find((eachnode: any) => eachnode.id === node.id);
+        if (nodeReplacement) {
+          nodeReplacement.fx = nodeReplacement.x;
+          nodeReplacement.fy = nodeReplacement.y;
 
-        let formattingNodes:any = []
-        let notFoundNodes:any = []
+          // Update the node in the nodes array
+          nodes[index] = nodeReplacement;
+        }
+      })
 
-        nodes.forEach((eachNode:any) => {
-          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
-
-          if (matchingNodeIndex !== -1) {
-            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
-          } else {
-            notFoundNodes.push(eachNode)
-            // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
-            // console.log('nodeArray' , nodeArray)
-            // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-            // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
-            // console.log('currentNodeMap',currentNodeMap)
-          }
+      // console.log('inside graph checker' , graphResizeChecker)
+      if (!graphResizeChecker && nodeSizeChangeChecker) {
+        nodes.forEach((node: any) => {
+          node.fx = null;
+          node.fy = null;
         });
+      }
 
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-        // const linksCopy = _.cloneDeep(links)
-        // console.log('nodes' , nodes,'links' , links)
 
-        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
-        let formattingNodeCopy = formattingNodes;
-
-        nodes.forEach((node:any , index:any) => {
-          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
-          if(nodeReplacement) {
-            nodeReplacement.fx = nodeReplacement.x;
-            nodeReplacement.fy = nodeReplacement.y;
-        
-            // Update the node in the nodes array
-            nodes[index] = nodeReplacement;
+      links.forEach((link: any, index: any) => {
+        if (typeof link.source === 'string') {
+          const sourceObject = formattingNodeCopy.find((node: any) => node.id === link.source);
+          if (sourceObject) {
+            links[index].source = sourceObject
           }
-        })
+        }
 
-        // console.log('inside graph checker' , graphResizeChecker)
-        if(!graphResizeChecker && nodeSizeChangeChecker) {
-          nodes.forEach((node:any) => {
-            node.fx = null;
-            node.fy = null;
+        // Check if target is a string, and convert it to an object if needed
+        if (typeof link.target === 'string') {
+          const targetObject = formattingNodeCopy.find((node: any) => node.id === link.target);
+          if (targetObject) {
+            links[index].target = targetObject
+          }
+        }
+      });
+
+
+      // Compute default domains.
+      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+      function ticked() {
+
+        // console.log('ticked')
+
+        link
+          .attr("x1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.x
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.x
+                }
+              }
+            }
+          })
+          .attr("y1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.y
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.y
+                }
+              }
+            }
+          })
+          .attr("x2", (d: any) => {
+            return d.target.x
+          })
+          .attr("y2", (d: any) => {
+            return d.target.y
           });
-        }
-        
 
-        links.forEach((link:any , index:any) => {
-          if (typeof link.source === 'string') {
-            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
-            if (sourceObject) {
-              links[index].source = sourceObject
-            }
-          }
-        
-          // Check if target is a string, and convert it to an object if needed
-          if (typeof link.target === 'string') {
-            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
-            if (targetObject) {
-              links[index].target = targetObject
-            }
-          }
-        });
+        node
+          .attr('cx', (d: any) => d.x)
+          .attr('cy', (d: any) => d.y)
+        // .attr("cx", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("x", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("y", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // })
+        // .attr("cy", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // });
 
-
-        // Compute default domains.
-        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-        // Construct the scales.
-        // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
-
-
-        function ticked() {
-
-          // console.log('ticked')
-        
-          link
-            .attr("x1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.x
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.x
-                  }
-                } 
-              }
-            })
-            .attr("y1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.y
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.y
-                  }
-                } 
-              }
-            })
-            .attr("x2", (d: any) => {
-              return d.target.x
-            })
-            .attr("y2", (d: any) => {
-              return  d.target.y
-            });
-            
-          node
-            .attr('cx' , (d:any) => d.x)
-            .attr('cy' , (d:any) => d.y)
-            // .attr("cx", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("x", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("y", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // })
-            // .attr("cy", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // });
-
-          nodeText
+        nodeText
           .attr("x", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.x - (getNodeTextWidth(d) / 4.5)
             }
             else {
               return d.x - (getNodeTextWidth(d) / 4.5)
             }
-            
+
           })
           .attr("y", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.y + 12
             }
             else {
               return d.y + 12
             }
-            
+
           });
 
 
-          nodeTitles
-          .text((d:any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        nodeTitles
+          .text((d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.id
             }
             else {
@@ -1561,428 +1565,428 @@ const Sidebar = () => {
             }
           });
 
-          formattingNodes = []
-          formattingNodeCopy = []
+        formattingNodes = []
+        formattingNodeCopy = []
 
 
-          // console.log('link',link)
+        // console.log('link',link)
+      }
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+
+        tag = tag[0].split('-')[0];
+
+        const tagColors: Record<string, string> = {};
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function intern(value: any) {
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        function getColorByTag(tag: string) {
-          
-          tag = tag[0].split('-')[0];
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-          const tagColors: Record<string, string> = {};
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-          return tagColors[tag] || nodeFill;
-        }
+        return textWidth;
+      }
 
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+      function handleMouseOver(this: any, event: any, d: any) {
 
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-          
-
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
-
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
-          }
-        }
-
-        function intern(value: any) {
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
-
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-
-        function handleMouseOver(this: any, event: any, d: any) {
-          
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Original link color
-              } else {
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-          
-          nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : nodeTextSize
-            })
-
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("r", nodeRadius); // Optionally, increase the node size
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition().duration(600)
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // nodeText
-          //   .transition()
-          //   .duration(600)
-          //   .style('opacity' , (nodeData:any) => {
-          //     if (nodeData === d) {
-          //       return 1
-          //     } else if (areNodesConnected(nodeData , d)) {
-          //       return 1
-          //     } else {
-          //       return 0.1
-          //     }
-          //   })
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition()
-            .duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-                return 0.1; // Opacity of other links
-              }
-            });
-
-
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-        function handleMouseOut(this: any , d:any) {
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          
-          d3.select(this)
-            // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-            .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", linkStroke)
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-          
-
-         
-          nodeText.transition().duration(200)
-            .style('opacity' , 1)
-            .style("font-size", (nodeData:any) => {
-              let orginalNodeSize = nodeTextSize + 'px'
-              return orginalNodeSize
-            })
-            
-        }
-
-        function areNodesConnected(node1: any, node2: any) {
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
-          });
-        }
-
-        function drag(simulation: any) {
-          function dragstarted(event: any) {
-           
-            if (!event.active) simulation.alphaTarget(0.1).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            nodes.forEach((node:any) => {
-              node.fx = null;
-              node.fy = null;
-            });
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-        }
-
-        function calculateNodeRadius(d:any) {
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          if(linkCount <= 4) {
-            return nodeRadius;
-          } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-
-            return onePercentOfCheckLinkCount + 4;
-          }
-        }
-
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          // const links:any = [];  // Replace this with your actual links data
-          
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
-        }
-
-        const customNodes: any = nodes;
-
-
-        const simulation = d3
-          .forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            return radius + 15
-          }))
-          .on("tick", ticked);
-
-          // const svg = d3
-          // .create("svg")
-          // .attr("width", graphSize.width)
-          // .attr("height", graphSize.height)
-          // .attr("viewBox", [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
-          // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-          // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-        
-        // const svg:any = document.querySelector("#graph-div svg");
-        const svgContainer = d3.select('#graph-div');
-        const gElement = svgContainer.select('svg');
-        const svg = gElement.select('g');
-
-        gElement.attr('width' , width).attr('height' , height)
-        gElement.attr('viewBox' , [-width / 2, -height / 2, width, height])
-
-        const container = svg
-
-        container.select("#links-g-tag").remove();
-        const link = container
-          .append("g")
-          .attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr(
-            "stroke-width",
-            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-          )
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-        
-
-
-        container.select("#nodes-g-tag").remove();
-        const node = container
-          .append("g")
-          .attr("id", "nodes-g-tag")
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("id", (d:any) => `node-${d.id}`)
-          .attr("r", function(d) {
-            return calculateNodeRadius(d);
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
           })
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
-          })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-        // // Append text labels to the container, positioned near the nodes
-        container.select("#text-g-tag").remove();
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", nodeTextSize) // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
-
-        container.select("#titles-g-tag").remove();
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
-
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
-
-        document.addEventListener("click", hideNodeInfo);
-
-        // // In the ticked function, update the positions of text and title elements
-
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        // if (G && color) {
-        //   node.attr("fill", (_:any, i:any) => color(G[i]));
-        // }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
-        }
-
-        if (invalidation != null) {
-          (invalidation as Promise<void>).then(() => {
-            // Handle invalidation here
-            simulation.stop();
+        // Initialize the nodes with their original fill color and opacity
+        node
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
           });
+
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
+          })
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : nodeTextSize
+          })
+
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
+
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
+
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition().duration(600)
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // nodeText
+        //   .transition()
+        //   .duration(600)
+        //   .style('opacity' , (nodeData:any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData , d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0.1; // Opacity of other links
+            }
+          });
+
+
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+      function handleMouseOut(this: any, d: any) {
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+
+        d3.select(this)
+          // .attr("fill", nodeFill) // Reset to the original node color
+          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+
+
+
+        nodeText.transition().duration(200)
+          .style('opacity', 1)
+          .style("font-size", (nodeData: any) => {
+            let orginalNodeSize = nodeTextSize + 'px'
+            return orginalNodeSize
+          })
+
+      }
+
+      function areNodesConnected(node1: any, node2: any) {
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+        function dragstarted(event: any) {
+
+          if (!event.active) simulation.alphaTarget(0.1).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
-        
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          // scales: { color },
-          svg: svgElement,
-        };
+
+        function dragged(event: any) {
+          nodes.forEach((node: any) => {
+            node.fx = null;
+            node.fy = null;
+          });
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
 
 
-        
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
 
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      function calculateNodeRadius(d: any) {
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        if (linkCount <= 4) {
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
-       
-        return result;
+          return onePercentOfCheckLinkCount + 4;
+        }
+      }
 
-        // return Object.assign(svg.node(), { scales: { color } });
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        // const links:any = [];  // Replace this with your actual links data
+
+
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
+
+      const customNodes: any = nodes;
+
+
+      const simulation = d3
+        .forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          return radius + 15
+        }))
+        .on("tick", ticked);
+
+      // const svg = d3
+      // .create("svg")
+      // .attr("width", graphSize.width)
+      // .attr("height", graphSize.height)
+      // .attr("viewBox", [-graphSize.width / 2, -graphSize.height / 2, graphSize.width, graphSize.height])
+      // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+      // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+      // const svg:any = document.querySelector("#graph-div svg");
+      const svgContainer = d3.select('#graph-div');
+      const gElement = svgContainer.select('svg');
+      const svg = gElement.select('g');
+
+      gElement.attr('width', width).attr('height', height)
+      gElement.attr('viewBox', [-width / 2, -height / 2, width, height])
+
+      const container = svg
+
+      container.select("#links-g-tag").remove();
+      const link = container
+        .append("g")
+        .attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr(
+          "stroke-width",
+          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+        )
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+
+
+
+      container.select("#nodes-g-tag").remove();
+      const node = container
+        .append("g")
+        .attr("id", "nodes-g-tag")
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("id", (d: any) => `node-${d.id}`)
+        .attr("r", function (d) {
+          return calculateNodeRadius(d);
+        })
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // // Append text labels to the container, positioned near the nodes
+      container.select("#text-g-tag").remove();
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", nodeTextSize) // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
+
+      container.select("#titles-g-tag").remove();
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
+
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      document.addEventListener("click", hideNodeInfo);
+
+      // // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      // if (G && color) {
+      //   node.attr("fill", (_:any, i:any) => color(G[i]));
+      // }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        (invalidation as Promise<void>).then(() => {
+          // Handle invalidation here
+          simulation.stop();
+        });
+      }
+
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        // scales: { color },
+        svg: svgElement,
+      };
+
+
+
+
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
+
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+      return result;
+
+      // return Object.assign(svg.node(), { scales: { color } });
     }
 
     const options: any = {
@@ -1992,9 +1996,9 @@ const Sidebar = () => {
       height: graphHeight,
     };
 
-    let svgResult:any
+    let svgResult: any
     // console.log('calling function' , makingFrom)
-    if(makingFrom === 'themeChange' || makingFrom === 'resizeScreen'){
+    if (makingFrom === 'themeChange' || makingFrom === 'resizeScreen') {
       // console.log('wandergraph called')
       svgResult = WanderGraph(graphNewData, options)
     } else if (makingFrom === 'sliderChange') {
@@ -2004,15 +2008,15 @@ const Sidebar = () => {
   }
 
 
-  const searchBarFormation = async (event:any) => {
+  const searchBarFormation = async (event: any) => {
     const inputValue = event.target.value;
 
-    if(graphOrTextView){
+    if (graphOrTextView) {
       setSearchValue(inputValue);
     } else {
       setGraphSearchValue(inputValue);
     }
-    
+
 
     let wordToSearch: any;
 
@@ -2049,7 +2053,7 @@ const Sidebar = () => {
   }
 
 
-  const searchSecondPart = async (wordsArray:any , wordToSearch:any) => {
+  const searchSecondPart = async (wordsArray: any, wordToSearch: any) => {
     const resultCalculateWithOR: any = [];
     let currentPair = [];
     const wordsToSearch = [];
@@ -2114,21 +2118,21 @@ const Sidebar = () => {
     let newEntries: any = [];
     let responseJson: any = [];
 
-    if(internalId) {
+    if (internalId) {
       clearTimeout(internalId);
     }
 
-    if(typeof controller != typeof undefined) {
+    if (typeof controller != typeof undefined) {
       controller.abort()
     }
 
     controller = new AbortController()
-            
-    internalId = setTimeout(async() => {
+
+    internalId = setTimeout(async () => {
       try {
         (graphOrTextView ? setTextSearchLoader(true) : setGraphSearchLoader(true));
 
-        
+
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
         !graphOrTextView && setGraphSearchWordsArray(encodedWords);
@@ -2136,7 +2140,7 @@ const Sidebar = () => {
           signal: controller.signal,
         });
 
-      
+
         const copySearchResults = _.cloneDeep(responseJson.data);
         setRawSearchResults(copySearchResults);
         // console.log('copySearchResults',copySearchResults)
@@ -2149,7 +2153,7 @@ const Sidebar = () => {
 
         highlightSearchWord(newEntries, wordToSearch);
 
-        markAllData(newEntries , wordToSearch)
+        markAllData(newEntries, wordToSearch)
 
 
 
@@ -2177,14 +2181,14 @@ const Sidebar = () => {
     }, 300);
 
   }
-  
+
 
   const handleSearch = async (event: any) => {
     setShowSearchResultsFound(false)
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-    
+
     // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -2244,10 +2248,10 @@ const Sidebar = () => {
       }
     });
 
-    searchSecondPart(wordsArray , wordToSearch)
+    searchSecondPart(wordsArray, wordToSearch)
 
-    
-        
+
+
   };
 
 
@@ -2256,7 +2260,7 @@ const Sidebar = () => {
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-    
+
     // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
@@ -2316,7 +2320,7 @@ const Sidebar = () => {
     //   }
     // });
 
-    searchSecondPart(wordsArray , wordToSearch)
+    searchSecondPart(wordsArray, wordToSearch)
 
   };
 
@@ -2378,7 +2382,7 @@ const Sidebar = () => {
       }
     });
 
-    searchSecondPart(wordsArray , wordToSearch)
+    searchSecondPart(wordsArray, wordToSearch)
   };
 
 
@@ -2389,7 +2393,7 @@ const Sidebar = () => {
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-    searchSecondPart(wordsArray , wordToSearch)
+    searchSecondPart(wordsArray, wordToSearch)
   };
 
 
@@ -2404,13 +2408,13 @@ const Sidebar = () => {
       let tempNodes: any = []
       let count = 0;
       let finalCount = 0;
-      const nodeExists = (id: any) => {return nodes.some((node: any) => node.id === id)};
+      const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id) };
 
       // Iterate through each object
-      if (searchResultsForGraph.length > 0 ) {
+      if (searchResultsForGraph.length > 0) {
         // console.log("search results for graph: ", searchResultsForGraph);
         // If search bar has words
-        
+
         // If files are not open in workspace
         // console.log("search Results", searchResults);
 
@@ -2418,18 +2422,18 @@ const Sidebar = () => {
         // console.log('updatedOpenedResults ', updatedOpenedResults)
 
         const searchResultsForGraphCopy = _.cloneDeep(searchResultsForGraph);
-  
-        searchResultsForGraphCopy.forEach((result:any) => {
+
+        searchResultsForGraphCopy.forEach((result: any) => {
           let matchingFile: any = result;
 
           marked.setOptions({
             breaks: true,
           });
-          
+
           let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
           matchingFile.content = marked(editedResult);
 
-          
+
 
           // matchingFile.content = marked(matchingFile.content);
           // console.log("markedContent", matchingFile);
@@ -2438,12 +2442,12 @@ const Sidebar = () => {
           const hashtagParagraphRegex = /#\S+/g;
           if (matchingFile) {
             // console.log('matching file: ' , matchingFile)
-            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex,"");
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
             const contentWithStyledWords = contentWithoutHashtags.replace(
               regex, (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
 
@@ -2472,18 +2476,18 @@ const Sidebar = () => {
         finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
 
-        updatedOpenedResults.forEach(async (result:any) => {
+        updatedOpenedResults.forEach(async (result: any) => {
           const nodeId = result.fileName
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
           // const nodeTag = match ? match[0] : null;
-          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          let nodeTag: any = matches ? matches.map((match: any) => match.substring(1)) : ["tagnotfound"];
           // const cleanedTag = nodeTag.substring(1);
           if (!nodeExists(nodeId)) {
-                nodes.push({ id: nodeId, tag: nodeTag});
+            nodes.push({ id: nodeId, tag: nodeTag });
           }
         })
 
-        updatedOpenedResults.map((result:any) => {
+        updatedOpenedResults.map((result: any) => {
           const nodeId = result.fileName
 
           const underlinedWords: any = result.content.match(
@@ -2502,11 +2506,11 @@ const Sidebar = () => {
             // Now you can use wordsArray safely
           }
 
-          wordsArray.forEach((word:any) => {
-            const nodeWithWord = nodes.find((node:any) => node.id === word);
-          
+          wordsArray.forEach((word: any) => {
+            const nodeWithWord = nodes.find((node: any) => node.id === word);
+
             if (nodeWithWord) {
-              if(nodeId !== nodeWithWord.id){
+              if (nodeId !== nodeWithWord.id) {
                 // Node with the word exists, update its tag
                 links.push({ source: nodeId, target: nodeWithWord.id });
               }
@@ -2514,16 +2518,16 @@ const Sidebar = () => {
           });
         })
 
-        const resultData:any = {nodes , links}
+        const resultData: any = { nodes, links }
         // console.log('resultData' , resultData)
 
 
-        let filteredGraphData:any = []
+        let filteredGraphData: any = []
 
         // Step 1: Find items with status "exclude" in updatedCheckboxes
-        const excludedValues:any = [];
-        graphTagFilters.forEach((category:any) => {
-          category.items.forEach((item:any) => {
+        const excludedValues: any = [];
+        graphTagFilters.forEach((category: any) => {
+          category.items.forEach((item: any) => {
             if (item.status === "exclude") {
               excludedValues.push(item.value.substring(1));
             }
@@ -2531,50 +2535,50 @@ const Sidebar = () => {
         });
 
         // Step 2: Find corresponding node ids in graphDataCopy
-        const excludedNodeIds:any = [];
-        resultData.nodes.forEach((node:any) => {
-          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        const excludedNodeIds: any = [];
+        resultData.nodes.forEach((node: any) => {
+          const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
           // Check if any of the tags exist in the excludedValues array
-          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-              excludedNodeIds.push(node.id);
+          if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
           }
         });
 
         // console.log('excludedNodeIds',excludedNodeIds)
 
         // Step 3: Remove links with source or target matching excluded node ids
-        filteredGraphData.links = resultData.links.filter((link:any) => {
+        filteredGraphData.links = resultData.links.filter((link: any) => {
           return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
         });
 
         // Step 4: Remove nodes with ids in excludedNodeIds
-        filteredGraphData.nodes = resultData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+        filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
         // Now, graphDataCopy is updated with the desired changes.
         // console.log('filteredGraphData: ', filteredGraphData);
         // console.log('resultData',resultData)
 
         // makeGraph(filteredGraphData)
-        
 
-        setTimeout(()=> {
+
+        setTimeout(() => {
           setOpenedResults(updatedOpenedResults)
           setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraph(filteredGraphData);
         }, 200)
-      } 
+      }
     } else {
       console.log('should not be in this else , generateGraphfromSearch ')
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
       const resultData: any = { nodes, links };
-        // console.log('resultData: ' , resultData)
-        // let graphNewData = resultData;
+      // console.log('resultData: ' , resultData)
+      // let graphNewData = resultData;
       setGraphData(resultData);
-      const graphDiv:any = document.getElementById('graph-div');
+      const graphDiv: any = document.getElementById('graph-div');
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -2601,41 +2605,41 @@ const Sidebar = () => {
       // let tempNodes: any = []
       // let count = 0;
       // let finalCount = 0;
-      const nodeExists = (id: any) => {return nodes.some((node: any) => node.id === id)};
+      const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id) };
 
       // Iterate through each object
-      if (searchResultsForGraph.length > 0 ) {
+      if (searchResultsForGraph.length > 0) {
 
         // console.log('updatedOpenedResults ', updatedOpenedResults)
-        
+
         const searchResultsForGraphCopy = _.cloneDeep(searchResultsForGraph);
         const updatedOpenedResults: any = searchResultsForGraphCopy
-  
+
         // searchResultsForGraphCopy.forEach((result:any) => {
-          
+
         // });
 
         // finalCount = updatedOpenedResults.length;
         // console.log("updatedOpenedResults: ", updatedOpenedResults);
 
-        searchResultsForGraphCopy.forEach(async (result:any) => {
+        searchResultsForGraphCopy.forEach(async (result: any) => {
           const nodeId = result.fileName
           // const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
           // const nodeTag = match ? match[0] : null;
-          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          let nodeTag: any = matches ? matches.map((match: any) => match.substring(1)) : ["tagnotfound"];
           // const cleanedTag = nodeTag.substring(1);
           if (!nodeExists(nodeId)) {
-                nodes.push({ id: nodeId, tag: nodeTag});
+            nodes.push({ id: nodeId, tag: nodeTag });
           }
         })
 
-        
-          // console.log('match' , match)
-          // let nodeTag:any = match ? match[0] : null;
-          
 
-        searchResultsForGraph.map((result:any) => {
+        // console.log('match' , match)
+        // let nodeTag:any = match ? match[0] : null;
+
+
+        searchResultsForGraph.map((result: any) => {
           const nodeId = result.fileName
 
           const underlinedWords: any = result.content.match(
@@ -2654,11 +2658,11 @@ const Sidebar = () => {
             // Now you can use wordsArray safely
           }
 
-          wordsArray.forEach((word:any) => {
-            const nodeWithWord = nodes.find((node:any) => node.id === word);
-          
+          wordsArray.forEach((word: any) => {
+            const nodeWithWord = nodes.find((node: any) => node.id === word);
+
             if (nodeWithWord) {
-              if(nodeId !== nodeWithWord.id){
+              if (nodeId !== nodeWithWord.id) {
                 // Node with the word exists, update its tag
                 links.push({ source: nodeId, target: nodeWithWord.id });
               }
@@ -2666,16 +2670,16 @@ const Sidebar = () => {
           });
         })
 
-        const resultData:any = {nodes , links}
+        const resultData: any = { nodes, links }
         // console.log('resultData' , resultData)
 
 
-        let filteredGraphData:any = {}
+        let filteredGraphData: any = {}
 
         // Step 1: Find items with status "exclude" in updatedCheckboxes
-        const excludedValues:any = [];
-        graphTagFilters.forEach((category:any) => {
-          category.items.forEach((item:any) => {
+        const excludedValues: any = [];
+        graphTagFilters.forEach((category: any) => {
+          category.items.forEach((item: any) => {
             if (item.status === "exclude") {
               excludedValues.push(item.value.substring(1));
             }
@@ -2683,13 +2687,13 @@ const Sidebar = () => {
         });
 
         // Step 2: Find corresponding node ids in graphDataCopy
-        const excludedNodeIds:any = [];
-        resultData.nodes.forEach((node:any) => {
-          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        const excludedNodeIds: any = [];
+        resultData.nodes.forEach((node: any) => {
+          const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
           // Check if any of the tags exist in the excludedValues array
-          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-              excludedNodeIds.push(node.id);
+          if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
           }
         });
         // resultData.nodes.forEach((node:any) => {
@@ -2701,39 +2705,39 @@ const Sidebar = () => {
         // console.log('excludedNodeIds',excludedNodeIds)
 
         // Step 3: Remove links with source or target matching excluded node ids
-        filteredGraphData.links = resultData.links.filter((link:any) => {
+        filteredGraphData.links = resultData.links.filter((link: any) => {
           return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
         });
 
         // Step 4: Remove nodes with ids in excludedNodeIds
-        filteredGraphData.nodes = resultData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+        filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
         // Now, graphDataCopy is updated with the desired changes.
         // console.log('resultData' , resultData)
-        
-       
-        
+
+
+
         // console.log('filteredGraphData: ', filteredGraphData);
         // makeGraph(filteredGraphData)
-        
 
-        setTimeout(()=> {
+
+        setTimeout(() => {
           setOpenedResults(updatedOpenedResults)
           setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraphFromGraphResults(filteredGraphData);
         }, 200)
-      } 
+      }
     } else {
       console.log('should not be in this else, generateGraphfromGraphResult')
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
       const resultData: any = { nodes, links };
-        // console.log('resultData: ' , resultData)
-        // let graphNewData = resultData;
+      // console.log('resultData: ' , resultData)
+      // let graphNewData = resultData;
       setGraphData(resultData);
-      const graphDiv:any = document.getElementById('graph-div');
+      const graphDiv: any = document.getElementById('graph-div');
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -2750,7 +2754,7 @@ const Sidebar = () => {
 
 
   const handleSiteNameClick = () => {
-    if(typeof controller != typeof undefined) {
+    if (typeof controller != typeof undefined) {
       controller.abort()
     }
 
@@ -2758,7 +2762,7 @@ const Sidebar = () => {
     setGraphSearchValue("")
     setSearchResults([]);
     setOpenedResults([]);
-    
+
     sethideFiltersForPreview(true);
     setGraphNodeOpened([])
     setCheckGraphStatus(false)
@@ -2769,11 +2773,11 @@ const Sidebar = () => {
     setGraphSearchLoader(false)
     setShowGraphFilters(false)
 
-    if(graphOrTextView){
+    if (graphOrTextView) {
       setShouldShowFilters(true);
     }
 
-    const updatedCheckboxes:any = allCheckboxes.map((eachCategory: any) => ({
+    const updatedCheckboxes: any = allCheckboxes.map((eachCategory: any) => ({
       ...eachCategory,
       items: eachCategory.items.map((eachItem: any) => ({
         ...eachItem,
@@ -2783,7 +2787,7 @@ const Sidebar = () => {
     }));
     setAllCheckboxes(updatedCheckboxes)
 
-    const updatedGraphFilters:any = graphTagFilters.map((eachCategory: any) => ({
+    const updatedGraphFilters: any = graphTagFilters.map((eachCategory: any) => ({
       ...eachCategory,
       items: eachCategory.items.map((eachItem: any) => ({
         ...eachItem,
@@ -2795,7 +2799,7 @@ const Sidebar = () => {
 
     const graphDiv = document.getElementById("graph-div");
     if (graphDiv) {
-        graphDiv.innerHTML = "";
+      graphDiv.innerHTML = "";
     }
 
   };
@@ -2817,7 +2821,7 @@ const Sidebar = () => {
         (match: any, word: any) => `${word}`
       );
       entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
-      
+
 
       let wordOccurence = 0;
 
@@ -2851,7 +2855,7 @@ const Sidebar = () => {
   }
 
 
-  function markAllData (newentries:any , wordToSearch:any) {
+  function markAllData(newentries: any, wordToSearch: any) {
     // console.log('wordtosearch' , wordToSearch)
     // console.log(newentries)
 
@@ -2865,11 +2869,11 @@ const Sidebar = () => {
 
       // matchingFile.content = marked(entry.content);
 
-      function stripHtml(html:any) {
+      function stripHtml(html: any) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
       }
-      
+
       const plainText = stripHtml(entry.content);
       const hashtagWordRegex = /#\S+/g;
       const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
@@ -2878,7 +2882,7 @@ const Sidebar = () => {
 
       const matches = [];
       let match;
-      while ((match = pattern.exec(plainTextWithoutBrackets)) !== null) {matches.push(match[0])}
+      while ((match = pattern.exec(plainTextWithoutBrackets)) !== null) { matches.push(match[0]) }
 
       const result = matches.join('\n');
       // console.log(result);
@@ -2886,78 +2890,78 @@ const Sidebar = () => {
       const highlightedResult = result.replace(new RegExp(`(${wordToSearch.join('|')})`, 'ig'),
         (match) => `<span>${match}</span>`
       );
-      
 
-      if(highlightedResult !== null && highlightedResult !== '') {
+
+      if (highlightedResult !== null && highlightedResult !== '') {
         // console.log('result' , result)
         entry.totalMarkedData = highlightedResult
       } else {
-      //   matchingFile.content = entry.content
-      // // console.log(matchingFile.content)
+        //   matchingFile.content = entry.content
+        // // console.log(matchingFile.content)
 
-      // const regex = /\[\[([^[\]]+)\]\]/g;
-      // const hashtagParagraphRegex = /^#\w+/gm;
+        // const regex = /\[\[([^[\]]+)\]\]/g;
+        // const hashtagParagraphRegex = /^#\w+/gm;
 
-      // if (matchingFile) {
-      //   const contentWithoutHashtag = matchingFile.content.replace(
-      //     hashtagParagraphRegex,
-      //     ""
-      //   );
+        // if (matchingFile) {
+        //   const contentWithoutHashtag = matchingFile.content.replace(
+        //     hashtagParagraphRegex,
+        //     ""
+        //   );
 
-      //   const contentWithStyledWord = contentWithoutHashtag.replace(
-      //     regex,
-      //     (match: any, word: any) =>
-      //       `<span>${word}</span>`
-      //   );
+        //   const contentWithStyledWord = contentWithoutHashtag.replace(
+        //     regex,
+        //     (match: any, word: any) =>
+        //       `<span>${word}</span>`
+        //   );
 
-      //   const searchPattern = new RegExp(`(${wordToSearch.join('|')})`, 'gi');
+        //   const searchPattern = new RegExp(`(${wordToSearch.join('|')})`, 'gi');
 
-      //   const contentWithBackground = contentWithStyledWord.replace(
-      //     searchPattern,
-      //     '<span style="background-color: #666262; text-decoration: underline;">$1</span>'
-      //   );
+        //   const contentWithBackground = contentWithStyledWord.replace(
+        //     searchPattern,
+        //     '<span style="background-color: #666262; text-decoration: underline;">$1</span>'
+        //   );
 
-      //   const regexRemove = /(^|\n)(#[^\n]*){1,5}(\n|$)/g;
-      //   const finalContent = contentWithBackground.replace(regexRemove, '');
-
-        
-
-      //   // console.log(finalContent)
-
-      //   // console.log(result);
-        
-      //   // console.log(contentWithBackground)
+        //   const regexRemove = /(^|\n)(#[^\n]*){1,5}(\n|$)/g;
+        //   const finalContent = contentWithBackground.replace(regexRemove, '');
 
 
-      //   entry.totalMarkedData = finalContent 
-      // }
 
-      const plainText = stripHtml(entry.content);
-      const hashtagWordRegex = /#\S+/g;
-      const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
-      const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
+        //   // console.log(finalContent)
 
-      const linesToKeep = plainTextWithoutBrackets.split('\n')
-      .filter(line => wordToSearch.some((word:any) => line.toLowerCase().includes(word.toLowerCase())));
-      const result = linesToKeep.join('\n');
+        //   // console.log(result);
 
-      const highlightedResult = result.replace(new RegExp(`(${wordToSearch.join('|')})`, 'ig'),
-        (match) => `<span>${match}</span>`
-      );
-      // console.log(highlightedResult)
-      if(highlightedResult !== '') {
-        entry.totalMarkedData  = highlightedResult
-      } else {
+        //   // console.log(contentWithBackground)
+
+
+        //   entry.totalMarkedData = finalContent 
+        // }
+
         const plainText = stripHtml(entry.content);
         const hashtagWordRegex = /#\S+/g;
         const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
         const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
-        entry.totalMarkedData = plainTextWithoutBrackets
+
+        const linesToKeep = plainTextWithoutBrackets.split('\n')
+          .filter(line => wordToSearch.some((word: any) => line.toLowerCase().includes(word.toLowerCase())));
+        const result = linesToKeep.join('\n');
+
+        const highlightedResult = result.replace(new RegExp(`(${wordToSearch.join('|')})`, 'ig'),
+          (match) => `<span>${match}</span>`
+        );
+        // console.log(highlightedResult)
+        if (highlightedResult !== '') {
+          entry.totalMarkedData = highlightedResult
+        } else {
+          const plainText = stripHtml(entry.content);
+          const hashtagWordRegex = /#\S+/g;
+          const plainTextWithoutTags = plainText.replace(hashtagWordRegex, "");
+          const plainTextWithoutBrackets = stripHtml(plainTextWithoutTags).replace(/\[\[|\]\]/g, '');
+          entry.totalMarkedData = plainTextWithoutBrackets
 
 
-      }
+        }
 
-      
+
 
       }
     }
@@ -2966,12 +2970,12 @@ const Sidebar = () => {
 
   const handleThemeChangerClick = () => {
 
-    if(!themeChangericon){
+    if (!themeChangericon) {
       setTextColorForNode('#6C655C')
       setGraphLinkColor('#CFCCC7')
     } else {
       setTextColorForNode('#B3B3B5')
-      setGraphLinkColor('#565959')      
+      setGraphLinkColor('#565959')
     }
 
     const currentTheme = !themeChangericon
@@ -2981,14 +2985,14 @@ const Sidebar = () => {
 
     localStorage.setItem('theme', changeTheme);
 
-    const sideNav:any = document.querySelector(`.${"side-nav"}`);
-    const workspacePanel:any = document.querySelector(`.${"workspace-content"}`); 
-   
+    const sideNav: any = document.querySelector(`.${"side-nav"}`);
+    const workspacePanel: any = document.querySelector(`.${"workspace-content"}`);
+
     sideNav.classList.toggle("night-mode");
     workspacePanel.classList.toggle("night-mode");
 
   }
-  
+
 
   const handleCheckboxClick = (category: any, id: any) => {
     const updatedCheckboxes: any = allCheckboxes.map((checkboxCategory: any) => {
@@ -3003,7 +3007,7 @@ const Sidebar = () => {
             } else {
               newState = "unchecked";
             }
-  
+
             let newStatus;
             if (item.status === "neutral") {
               newStatus = "include";
@@ -3013,7 +3017,7 @@ const Sidebar = () => {
               newStatus = "neutral";
             }
             // console.log(newState , newStatus)
-  
+
             return {
               ...item,
               state: newState,
@@ -3022,9 +3026,9 @@ const Sidebar = () => {
           }
           return item;
         });
-  
+
         // console.log('match', updatedItems);
-  
+
         return {
           ...checkboxCategory,
           items: updatedItems,
@@ -3032,13 +3036,13 @@ const Sidebar = () => {
       }
       return checkboxCategory;
     });
-    
-    setAllCheckboxes(updatedCheckboxes); 
+
+    setAllCheckboxes(updatedCheckboxes);
 
 
     let currentValue
 
-    if(graphOrTextView) {
+    if (graphOrTextView) {
       currentValue = searchValue
     } else {
       currentValue = graphSearchValue
@@ -3050,7 +3054,7 @@ const Sidebar = () => {
     const foundCategory = updatedCheckboxes.find(
       (checkboxCategory: any) => checkboxCategory.category === category
     );
-    
+
     if (foundCategory) {
       const foundItem = foundCategory.items.find((item: any) => item.id === id);
       valueToInclude = foundItem ? foundItem.value : null;
@@ -3069,7 +3073,7 @@ const Sidebar = () => {
         target: { value: updatedValue },
       };
 
-      if(graphOrTextView) {
+      if (graphOrTextView) {
         handleSearchFromFilters(syntheticEvent)
       } else {
         handleGraphSearchFromFilters(syntheticEvent)
@@ -3092,7 +3096,7 @@ const Sidebar = () => {
         updatedValue += ` -"${valueToAdd}"`;
         console.log(updatedValue)
       } else {
-          updatedValue = currentValue + ` -"${valueToInclude}"`;
+        updatedValue = currentValue + ` -"${valueToInclude}"`;
       }
 
       const syntheticEvent = {
@@ -3116,7 +3120,7 @@ const Sidebar = () => {
   };
 
 
-  const handleGraphFilters = (category: any, id: any, valueOfFilter:any) => {
+  const handleGraphFilters = (category: any, id: any, valueOfFilter: any) => {
     // console.log('graphdata' , graphData)
     const graphDataCopy = _.cloneDeep(graphData);
     // console.log('graphdatacopy' , graphDataCopy)
@@ -3131,7 +3135,7 @@ const Sidebar = () => {
             } else {
               newState = "unchecked";
             }
-  
+
             let newStatus;
             if (item.status === "neutral") {
               newStatus = "exclude";
@@ -3139,7 +3143,7 @@ const Sidebar = () => {
               newStatus = "neutral";
             }
             // console.log(newState , newStatus)
-  
+
             return {
               ...item,
               state: newState,
@@ -3148,7 +3152,7 @@ const Sidebar = () => {
           }
           return item;
         });
-  
+
         return {
           ...checkboxCategory,
           items: updatedItems,
@@ -3157,16 +3161,16 @@ const Sidebar = () => {
 
       return checkboxCategory;
     });
-    
+
     setGraphTagFilters(updatedCheckboxes);
 
 
-    let filteredGraphData:any = []
+    let filteredGraphData: any = []
 
     // Step 1: Find items with status "exclude" in updatedCheckboxes
-    const excludedValues:any = [];
-    updatedCheckboxes.forEach((category:any) => {
-      category.items.forEach((item:any) => {
+    const excludedValues: any = [];
+    updatedCheckboxes.forEach((category: any) => {
+      category.items.forEach((item: any) => {
         if (item.status === "exclude") {
           excludedValues.push(item.value.substring(1));
         }
@@ -3176,40 +3180,40 @@ const Sidebar = () => {
     // console.log('excluded' , excludedValues)
 
     // Step 2: Find corresponding node ids in graphDataCopy
-    const excludedNodeIds:any = [];
+    const excludedNodeIds: any = [];
 
     // console.log('graphDatacopy' ,graphDataCopy)
-    if(graphDataCopy.nodes.length > 0) {
+    if (graphDataCopy.nodes.length > 0) {
       // graphDataCopy.nodes.forEach((node:any) => {
       //   if (excludedValues.includes(node.tag)) {
       //     excludedNodeIds.push(node.id);
       //   }
       // });
 
-      graphDataCopy.nodes.forEach((node:any) => {
-        const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
-    
+      graphDataCopy.nodes.forEach((node: any) => {
+        const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
         // Check if any of the tags exist in the excludedValues array
-        if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-            excludedNodeIds.push(node.id);
+        if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+          excludedNodeIds.push(node.id);
         }
       });
 
-      console.log('excluded ids' , excludedNodeIds)
-  
+      console.log('excluded ids', excludedNodeIds)
+
       // console.log('excludedNodeIds',excludedNodeIds)
-  
+
       // Step 3: Remove links with source or target matching excluded node ids
-      filteredGraphData.links = graphDataCopy.links.filter((link:any) => {
+      filteredGraphData.links = graphDataCopy.links.filter((link: any) => {
         return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
       });
-  
+
       // Step 4: Remove nodes with ids in excludedNodeIds
-      filteredGraphData.nodes = graphDataCopy.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
-  
+      filteredGraphData.nodes = graphDataCopy.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
+
       // Now, graphDataCopy is updated with the desired changes.
       // console.log('filteredGraphData: ', filteredGraphData);
-  
+
       setGraphDataAfterFilters(filteredGraphData)
       makeGraph(filteredGraphData)
 
@@ -3218,7 +3222,7 @@ const Sidebar = () => {
     }
 
   };
-  
+
 
   const handleAccordionClick = () => {
     setShouldShowFilters(!shouldShowFilters);
@@ -3228,7 +3232,7 @@ const Sidebar = () => {
 
   const handleGraphOrTextView = () => {
     setgraphOrTextView(!graphOrTextView);
-    if(graphNodeOpened.length > 0) {
+    if (graphNodeOpened.length > 0) {
       sethideFiltersForPreview(false)
     }
 
@@ -3240,14 +3244,14 @@ const Sidebar = () => {
       const links: any = [];
       // let finalCount = 0;
 
-      const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id);};
+      const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id); };
 
       // Iterate through each object
       if (openedResults.length > 0) {
 
         // finalCount = openedResults.length;
 
-         // add all nodes
+        // add all nodes
         openedResults.forEach(async (result) => {
           // Create a node for the fileName
           const nodeId = result.fileName;
@@ -3255,9 +3259,9 @@ const Sidebar = () => {
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
           // console.log('match' , match)
           // let nodeTag:any = match ? match[0] : null;
-          let nodeTag:any = matches ? matches.map(match => match.substring(1)) : ["tagnotfound"];
+          let nodeTag: any = matches ? matches.map(match => match.substring(1)) : ["tagnotfound"];
           // const tag = matches ? matches.map(match => match.substring(1)) : [];
-      
+
 
           if (!nodeExists(nodeId)) {
             nodes.push({ id: nodeId, tag: nodeTag });
@@ -3266,7 +3270,7 @@ const Sidebar = () => {
 
         // console.log('nodes' ,nodes)
 
-        openedResults.map((result:any)=> {
+        openedResults.map((result: any) => {
           const nodeId = result.fileName
 
           const underlinedWords: any = result.content.match(
@@ -3283,11 +3287,11 @@ const Sidebar = () => {
             });
           }
 
-          wordsArray.forEach((word:any) => {
-            const nodeWithWord = nodes.find((node:any) => node.id === word);
-          
+          wordsArray.forEach((word: any) => {
+            const nodeWithWord = nodes.find((node: any) => node.id === word);
+
             if (nodeWithWord) {
-              if(nodeId !== nodeWithWord.id){
+              if (nodeId !== nodeWithWord.id) {
                 // Node with the word exists, update its tag
                 links.push({ source: nodeId, target: nodeWithWord.id });
               }
@@ -3296,14 +3300,14 @@ const Sidebar = () => {
 
         })
 
-        const resultData:any = {nodes , links}
+        const resultData: any = { nodes, links }
 
-        let filteredGraphData:any = []
+        let filteredGraphData: any = []
 
         // Step 1: Find items with status "exclude" in updatedCheckboxes
-        const excludedValues:any = [];
-        graphTagFilters.forEach((category:any) => {
-          category.items.forEach((item:any) => {
+        const excludedValues: any = [];
+        graphTagFilters.forEach((category: any) => {
+          category.items.forEach((item: any) => {
             if (item.status === "exclude") {
               excludedValues.push(item.value.substring(1));
             }
@@ -3311,38 +3315,38 @@ const Sidebar = () => {
         });
 
         // Step 2: Find corresponding node ids in graphDataCopy
-        const excludedNodeIds:any = [];
+        const excludedNodeIds: any = [];
         // resultData.nodes.forEach((node:any) => {
         //   if (excludedValues.includes(node.tag)) {
         //     excludedNodeIds.push(node.id);
         //   }
         // });
 
-        resultData.nodes.forEach((node:any) => {
-            const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        resultData.nodes.forEach((node: any) => {
+          const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
-            // Check if any of the tags exist in the excludedValues array
-            if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-                excludedNodeIds.push(node.id);
-            }
+          // Check if any of the tags exist in the excludedValues array
+          if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
+          }
         });
 
         // console.log('excludedNodeIds',excludedNodeIds)
 
         // Step 3: Remove links with source or target matching excluded node ids
-        filteredGraphData.links = resultData.links.filter((link:any) => {
+        filteredGraphData.links = resultData.links.filter((link: any) => {
           return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
         });
 
         // Step 4: Remove nodes with ids in excludedNodeIds
-        filteredGraphData.nodes = resultData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+        filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
         // Now, graphDataCopy is updated with the desired changes.
         // console.log('filteredGraphData: ', filteredGraphData);
 
         // makeGraph(filteredGraphData)
 
-        setTimeout(()=> {
+        setTimeout(() => {
 
           setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
@@ -3365,7 +3369,7 @@ const Sidebar = () => {
           matchingFile.content = marked(editedResult);
           // console.log("markedContent", matchingFile);
 
-          
+
 
           // matchingFile.content = marked(matchingFile.content);
           // console.log("markedContent", matchingFile);
@@ -3418,9 +3422,9 @@ const Sidebar = () => {
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
           // console.log('match' , match)
           // let nodeTag:any = match ? match[0] : null;
-          let nodeTag:any = matches ? matches.map((match:any) => match.substring(1)) : ["tagnotfound"];
+          let nodeTag: any = matches ? matches.map((match: any) => match.substring(1)) : ["tagnotfound"];
           // const tag = matches ? matches.map(match => match.substring(1)) : [];
-      
+
 
           if (!nodeExists(nodeId)) {
             nodes.push({ id: nodeId, tag: nodeTag });
@@ -3433,15 +3437,15 @@ const Sidebar = () => {
           // }
         })
 
-        
 
-        updatedOpenedResults.map((node:any) => {
+
+        updatedOpenedResults.map((node: any) => {
           const nodeId = node.fileName;
           const underlinedWords = node.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
           let wordsArray
 
-          if(underlinedWords){
+          if (underlinedWords) {
             wordsArray = underlinedWords.map((span: any) => {
               const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
               return match ? match[1] : "";
@@ -3452,11 +3456,11 @@ const Sidebar = () => {
 
           // console.log('wordsarray' , wordsArray)
 
-          wordsArray.forEach((word:any) => {
-            const nodeWithWord = nodes.find((node:any) => node.id === word);
-          
+          wordsArray.forEach((word: any) => {
+            const nodeWithWord = nodes.find((node: any) => node.id === word);
+
             if (nodeWithWord) {
-              if(nodeId !== nodeWithWord.id){
+              if (nodeId !== nodeWithWord.id) {
                 // Node with the word exists, update its tag
                 links.push({ source: nodeId, target: nodeWithWord.id });
               }
@@ -3465,17 +3469,17 @@ const Sidebar = () => {
         })
 
 
-       
+
 
         const resultData: any = { nodes, links };
         // console.log('resultData' , resultData)
 
-        let filteredGraphData:any = []
+        let filteredGraphData: any = []
 
         // Step 1: Find items with status "exclude" in updatedCheckboxes
-        const excludedValues:any = [];
-        graphTagFilters.forEach((category:any) => {
-          category.items.forEach((item:any) => {
+        const excludedValues: any = [];
+        graphTagFilters.forEach((category: any) => {
+          category.items.forEach((item: any) => {
             if (item.status === "exclude") {
               excludedValues.push(item.value.substring(1));
             }
@@ -3483,31 +3487,31 @@ const Sidebar = () => {
         });
 
         // Step 2: Find corresponding node ids in graphDataCopy
-        const excludedNodeIds:any = [];
+        const excludedNodeIds: any = [];
         // resultData.nodes.forEach((node:any) => {
         //   if (excludedValues.includes(node.tag)) {
         //     excludedNodeIds.push(node.id);
         //   }
         // });
 
-        resultData.nodes.forEach((node:any) => {
-          const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+        resultData.nodes.forEach((node: any) => {
+          const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
           // Check if any of the tags exist in the excludedValues array
-          if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-              excludedNodeIds.push(node.id);
+          if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+            excludedNodeIds.push(node.id);
           }
         });
 
         // console.log('excludedNodeIds',excludedNodeIds)
 
         // Step 3: Remove links with source or target matching excluded node ids
-        filteredGraphData.links = resultData.links.filter((link:any) => {
+        filteredGraphData.links = resultData.links.filter((link: any) => {
           return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
         });
 
         // Step 4: Remove nodes with ids in excludedNodeIds
-        filteredGraphData.nodes = resultData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+        filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
         // Now, graphDataCopy is updated with the desired changes.
         // console.log('filteredGraphData: ', filteredGraphData);
@@ -3515,7 +3519,7 @@ const Sidebar = () => {
         // makeGraph(filteredGraphData)
 
         setTimeout(() => {
-          if(resultData.nodes.length === 0 ) {
+          if (resultData.nodes.length === 0) {
 
           } else {
             setGraphData(resultData);
@@ -3523,14 +3527,14 @@ const Sidebar = () => {
             makeGraph(filteredGraphData);
             setOpenedResults(updatedOpenedResults);
           }
-          
+
         }, 200);
       }
 
     } else {
       // console.log('false')
       setCheckGraphStatus(false)
-      const graphDiv:any = document.getElementById('graph-div');
+      const graphDiv: any = document.getElementById('graph-div');
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -3555,7 +3559,7 @@ const Sidebar = () => {
 
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
-    
+
 
     function ForceGraph(
       { nodes, links }: { nodes: any; links: any },
@@ -3583,150 +3587,194 @@ const Sidebar = () => {
         invalidation = undefined, // when this promise resolves, stop the simulation
       } = {}
     ) {
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+      // console.log("nodes", nodes);
+
+      // Compute default domains.
+      if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+      // console.log("nodes ", nodes);
+      const customNodes: any = nodes;
+      // console.log('nodes in force' , nodes)
+
+      console.log('in make graph>force graph')
+
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: any) {
+        // Define a mapping of tags to colors
+
+        tag = tag[0].split('-')[0];
+
+        const tagColors: Record<string, string> = {};
+
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      }
 
-        // Replace the input nodes and links with mutable objects for the simulation.
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      function intern(value: any) {
+        // console.log('hello intern')
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        // console.log("nodes", nodes);
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-        // Compute default domains.
-        if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-        // Construct the scales.
-        const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+        return textWidth;
+      }
 
-        // console.log("nodes ", nodes);
-        const customNodes: any = nodes;
-        // console.log('nodes in force' , nodes)
+      function ticked() {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
 
-        console.log('in make graph>force graph')
-        
+        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        nodeTitles.text((d: any) => d.id);
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function handleMouseOver(this: any, event: any, d: any) {
+        // console.log('hello mouseover')
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-        function getColorByTag(tag: any) {
-          // Define a mapping of tags to colors
-          
-          tag = tag[0].split('-')[0];
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              // console.log('linkstroke' , linkStroke)
+              return linkStroke; // Original link color
+            } else {
+              // console.log('linkstroke else' , linkStroke)
+              return linkStroke;
+            }
+          })
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-          const tagColors: Record<string, string> = {};
-
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
-
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
-          
-          return tagColors[tag] || nodeFill;
-        }
-
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
-
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
-
-          
-
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
-
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
+        // Initialize the nodes with their original fill color and opacity
+        node.attr("fill-opacity", (nodeData) => {
+          if (nodeData === d) {
+            return 1; // Opacity of the hovered node
+          } else if (areNodesConnected(nodeData, d)) {
+            return 1; // Opacity of directly connected nodes
+          } else {
+            return 0.1; // Opacity of other nodes
           }
-        }
+        });
 
-        function intern(value: any) {
-          // console.log('hello intern')
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
+          })
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : '8px'
+          })
 
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-        
-        function ticked() {
-          link
-            .attr("x1", (d: any) => d.source.x)
-            .attr("y1", (d: any) => d.source.y)
-            .attr("x2", (d: any) => d.target.x)
-            .attr("y2", (d: any) => d.target.y);
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition().duration(400).attr("r", nodeRadius);
 
-          node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-          // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-          nodeTitles.text((d:any) => d.id);
-        }
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition().duration(400)
+          .attr("stroke", (linkData: any) => {
+            // console.log('stroke' , linkData , d)
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
 
-        function handleMouseOver(this: any, event: any, d: any) {
-          // console.log('hello mouseover')
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                // console.log('linkstroke' , linkStroke)
-                return linkStroke; // Original link color
-              } else {
-                // console.log('linkstroke else' , linkStroke)
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node.attr("fill-opacity", (nodeData) => {
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition().duration(600)
+          .attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
             } else if (areNodesConnected(nodeData, d)) {
@@ -3736,272 +3784,228 @@ const Sidebar = () => {
             }
           });
 
-          nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
-            })
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition().duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              // console.log(linkData.source , linkData.target , d)
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
 
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition().duration(400).attr("r", nodeRadius);
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition().duration(400)
-            .attr("stroke", (linkData:any) => {
-              // console.log('stroke' , linkData , d)
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition().duration(600)
-            .attr("fill-opacity", (nodeData) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition().duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                // console.log(linkData.source , linkData.target , d)
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-
-                // console.log('in else' , linkData.source , linkData.target , d)
-                return 0.1; // Opacity of other links
-              }
-            });
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-
-        function handleMouseOut(this: any , d:any) {
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          d3.select(this).attr("r", calculateNodeRadius(nodeObject))
-            .transition().duration(400).attr("fill-opacity", 1); 
-
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-
-          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
-        }
-
-
-        function areNodesConnected(node1: any, node2: any) {
-          // Check if two nodes are directly connected through a link
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
+              // console.log('in else' , linkData.source , linkData.target , d)
+              return 0.1; // Opacity of other links
+            }
           });
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+
+      function handleMouseOut(this: any, d: any) {
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+        d3.select(this).attr("r", calculateNodeRadius(nodeObject))
+          .transition().duration(400).attr("fill-opacity", 1);
+
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+      }
+
+
+      function areNodesConnected(node1: any, node2: any) {
+        // Check if two nodes are directly connected through a link
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+        function dragstarted(event: any) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
 
-        function drag(simulation: any) {
-          function dragstarted(event: any) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
+        function dragged(event: any) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
         }
 
-        function calculateNodeRadius(d:any) {
-          // console.log('d' , d)
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          // console.log('linkcount' , linkCount)
-          if(linkCount <= 4) {
-            // console.log('less than 4')
-            return nodeRadius;
-          } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-            // console.log(d.id , onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
-
-            return onePercentOfCheckLinkCount + 4;
-          }
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
         }
 
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
+
+      function calculateNodeRadius(d: any) {
+        // console.log('d' , d)
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        // console.log('linkcount' , linkCount)
+        if (linkCount <= 4) {
+          // console.log('less than 4')
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
+          // console.log(d.id , onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
+
+          return onePercentOfCheckLinkCount + 4;
         }
+      }
+
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        const links: any = [];  // Replace this with your actual links data
+
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
 
 
-        const simulation = d3.forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            return radius + 15
-          }))
-          .on("tick", ticked);
+      const simulation = d3.forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          return radius + 15
+        }))
+        .on("tick", ticked);
 
-          simulation.tick()
+      simulation.tick()
 
-        const svg = d3.create("svg").attr("width", width).attr("height", height)
-          .attr("viewBox", [-width / 2, -height / 2, width, height])
-          .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-          .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s")
+      const svg = d3.create("svg").attr("width", width).attr("height", height)
+        .attr("viewBox", [-width / 2, -height / 2, width, height])
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+        .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s")
 
-        const container = svg.append("g");
+      const container = svg.append("g");
 
-        const link = container.append("g").attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr("stroke-width",typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
+      const link = container.append("g").attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr("stroke-width", typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
 
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
 
-        document.addEventListener("click", hideNodeInfo);
-        // console.log('nodes' , nodes)
+      document.addEventListener("click", hideNodeInfo);
+      // console.log('nodes' , nodes)
 
-        // console.log('links' , links)
+      // console.log('links' , links)
 
-        const node = container
-          .append("g")
-          .attr("id" , 'nodes-g-tag')
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("r", (d:any) => {
-            const radius = calculateNodeRadius(d)
-            return radius;
-          })
-          .attr("id", function(d:any) {
-            return "node-" + d.id
-          })
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
-          })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
+      const node = container
+        .append("g")
+        .attr("id", 'nodes-g-tag')
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+        .attr("id", function (d: any) {
+          return "node-" + d.id
+        })
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
 
-        // Append text labels to the container, positioned near the nodes
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
+      // Append text labels to the container, positioned near the nodes
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "8px") // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
 
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
 
-        // In the ticked function, update the positions of text and title elements
+      // In the ticked function, update the positions of text and title elements
 
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        if (G && color) {
-          node.attr("fill", (_, i) => color(G[i]));
-        }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
-        }
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      if (G && color) {
+        node.attr("fill", (_, i) => color(G[i]));
+      }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
 
-        if (invalidation != null) {
-          // invalidation.then(() => {
-          //   // Handle invalidation here
-          //   simulation.stop();
-          // });
-        }
+      if (invalidation != null) {
+        // invalidation.then(() => {
+        //   // Handle invalidation here
+        //   simulation.stop();
+        // });
+      }
 
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          scales: { color },
-          svg: svgElement,
-        };
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        scales: { color },
+        svg: svgElement,
+      };
 
-        setCheckGraphStatus(true)
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      setCheckGraphStatus(true)
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
-        
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
 
-        return result;
 
-        // return Object.assign(svg.node(), { scales: { color } });
+      return result;
+
+      // return Object.assign(svg.node(), { scales: { color } });
     }
 
     function WanderGraph(
@@ -4033,233 +4037,233 @@ const Sidebar = () => {
 
       console.log('in make graph>wander graph ')
 
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+
+
+      let formattingNodes: any = []
+      let notFoundNodes: any = []
+
+      nodes.forEach((eachNode: any) => {
+        const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode: any) => prevNode.id === eachNode.id);
+
+        if (matchingNodeIndex !== -1) {
+          formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+        } else {
+          notFoundNodes.push(eachNode)
+          // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
+          // console.log('nodeArray' , nodeArray)
+          // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+          // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
+          // console.log('currentNodeMap',currentNodeMap)
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      });
 
-        // Replace the input nodes and links with mutable objects for the simulation.
+      // setPreviousGraphData({})
+
+      // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
+      // const allNodes = formattingNodes.concat(notFoundNodesMap);
+      // nodes = [...allNodes]
 
 
-        let formattingNodes:any = []
-        let notFoundNodes:any = []
+      // console.log('nodes' , nodes)
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      // const linksCopy = _.cloneDeep(links)
 
-        nodes.forEach((eachNode:any) => {
-          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
+      // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+      let formattingNodeCopy = formattingNodes;
 
-          if (matchingNodeIndex !== -1) {
-            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
-          } else {
-            notFoundNodes.push(eachNode)
-            // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
-            // console.log('nodeArray' , nodeArray)
-            // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-            // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
-            // console.log('currentNodeMap',currentNodeMap)
+      nodes.forEach((node: any, index: any) => {
+        const nodeReplacement = formattingNodeCopy.find((eachnode: any) => eachnode.id === node.id);
+        if (nodeReplacement) {
+          nodeReplacement.fx = nodeReplacement.x;
+          nodeReplacement.fy = nodeReplacement.y;
+
+          // Update the node in the nodes array
+          nodes[index] = nodeReplacement;
+        }
+      })
+
+
+      links.forEach((link: any, index: any) => {
+        if (typeof link.source === 'string') {
+          const sourceObject = formattingNodeCopy.find((node: any) => node.id === link.source);
+          if (sourceObject) {
+            links[index].source = sourceObject
           }
-        });
+        }
 
-        // setPreviousGraphData({})
-
-        // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
-        // const allNodes = formattingNodes.concat(notFoundNodesMap);
-        // nodes = [...allNodes]
-
-        
-        // console.log('nodes' , nodes)
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-        // const linksCopy = _.cloneDeep(links)
-
-        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
-        let formattingNodeCopy = formattingNodes;
-
-        nodes.forEach((node:any , index:any) => {
-          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
-          if(nodeReplacement) {
-            nodeReplacement.fx = nodeReplacement.x;
-            nodeReplacement.fy = nodeReplacement.y;
-        
-            // Update the node in the nodes array
-            nodes[index] = nodeReplacement;
+        // Check if target is a string, and convert it to an object if needed
+        if (typeof link.target === 'string') {
+          const targetObject = formattingNodeCopy.find((node: any) => node.id === link.target);
+          if (targetObject) {
+            links[index].target = targetObject
           }
-        })
-        
+        }
+      });
 
-        links.forEach((link:any , index:any) => {
-          if (typeof link.source === 'string') {
-            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
-            if (sourceObject) {
-              links[index].source = sourceObject
+      // console.log('formattingNodeCopy',formattingNodeCopy)
+
+
+      // Compute default domains.
+      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+      function ticked() {
+
+        // console.log('helllllo')
+
+        link
+          .attr("x1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.x
             }
-          }
-        
-          // Check if target is a string, and convert it to an object if needed
-          if (typeof link.target === 'string') {
-            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
-            if (targetObject) {
-              links[index].target = targetObject
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.x
+                }
+              }
             }
-          }
-        });
-
-        // console.log('formattingNodeCopy',formattingNodeCopy)
-
-
-        // Compute default domains.
-        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-        // Construct the scales.
-        // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
-
-
-        function ticked() {
-
-          // console.log('helllllo')
-        
-          link
-            .attr("x1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.x
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.x
-                  }
-                } 
-              }
+          })
+          .attr("y1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
             })
-            .attr("y1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.y
+            if (xmark) {
+              return xmark.y
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.y
+                }
               }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.y
-                  }
-                } 
-              }
-            })
-            .attr("x2", (d: any) => {
-              return d.target.x
-            })
-            .attr("y2", (d: any) => {
-              return  d.target.y
-            });
+            }
+          })
+          .attr("x2", (d: any) => {
+            return d.target.x
+          })
+          .attr("y2", (d: any) => {
+            return d.target.y
+          });
 
 
-          
-            
-          node
-            .attr('cx' , (d:any) => d.x)
-            .attr('cy' , (d:any) => d.y)
-            // .attr("cx", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("x", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("y", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // })
-            // .attr("cy", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // });
 
-          nodeText
+
+        node
+          .attr('cx', (d: any) => d.x)
+          .attr('cy', (d: any) => d.y)
+        // .attr("cx", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("x", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("y", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // })
+        // .attr("cy", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // });
+
+        nodeText
           .attr("x", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.x - (getNodeTextWidth(d) / 4.5)
             }
             else {
               return d.x - (getNodeTextWidth(d) / 4.5)
             }
-            
+
           })
           .attr("y", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.y + 12
             }
             else {
               return d.y + 12
             }
-            
+
           });
 
 
-          nodeTitles
-          .text((d:any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        nodeTitles
+          .text((d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.id
             }
             else {
@@ -4267,419 +4271,419 @@ const Sidebar = () => {
             }
           });
 
-          formattingNodes = []
-          formattingNodeCopy = []
+        formattingNodes = []
+        formattingNodeCopy = []
 
 
-          // console.log('link',link)
+        // console.log('link',link)
+      }
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+        tag = tag[0].split('-')[0];
+        const tagColors: Record<string, string> = {};
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function intern(value: any) {
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        function getColorByTag(tag: string) {
-          tag = tag[0].split('-')[0];
-          const tagColors: Record<string, string> = {};
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-          return tagColors[tag] || nodeFill;
-        }
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+        return textWidth;
+      }
 
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+      function handleMouseOver(this: any, event: any, d: any) {
 
-          
+        // console.log('event' , event, 'nodes' , nodes)
 
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
-          }
-        }
-
-        function intern(value: any) {
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
-
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-
-        function handleMouseOver(this: any, event: any, d: any) {
-        
-          // console.log('event' , event, 'nodes' , nodes)
-          
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Original link color
-              } else {
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-          
-          nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
-            })
-
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("r", nodeRadius); // Optionally, increase the node size
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return "red"; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition()
-            .duration(600)
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // nodeText
-          //   .transition()
-          //   .duration(600)
-          //   .style('opacity' , (nodeData:any) => {
-          //     if (nodeData === d) {
-          //       return 1
-          //     } else if (areNodesConnected(nodeData , d)) {
-          //       return 1
-          //     } else {
-          //       return 0.1
-          //     }
-          //   })
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition()
-            .duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-                return 0.1; // Opacity of other links
-              }
-            });
-
-
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-        function handleMouseOut(this: any, d:any) {
-          // console.log('d', d.fromElement.getAttribute("id"))
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          
-          d3.select(this)
-            // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-            .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link
-            .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-
-          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
-            
-        }
-
-        function areNodesConnected(node1: any, node2: any) {
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
-          });
-        }
-
-        function drag(simulation: any) {
-          
-          
-          function dragstarted(event: any) {
-          
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            nodes.forEach((node:any) => {
-              node.fx = null;
-              node.fy = null;
-            });
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-        }
-
-        function calculateNodeRadius(d:any) {
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          if(linkCount <= 4) {
-            return nodeRadius;
-          } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-
-            return onePercentOfCheckLinkCount + 4;
-          }
-        }
-
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          const links:any = [];  // Replace this with your actual links data
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
-        }
-
-       
-      
-        
-
-        // console.log("nodes ", nodes);
-        const customNodes: any = nodes;
-
-        const simulation = d3
-          .forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            return radius + 15
-          }))
-          .on("tick", ticked);
-
-
-        // const svg = d3
-        // .create("svg")
-        // .attr("width", width)
-        // .attr("height", height)
-        // .attr("viewBox", [-width / 2, -height / 2, width, height])
-        // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-        // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-
-        const svgContainer = d3.select('#graph-div');
-        const gElement = svgContainer.select('svg');
-        const svg = gElement.select('g');
-      
-        const container = svg
-
-        container.select("#links-g-tag").remove();
-        const link = container
-          .append("g")
-          .attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr(
-            "stroke-width",
-            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-          )
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-         
-        
-
-        container.select("#nodes-g-tag").remove();
-        const node = container
-          .append("g")
-          .attr("id", "nodes-g-tag")
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("id", (d:any) => `node-${d.id}`)
-          .attr("r", calculateNodeRadius)
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
           })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-        // // Append text labels to the container, positioned near the nodes
-        container.select("#text-g-tag").remove();
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
-
-        container.select("#titles-g-tag").remove();
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
-
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
-
-        document.addEventListener("click", hideNodeInfo);
-
-        // // In the ticked function, update the positions of text and title elements
-
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        // if (G && color) {
-        //   node.attr("fill", (_:any, i:any) => color(G[i]));
-        // }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
-        }
-
-        if (invalidation != null) {
-          (invalidation as Promise<void>).then(() => {
-            // Handle invalidation here
-            simulation.stop();
+        // Initialize the nodes with their original fill color and opacity
+        node
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
           });
+
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
+          })
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : '8px'
+          })
+
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
+
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return "red"; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
+
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition()
+          .duration(600)
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // nodeText
+        //   .transition()
+        //   .duration(600)
+        //   .style('opacity' , (nodeData:any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData , d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0.1; // Opacity of other links
+            }
+          });
+
+
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+      function handleMouseOut(this: any, d: any) {
+        // console.log('d', d.fromElement.getAttribute("id"))
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+
+        d3.select(this)
+          // .attr("fill", nodeFill) // Reset to the original node color
+          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link
+          .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+
+      }
+
+      function areNodesConnected(node1: any, node2: any) {
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+
+
+        function dragstarted(event: any) {
+
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
-        
 
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          // scales: { color },
-          svg: svgElement,
-        };
+        function dragged(event: any) {
+          nodes.forEach((node: any) => {
+            node.fx = null;
+            node.fy = null;
+          });
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
 
 
-        
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
 
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      function calculateNodeRadius(d: any) {
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        if (linkCount <= 4) {
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+          return onePercentOfCheckLinkCount + 4;
+        }
+      }
 
-        return result;
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        const links: any = [];  // Replace this with your actual links data
+
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
+
+
+
+
+
+      // console.log("nodes ", nodes);
+      const customNodes: any = nodes;
+
+      const simulation = d3
+        .forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          return radius + 15
+        }))
+        .on("tick", ticked);
+
+
+      // const svg = d3
+      // .create("svg")
+      // .attr("width", width)
+      // .attr("height", height)
+      // .attr("viewBox", [-width / 2, -height / 2, width, height])
+      // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+      // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+      const svgContainer = d3.select('#graph-div');
+      const gElement = svgContainer.select('svg');
+      const svg = gElement.select('g');
+
+      const container = svg
+
+      container.select("#links-g-tag").remove();
+      const link = container
+        .append("g")
+        .attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr(
+          "stroke-width",
+          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+        )
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+
+
+
+      container.select("#nodes-g-tag").remove();
+      const node = container
+        .append("g")
+        .attr("id", "nodes-g-tag")
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("id", (d: any) => `node-${d.id}`)
+        .attr("r", calculateNodeRadius)
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // // Append text labels to the container, positioned near the nodes
+      container.select("#text-g-tag").remove();
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "8px") // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
+
+      container.select("#titles-g-tag").remove();
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
+
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      document.addEventListener("click", hideNodeInfo);
+
+      // // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      // if (G && color) {
+      //   node.attr("fill", (_:any, i:any) => color(G[i]));
+      // }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        (invalidation as Promise<void>).then(() => {
+          // Handle invalidation here
+          simulation.stop();
+        });
+      }
+
+
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        // scales: { color },
+        svg: svgElement,
+      };
+
+
+
+
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
+
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+      return result;
     }
 
     const options: any = {
@@ -4689,18 +4693,18 @@ const Sidebar = () => {
       height: graphHeight,
     };
 
-    let svgResult:any
-    if(checkGraphStatus) {
+    let svgResult: any
+    if (checkGraphStatus) {
       // WanderGraph(graphNewData , options)
       svgResult = WanderGraph(graphNewData, options)
-      
+
     } else {
       svgResult = ForceGraph(graphNewData, options);
-      if(element) {
+      if (element) {
         element.appendChild(svgResult.svg);
       } else {
-        const graphDiv:any = document.getElementById("graph-div");
-          graphDiv.appendChild(svgResult.svg);
+        const graphDiv: any = document.getElementById("graph-div");
+        graphDiv.appendChild(svgResult.svg);
       }
     }
 
@@ -4712,7 +4716,7 @@ const Sidebar = () => {
 
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
-    
+
 
     function ForceGraph(
       { nodes, links }: { nodes: any; links: any },
@@ -4740,420 +4744,420 @@ const Sidebar = () => {
         invalidation = undefined, // when this promise resolves, stop the simulation
       } = {}
     ) {
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+      // console.log("nodes", nodes);
+
+      // Compute default domains.
+      if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+      // Construct the scales.
+      const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+      // console.log("nodes ", nodes);
+      const customNodes: any = nodes;
+      // console.log('nodes in force' , nodes)
+
+      console.log('in makeGraphFromGraphResults>force graph')
+
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+        // Define a mapping of tags to colors
+        const tagColors: Record<string, string> = {};
+
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        // console.log(showAddGraphNodeColor)
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      }
 
-        // Replace the input nodes and links with mutable objects for the simulation.
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      function intern(value: any) {
+        // console.log('hello intern')
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        // console.log("nodes", nodes);
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-        // Compute default domains.
-        if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-        // Construct the scales.
-        const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+        return textWidth;
+      }
 
-        // console.log("nodes ", nodes);
-        const customNodes: any = nodes;
-        // console.log('nodes in force' , nodes)
+      function ticked() {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
 
-        console.log('in makeGraphFromGraphResults>force graph')
-        
+        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        nodeTitles.text((d: any) => d.id);
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function handleMouseOver(this: any, event: any, d: any) {
+        // console.log('hello mouseover')
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-        function getColorByTag(tag: string) {
-          // Define a mapping of tags to colors
-          const tagColors: Record<string, string> = {};
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
+          })
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
-
-          // console.log(showAddGraphNodeColor)
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
-          
-          return tagColors[tag] || nodeFill;
-        }
-
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
-
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
-
-          
-
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
-
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
-          }
-        }
-
-        function intern(value: any) {
-          // console.log('hello intern')
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
-
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-        
-        function ticked() {
-          link
-            .attr("x1", (d: any) => d.source.x)
-            .attr("y1", (d: any) => d.source.y)
-            .attr("x2", (d: any) => d.target.x)
-            .attr("y2", (d: any) => d.target.y);
-
-          node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-          // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-          nodeTitles.text((d:any) => d.id);
-        }
-
-        function handleMouseOver(this: any, event: any, d: any) {
-          // console.log('hello mouseover')
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Original link color
-              } else {
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node.attr("fill-opacity", (nodeData) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-            nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
-            })
-
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("r", nodeRadius); // Optionally, increase the node size
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition()
-            .duration(600)
-            .attr("fill-opacity", (nodeData) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition()
-            .duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-                return 0.1; // Opacity of other links
-              }
-            });
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-
-        function handleMouseOut(this: any , d:any) {
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          d3.select(this).attr("r", calculateNodeRadius(nodeObject))
-            .transition().duration(400).attr("fill-opacity", 1); 
-
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-
-          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
-        }
-
-
-        function areNodesConnected(node1: any, node2: any) {
-          // Check if two nodes are directly connected through a link
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
-          });
-        }
-
-        function drag(simulation: any) {
-          function dragstarted(event: any) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-        }
-
-        function calculateNodeRadius(d:any) {
-          // console.log('d' , d)
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          // console.log('linkcount' , linkCount)
-          if(linkCount <= 4) {
-            // console.log('less than 4')
-            return nodeRadius;
+        // Initialize the nodes with their original fill color and opacity
+        node.attr("fill-opacity", (nodeData) => {
+          if (nodeData === d) {
+            return 1; // Opacity of the hovered node
+          } else if (areNodesConnected(nodeData, d)) {
+            return 1; // Opacity of directly connected nodes
           } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-            // console.log(d.id , onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
-
-            return onePercentOfCheckLinkCount + 4;
+            return 0.1; // Opacity of other nodes
           }
-        }
+        });
 
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          // const links:any = [];  // Replace this with your actual links data
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
-        }
-
-
-        const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            // console.log('node radius' , radius)
-            return radius + 15
-          }))
-          .on("tick", ticked);
-
-        const svg = d3.create("svg").attr("width", width).attr("height", height)
-          .attr("viewBox", [-width / 2, -height / 2, width, height])
-          .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-          .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-        const container = svg.append("g");
-
-        const link = container.append("g").attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr("stroke-width",typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
-
-        document.addEventListener("click", hideNodeInfo);
-        // console.log('nodes' , nodes)
-
-        // console.log('links' , links)
-
-        const node = container
-          .append("g")
-          .attr("id" , 'nodes-g-tag')
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("r", (d:any) => {
-            const radius = calculateNodeRadius(d)
-            return radius;
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
           })
-          .attr("id", function(d:any) {
-            return "node-" + d.id
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : '8px'
           })
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
-          })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
 
-        // Append text labels to the container, positioned near the nodes
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
 
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
 
-        // In the ticked function, update the positions of text and title elements
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition()
+          .duration(600)
+          .attr("fill-opacity", (nodeData) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
 
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        if (G && color) {
-          node.attr("fill", (_, i) => color(G[i]));
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0.1; // Opacity of other links
+            }
+          });
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+
+      function handleMouseOut(this: any, d: any) {
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+        d3.select(this).attr("r", calculateNodeRadius(nodeObject))
+          .transition().duration(400).attr("fill-opacity", 1);
+
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+      }
+
+
+      function areNodesConnected(node1: any, node2: any) {
+        // Check if two nodes are directly connected through a link
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+        function dragstarted(event: any) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
+
+        function dragged(event: any) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
         }
 
-        if (invalidation != null) {
-          // invalidation.then(() => {
-          //   // Handle invalidation here
-          //   simulation.stop();
-          // });
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
         }
 
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          scales: { color },
-          svg: svgElement,
-        };
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
 
-        setCheckGraphStatus(true)
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      function calculateNodeRadius(d: any) {
+        // console.log('d' , d)
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        // console.log('linkcount' , linkCount)
+        if (linkCount <= 4) {
+          // console.log('less than 4')
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
+          // console.log(d.id , onePercentOfCheckLinkCount , 'radius to return' , onePercentOfCheckLinkCount+ 4);
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
-        
+          return onePercentOfCheckLinkCount + 4;
+        }
+      }
 
-        return result;
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        // const links:any = [];  // Replace this with your actual links data
 
-        // return Object.assign(svg.node(), { scales: { color } });
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
+
+
+      const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          // console.log('node radius' , radius)
+          return radius + 15
+        }))
+        .on("tick", ticked);
+
+      const svg = d3.create("svg").attr("width", width).attr("height", height)
+        .attr("viewBox", [-width / 2, -height / 2, width, height])
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+        .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+      const container = svg.append("g");
+
+      const link = container.append("g").attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr("stroke-width", typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      document.addEventListener("click", hideNodeInfo);
+      // console.log('nodes' , nodes)
+
+      // console.log('links' , links)
+
+      const node = container
+        .append("g")
+        .attr("id", 'nodes-g-tag')
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+        .attr("id", function (d: any) {
+          return "node-" + d.id
+        })
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // Append text labels to the container, positioned near the nodes
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "8px") // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
+
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
+
+      // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      if (G && color) {
+        node.attr("fill", (_, i) => color(G[i]));
+      }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        // invalidation.then(() => {
+        //   // Handle invalidation here
+        //   simulation.stop();
+        // });
+      }
+
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        scales: { color },
+        svg: svgElement,
+      };
+
+      setCheckGraphStatus(true)
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
+
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+
+      return result;
+
+      // return Object.assign(svg.node(), { scales: { color } });
     }
 
     function WanderGraph(
@@ -5185,224 +5189,224 @@ const Sidebar = () => {
 
       console.log('in makeGraphFromGraphResults>wander graph now')
 
-        // Compute values.
-        const N = d3.map(nodes, nodeId).map(intern);
-        const LS = d3.map(links, linkSource).map(intern);
-        const LT = d3.map(links, linkTarget).map(intern);
-        if (nodeTitle === null) {
-          let nodeTitle = (_: any, i: any) => N[i];
+      // Compute values.
+      const N = d3.map(nodes, nodeId).map(intern);
+      const LS = d3.map(links, linkSource).map(intern);
+      const LT = d3.map(links, linkTarget).map(intern);
+      if (nodeTitle === null) {
+        let nodeTitle = (_: any, i: any) => N[i];
+      }
+      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+      const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+      const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+
+      // Replace the input nodes and links with mutable objects for the simulation.
+
+
+      let formattingNodes: any = []
+      let notFoundNodes: any = []
+
+      nodes.forEach((eachNode: any) => {
+        const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode: any) => prevNode.id === eachNode.id);
+
+        if (matchingNodeIndex !== -1) {
+          formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
+        } else {
+          notFoundNodes.push(eachNode)
         }
-        const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-        const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-        const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
-        const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+      });
 
-        // Replace the input nodes and links with mutable objects for the simulation.
+      // console.log('formattingNodes ', formattingNodes)
+      // console.log('notFoundNodes ', notFoundNodes)
 
 
-        let formattingNodes:any = []
-        let notFoundNodes:any = []
+      nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
+      links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+      // const linksCopy = _.cloneDeep(links)
 
-        nodes.forEach((eachNode:any) => {
-          const matchingNodeIndex = previousGraphData.nodes.findIndex((prevNode:any) => prevNode.id === eachNode.id);
+      // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
+      let formattingNodeCopy = formattingNodes;
 
-          if (matchingNodeIndex !== -1) {
-            formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
-          } else {
-            notFoundNodes.push(eachNode)
+      nodes.forEach((node: any, index: any) => {
+        const nodeReplacement = formattingNodeCopy.find((eachnode: any) => eachnode.id === node.id);
+        if (nodeReplacement) {
+          // console.log('nodeReplacement',nodeReplacement)
+          nodeReplacement.fx = nodeReplacement.x;
+          nodeReplacement.fy = nodeReplacement.y;
+
+          // Update the node in the nodes array
+          nodes[index] = nodeReplacement;
+        }
+      })
+
+
+      links.forEach((link: any, index: any) => {
+        if (typeof link.source === 'string') {
+          const sourceObject = formattingNodeCopy.find((node: any) => node.id === link.source);
+          if (sourceObject) {
+            links[index].source = sourceObject
           }
-        });
+        }
 
-        // console.log('formattingNodes ', formattingNodes)
-        // console.log('notFoundNodes ', notFoundNodes)
-
-        
-        nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-        links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-        // const linksCopy = _.cloneDeep(links)
-
-        // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
-        let formattingNodeCopy = formattingNodes;
-
-        nodes.forEach((node:any , index:any) => {
-          const nodeReplacement = formattingNodeCopy.find((eachnode:any) => eachnode.id === node.id);
-          if(nodeReplacement) {
-            // console.log('nodeReplacement',nodeReplacement)
-            nodeReplacement.fx = nodeReplacement.x;
-            nodeReplacement.fy = nodeReplacement.y;
-        
-            // Update the node in the nodes array
-            nodes[index] = nodeReplacement;
+        // Check if target is a string, and convert it to an object if needed
+        if (typeof link.target === 'string') {
+          const targetObject = formattingNodeCopy.find((node: any) => node.id === link.target);
+          if (targetObject) {
+            links[index].target = targetObject
           }
-        })
-        
+        }
+      });
 
-        links.forEach((link:any , index:any) => {
-          if (typeof link.source === 'string') {
-            const sourceObject = formattingNodeCopy.find((node:any) => node.id === link.source);
-            if (sourceObject) {
-              links[index].source = sourceObject
+      // console.log('formattingNodeCopy',formattingNodeCopy)
+
+
+      // Compute default domains.
+      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
+
+
+
+      // Construct the forces.
+      const forceNode = d3.forceManyBody();
+      const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
+      if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+      if (linkStrength !== undefined) forceLink.strength(linkForceValue);
+
+
+      function ticked() {
+
+        // console.log('helllllo')
+
+        link
+          .attr("x1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
+            })
+            if (xmark) {
+              return xmark.x
             }
-          }
-        
-          // Check if target is a string, and convert it to an object if needed
-          if (typeof link.target === 'string') {
-            const targetObject = formattingNodeCopy.find((node:any) => node.id === link.target);
-            if (targetObject) {
-              links[index].target = targetObject
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.x
+                }
+              }
             }
-          }
-        });
-
-        // console.log('formattingNodeCopy',formattingNodeCopy)
-
-
-        // Compute default domains.
-        // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-
-
-        // Construct the forces.
-        const forceNode = d3.forceManyBody();
-        const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
-        if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-        if (linkStrength !== undefined) forceLink.strength(linkForceValue);
-
-
-        function ticked() {
-
-          // console.log('helllllo')
-        
-          link
-            .attr("x1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.x
-              }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.x
-                  }
-                } 
-              }
+          })
+          .attr("y1", (d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+              return checkEachNode.id === d.source.id
             })
-            .attr("y1", (d: any) => {
-              const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-                return checkEachNode.id === d.source.id
-              })
-              if(xmark) {
-                return xmark.y
+            if (xmark) {
+              return xmark.y
+            }
+            else {
+              // console.log('d',d)
+              if (nodes) {
+                const sourceXMark = nodes.find((checkEachNode: any) => {
+                  return checkEachNode.id === d.source.id
+                })
+                if (sourceXMark) {
+                  return sourceXMark.y
+                }
               }
-              else {
-                // console.log('d',d)
-                if(nodes) {
-                  const sourceXMark = nodes.find((checkEachNode:any) => {
-                    return checkEachNode.id === d.source.id
-                  })
-                  if(sourceXMark) {
-                    return sourceXMark.y
-                  }
-                } 
-              }
-            })
-            .attr("x2", (d: any) => {
-              return d.target.x
-            })
-            .attr("y2", (d: any) => {
-              return  d.target.y
-            });
+            }
+          })
+          .attr("x2", (d: any) => {
+            return d.target.x
+          })
+          .attr("y2", (d: any) => {
+            return d.target.y
+          });
 
 
-          
-            
-          node
-            .attr('cx' , (d:any) => d.x)
-            .attr('cy' , (d:any) => d.y)
-            // .attr("cx", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("x", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.x
-            //   }
-            //   else {
-            //     return d.x
-            //   }
-            // })
-            // .attr("y", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // })
-            // .attr("cy", (d: any) => {
-            //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-            //     return checkEachNode.id === d.id
-            //   })
-            //   if(xmark) {
-            //     return xmark.y
-            //   }
-            //   else {
-            //     return d.y
-            //   }
-            // });
 
-          nodeText
+
+        node
+          .attr('cx', (d: any) => d.x)
+          .attr('cy', (d: any) => d.y)
+        // .attr("cx", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("x", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.x
+        //   }
+        //   else {
+        //     return d.x
+        //   }
+        // })
+        // .attr("y", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // })
+        // .attr("cy", (d: any) => {
+        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        //     return checkEachNode.id === d.id
+        //   })
+        //   if(xmark) {
+        //     return xmark.y
+        //   }
+        //   else {
+        //     return d.y
+        //   }
+        // });
+
+        nodeText
           .attr("x", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.x - (getNodeTextWidth(d) / 4.5)
             }
             else {
               return d.x - (getNodeTextWidth(d) / 4.5)
             }
-            
+
           })
           .attr("y", (d: any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.y + 12
             }
             else {
               return d.y + 12
             }
-            
+
           });
 
 
-          nodeTitles
-          .text((d:any) => {
-            const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
+        nodeTitles
+          .text((d: any) => {
+            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
               return checkEachNode.id === d.id
             })
-            if(xmark) {
+            if (xmark) {
               return xmark.id
             }
             else {
@@ -5410,418 +5414,418 @@ const Sidebar = () => {
             }
           });
 
-          formattingNodes = []
-          formattingNodeCopy = []
+        formattingNodes = []
+        formattingNodeCopy = []
 
 
-          // console.log('link',link)
+        // console.log('link',link)
+      }
+
+
+      function zoomed(event: any) {
+        container.attr("transform", event.transform);
+      }
+
+      function getColorByTag(tag: string) {
+        const tagColors: Record<string, string> = {};
+        const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
+
+        themeBasedColors.data.forEach((colorGroup: any) => {
+          const tag = colorGroup.tag;
+          tagColors[tag] = colorGroup.color;
+        });
+
+        return tagColors[tag] || nodeFill;
+      }
+
+      function handleNodeClick(event: any, d: any) {
+        // console.log(event, d);
+        setFileOpenedFromGraph(d);
+        // Get the div element and set its content based on the clicked node
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+
+        // Position the div over the clicked node
+        nodeInfoDiv.style.left = `${event.pageX - 30}px`;
+        nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+
+
+
+        // Show the div
+        nodeInfoDiv.style.display = "flex";
+
+        // Prevent the click event from propagating further (e.g., to zoom or drag)
+        event.stopPropagation();
+      }
+
+      function hideNodeInfo() {
+        const nodeInfoDiv: any = document.getElementById("nodeInfo");
+        if (nodeInfoDiv) {
+          nodeInfoDiv.style.display = "none";
         }
+      }
 
+      function intern(value: any) {
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+      }
 
-        function zoomed(event: any) {
-          container.attr("transform", event.transform);
-        }
+      function getNodeTextWidth(d: any) {
+        // Create a hidden div to measure the text width
+        const tempDiv: any = d3.select('body')
+          .append('div')
+          .attr('class', 'temp-text-container')
+          .style('position', 'absolute')
+          .style('visibility', 'hidden')
+          .text(d.id);
 
-        function getColorByTag(tag: string) {
-          const tagColors: Record<string, string> = {};
-          const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group:any) => group.mode === "light mode") : showAddGraphNodeColor.find((group:any) => group.mode === "dark mode");
+        // Get the width of the hidden div
+        const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-          themeBasedColors.data.forEach((colorGroup:any) => {
-            const tag = colorGroup.tag;
-            tagColors[tag] = colorGroup.color;
-          });
+        // Remove the temporary div from the DOM
+        tempDiv.remove();
 
-          return tagColors[tag] || nodeFill;
-        }
+        return textWidth;
+      }
 
-        function handleNodeClick(event: any, d: any) {
-          // console.log(event, d);
-          setFileOpenedFromGraph(d);
-          // Get the div element and set its content based on the clicked node
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
+      function handleMouseOver(this: any, event: any, d: any) {
 
-          // Position the div over the clicked node
-          nodeInfoDiv.style.left = `${event.pageX - 30}px`;
-          nodeInfoDiv.style.top = `${event.pageY - 35}px`;
+        // console.log('event' , event, 'nodes' , nodes)
 
-          
+        // Set the initial state before transitioning
+        d3.select(this as SVGElement)
+          // .attr("fill", "red") // Change to your desired color
+          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1); // Set initial opacity to 1
 
-          // Show the div
-          nodeInfoDiv.style.display = "flex";
-
-          // Prevent the click event from propagating further (e.g., to zoom or drag)
-          event.stopPropagation();
-        }
-
-        function hideNodeInfo() {
-          const nodeInfoDiv: any = document.getElementById("nodeInfo");
-          if (nodeInfoDiv) {
-            nodeInfoDiv.style.display = "none";
-          }
-        }
-
-        function intern(value: any) {
-          return value !== null && typeof value === "object" ? value.valueOf() : value;
-        }
-
-        function getNodeTextWidth(d: any) {
-          // Create a hidden div to measure the text width
-          const tempDiv:any = d3.select('body')
-            .append('div')
-            .attr('class', 'temp-text-container')
-            .style('position', 'absolute')
-            .style('visibility', 'hidden')
-            .text(d.id);
-        
-          // Get the width of the hidden div
-          const textWidth = tempDiv.node().getBoundingClientRect().width;
-        
-          // Remove the temporary div from the DOM
-          tempDiv.remove();
-        
-          return textWidth;
-        }
-
-        function handleMouseOver(this: any, event: any, d: any) {
-         
-          // console.log('event' , event, 'nodes' , nodes)
-          
-          // Set the initial state before transitioning
-          d3.select(this as SVGElement)
-            // .attr("fill", "red") // Change to your desired color
-            .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-            .attr("fill-opacity", 1); // Set initial opacity to 1
-
-          // Initialize the links with their original stroke color and opacity
-          link
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Original link color
-              } else {
-                return linkStroke;
-              }
-            })
-            .attr("stroke-opacity", linkStrokeOpacity);
-
-          // Initialize the nodes with their original fill color and opacity
-          node
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-          
-          nodeText
-            .transition().duration(300)
-            .style('opacity' , (nodeData:any) => {
-              if (nodeData === d) {
-                return 1
-              } else if (areNodesConnected(nodeData , d)) {
-                return 1
-              } else {
-                return 0.1
-              }
-            })
-            .style("font-size", (nodeData:any) => {
-              return nodeData === d ? '12px' : '8px'
-            })
-
-          // Start the transition
-          d3.select(this as SVGElement)
-            .transition()
-            .duration(400) // Transition duration in milliseconds
-            .attr("r", nodeRadius); // Optionally, increase the node size
-
-          // Change the color of the links directly connected to the hovered node
-          link
-            .transition()
-            .duration(400)
-            .attr("stroke", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return linkStroke; // Change to your desired link color
-              } else {
-                return linkStroke;
-              }
-            });
-
-          // Transition to reduce the opacity of nodes that are not directly connected
-          node
-            .transition()
-            .duration(600)
-            .attr("fill-opacity", (nodeData:any) => {
-              if (nodeData === d) {
-                return 1; // Opacity of the hovered node
-              } else if (areNodesConnected(nodeData, d)) {
-                return 1; // Opacity of directly connected nodes
-              } else {
-                return 0.1; // Opacity of other nodes
-              }
-            });
-
-          // nodeText
-          //   .transition()
-          //   .duration(600)
-          //   .style('opacity' , (nodeData:any) => {
-          //     if (nodeData === d) {
-          //       return 1
-          //     } else if (areNodesConnected(nodeData , d)) {
-          //       return 1
-          //     } else {
-          //       return 0.1
-          //     }
-          //   })
-
-          // Transition to reduce the opacity of links that are not directly connected
-          link
-            .transition()
-            .duration(600)
-            .attr("stroke-opacity", (linkData:any) => {
-              if (linkData.source === d || linkData.target === d) {
-                return 1; // Opacity of links directly connected to the hovered node
-              } else {
-                return 0.1; // Opacity of other links
-              }
-            });
-
-
-
-          // console.log("Hovered Nodes:", hoveredNodes);
-        }
-
-        function handleMouseOut(this: any, d:any) {
-          // console.log('d', d.fromElement.getAttribute("id"))
-          let tempMouseOverNode = d.fromElement.getAttribute("id")
-          const nodeObject = { id: tempMouseOverNode.replace("node-", "")};
-          
-          d3.select(this)
-            // .attr("fill", nodeFill) // Reset to the original node color
-            .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-            .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
-
-          // Reset the color and opacity of all links to their original values with a transition
-          link
-            .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
-
-          // Reset the opacity of all nodes to their original value with a transition
-          node.transition().duration(200).attr("fill-opacity", 1);
-
-          nodeText.transition().duration(200).style('opacity' , 1).style('font-size', '8px')
-            
-        }
-
-        function areNodesConnected(node1: any, node2: any) {
-          return links.some((linkData: any) => {
-            return (
-              (linkData.source === node1 && linkData.target === node2) ||
-              (linkData.source === node2 && linkData.target === node1)
-            );
-          });
-        }
-
-        function drag(simulation: any) {
-          
-          
-          function dragstarted(event: any) {
-          
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-          }
-
-          function dragged(event: any) {
-            nodes.forEach((node:any) => {
-              node.fx = null;
-              node.fy = null;
-            });
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-          }
-
-          function dragended(event: any) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-          }
-
-          
-          return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-        }
-
-        function calculateNodeRadius(d:any) {
-          const linkCount = links.filter((link:any) => link.source.id === d.id).length;
-          if(linkCount <= 4) {
-            return nodeRadius;
-          } else {
-            let checkLinkCount = linkCount - 4
-            let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
-
-            return onePercentOfCheckLinkCount + 4;
-          }
-        }
-
-
-        function hasLinks(node:any) {
-          // Assuming links is your array of links
-          // Replace links with your actual links data structure
-          // const links:any = [];  // Replace this with your actual links data
-
-        
-          // Check if the node's ID is present in any link's source or target
-          return links.some((link:any) => link.source.id === node.id || link.target.id === node.id);
-        }
-      
-        
-
-        // console.log("nodes ", nodes);
-        const customNodes: any = nodes;
-
-        const simulation = d3.forceSimulation(customNodes)
-          .force("link", forceLink)
-          .force("charge", d3.forceManyBody().strength(sliderValue))
-          .force("center", d3.forceCenter().strength(centerForceValue))
-          .force("forceX",d3.forceX(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force("forceY",d3.forceY(0).strength(function(d){ return hasLinks(d) ? 0 : 0.05; }) )
-          .force('collide' , d3.forceCollide((d) => {
-            let radius = calculateNodeRadius(d)
-            return radius + 15
-          }))
-          .on("tick", ticked);
-
-
-        // const svg = d3
-        // .create("svg")
-        // .attr("width", width)
-        // .attr("height", height)
-        // .attr("viewBox", [-width / 2, -height / 2, width, height])
-        // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-        // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
-
-
-        const svgContainer = d3.select('#graph-div');
-        const gElement = svgContainer.select('svg');
-        const svg = gElement.select('g');
-      
-        const container = svg
-
-        container.select("#links-g-tag").remove();
-        const link = container
-          .append("g")
-          .attr("id", "links-g-tag")
-          .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-          .attr("stroke-opacity", linkStrokeOpacity)
-          .attr(
-            "stroke-width",
-            typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-          )
-          .attr("stroke-linecap", linkStrokeLinecap)
-          .selectAll("line")
-          .data(links)
-          .join("line");
-
-         
-        
-
-        container.select("#nodes-g-tag").remove();
-        const node = container
-          .append("g")
-          .attr("id", "nodes-g-tag")
-          .attr("fill", nodeFill)
-          .attr("stroke", nodeStroke)
-          .attr("stroke-opacity", nodeStrokeOpacity)
-          .attr("stroke-width", nodeStrokeWidth)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("id", (d:any) => `node-${d.id}`)
-          .attr("r", calculateNodeRadius)
-          .attr("fill", (d: any) => {
-            const color = getColorByTag(d.tag);
-            return color;
+        // Initialize the links with their original stroke color and opacity
+        link
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Original link color
+            } else {
+              return linkStroke;
+            }
           })
-          .on("mouseover", handleMouseOver) // Add mouseover event listener
-          .on("mouseout", handleMouseOut)
-          .on("click", handleNodeClick)
-          .classed("node-pointer", true)
-          .call(drag(simulation) as any, drag(simulation));
+          .attr("stroke-opacity", linkStrokeOpacity);
 
-        // // Append text labels to the container, positioned near the nodes
-        container.select("#text-g-tag").remove();
-        const nodeText = container
-          .append("g")
-          .attr("id", "text-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("text")
-          // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-          // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-          .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-          .attr("y", (d: any) => d.y + nodeRadius + 12)
-          .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-          .style("font-size", "8px") // Adjust the font size based on your preference
-          .style("pointer-events", "none")
-          .text((d:any) => d.id)
-          .attr('fill' , textColorForNode);
-
-        container.select("#titles-g-tag").remove();
-        const nodeTitles = container
-          .append("g")
-          .attr("id", "titles-g-tag")
-          .selectAll("title")
-          .data(nodes)
-          .join("title")
-          .text((d:any) => d.id);
-
-
-        const zoom: any = d3.zoom().on("zoom", zoomed);
-        svg.call(zoom);
-
-        document.addEventListener("click", hideNodeInfo);
-
-        // // In the ticked function, update the positions of text and title elements
-
-        // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-        // if (L) link.attr("stroke", ({ index: i }) => L[i]);
-        if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
-        if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-        // if (G && color) {
-        //   node.attr("fill", (_:any, i:any) => color(G[i]));
-        // }
-        if (T) {
-          node.append("title").text((d: any, i: any) => String(T[i]));
-        }
-
-        if (invalidation != null) {
-          (invalidation as Promise<void>).then(() => {
-            // Handle invalidation here
-            simulation.stop();
+        // Initialize the nodes with their original fill color and opacity
+        node
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
           });
+
+        nodeText
+          .transition().duration(300)
+          .style('opacity', (nodeData: any) => {
+            if (nodeData === d) {
+              return 1
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1
+            } else {
+              return 0.1
+            }
+          })
+          .style("font-size", (nodeData: any) => {
+            return nodeData === d ? '12px' : '8px'
+          })
+
+        // Start the transition
+        d3.select(this as SVGElement)
+          .transition()
+          .duration(400) // Transition duration in milliseconds
+          .attr("r", nodeRadius); // Optionally, increase the node size
+
+        // Change the color of the links directly connected to the hovered node
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return linkStroke; // Change to your desired link color
+            } else {
+              return linkStroke;
+            }
+          });
+
+        // Transition to reduce the opacity of nodes that are not directly connected
+        node
+          .transition()
+          .duration(600)
+          .attr("fill-opacity", (nodeData: any) => {
+            if (nodeData === d) {
+              return 1; // Opacity of the hovered node
+            } else if (areNodesConnected(nodeData, d)) {
+              return 1; // Opacity of directly connected nodes
+            } else {
+              return 0.1; // Opacity of other nodes
+            }
+          });
+
+        // nodeText
+        //   .transition()
+        //   .duration(600)
+        //   .style('opacity' , (nodeData:any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData , d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+
+        // Transition to reduce the opacity of links that are not directly connected
+        link
+          .transition()
+          .duration(600)
+          .attr("stroke-opacity", (linkData: any) => {
+            if (linkData.source === d || linkData.target === d) {
+              return 1; // Opacity of links directly connected to the hovered node
+            } else {
+              return 0.1; // Opacity of other links
+            }
+          });
+
+
+
+        // console.log("Hovered Nodes:", hoveredNodes);
+      }
+
+      function handleMouseOut(this: any, d: any) {
+        // console.log('d', d.fromElement.getAttribute("id"))
+        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+
+        d3.select(this)
+          // .attr("fill", nodeFill) // Reset to the original node color
+          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+
+        // Reset the color and opacity of all links to their original values with a transition
+        link
+          .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+
+        // Reset the opacity of all nodes to their original value with a transition
+        node.transition().duration(200).attr("fill-opacity", 1);
+
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+
+      }
+
+      function areNodesConnected(node1: any, node2: any) {
+        return links.some((linkData: any) => {
+          return (
+            (linkData.source === node1 && linkData.target === node2) ||
+            (linkData.source === node2 && linkData.target === node1)
+          );
+        });
+      }
+
+      function drag(simulation: any) {
+
+
+        function dragstarted(event: any) {
+
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
         }
-        
 
-        const svgElement = svg.node() as SVGSVGElement;
-        const result = {
-          // scales: { color },
-          svg: svgElement,
-        };
+        function dragged(event: any) {
+          nodes.forEach((node: any) => {
+            node.fx = null;
+            node.fy = null;
+          });
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event: any) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
 
 
-        
+        return d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
 
-        const previousNodes = [...nodes]
-        const previousLinks = [...links]
+      function calculateNodeRadius(d: any) {
+        const linkCount = links.filter((link: any) => link.source.id === d.id).length;
+        if (linkCount <= 4) {
+          return nodeRadius;
+        } else {
+          let checkLinkCount = linkCount - 4
+          let onePercentOfCheckLinkCount = 0.12 * checkLinkCount;
 
-        setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+          return onePercentOfCheckLinkCount + 4;
+        }
+      }
 
-        return result;
+
+      function hasLinks(node: any) {
+        // Assuming links is your array of links
+        // Replace links with your actual links data structure
+        // const links:any = [];  // Replace this with your actual links data
+
+
+        // Check if the node's ID is present in any link's source or target
+        return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
+      }
+
+
+
+      // console.log("nodes ", nodes);
+      const customNodes: any = nodes;
+
+      const simulation = d3.forceSimulation(customNodes)
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(sliderValue))
+        .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force('collide', d3.forceCollide((d) => {
+          let radius = calculateNodeRadius(d)
+          return radius + 15
+        }))
+        .on("tick", ticked);
+
+
+      // const svg = d3
+      // .create("svg")
+      // .attr("width", width)
+      // .attr("height", height)
+      // .attr("viewBox", [-width / 2, -height / 2, width, height])
+      // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+      // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
+
+
+      const svgContainer = d3.select('#graph-div');
+      const gElement = svgContainer.select('svg');
+      const svg = gElement.select('g');
+
+      const container = svg
+
+      container.select("#links-g-tag").remove();
+      const link = container
+        .append("g")
+        .attr("id", "links-g-tag")
+        .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
+        .attr("stroke-opacity", linkStrokeOpacity)
+        .attr(
+          "stroke-width",
+          typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
+        )
+        .attr("stroke-linecap", linkStrokeLinecap)
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+
+
+
+      container.select("#nodes-g-tag").remove();
+      const node = container
+        .append("g")
+        .attr("id", "nodes-g-tag")
+        .attr("fill", nodeFill)
+        .attr("stroke", nodeStroke)
+        .attr("stroke-opacity", nodeStrokeOpacity)
+        .attr("stroke-width", nodeStrokeWidth)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("id", (d: any) => `node-${d.id}`)
+        .attr("r", calculateNodeRadius)
+        .attr("fill", (d: any) => {
+          const color = getColorByTag(d.tag);
+          return color;
+        })
+        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseout", handleMouseOut)
+        .on("click", handleNodeClick)
+        .classed("node-pointer", true)
+        .call(drag(simulation) as any, drag(simulation));
+
+      // // Append text labels to the container, positioned near the nodes
+      container.select("#text-g-tag").remove();
+      const nodeText = container
+        .append("g")
+        .attr("id", "text-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("text")
+        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+        .attr("y", (d: any) => d.y + nodeRadius + 12)
+        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+        .style("font-size", "8px") // Adjust the font size based on your preference
+        .style("pointer-events", "none")
+        .text((d: any) => d.id)
+        .attr('fill', textColorForNode);
+
+      container.select("#titles-g-tag").remove();
+      const nodeTitles = container
+        .append("g")
+        .attr("id", "titles-g-tag")
+        .selectAll("title")
+        .data(nodes)
+        .join("title")
+        .text((d: any) => d.id);
+
+
+      const zoom: any = d3.zoom().on("zoom", zoomed);
+      svg.call(zoom);
+
+      document.addEventListener("click", hideNodeInfo);
+
+      // // In the ticked function, update the positions of text and title elements
+
+      // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+      // if (L) link.attr("stroke", ({ index: i }) => L[i]);
+      if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
+      if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
+      // if (G && color) {
+      //   node.attr("fill", (_:any, i:any) => color(G[i]));
+      // }
+      if (T) {
+        node.append("title").text((d: any, i: any) => String(T[i]));
+      }
+
+      if (invalidation != null) {
+        (invalidation as Promise<void>).then(() => {
+          // Handle invalidation here
+          simulation.stop();
+        });
+      }
+
+
+      const svgElement = svg.node() as SVGSVGElement;
+      const result = {
+        // scales: { color },
+        svg: svgElement,
+      };
+
+
+
+
+      const previousNodes = [...nodes]
+      const previousLinks = [...links]
+
+      setPreviousGraphData({ nodes: previousNodes, links: previousLinks })
+
+      return result;
     }
 
     const options: any = {
@@ -5831,18 +5835,18 @@ const Sidebar = () => {
       height: graphHeight,
     };
 
-    let svgResult:any
-    if(checkGraphStatus) {
+    let svgResult: any
+    if (checkGraphStatus) {
       // WanderGraph(graphNewData , options)
       svgResult = WanderGraph(graphNewData, options)
-      
+
     } else {
       svgResult = ForceGraph(graphNewData, options);
-      if(element) {
+      if (element) {
         element.appendChild(svgResult.svg);
       } else {
-        const graphDiv:any = document.getElementById("graph-div");
-          graphDiv.appendChild(svgResult.svg);
+        const graphDiv: any = document.getElementById("graph-div");
+        graphDiv.appendChild(svgResult.svg);
       }
     }
 
@@ -5852,7 +5856,7 @@ const Sidebar = () => {
   const openSearchResult = (resultToOpen: any) => {
     // console.log('now here ' ,resultToOpen)
     // console.log('now here ' ,rawSearchResults)
-    
+
     const copySearchResults = _.cloneDeep(rawSearchResults);
     // console.log('rawSearchResults',rawSearchResults)
 
@@ -5860,7 +5864,7 @@ const Sidebar = () => {
       (file: any) => file.fileName === resultToOpen.fileName
     );
 
-    
+
 
     marked.setOptions({
       breaks: true,
@@ -5874,7 +5878,7 @@ const Sidebar = () => {
     // const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
     const hashtagParagraphRegex = /#\S+/g;
     if (matchingFile) {
-      const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex,"");
+      const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
 
       const contentWithStyledWords = contentWithoutHashtags.replace(
         regex,
@@ -5896,7 +5900,7 @@ const Sidebar = () => {
         (result) => result.fileName === updatedResultToOpen.fileName
       );
 
-      
+
 
       if (!doesExist) {
         const updatedOpenedResults = [...openedResults, updatedResultToOpen];
@@ -5933,91 +5937,91 @@ const Sidebar = () => {
   };
 
 
-  const graphResultExpand = (resultToOpen:any) => {
+  const graphResultExpand = (resultToOpen: any) => {
     let element: any = document.getElementById("graph-div");
 
     if (element && element.querySelector('svg')) {
-        // console.log('The "graph-div" contains an SVG element.');
+      // console.log('The "graph-div" contains an SVG element.');
 
-        // const { nodes } = graphData;
-        // const nodeFilenames = nodes.map((node: any) => node.id);
+      // const { nodes } = graphData;
+      // const nodeFilenames = nodes.map((node: any) => node.id);
 
-        // console.log('nodefilenames' , nodeFilenames)
-        // console.log('graphdatanow' , graphData)
-        // console.log('openedresult' , openedResults)
-
-
+      // console.log('nodefilenames' , nodeFilenames)
+      // console.log('graphdatanow' , graphData)
+      // console.log('openedresult' , openedResults)
 
 
 
-        let matchingFile: any = resultToOpen;
-          marked.setOptions({
-            breaks: true,
-          });
-
-          let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
-          matchingFile.content = marked(editedResult);
-
-          const regex = /\[\[([^[\]]+)\]\]/g;
-          const hashtagParagraphRegex = /#\S+/g;
-          if (matchingFile) {
-            // console.log('matching file: ' , matchingFile)
-            const contentWithoutHashtags = matchingFile.content.replace(
-              hashtagParagraphRegex,
-              ""
-            );
-            // console.log("contentWithoutHashtags", contentWithoutHashtags);
-
-            const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex,
-              (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-            );
-            // console.log("contentwithstyledwords", contentWithStyledWords);
-
-            const updatedResultToOpen = {
-              ...resultToOpen,
-              content: contentWithStyledWords,
-              openedFromResults: true,
-            };
-
-            // console.log('openedresults' , openedResults)
-            // console.log('updatedresulttoopen' , updatedResultToOpen)
-            // const doesExist = openedResults.some(
-            //   (result) => result.fileName === updatedResultToOpen.fileName
-            // );
-            const doesExist = openedResults.some((result: any) => 
-              result.fileName === updatedResultToOpen.fileName
-            );
-
-            if (!doesExist) {
-              const resultArray = [...openedResults, updatedResultToOpen];
-
-              // console.log('resultArray',resultArray)
-
-              generateGraphfromGraphResult(resultArray);
-              // updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
-            } else {
-              console.log("An object with the same fileName already exists.");
-            }
-          }
 
 
+      let matchingFile: any = resultToOpen;
+      marked.setOptions({
+        breaks: true,
+      });
 
-        // const filteredResults = searchResults.filter((result: any) =>
-          // nodeFilenames.includes(result.fileName))
+      let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
+      matchingFile.content = marked(editedResult);
 
-        // console.log('filteredResults' , filteredResults)
+      const regex = /\[\[([^[\]]+)\]\]/g;
+      const hashtagParagraphRegex = /#\S+/g;
+      if (matchingFile) {
+        // console.log('matching file: ' , matchingFile)
+        const contentWithoutHashtags = matchingFile.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+        // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
-        
+        const contentWithStyledWords = contentWithoutHashtags.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        );
+        // console.log("contentwithstyledwords", contentWithStyledWords);
+
+        const updatedResultToOpen = {
+          ...resultToOpen,
+          content: contentWithStyledWords,
+          openedFromResults: true,
+        };
+
+        // console.log('openedresults' , openedResults)
+        // console.log('updatedresulttoopen' , updatedResultToOpen)
+        // const doesExist = openedResults.some(
+        //   (result) => result.fileName === updatedResultToOpen.fileName
+        // );
+        const doesExist = openedResults.some((result: any) =>
+          result.fileName === updatedResultToOpen.fileName
+        );
+
+        if (!doesExist) {
+          const resultArray = [...openedResults, updatedResultToOpen];
+
+          // console.log('resultArray',resultArray)
+
+          generateGraphfromGraphResult(resultArray);
+          // updatedOpenedResults.push(updatedResultToOpen); // Add the updated object to the copy
+        } else {
+          console.log("An object with the same fileName already exists.");
+        }
+      }
+
+
+
+      // const filteredResults = searchResults.filter((result: any) =>
+      // nodeFilenames.includes(result.fileName))
+
+      // console.log('filteredResults' , filteredResults)
+
+
     } else {
-        console.log('The "graph-div" does not contain an SVG element.');
-        const resultArray = [resultToOpen];
-        generateGraphfromSearch(resultArray);
+      console.log('The "graph-div" does not contain an SVG element.');
+      const resultArray = [resultToOpen];
+      generateGraphfromSearch(resultArray);
     }
-    
+
   }
-  
+
 
   const removeSearchResult = (resultToRemove: any) => {
     // console.log("search Results: ", searchResults, resultToRemove);
@@ -6044,16 +6048,16 @@ const Sidebar = () => {
     removeSearchResult(resultToRemove);
     // console.log("searchValue: ", searchValue);
 
-    let updatedSearchValue:any
+    let updatedSearchValue: any
 
-    if(graphOrTextView) {
+    if (graphOrTextView) {
       console.log('in text view', searchValue)
       updatedSearchValue = `${searchValue} -"${resultToRemove.fileName}"`;
       setSearchValue(updatedSearchValue);
       const syntheticEvent = {
         target: { value: updatedSearchValue },
       };
-      
+
       handleSearch(syntheticEvent);
 
     } else {
@@ -6064,18 +6068,18 @@ const Sidebar = () => {
       const syntheticEvent = {
         target: { value: updatedSearchValue },
       };
-      
+
       handleGraphSearch(syntheticEvent);
     }
-    
 
-    
 
-    
+
+
+
   };
 
 
-  const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result:any) => {
+  const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result: any) => {
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
     // console.log('result' , result.id)
@@ -6093,10 +6097,10 @@ const Sidebar = () => {
       let textToConvert = newDataObject.content;
       const regexForRemovedBrackets = /\[\[([^[\]]+)\]\]/g;
 
-      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets,(match: any, word: any) => `${word}`);
+      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets, (match: any, word: any) => `${word}`);
       newDataObject.contentWithRemovedBrackets = contentWithRemovedBrackets;
-      
-      marked.setOptions({breaks: true,});
+
+      marked.setOptions({ breaks: true, });
 
       let editedResult = newDataObject.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
 
@@ -6108,20 +6112,20 @@ const Sidebar = () => {
       const hashtagParagraphRegex = /#\S+/g;
       if (newDataObject) {
         // console.log("newDataObject", newDataObject);
-        const contentWithoutHashtags = newDataObject.content.replace( hashtagParagraphRegex , "" );
+        const contentWithoutHashtags = newDataObject.content.replace(hashtagParagraphRegex, "");
 
-        const contentWithStyledWords = contentWithoutHashtags.replace( regex,
+        const contentWithStyledWords = contentWithoutHashtags.replace(regex,
           (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
         );
         // console.log("contentwithstyledword", contentWithStyledWords);
         // console.log('openedresults' , openedResults)
-        const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile );
+        const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile);
         // console.log('index' , index)
 
         if (index !== -1) {
           const updatedResults = {
-            ...newDataObject, 
-            content: contentWithStyledWords, 
+            ...newDataObject,
+            content: contentWithStyledWords,
             openedFromResults: false
           };
 
@@ -6165,7 +6169,7 @@ const Sidebar = () => {
               h4Elements.forEach((h4: any) => {
                 if (h4.textContent === linkClicked.toUpperCase()) {
                   h4.classList.add("highlighted-heading");
-                  h4.scrollIntoView({behavior: "smooth", block: "start", inline: "center",});
+                  h4.scrollIntoView({ behavior: "smooth", block: "start", inline: "center", });
 
                   setTimeout(() => {
                     h4.classList.remove("highlighted-heading");
@@ -6185,12 +6189,12 @@ const Sidebar = () => {
 
   const handleCopyText = () => {
     const textarea = document.createElement("textarea");
-    if(graphOrTextView) {
+    if (graphOrTextView) {
       textarea.value = searchValue;
     } else {
       textarea.value = graphSearchValue
     }
-    
+
     document.body.appendChild(textarea);
 
     textarea.select();
@@ -6216,10 +6220,10 @@ const Sidebar = () => {
 
     if (matchingResult) {
       // console.log("Matching Result:", matchingResult);
-      
+
       if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
         // Update the array only if the fileName is different
-        setGraphNodeOpened((prevGraphNodeOpened:any) => [matchingResult, ...prevGraphNodeOpened]);
+        setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
       }
     } else {
       // Now does not come in this else
@@ -6342,25 +6346,25 @@ const Sidebar = () => {
 
 
   const removeClickedNode = async (event: any) => {
-   
-    const updatedGraphData =await removeNodeAndConnected(
+
+    const updatedGraphData = await removeNodeAndConnected(
       graphData,
       fileOpenedFromGraph.id
     );
 
     setGraphData(updatedGraphData)
 
-    let graphDataCopy:any = {...updatedGraphData}
+    let graphDataCopy: any = { ...updatedGraphData }
 
 
 
 
-    let filteredGraphData:any = []
+    let filteredGraphData: any = []
 
     // Step 1: Find items with status "exclude" in updatedCheckboxes
-    const excludedValues:any = [];
-    graphTagFilters.forEach((category:any) => {
-      category.items.forEach((item:any) => {
+    const excludedValues: any = [];
+    graphTagFilters.forEach((category: any) => {
+      category.items.forEach((item: any) => {
         if (item.status === "exclude") {
           excludedValues.push(item.value.substring(1));
         }
@@ -6370,59 +6374,49 @@ const Sidebar = () => {
     // console.log('excluded' , excludedValues)
 
     // Step 2: Find corresponding node ids in graphDataCopy
-    const excludedNodeIds:any = [];
+    const excludedNodeIds: any = [];
 
-    if(graphDataCopy.nodes.length > 0) {
-      graphDataCopy.nodes.forEach((node:any) => {
-        const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
-    
-    //     // Check if any of the tags exist in the excludedValues array
-        if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-            excludedNodeIds.push(node.id);
+    if (graphDataCopy.nodes.length > 0) {
+      graphDataCopy.nodes.forEach((node: any) => {
+        const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+        //     // Check if any of the tags exist in the excludedValues array
+        if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+          excludedNodeIds.push(node.id);
         }
       });
 
-    
-    
 
-      console.log('excluded ids' , excludedNodeIds)
-  
-  
+
+
+      console.log('excluded ids', excludedNodeIds)
+
+
       // Step 3: Remove links with source or target matching excluded node ids
-      filteredGraphData.links = graphDataCopy.links.filter((link:any) => {
+      filteredGraphData.links = graphDataCopy.links.filter((link: any) => {
         return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
       });
-  
+
       // Step 4: Remove nodes with ids in excludedNodeIds
-      filteredGraphData.nodes = graphDataCopy.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
-  
+      filteredGraphData.nodes = graphDataCopy.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
+
       // Now, graphDataCopy is updated with the desired changes.
       // console.log('filteredGraphData: ', filteredGraphData);
-  
+
       setGraphDataAfterFilters(filteredGraphData)
       makeGraph(filteredGraphData)
 
     } else {
-        console.log('No graph data found , handleGraphFilters')
-      }
-
-
-
-
-
-
-
+      console.log('No graph data found , handleGraphFilters')
+    }
 
     // console.log("updatedGraphData", updatedGraphData);
     // console.log("graphData: ", graphData);
-    
+
     // makeGraph(updatedGraphData);
 
     removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
-  };
-
-
-  
+  }
 
 
   const previewNodeLink = (node: any) => {
@@ -6436,54 +6430,54 @@ const Sidebar = () => {
       setPreviewNodeLinkLoader(false)
       if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
         // Update the array only if the fileName is different
-        setGraphNodeOpened((prevGraphNodeOpened:any) => [matchingResult, ...prevGraphNodeOpened]);
+        setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
         setAnimationKey((prevKey) => prevKey + 1);
       }
     } else {
       const tableNamesStr = userAccessVaults.join(',');
       // console.log(tableNamesStr)
       axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
-      .then((res) => {
-        const newDataObject = res.data;
+        .then((res) => {
+          const newDataObject = res.data;
 
-        marked.setOptions({
-          breaks: true,
+          marked.setOptions({
+            breaks: true,
+          });
+
+          newDataObject.content = marked(newDataObject.content);
+          newDataObject.contentWithRemovedBrackets = marked(
+            newDataObject.content
+          );
+
+          const regex = /\[\[([^[\]]+)\]\]/g;
+          const hashtagParagraphRegex = /#\S+/g;
+          newDataObject.content = newDataObject.content.replace(
+            hashtagParagraphRegex,
+            ""
+          );
+
+          newDataObject.content = newDataObject.content.replace(
+            regex,
+            (match: any, word: any) =>
+              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+          );
+
+          if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {
+            setGraphNodeOpened((prevGraphNodeOpened: any) => [newDataObject, ...prevGraphNodeOpened]);
+          }
+
+          // setGraphNodeOpened(newDataObject);
+          setPreviewNodeLinkLoader(false)
+          setAnimationKey((prevKey) => prevKey + 1);
+        })
+        .catch((err) => {
+          console.log("err=", err);
+          setPreviewNodeLinkLoader(false)
         });
 
-        newDataObject.content = marked(newDataObject.content);
-        newDataObject.contentWithRemovedBrackets = marked(
-          newDataObject.content
-        );
 
-        const regex = /\[\[([^[\]]+)\]\]/g;
-        const hashtagParagraphRegex = /#\S+/g;
-        newDataObject.content = newDataObject.content.replace(
-          hashtagParagraphRegex,
-          ""
-        );
-
-        newDataObject.content = newDataObject.content.replace(
-          regex,
-          (match: any, word: any) =>
-            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-        );
-        
-        if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {
-          setGraphNodeOpened((prevGraphNodeOpened:any) => [newDataObject, ...prevGraphNodeOpened]);
-        }
-
-        // setGraphNodeOpened(newDataObject);
-        setPreviewNodeLinkLoader(false)
-        setAnimationKey((prevKey) => prevKey + 1);
-      })
-      .catch((err) => {
-        console.log("err=", err);
-        setPreviewNodeLinkLoader(false)
-      });
-
-      
     }
-    
+
   };
 
 
@@ -6494,70 +6488,70 @@ const Sidebar = () => {
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
 
-    const nodeExists = (id: any) => { return updatedGraphData.nodes.some((node: any) => node.id === id)};
+    const nodeExists = (id: any) => { return updatedGraphData.nodes.some((node: any) => node.id === id) };
 
     if (matchingResult) {
       const underlinedWords: any = matchingResult.content.match(/<span[^>]*>(.*?)<\/span>/g);
 
       let wordsArray
-      if(underlinedWords){
+      if (underlinedWords) {
         wordsArray = underlinedWords.map((span: any) => {
           const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
           return match ? match[1] : "";
         });
-      } else if(underlinedWords === null){
+      } else if (underlinedWords === null) {
         wordsArray = [matchingResult.fileName];
       }
 
       // console.log('graphSearchWordsArray',graphSearchWordsArray)
-      
+
       try {
         setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
-          const encodedWords = encodeURIComponent(wordsArray.join(","));
-          // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
+        const encodedWords = encodeURIComponent(wordsArray.join(","));
+        // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
         const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
         // console.log('response from wander api' , response)
-        if(response) {
+        if (response) {
 
-          function removeDoubleBrackets(content:any) {
+          function removeDoubleBrackets(content: any) {
             const regex = /\[\[([^[\]]+)\]\]/g;
-            return content.replace(regex, (match:any, word:any) => `${word}`);
+            return content.replace(regex, (match: any, word: any) => `${word}`);
           }
-          
-          
+
+
           // Process updatedObjects
-          response.data.updatedObjects.forEach((entry:any) => {
+          response.data.updatedObjects.forEach((entry: any) => {
             entry.contentWithRemovedBrackets = removeDoubleBrackets(entry.content);
           });
-          
+
           // Process updatedObjectsForBacklinks
-          response.data.updatedObjectsForBacklinks.forEach((entry:any) => {
+          response.data.updatedObjectsForBacklinks.forEach((entry: any) => {
             entry.contentWithRemovedBrackets = removeDoubleBrackets(entry.content);
           });
-          
+
 
           // console.log('response' , response.data)
 
-          type YourObjectType = {fileName: any; tag: any};
-          
+          type YourObjectType = { fileName: any; tag: any };
+
           function generateLinkTags(objects: Record<string, YourObjectType>): { name: any; category: any }[] {
             return Object.values(objects).map(({ fileName, tag }: YourObjectType) => ({ name: fileName, category: tag }));
           }
-          
+
           const linkTags = generateLinkTags(response.data.updatedObjects);
           const linkTagsForBacklinks = generateLinkTags(response.data.updatedObjectsForBacklinks);
 
           // console.log('linkTags',linkTags)
           // console.log('linkTagsForBacklinks',linkTagsForBacklinks)
-          
+
 
           // console.log('linkTagsForBacklinks' , linkTagsForBacklinks)
 
 
 
           const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || [])
-          .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
+            .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
           // Use filter to remove objects that match any word in searchWords with a hyphen
           const filteredData = linkTags.filter((item: any) => !searchWords.includes(`-${item.name}`));
@@ -6582,7 +6576,7 @@ const Sidebar = () => {
             }
           });
 
-          filteredDataForBacklinks.forEach((word:any) => {
+          filteredDataForBacklinks.forEach((word: any) => {
             if (!nodeExists(word.name)) {
               updatedGraphData.nodes.push({ id: word.name, tag: word.category });
               // openedResults.forEach((result) => {
@@ -6597,12 +6591,12 @@ const Sidebar = () => {
           })
 
           // console.log('updatedGraphData',updatedGraphData)
-          let filteredGraphData:any = []
+          let filteredGraphData: any = []
 
           // Step 1: Find items with status "exclude" in updatedCheckboxes
-          const excludedValues:any = [];
-          graphTagFilters.forEach((category:any) => {
-            category.items.forEach((item:any) => {
+          const excludedValues: any = [];
+          graphTagFilters.forEach((category: any) => {
+            category.items.forEach((item: any) => {
               if (item.status === "exclude") {
                 excludedValues.push(item.value.substring(1));
               }
@@ -6610,41 +6604,41 @@ const Sidebar = () => {
           });
 
           // Step 2: Find corresponding node ids in graphDataCopy
-          const excludedNodeIds:any = [];
+          const excludedNodeIds: any = [];
           // updatedGraphData.nodes.forEach((node:any) => {
           //   if (excludedValues.includes(node.tag)) {
           //     excludedNodeIds.push(node.id);
           //   }
           // });
-        //   updatedGraphData.nodes.forEach((node:any) => {
-        //     const tags = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
-        
-        //     // Check if any of the tags exist in the excludedValues array
-        //     if (tags.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-        //         excludedNodeIds.push(node.id);
-        //     }
-        // });
+          //   updatedGraphData.nodes.forEach((node:any) => {
+          //     const tags = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
+          //     // Check if any of the tags exist in the excludedValues array
+          //     if (tags.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
+          //         excludedNodeIds.push(node.id);
+          //     }
+          // });
 
           // console.log('updatedgraphdata' , updatedGraphData)
 
-          updatedGraphData.nodes.forEach((node:any) => {
-            const tag = node.tag.map((tagCheck:any) => tagCheck.toLowerCase().replace(/^#/, ''));
-        
+          updatedGraphData.nodes.forEach((node: any) => {
+            const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
+
             // Check if any of the tags exist in the excludedValues array
-            if (tag.some((tagCheck:any) => excludedValues.includes(tagCheck))) {
-                excludedNodeIds.push(node.id);
+            if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
+              excludedNodeIds.push(node.id);
             }
-        });
+          });
 
           // console.log('excludedNodeIds',excludedNodeIds)
 
           // Step 3: Remove links with source or target matching excluded node ids
-          filteredGraphData.links = updatedGraphData.links.filter((link:any) => {
+          filteredGraphData.links = updatedGraphData.links.filter((link: any) => {
             return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
           });
 
           // Step 4: Remove nodes with ids in excludedNodeIds
-          filteredGraphData.nodes = updatedGraphData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+          filteredGraphData.nodes = updatedGraphData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
           // Now, graphDataCopy is updated with the desired changes.
           // console.log('filteredGraphData: ', filteredGraphData);
@@ -6652,7 +6646,7 @@ const Sidebar = () => {
           // makeGraph(filteredGraphData)
 
           // console.log("updatedGraphData: ", updatedGraphData);
-            // let graphNewData = resultData;
+          // let graphNewData = resultData;
           setGraphData(updatedGraphData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraph(filteredGraphData);
@@ -6664,13 +6658,13 @@ const Sidebar = () => {
           const copiedArrayForBacklinks = _.cloneDeep(originalArrayForBacklinks);
           // console.log('copiedArray',copiedArray)
 
-          let updatedOpenedResults:any = [];
+          let updatedOpenedResults: any = [];
 
-          copiedArray.forEach((result:any) => {
+          copiedArray.forEach((result: any) => {
 
             let matchingFile: any = result;
 
-            marked.setOptions({breaks: true,});
+            marked.setOptions({ breaks: true, });
 
             matchingFile.content = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
             matchingFile.content = marked(matchingFile.content);
@@ -6678,13 +6672,13 @@ const Sidebar = () => {
             const hashtagParagraphRegex = /#\S+/g;
             const regex = /\[\[([^[\]]+)\]\]/g;
 
-            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex , "" );
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
 
             const contentWithStyledWords = contentWithoutHashtags.replace(
               regex, (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
 
@@ -6696,11 +6690,11 @@ const Sidebar = () => {
             });
           })
 
-          copiedArrayForBacklinks.forEach((result:any) => {
+          copiedArrayForBacklinks.forEach((result: any) => {
 
             let matchingFile: any = result;
 
-            marked.setOptions({breaks: true,});
+            marked.setOptions({ breaks: true, });
 
             matchingFile.content = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
             matchingFile.content = marked(matchingFile.content);
@@ -6708,13 +6702,13 @@ const Sidebar = () => {
             const hashtagParagraphRegex = /#\S+/g;
             const regex = /\[\[([^[\]]+)\]\]/g;
 
-            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex , "" );
+            const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
 
             const contentWithStyledWords = contentWithoutHashtags.replace(
               regex, (match: any, word: any) =>
-                `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
 
@@ -6727,23 +6721,23 @@ const Sidebar = () => {
           })
 
           const newOpenedResults = [...openedResults];
-          const filteredUpdatedResults = newOpenedResults.filter((updatedObj:any) => (
-            !updatedOpenedResults.some((existingObj:any) => existingObj.fileName === updatedObj.fileName)
+          const filteredUpdatedResults = newOpenedResults.filter((updatedObj: any) => (
+            !updatedOpenedResults.some((existingObj: any) => existingObj.fileName === updatedObj.fileName)
           ));
 
           // console.log('filteredupdatedresults' , filteredUpdatedResults)
 
 
-          const indexToInsertAfter  = filteredUpdatedResults.findIndex((obj) => obj.fileName === fileOpenedFromGraph.id);
+          const indexToInsertAfter = filteredUpdatedResults.findIndex((obj) => obj.fileName === fileOpenedFromGraph.id);
           if (indexToInsertAfter !== -1) {
-            
+
             const insertionIndex = indexToInsertAfter + 1;
-            
+
             filteredUpdatedResults.splice(insertionIndex, 0, ...updatedOpenedResults);
             // console.log('filteredUpdatedResults' , filteredUpdatedResults)
             setOpenedResults(filteredUpdatedResults)
 
-          }          
+          }
         }
       } catch (error) {
         setGraphSearchLoader(false)
@@ -6806,10 +6800,10 @@ const Sidebar = () => {
                   // Check if a match was found and return the extracted text, or an empty string if not
                   return match ? match[1] : "";
                 });
-              } else if (underlinedWords === null){
+              } else if (underlinedWords === null) {
                 wordsArray = [result.fileName]
               }
-                // console.log("wordsArray: ", wordsArray);
+              // console.log("wordsArray: ", wordsArray);
 
               try {
                 // console.log("wordsArray", wordsArray);
@@ -6826,7 +6820,7 @@ const Sidebar = () => {
                       };
                     });
 
-                    const isExcluded = (name:any, searchValue:any) => {
+                    const isExcluded = (name: any, searchValue: any) => {
                       // console.log('name' , name , 'searchvalue= ' , searchValue)
                       // console.log( searchValue.includes(`-${name}`) ||
                       // searchValue.includes(`"-${name}"`))
@@ -6850,26 +6844,26 @@ const Sidebar = () => {
                       }
                       console.log("nodes", updatedGraphData);
                       // Create a link between fileName and underlined word
-                      
-                        // Create a link between fileName and underlined word
-                        updatedGraphData.links.push({
-                          source: result.fileName,
-                          target: word.name,
-                          value: 1,
-                        });
-                      
+
+                      // Create a link between fileName and underlined word
+                      updatedGraphData.links.push({
+                        source: result.fileName,
+                        target: word.name,
+                        value: 1,
+                      });
+
                     });
 
                     // console.log("finalCount", finalCount);
                     // console.log("count", count);
                     if (finalCount == count) {
 
-                      let filteredGraphData:any = []
+                      let filteredGraphData: any = []
 
                       // Step 1: Find items with status "exclude" in updatedCheckboxes
-                      const excludedValues:any = [];
-                      graphTagFilters.forEach((category:any) => {
-                        category.items.forEach((item:any) => {
+                      const excludedValues: any = [];
+                      graphTagFilters.forEach((category: any) => {
+                        category.items.forEach((item: any) => {
                           if (item.status === "exclude") {
                             excludedValues.push(item.value.substring(1));
                           }
@@ -6877,8 +6871,8 @@ const Sidebar = () => {
                       });
 
                       // Step 2: Find corresponding node ids in graphDataCopy
-                      const excludedNodeIds:any = [];
-                      updatedGraphData.nodes.forEach((node:any) => {
+                      const excludedNodeIds: any = [];
+                      updatedGraphData.nodes.forEach((node: any) => {
                         if (excludedValues.includes(node.tag)) {
                           excludedNodeIds.push(node.id);
                         }
@@ -6887,12 +6881,12 @@ const Sidebar = () => {
                       // console.log('excludedNodeIds',excludedNodeIds)
 
                       // Step 3: Remove links with source or target matching excluded node ids
-                      filteredGraphData.links = updatedGraphData.links.filter((link:any) => {
+                      filteredGraphData.links = updatedGraphData.links.filter((link: any) => {
                         return !excludedNodeIds.includes(link.source) && !excludedNodeIds.includes(link.target);
                       });
 
                       // Step 4: Remove nodes with ids in excludedNodeIds
-                      filteredGraphData.nodes = updatedGraphData.nodes.filter((node:any) => !excludedNodeIds.includes(node.id));
+                      filteredGraphData.nodes = updatedGraphData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
                       // Now, graphDataCopy is updated with the desired changes.
                       console.log('filteredGraphData: ', filteredGraphData);
@@ -6955,19 +6949,19 @@ const Sidebar = () => {
               };
 
               updatedOpenedResults.push(updatedResultToOpen);
-          }
-        });
+            }
+          });
 
-        // Update the openedResults state with the new array
-        setOpenedResults(updatedOpenedResults);
+          // Update the openedResults state with the new array
+          setOpenedResults(updatedOpenedResults);
 
-        // console.log("Updated openedResults:", openedResults);
+          // console.log("Updated openedResults:", openedResults);
         });
     }
   };
 
 
-  const handleNodeTextSizeCommitted = (event:any , newValue:any) => {
+  const handleNodeTextSizeCommitted = (event: any, newValue: any) => {
     setNodeTextSize(newValue)
   }
 
@@ -6977,24 +6971,24 @@ const Sidebar = () => {
   };
 
 
-  const handleLinkForceCommitted = (event:any , newValue:any) => {
+  const handleLinkForceCommitted = (event: any, newValue: any) => {
     setLinkForceValue(newValue)
   }
 
 
   const handleSliderChangeCommitted = (event: any, newValue: any) => {
-    const mappedValue = mapValueToState(newValue , 0 , 1 , -300 , -50);
+    const mappedValue = mapValueToState(newValue, 0, 1, -300, -50);
 
     setSliderValue(mappedValue)
   };
 
 
-  const mapValueToState = (value:any , min1:any , max1:any , min2:any , max2:any) => {
+  const mapValueToState = (value: any, min1: any, max1: any, min2: any, max2: any) => {
     return (value - min1) * (max2 - min2) / (max1 - min1) + min2;
   };
 
 
-  const mapSliderValueToReal = (value:any, min1:any, max1:any, min2:any, max2:any) => {
+  const mapSliderValueToReal = (value: any, min1: any, max1: any, min2: any, max2: any) => {
     return (value - min2) * (max1 - min1) / (max2 - min2) + min1;
   }
 
@@ -7032,7 +7026,7 @@ const Sidebar = () => {
   }
 
 
-  const handleFolderSelection = (folder:any) => {
+  const handleFolderSelection = (folder: any) => {
     console.log(folder)
 
     if (folder.id) {
@@ -7044,10 +7038,10 @@ const Sidebar = () => {
         params: {
           folderId: folder.id,
         },
-      }).then((res)=> {
+      }).then((res) => {
         // console.log('res: ' ,res.data)
 
-      }).catch((err)=> {
+      }).catch((err) => {
 
       })
 
@@ -7085,9 +7079,9 @@ const Sidebar = () => {
   };
 
 
-  const handleUserManagementClick = (itemName:any) => {
+  const handleUserManagementClick = (itemName: any) => {
     const queryParams = { usermanagement: itemName };
-    
+
     router.push({
       pathname: "/dashboard",
       query: queryParams,
@@ -7095,8 +7089,8 @@ const Sidebar = () => {
   };
 
 
-  const handleUserOptions = (itemName:any)=>{
-    if(itemName === 'profile'){
+  const handleUserOptions = (itemName: any) => {
+    if (itemName === 'profile') {
       // console.log('getuser' , getUser)
       setFormData((prevData) => ({
         ...prevData,
@@ -7109,22 +7103,22 @@ const Sidebar = () => {
       }));
       setShowEditUserDialog(true)
     }
-    if(itemName === 'changepassword'){
+    if (itemName === 'changepassword') {
       setShowChangePasswordDialog(true)
 
     }
-    if(itemName === 'billing'){
+    if (itemName === 'billing') {
       setBillingLoader(true);
       axios.post(`/api/stripe-billing?customer_id=${getUser.user.stripe_customer_id}`)
-      .then((res:any)=>{
-        window.location.href = res.data.url;
-      })
-      .catch((err:any)=>{
-        console.log('err from stripe billing' , err)
-        setBillingLoader(false);
-      })
+        .then((res: any) => {
+          window.location.href = res.data.url;
+        })
+        .catch((err: any) => {
+          console.log('err from stripe billing', err)
+          setBillingLoader(false);
+        })
     }
-    if(itemName === 'logout'){
+    if (itemName === 'logout') {
       setUserLogoutPopup(true)
     }
   }
@@ -7150,7 +7144,7 @@ const Sidebar = () => {
   }
 
 
-  const handleUserProfileChange = (e:any) => {
+  const handleUserProfileChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value, });
   }
@@ -7162,48 +7156,48 @@ const Sidebar = () => {
       email: getUser.user.email,
       data: formData
     })
-    .then(async (res)=>{
-      console.log('user updated successfully' , res.data);
-      // await fetchUsers()
-      // setOriginalUsers(res.data.allUsers);
-      // setSearchedUsers(res.data.allUsers)
-      // closeAddUserDialog()
-      setShowEditUserDialog(false)
-      toggleAccountOptions()
-      setEditUserLoader(false)
-      toast.success('Account updated successfully!');
-      setFormData({ fullName: '', email: '', role: '', status: '', image: '' });
+      .then(async (res) => {
+        console.log('user updated successfully', res.data);
+        // await fetchUsers()
+        // setOriginalUsers(res.data.allUsers);
+        // setSearchedUsers(res.data.allUsers)
+        // closeAddUserDialog()
+        setShowEditUserDialog(false)
+        toggleAccountOptions()
+        setEditUserLoader(false)
+        toast.success('Account updated successfully!');
+        setFormData({ fullName: '', email: '', role: '', status: '', image: '' });
 
-      dispatch(stAccessTokenVerify({
-        user: res.data.allUsers[0],
-        user_permssions: res.data.getPermissions ,
-        user_role: res.data.getRole,
-        user_package: getUser.user_package
-      }))
-      
-    setUser(res.data.allUsers[0])
-    setPermissions(res.data.getPermissions)
-    setUserAccessVaults(res.data.vaultsAccess)
-    })
-    .catch((error:any)=>{
-      console.log('Error calling editUser api:', error);
-      setEditUserLoader(false)
-      // setIsLoading(false);
-      toast.error('Failed to updated account data');
-    })
+        dispatch(stAccessTokenVerify({
+          user: res.data.allUsers[0],
+          user_permssions: res.data.getPermissions,
+          user_role: res.data.getRole,
+          user_package: getUser.user_package
+        }))
+
+        setUser(res.data.allUsers[0])
+        setPermissions(res.data.getPermissions)
+        setUserAccessVaults(res.data.vaultsAccess)
+      })
+      .catch((error: any) => {
+        console.log('Error calling editUser api:', error);
+        setEditUserLoader(false)
+        // setIsLoading(false);
+        toast.error('Failed to updated account data');
+      })
   }
 
 
   const closeSetPasswordDialog = () => {
     setShowChangePasswordDialog(false)
-    setNewPasswordData({ newPassword: '', confirmPassword:'' });
+    setNewPasswordData({ newPassword: '', confirmPassword: '' });
     setShowAccountOptions(false)
     setShowSetPasswordToggle(false)
     setShowConfirmPasswordToggle(false)
   }
 
 
-  const handleSetNewPasswordToggle = (e:any) =>{
+  const handleSetNewPasswordToggle = (e: any) => {
     const { name, value } = e.target;
     setNewPasswordData({
       ...newPasswordData,
@@ -7225,33 +7219,33 @@ const Sidebar = () => {
         email: getUser.user.email,
         password: newPasswordData.newPassword
       })
-      .then((res)=>{
-        console.log('set password successfully' , res.data);
-        // closeAddUserDialog()
-        // setShowSetPassword(false)
-        setShowChangePasswordDialog(false)
-        toggleAccountOptions()
-        setUpdatePasswordLoader(false)
-        toast.success('Password updated successfully!', { autoClose: 1500 });
-        setNewPasswordData({
-          newPassword: '',
-          confirmPassword: '',
-        });
+        .then((res) => {
+          console.log('set password successfully', res.data);
+          // closeAddUserDialog()
+          // setShowSetPassword(false)
+          setShowChangePasswordDialog(false)
+          toggleAccountOptions()
+          setUpdatePasswordLoader(false)
+          toast.success('Password updated successfully!', { autoClose: 1500 });
+          setNewPasswordData({
+            newPassword: '',
+            confirmPassword: '',
+          });
 
 
-      })
-      .catch((error:any)=>{
-        console.log('Error calling addUser api:', error);
-        setUpdatePasswordLoader(false)
-        toast.error('Failed to set password');
-      })
+        })
+        .catch((error: any) => {
+          console.log('Error calling addUser api:', error);
+          setUpdatePasswordLoader(false)
+          toast.error('Failed to set password');
+        })
     }
 
 
 
 
     //clear fields after updating password
-    
+
 
   }
 
@@ -7264,21 +7258,21 @@ const Sidebar = () => {
   }
 
 
-  const handleFileChange = (event:any) => {
+  const handleFileChange = (event: any) => {
     const selectedProfilePicture = event.target.files[0];
-    const previews:any = [];
-        const reader = new FileReader();
-        reader.onload = () => {
-            previews.push(reader.result);
-            if (previews.length) {
-              setFormData({
-                ...formData,
-                image: previews[0],
-              });
-            }
-        };
+    const previews: any = [];
+    const reader = new FileReader();
+    reader.onload = () => {
+      previews.push(reader.result);
+      if (previews.length) {
+        setFormData({
+          ...formData,
+          image: previews[0],
+        });
+      }
+    };
 
-        reader.readAsDataURL(selectedProfilePicture);
+    reader.readAsDataURL(selectedProfilePicture);
 
 
   };
@@ -7298,7 +7292,7 @@ const Sidebar = () => {
   }
 
 
-  const moveResult = (fromIndex:any, toIndex:any) => {
+  const moveResult = (fromIndex: any, toIndex: any) => {
     const updatedResults = [...openedResults];
     const [movedResult] = updatedResults.splice(fromIndex, 1);
     updatedResults.splice(toIndex, 0, movedResult);
@@ -7313,124 +7307,150 @@ const Sidebar = () => {
 
 
   return (
-   
-      <div className="homepage-container">
-        <div className={`side-nav ${themeChangericon ? '': 'night-mode'}`}>
-          <div className={"logoVc"}>
 
-            <div className="site-name" onClick={handleSiteNameClick}>
-              <p>TCM Weaver</p>
+    <div className="homepage-container">
+      <div className={`side-nav ${themeChangericon ? '' : 'night-mode'}`}>
+        <div className={"logoVc"}>
+
+          <div className="site-name" onClick={handleSiteNameClick}>
+            <p>TCM Weaver</p>
+          </div>
+
+          {/* ================Top Icons && Popups==================== */}
+          <div className={"icon-profile"}>
+
+            {/* ==============Theme Change==========================  */}
+            <div className="themeChanger mobile-icon">
+              {themeChangericon ? (
+                <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
+              ) : (
+                <img src="/light-modenew.svg" alt="img" onClick={handleThemeChangerClick} />
+              )}
             </div>
 
-            {/* ================Top Icons && Popups==================== */}
-            <div className={"icon-profile"}>
-
-              {/* ==============Theme Change==========================  */}
-              <div className="themeChanger">
-                {themeChangericon ? (
-                  <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
-                ) : (
-                  <img src="/light-modenew.svg" alt="img" onClick={handleThemeChangerClick} />
-                )}
-              </div>
-
-              {/* =============Graph or Text View=======================*/}
-              <div>
-                {graphOrTextView ? (
-                  <div className="simple-icon">
-                    {themeChangericon ? (
-                      <img src="/graph-logo-light.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                      ) : (
-                      <img src="/graph-logo-dark.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                    )}
-                  </div>
-                ) : (
-                  <div className={"note-icon"}>
-                    {themeChangericon ? (
-                      <img src="/text-logo.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                      ) : (
-                      <img src="/text-logo-night.png" alt="img" onClick={() => {handleGraphOrTextView()}} />
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              {/* =============Users Options=========================== */}
-              <div className="sidebar-user-div">
-                {themeChangericon ? (
-                    <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
+            {/* =============Graph or Text View=======================*/}
+            <div className="mobile-icon">
+              {graphOrTextView ? (
+                <div className="simple-icon">
+                  {themeChangericon ? (
+                    <img src="/graph-logo-light.png" alt="img" onClick={() => { handleGraphOrTextView() }} />
                   ) : (
-                    <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/>
-                )}
-                {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
-                {showAccountOptions && (
-                  <div className="account-options-container" ref={accountOptionsRef}>
-                    <List>
-                      {
-                        _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
-                          <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
-                            <ListItemText primary="Vault Management" />
-                          </ListItem>
-                        )
-                      }
-                      {
-                        _.every(['user_management'], value => _.includes(getPermissions, value)) && (
-                          <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
-                            <ListItemText primary="User Management" />
-                          </ListItem>
-                        )
-                      }
-                      {getUser.user_role === 'User' && (
-                        <>
-                          <ListItem button onClick={() => handleUserOptions("profile")} dense>
-                            <ListItemText primary="Profile" />
-                          </ListItem>
-                          <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
-                            <ListItemText primary="Change Password" />
-                          </ListItem>
-                          {getUser.user_package.length > 0 && (
-                            <ListItem button onClick={() => handleUserOptions("billing")} dense>
-                              <ListItemText primary="Billing" />
-                              {billingLoader && <CircularProgress size={17} style={{color: 'grey'}} />}
-                            </ListItem>
-                          )}
-                        </>
-                      )}
-                      <ListItem button onClick={() => handleUserOptions("logout")} dense>
-                        <ListItemText primary="Logout" />
-                      </ListItem>
-                    </List>
-                  </div>
-                )}
-              </div>
-
-              {syncPopup && (
-                <div>
-                  <Dialog open={syncPopup} onClose={handleCloseDialog}>
-                    <DialogTitle>Authorization Required</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                      You will be redirected to the Google consent page to grant this app access to your Google Drive
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={synchronizeFiles} color="primary">
-                        Proceed
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
+                    <img src="/graph-logo-dark.png" alt="img" onClick={() => { handleGraphOrTextView() }} />
+                  )}
+                </div>
+              ) : (
+                <div className={"note-icon"}>
+                  {themeChangericon ? (
+                    <img src="/text-logo.png" alt="img" onClick={() => { handleGraphOrTextView() }} />
+                  ) : (
+                    <img src="/text-logo-night.png" alt="img" onClick={() => { handleGraphOrTextView() }} />
+                  )}
                 </div>
               )}
-              
-              {foldersPopup && (
-                <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
+            </div>
+
+            {/* =============Users Options=========================== */}
+            <div className="sidebar-user-div mobile-icon">
+              {themeChangericon ? (
+                <img src="/users.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef} />
+              ) : (
+                <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef} />
+              )}
+              {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
+              {showAccountOptions && (
+                <div className="account-options-container" ref={accountOptionsRef}>
+                  <List>
+                    {
+                      _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
+                        <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
+                          <ListItemText primary="Vault Management" />
+                        </ListItem>
+                      )
+                    }
+                    {
+                      _.every(['user_management'], value => _.includes(getPermissions, value)) && (
+                        <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
+                          <ListItemText primary="User Management" />
+                        </ListItem>
+                      )
+                    }
+                    {getUser.user_role === 'User' && (
+                      <>
+                        <ListItem button onClick={() => handleUserOptions("profile")} dense>
+                          <ListItemText primary="Profile" />
+                        </ListItem>
+                        <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
+                          <ListItemText primary="Change Password" />
+                        </ListItem>
+                        {getUser.user_package.length > 0 && (
+                          <ListItem button onClick={() => handleUserOptions("billing")} dense>
+                            <ListItemText primary="Billing" />
+                            {billingLoader && <CircularProgress size={17} style={{ color: 'grey' }} />}
+                          </ListItem>
+                        )}
+                      </>
+                    )}
+                    <ListItem button onClick={() => handleUserOptions("logout")} dense>
+                      <ListItemText primary="Logout" />
+                    </ListItem>
+                  </List>
+                </div>
+              )}
+            </div>
+
+            {/* =============Workspace Icon========================== */}
+            <div className="sidebar-workspace-icon">
+              {themeChangericon ? (
+                <img src="/workspace-icon-light.svg" alt="img"
+                // onClick={() => { handleGraphOrTextView() }}
+                />
+              ) : (
+                <img src="/workspace-icon-dark.svg" alt="img"
+                //  onClick={() => { handleGraphOrTextView() }}
+                />
+              )}
+            </div>
+
+            {/* =============Hamburgur=============================== */}
+            <div className="sidebar-menu-icon">
+              {themeChangericon ? (
+                <img src="/menu-icon-light.svg" alt="img"
+                // onClick={() => { handleGraphOrTextView() }}
+                />
+              ) : (
+                <img src="/menu-icon-dark.svg" alt="img"
+                //  onClick={() => { handleGraphOrTextView() }}
+                />
+              )}
+            </div>
+
+            {syncPopup && (
+              <div>
+                <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                  <DialogTitle>Authorization Required</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      You will be redirected to the Google consent page to grant this app access to your Google Drive
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={synchronizeFiles} color="primary">
+                      Proceed
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
+            )}
+
+            {foldersPopup && (
+              <Dialog open={foldersPopup} onClose={handlerFolderPopupClose}>
                 <DialogTitle>Select a Folder</DialogTitle>
                 <DialogContent>
                   <List>
-                    {folders.map((folder:any) => (
+                    {folders.map((folder: any) => (
                       <ListItem button key={folder.id} onClick={() => handleFolderSelection(folder)}>
                         <ListItemText primary={folder.name} />
                       </ListItem>
@@ -7438,179 +7458,179 @@ const Sidebar = () => {
                   </List>
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={ handlerFolderPopupClose} color="primary">
+                  <Button onClick={handlerFolderPopupClose} color="primary">
                     Cancel
                   </Button>
                 </DialogActions>
+              </Dialog>
+            )}
+
+            {userLogoutPopup && (
+              <div >
+                <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose} className="user-logout-div">
+                  <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                  <DialogActions>
+                    <Button onClick={handleUserLogoutPopupClose} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={userLogout} color="primary">
+                      Logout
+                    </Button>
+                  </DialogActions>
                 </Dialog>
-              )}
+              </div>
+            )}
 
-              {userLogoutPopup && (
-                <div >
-                  <Dialog open={userLogoutPopup} onClose={handleUserLogoutPopupClose} className="user-logout-div">
-                    <DialogTitle>Are you sure you want to logout?</DialogTitle>
-                    <DialogActions>
-                      <Button onClick={handleUserLogoutPopupClose} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={userLogout} color="primary">
-                        Logout
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </div>
-              )}
+            {showEditUserDialog && (
+              <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }} >
+                <DialogTitle>Edit Profile</DialogTitle>
+                <DialogContent>
 
-              {showEditUserDialog && (
-                <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
-                  <DialogTitle>Edit Profile</DialogTitle>
-                  <DialogContent>
+                  <DialogContentText>
+                    Please enter the details:
+                  </DialogContentText>
 
-                    <DialogContentText>
-                      Please enter the details:
-                    </DialogContentText>
-
-                    <Grid container spacing={2} sx={{paddingTop:1}}>
-                      <Grid item xs={12}>
-                        <div className="edit-profile-div">
-                          <div className="edit-profile-image-div">
-                            {formData.image && formData.image !== null && formData.image !== '' ? (
-                              <img src={formData.image}
-                                style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
-                                alt="Profile Picture"
-                              />
-                            ):(
-                              <img src='/profile-avatar.webp'
-                              style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                  <Grid container spacing={2} sx={{ paddingTop: 1 }}>
+                    <Grid item xs={12}>
+                      <div className="edit-profile-div">
+                        <div className="edit-profile-image-div">
+                          {formData.image && formData.image !== null && formData.image !== '' ? (
+                            <img src={formData.image}
+                              style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
                               alt="Profile Picture"
-                              />
-                            )}
-                          </div>
-
-                          <div className="edit-profile-button-div">
-                            <button onClick={handleChooseFile} >Change picture</button>
-                            <button onClick={handleEditProfilePicture}>Remove</button>
-                            <input type="file" ref={fileInputRef} style={{ display: 'none' }}
-                              onChange={handleFileChange}
                             />
-                          </div>
-
+                          ) : (
+                            <img src='/profile-avatar.webp'
+                              style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
+                              alt="Profile Picture"
+                            />
+                          )}
                         </div>
 
+                        <div className="edit-profile-button-div">
+                          <button onClick={handleChooseFile} >Change picture</button>
+                          <button onClick={handleEditProfilePicture}>Remove</button>
+                          <input type="file" ref={fileInputRef} style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                          />
+                        </div>
 
-                        <TextField
-                            label="Full Name"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleUserProfileChange}
-                            fullWidth
-                            margin="normal"
-                            size='small'
-                        />
-                        
-                        <TextField
-                          label="Email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleUserProfileChange}
-                          fullWidth
-                          margin="normal"
-                          size='small'
-                        />
+                      </div>
 
-                      </Grid> 
+
+                      <TextField
+                        label="Full Name"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleUserProfileChange}
+                        fullWidth
+                        margin="normal"
+                        size='small'
+                      />
+
+                      <TextField
+                        label="Email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleUserProfileChange}
+                        fullWidth
+                        margin="normal"
+                        size='small'
+                      />
+
                     </Grid>
-                  </DialogContent>
+                  </Grid>
+                </DialogContent>
 
-                  <DialogActions>
-                    <Button onClick={closeEditUserDailog} color="primary">
-                      Cancel
-                    </Button>
-                    <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
-                      {editUserLoader ? 'Saving...' : 'Save'}
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              )}
+                <DialogActions>
+                  <Button onClick={closeEditUserDailog} color="primary">
+                    Cancel
+                  </Button>
+                  <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                    {editUserLoader ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            )}
 
-              {showChangePasswordDialog && (
-                <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
-                  <DialogTitle>Set Password</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Please enter the new password:
-                    </DialogContentText>
-                    <TextField
-                      type={showSetPasswordToggle ? 'text' : 'password'}
-                      label="New Password"
-                      name="newPassword"
-                      value={newPasswordData.newPassword}
-                      onChange={handleSetNewPasswordToggle}
-                      fullWidth
-                      margin="normal"
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                              edge="end"
-                            >
-                              {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <TextField
-                      type={showConfirmPasswordToggle ? 'text' : 'password'}
-                      label="Confirm Password"
-                      name="confirmPassword"
-                      value={newPasswordData.confirmPassword}
-                      onChange={handleSetNewPasswordToggle}
-                      fullWidth
-                      margin="normal"
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                              edge="end"
-                            >
-                              {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={closeSetPasswordDialog} color="primary">
-                      Cancel
-                    </Button>
-                    <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                      {updatePasswordLoader ? 'Saving...' : 'Save'}
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              )}
+            {showChangePasswordDialog && (
+              <Dialog open={showChangePasswordDialog} onClose={closeSetPasswordDialog}>
+                <DialogTitle>Set Password</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please enter the new password:
+                  </DialogContentText>
+                  <TextField
+                    type={showSetPasswordToggle ? 'text' : 'password'}
+                    label="New Password"
+                    name="newPassword"
+                    value={newPasswordData.newPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                            edge="end"
+                          >
+                            {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    type={showConfirmPasswordToggle ? 'text' : 'password'}
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    value={newPasswordData.confirmPassword}
+                    onChange={handleSetNewPasswordToggle}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                            edge="end"
+                          >
+                            {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={closeSetPasswordDialog} color="primary">
+                    Cancel
+                  </Button>
+                  <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                    {updatePasswordLoader ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            )}
 
-              {showLockedVaultPopup && (
-                <Dialog open={showLockedVaultPopup} onClose={() => setShowLockedVaultPopup(false)}>
-                  <DialogTitle>Subscription</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Only Basic Vault is free. Buy Subscription to get full access.
-                    </DialogContentText>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
-                      Cancel
-                    </Button>
-                    {/* <Button color="primary" onClick={handleVaultCheckout} disabled={isLoading}>
+            {showLockedVaultPopup && (
+              <Dialog open={showLockedVaultPopup} onClose={() => setShowLockedVaultPopup(false)}>
+                <DialogTitle>Subscription</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Only Basic Vault is free. Buy Subscription to get full access.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setShowLockedVaultPopup(false)} color="primary">
+                    Cancel
+                  </Button>
+                  {/* <Button color="primary" onClick={handleVaultCheckout} disabled={isLoading}>
                       {updatePasswordLoader ? 'Saving...' : 'Buy Now'}
                     </Button> */}
 
-                    {/* <Button color="primary">
+                  {/* <Button color="primary">
                       {updatePasswordLoader ? (
                           <>
                             Please Wait {" "}
@@ -7624,422 +7644,432 @@ const Sidebar = () => {
                           <>buy now</>
                         )}
                     </Button> */}
-                  </DialogActions>
+                </DialogActions>
               </Dialog>
-              )}
-
-            </div>
-
-          </div>
-
-
-          {/* =======================Search Bar=======================================  */}
-          <div className={"menuBtn"}>
-            {graphOrTextView ? (
-              <>
-                <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
-                  onChange={handleSearch}
-                />
-              </>
-            ) : (
-              <>
-                <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
-                  onChange={handleGraphSearch}
-                />
-              </>
             )}
 
-
-            <div className="copy-icon">
-              {textSearchLoader || graphSearchLoader ? (
-                <CircularProgress size={16} style={{color: 'black'}}/>
-              ):(
-                <div onClick={handleCopyText} style={{cursor: 'pointer'}}>
-                  {themeChangericon ? (
-                    <img src="/copy-content.png" alt="img" />
-                  ) : (
-                    <img src="/copy-content-dark.png" alt="img" />
-                  )}
-                </div>
-              )}
-              {/* <img src="/copy-content.png" alt="img" onClick={handleCopyText}/> */}
-              {isCopied && <div className="copy-tooltip">Copied!</div>}
-            </div>
           </div>
 
-          <div className="search-results-found">
-            {(searchValue.length > 0 || graphSearchValue.length > 0) && (
-              <>
-                {searchResults.length > 0 ? (
-                  <>
-                    {showSearchResultsFound && (
-                      <p>{searchResults.length} {searchResults.length === 1 ? 'Result' : 'Results'}</p>
-                    )}
-                  </>
-                ):(
-                  <>
-                    {showSearchResultsFound && (
-                      <p>{searchResults.length} results found</p>
-                    )}
-                  </>
-                )}
-              </>
-            )}   
-          </div>
+        </div>
 
 
-          {/* =======================Search Results & Graph Node Options==============  */}
+        {/* =======================Search Bar=======================================  */}
+        <div className={"menuBtn"}>
           {graphOrTextView ? (
-            <div className={`search-results ${!shouldShowFilters ? "results-height" : "" }`} >
-              {showSearchResultToast && (
-                <div className="results-toast">
-                  <p>{searchResults.length} results found</p>
-                </div>
-              )}
-              
-              {searchValue.length > 0 && (
-                <div>
-                  {searchResults.map((result, index) => (
-                    <div className="filter-data" key={index}>
-                      <div className="set set-1">
-                        <div>
-                          <div className="results-title">
-                            <span>{(result as { wordOccurence: number }).wordOccurence}</span>
-
-                            <h1
-                              dangerouslySetInnerHTML={{__html: (result as {fileNameWithHighlightedWords: string;}).fileNameWithHighlightedWords,}}
-                              // onClick={() => handleFileClick(result["item"])}
-                            />
-                          </div>
-
-                          {themeChangericon ? (
-                          <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
-                          ) : (
-                          <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
-                          )}
-                        </div>
-
-                        <div>
-                          <div>
-                            <p
-                              dangerouslySetInnerHTML={{__html: (result as {totalMarkedData: string;}).totalMarkedData,}}
-                              className="note"
-                            />
-                          </div>
-                          <div>
-                            {themeChangericon ? (
-                              <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
-                            ) : (
-                              <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            // <>
-            //   {!hideFiltersForPreview && (
-            //     <div key={animationKey} className="node-preview">
-            //       <div className="node-preview-title">
-            //         <div className="graph-show-node">
-            //           {graphNodeOpened.length === 1 ? (
-            //             <div>
-            //               {themeChangericon ? (
-            //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-            //               ) : (
-            //                 <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
-            //               )}
-            //               {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
-            //                 className="graph-node-backarrow-single">
-            //               </ArrowBackIcon> */}
-            //             </div>
-            //           ):(
-            //             <div onClick={handleLeftArrowForPreviousFile}>
-            //               {themeChangericon ? (
-            //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-            //               ) : (
-            //                 <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
-            //               )}
-            //               {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
-            //                 className="graph-node-backarrow">
-            //               </ArrowBackIcon> */}
-            //             </div>
-            //           )}
-            //           <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
-            //         </div>
-
-
-            //         <div className="preview-node-loader">
-            //           {previewNodeLinkLoader ? (
-            //             <CircularProgress size={16} style={{color: 'black'}} />
-            //           ):(
-            //             <div>
-            //               {themeChangericon ? (
-            //                 <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-            //               ) : (
-            //                 <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-            //               )}
-            //             </div>
-
-            //           )}
-                      
-            //         </div>
-            //       </div>
-
-            //       <div className="node-preview-detail">
-            //         <p
-            //           dangerouslySetInnerHTML={{
-            //             __html: graphNodeOpened[0].content,
-            //           }}
-            //           className="opened-result-description"
-            //           onClick={(e: any) => {
-            //             if (
-            //               e.target.tagName === "SPAN" &&
-            //               e.target.style.textDecoration === "underline"
-            //             ) {
-            //               const clickedWord = e.target.textContent;
-            //               previewNodeLink(clickedWord);
-            //             }
-            //           }}
-            //         />
-            //       </div>
-            //     </div>
-            //   )}
-
-            //   <div id="nodeInfo" className="node-click-options">
-            //     {themeChangericon ? (
-            //       <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-            //     ) : (
-            //       <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-            //     )}
-
-            //     {themeChangericon ? (
-            //       <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-            //     ) : (
-            //       <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-            //     )}
-
-            //     {themeChangericon ? (
-            //       <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-            //     ) : (
-            //       <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-            //     )}
-            //   </div>
-            // </>
             <>
-              {!hideFiltersForPreview ? (
-                <div key={animationKey} className="node-preview">
-                  <div className="node-preview-title">
-                    <div className="graph-show-node">
-                      {graphNodeOpened.length === 1 ? (
-                        <div>
-                          {themeChangericon ? (
-                            <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-                          ) : (
-                            <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
-                          )}
-                          {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
-                            className="graph-node-backarrow-single">
-                          </ArrowBackIcon> */}
-                        </div>
-                      ):(
-                        <div onClick={handleLeftArrowForPreviousFile}>
-                          {themeChangericon ? (
-                            <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
-                          ) : (
-                            <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
-                          )}
-                          {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
-                            className="graph-node-backarrow">
-                          </ArrowBackIcon> */}
-                        </div>
-                      )}
-                      <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
-                    </div>
-
-
-                    <div className="preview-node-loader">
-                      {previewNodeLinkLoader ? (
-                        <CircularProgress size={16} style={{color: 'black'}} />
-                      ):(
-                        <div>
-                          {themeChangericon ? (
-                            <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                          ) : (
-                            <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
-                          )}
-                        </div>
-
-                      )}
-                      
-                    </div>
-                  </div>
-
-                  <div className="node-preview-detail">
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: graphNodeOpened[0].content,
-                      }}
-                      className="opened-result-description"
-                      onClick={(e: any) => {
-                        if (
-                          e.target.tagName === "SPAN" &&
-                          e.target.style.textDecoration === "underline"
-                        ) {
-                          const clickedWord = e.target.textContent;
-                          previewNodeLink(clickedWord);
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              ):(
-                <div className={`graph-search-results`} >
-                  {showSearchResultToast && (
-                    <div className="results-toast">
-                      <p>{searchResults.length} results found</p>
-                    </div>
-                  )}
-                
-                  {graphSearchValue.length > 0 && (
-                    <div>
-                      {searchResults.map((result, index) => (
-                        <div className="filter-data" key={index}>
-                          <div className="set set-1">
-                            <div>
-                              <div className="results-title">
-                                <span> {(result as { wordOccurence: number }).wordOccurence} </span>
-
-                                <h1
-                                  dangerouslySetInnerHTML={{
-                                    __html: ( result as { fileNameWithHighlightedWords: string;}
-                                    ).fileNameWithHighlightedWords,
-                                  }}
-                                  // onClick={() => handleFileClick(result["item"])}
-                                />
-                              </div>
-
-                              {themeChangericon ? (
-                                <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                              ):(
-                                <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                              )}
-                            </div>
-
-                            <div>
-                              <div>
-                                <p dangerouslySetInnerHTML={{__html: (result as {totalMarkedData: string;})
-                                  .totalMarkedData,}} className="note"
-                                />
-                              </div>
-                              <div>
-                                {themeChangericon ? (
-                                  <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
-                                ) : (
-                                  <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div id="nodeInfo" className="node-click-options">
-                {themeChangericon ? (
-                  <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-                ) : (
-                  <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
-                )}
-
-                {themeChangericon ? (
-                  <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-                ) : (
-                  <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-                )}
-
-                {themeChangericon ? (
-                  <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-                ) : (
-                  <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
-                )}
-              </div>
+              <input type="text" className={"formControl"} placeholder=" Smart search" value={searchValue}
+                onChange={handleSearch}
+              />
+            </>
+          ) : (
+            <>
+              <input type="text" className={"formControl"} placeholder=" Graph search" value={graphSearchValue}
+                onChange={handleGraphSearch}
+              />
             </>
           )}
 
-          {/* =====Filters =========================================  */}
-          {graphOrTextView && (
-            <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
-              <div className="menus-link">
-                {!shouldShowFilters ? (
-                  <>
-                    {hideFiltersForPreview && (
-                      <div className="sub-accordion">
-                        <div className="filters-collapse-div">
-                          <div onClick={handleFiltersClose}>
-                            <p>Collapse</p>
-                            <img src="/collapse-dark.png" alt="collapse filter" className="filters-collapse-icon"/>
 
+          <div className="copy-icon">
+            {textSearchLoader || graphSearchLoader ? (
+              <CircularProgress size={16} style={{ color: 'black' }} />
+            ) : (
+              <div onClick={handleCopyText} style={{ cursor: 'pointer' }}>
+                {themeChangericon ? (
+                  <img src="/copy-content.png" alt="img" />
+                ) : (
+                  <img src="/copy-content-dark.png" alt="img" />
+                )}
+              </div>
+            )}
+
+            {isCopied && <div className="copy-tooltip">Copied!</div>}
+          </div>
+        </div>
+
+        <div className="search-results-found">
+          {(searchValue.length > 0 || graphSearchValue.length > 0) && (
+            <>
+              {searchResults.length > 0 ? (
+                <>
+                  {showSearchResultsFound && (
+                    <p>{searchResults.length} {searchResults.length === 1 ? 'Result' : 'Results'}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  {showSearchResultsFound && (
+                    <p>{searchResults.length} results found</p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+
+
+        {/* =======================Search Results & Graph Node Options==============  */}
+        {graphOrTextView ? (
+          <div className={`search-results ${!shouldShowFilters ? "results-height" : ""}`} >
+
+            {searchValue.length > 0 ? (
+              <div>
+                {searchResults.map((result, index) => (
+                  <div className="filter-data" key={index}>
+                    <div className="set set-1">
+                      <div>
+                        <div className="results-title">
+                          <span>{(result as { wordOccurence: number }).wordOccurence}</span>
+
+                          <h1
+                            dangerouslySetInnerHTML={{ __html: (result as { fileNameWithHighlightedWords: string; }).fileNameWithHighlightedWords, }}
+                          // onClick={() => handleFileClick(result["item"])}
+                          />
+                        </div>
+
+                        {themeChangericon ? (
+                          <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
+                        ) : (
+                          <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
+                        )}
+                      </div>
+
+                      <div className="search-result-description">
+                        <div className="note">
+                          <p
+                            dangerouslySetInnerHTML={{ __html: (result as { totalMarkedData: string; }).totalMarkedData, }}
+
+                          />
+                        </div>
+                        <div>
+                          {themeChangericon ? (
+                            <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          ) : (
+                            <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="mobile-homepage-video">
+                  <div className="mobile-homepage-content-container">
+                    {homepageFile && (
+                      <p dangerouslySetInnerHTML={{ __html: filtersData ? homepageFile.content : '', }}
+                        className="opened-result-description"
+                      />
+                    )}
+                  </div>
+                </div>
+
+              </>
+
+            )}
+          </div>
+        ) : (
+          // <>
+          //   {!hideFiltersForPreview && (
+          //     <div key={animationKey} className="node-preview">
+          //       <div className="node-preview-title">
+          //         <div className="graph-show-node">
+          //           {graphNodeOpened.length === 1 ? (
+          //             <div>
+          //               {themeChangericon ? (
+          //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+          //               ) : (
+          //                 <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
+          //               )}
+          //               {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+          //                 className="graph-node-backarrow-single">
+          //               </ArrowBackIcon> */}
+          //             </div>
+          //           ):(
+          //             <div onClick={handleLeftArrowForPreviousFile}>
+          //               {themeChangericon ? (
+          //                 <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+          //               ) : (
+          //                 <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
+          //               )}
+          //               {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
+          //                 className="graph-node-backarrow">
+          //               </ArrowBackIcon> */}
+          //             </div>
+          //           )}
+          //           <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
+          //         </div>
+
+
+          //         <div className="preview-node-loader">
+          //           {previewNodeLinkLoader ? (
+          //             <CircularProgress size={16} style={{color: 'black'}} />
+          //           ):(
+          //             <div>
+          //               {themeChangericon ? (
+          //                 <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+          //               ) : (
+          //                 <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+          //               )}
+          //             </div>
+
+          //           )}
+
+          //         </div>
+          //       </div>
+
+          //       <div className="node-preview-detail">
+          //         <p
+          //           dangerouslySetInnerHTML={{
+          //             __html: graphNodeOpened[0].content,
+          //           }}
+          //           className="opened-result-description"
+          //           onClick={(e: any) => {
+          //             if (
+          //               e.target.tagName === "SPAN" &&
+          //               e.target.style.textDecoration === "underline"
+          //             ) {
+          //               const clickedWord = e.target.textContent;
+          //               previewNodeLink(clickedWord);
+          //             }
+          //           }}
+          //         />
+          //       </div>
+          //     </div>
+          //   )}
+
+          //   <div id="nodeInfo" className="node-click-options">
+          //     {themeChangericon ? (
+          //       <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+          //     ) : (
+          //       <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+          //     )}
+
+          //     {themeChangericon ? (
+          //       <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+          //     ) : (
+          //       <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+          //     )}
+
+          //     {themeChangericon ? (
+          //       <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+          //     ) : (
+          //       <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+          //     )}
+          //   </div>
+          // </>
+          <>
+            {!hideFiltersForPreview ? (
+              <div key={animationKey} className="node-preview">
+                <div className="node-preview-title">
+                  <div className="graph-show-node">
+                    {graphNodeOpened.length === 1 ? (
+                      <div>
+                        {themeChangericon ? (
+                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                        ) : (
+                          <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
+                        )}
+                        {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+                            className="graph-node-backarrow-single">
+                          </ArrowBackIcon> */}
+                      </div>
+                    ) : (
+                      <div onClick={handleLeftArrowForPreviousFile}>
+                        {themeChangericon ? (
+                          <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                        ) : (
+                          <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
+                        )}
+                        {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
+                            className="graph-node-backarrow">
+                          </ArrowBackIcon> */}
+                      </div>
+                    )}
+                    <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
+                  </div>
+
+
+                  <div className="preview-node-loader">
+                    {previewNodeLinkLoader ? (
+                      <CircularProgress size={16} style={{ color: 'black' }} />
+                    ) : (
+                      <div>
+                        {themeChangericon ? (
+                          <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                        ) : (
+                          <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                        )}
+                      </div>
+
+                    )}
+
+                  </div>
+                </div>
+
+                <div className="node-preview-detail">
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: graphNodeOpened[0].content,
+                    }}
+                    className="opened-result-description"
+                    onClick={(e: any) => {
+                      if (
+                        e.target.tagName === "SPAN" &&
+                        e.target.style.textDecoration === "underline"
+                      ) {
+                        const clickedWord = e.target.textContent;
+                        previewNodeLink(clickedWord);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className={`graph-search-results`} >
+                {showSearchResultToast && (
+                  <div className="results-toast">
+                    <p>{searchResults.length} results found</p>
+                  </div>
+                )}
+
+                {graphSearchValue.length > 0 && (
+                  <div>
+                    {searchResults.map((result, index) => (
+                      <div className="filter-data" key={index}>
+                        <div className="set set-1">
+                          <div>
+                            <div className="results-title">
+                              <span> {(result as { wordOccurence: number }).wordOccurence} </span>
+
+                              <h1
+                                dangerouslySetInnerHTML={{
+                                  __html: (result as { fileNameWithHighlightedWords: string; }
+                                  ).fileNameWithHighlightedWords,
+                                }}
+                              // onClick={() => handleFileClick(result["item"])}
+                              />
+                            </div>
+
+                            {themeChangericon ? (
+                              <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
+                            ) : (
+                              <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
+                            )}
+                          </div>
+
+                          <div>
+                            <div>
+                              <p dangerouslySetInnerHTML={{
+                                __html: (result as { totalMarkedData: string; })
+                                  .totalMarkedData,
+                              }} className="note"
+                              />
+                            </div>
+                            <div>
+                              {themeChangericon ? (
+                                <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                              ) : (
+                                <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                              )}
+                            </div>
                           </div>
                         </div>
-                     
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-                        <div className="filters-scroll">
-                          <Accordion>
-                            {allCheckboxes.map((category: any, index: any) => (
-                              <div key={index}>
-                                {graphOrTextView ? (
-                                  <>
-                                    <Accordion.Item
-                                  eventKey={index.toString()}
-                                  key={category.category}
-                                  title={category.category}
-                                  className="accordion-item"
-                                >
-                                  <Accordion.Header className="accordion-header">
-                                    {category.category}
-                                  </Accordion.Header>
-                                  <Accordion.Body className="accordion-body">
-                                    <div className="form-check form-check-inline">
-                                      {category.items.map((item: any) => (
-                                        <div
-                                          className="form-check form-check-inline"
-                                          key={item.id}
-                                        >
-                                          <input
-                                            className={`form-check-input ${
-                                              category.items[item.id - 1]["status"] ===
-                                              "exclude"
+            <div id="nodeInfo" className="node-click-options">
+              {themeChangericon ? (
+                <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+              ) : (
+                <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+              )}
+
+              {themeChangericon ? (
+                <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+              ) : (
+                <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+              )}
+
+              {themeChangericon ? (
+                <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+              ) : (
+                <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+              )}
+            </div>
+          </>
+        )}
+
+        {/* =====Filters =========================================  */}
+        {graphOrTextView && (
+          <div className={`${!shouldShowFilters ? 'menus-filters-visible' : 'menus'} ${graphOrTextView ? '' : 'filters-graph-screen'}`}>
+            <div className="menus-link">
+              {!shouldShowFilters ? (
+                <>
+                  {hideFiltersForPreview && (
+                    <div className="sub-accordion">
+                      <div className="filters-collapse-div">
+                        <div onClick={handleFiltersClose}>
+                          <p>Collapse</p>
+                          <img src="/collapse-dark.png" alt="collapse filter" className="filters-collapse-icon" />
+
+                        </div>
+                      </div>
+
+
+                      <div className="filters-scroll">
+                        <Accordion>
+                          {allCheckboxes.map((category: any, index: any) => (
+                            <div key={index}>
+                              {graphOrTextView ? (
+                                <>
+                                  <Accordion.Item
+                                    eventKey={index.toString()}
+                                    key={category.category}
+                                    title={category.category}
+                                    className="accordion-item"
+                                  >
+                                    <Accordion.Header className="accordion-header">
+                                      {category.category}
+                                    </Accordion.Header>
+                                    <Accordion.Body className="accordion-body">
+                                      <div className="form-check form-check-inline">
+                                        {category.items.map((item: any) => (
+                                          <div
+                                            className="form-check form-check-inline"
+                                            key={item.id}
+                                          >
+                                            <input
+                                              className={`form-check-input ${category.items[item.id - 1]["status"] ===
+                                                "exclude"
                                                 ? "customCheckBackground"
                                                 : ""
-                                            }`}
-                                            type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                            checked={item.state === "checked"} value={item.value}
-                                            onChange={() => handleCheckboxClick( category.category,item.id )}
-                                          />
-                                          <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                            {item.value}
-                                            {item.category}
-                                          </label>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </Accordion.Body>
-                                    </Accordion.Item>
-                                  </>
-                                ):(
-                                  <>
-                                    {!graphFiltersName.includes(category.category) && (
-                                      <Accordion.Item eventKey={index.toString()} key={category.category}
-                                        title={category.category} className="accordion-item"
-                                      >
+                                                }`}
+                                              type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                              checked={item.state === "checked"} value={item.value}
+                                              onChange={() => handleCheckboxClick(category.category, item.id)}
+                                            />
+                                            <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                              {item.value}
+                                              {item.category}
+                                            </label>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </Accordion.Body>
+                                  </Accordion.Item>
+                                </>
+                              ) : (
+                                <>
+                                  {!graphFiltersName.includes(category.category) && (
+                                    <Accordion.Item eventKey={index.toString()} key={category.category}
+                                      title={category.category} className="accordion-item"
+                                    >
                                       <Accordion.Header className="accordion-header">
                                         {category.category}
                                       </Accordion.Header>
@@ -8048,13 +8078,12 @@ const Sidebar = () => {
                                           {category.items.map((item: any) => (
                                             <div className="form-check form-check-inline" key={item.id} >
                                               <input
-                                                className={`form-check-input ${
-                                                  category.items[item.id - 1]["status"] ===
+                                                className={`form-check-input ${category.items[item.id - 1]["status"] ===
                                                   "exclude" ? "customCheckBackground" : ""
-                                                }`} type="checkbox"
+                                                  }`} type="checkbox"
                                                 id={`checkbox${category.category}-${item.id}`}
                                                 checked={item.state === "checked"} value={item.value}
-                                                onChange={() => handleCheckboxClick( category.category, item.id )}
+                                                onChange={() => handleCheckboxClick(category.category, item.id)}
                                               />
                                               <label
                                                 className="form-check-label"
@@ -8067,210 +8096,204 @@ const Sidebar = () => {
                                           ))}
                                         </div>
                                       </Accordion.Body>
-                                      </Accordion.Item>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                              
-                            ))}
-                          </Accordion>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ):(
-                  <div className="filter-accordion">
-                    <Accordion>
-                      <Accordion.Item eventKey="0" key="0" title="filter" className="accordion-item">
-                        <Accordion.Header className="accordion-header" onClick={handleAccordionClick}>
-                          Filters
-                        </Accordion.Header>
-                      </Accordion.Item>
-                    </Accordion>
-                  </div>
-                )}
-
-              </div>
-            </div>
-          )}
-
-          {/* =====Graph Sliders====================================  */}
-          {graphOrTextView ? (<></>):(
-            hideFiltersForPreview && (
-              <>
-                <div className="forces-container">
-                  <div>
-                    <p style={{margin: '0px'}}>Text Size</p>
-                    <Slider style={{padding: '8px 0px'}} defaultValue={nodeTextSize} size="small" step={0.1}
-                      min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
-                      classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                    />
-                  </div>
-
-                  <div>
-                    <p style={{margin: '0px'}}>Center force</p>
-                    <Slider style={{padding: '8px 0px'}} defaultValue={centerForceValue} size="small" step={0.01}
-                      min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
-                      classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                    />
-                  </div>
-
-                  <div>
-                    <p style={{margin: '0px'}}>Link force</p>
-                    <Slider style={{padding: '8px 0px'}} size="small" min={0} max={1} defaultValue={linkForceValue}
-                      step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
-                      classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
-                    />
-                  </div>
-
-                  <div>
-                    <p style={{margin: '0px'}}>Link distance</p>
-                    <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
-                      style={{padding: '8px 0px'}} size="small" min={0} max={1} step={0.01} aria-label="Small"
-                      onChangeCommitted={handleSliderChangeCommitted}
-                      classes={{ track: 'custom-slider-track',thumb: 'custom-slider-thumb',rail: 'custom-slider-rail', }}
-                    />
-                  </div>
-
-                </div>
-              </>
-            )   
-          )}
-
-        </div>
-
-        <div className={`workspace-content ${themeChangericon ? '': 'night-mode'}`}>
-          {graphOrTextView ? (
-            <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
-              {openedResults.length > 0 ? (
-                openedResults.map((result, index) => (
-                  <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}
-                    handleLinkClick={handleLinkClick} themeChangericon={themeChangericon} 
-                    collapseOpenedResult={collapseOpenedResult} removeBothSearchResults={removeBothSearchResults}
-                    linkClickLoader={linkClickLoader} linkClickedId={linkClickedId}>
-                  </WorkspaceContent>
-                ))
-              ) : (
-                <div className="homepage-opened-file">
-                  <div className="homepage-content-container">
-                    {homepageFile.length === 0 ? (
-                      <p className="opened-result-description"></p>
-                    ) : (
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: filtersData ? homepageFile.content : '',
-                        }}
-                        className="opened-result-description"
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="graph-container">
-              <div id="graph-div" className="graph-div"></div>
-
-              
-              {/* ==============================Filters=============================== */}
-              <div>
-                {showGraphFilters ? (
-                  <>
-                    <div className="graph-color-setting">
-
-                      <div className="graph-color-setting-close-div">
-                        <h5>Graph Filters</h5>
-                        <button onClick={() => setShowGraphFilters(false)}>
-                          {themeChangericon ? (
-                          <img src='/xmarknew.png' alt='filter-icon'/>
-
-                          ):(
-                            <img src='/xmark-dark.png' alt='filter-icon'/>
-                          )}
-                        </button>
-                      </div>
-
-                      <div>
-                        <Accordion>
-                          {graphTagFilters.map((category: any, index: any) => (
-                            <div key={index}>
-                              <>
-                                <Accordion.Item eventKey={index.toString()} key={category.category} 
-                                  title={category.category} className="accordion-item">
-                                  <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
-                                  <Accordion.Body className="accordion-body">
-                                    <div className="form-check form-check-inline">
-                                      {category.items.map((item: any) => (
-                                        <div className="form-check form-check-inline" key={item.id}>
-                                          <input className={`form-check-input ${
-                                                  category.items[item.id - 1]["status"] === "exclude"
-                                                  ? "customCheckBackground" : ""
-                                                  }`}
-                                            type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                            checked={item.state === "checked"} value={item.value}
-                                            onChange={() => handleGraphFilters( category.category, item.id, item.value )}
-                                          />
-                                          <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                            {item.value}
-                                            {item.category}
-                                          </label>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </Accordion.Body>
-                                </Accordion.Item>
-                              </>
+                                    </Accordion.Item>
+                                  )}
+                                </>
+                              )}
                             </div>
+
                           ))}
                         </Accordion>
                       </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="filter-accordion">
+                  <Accordion>
+                    <Accordion.Item eventKey="0" key="0" title="filter" className="accordion-item">
+                      <Accordion.Header className="accordion-header" onClick={handleAccordionClick}>
+                        Filters
+                      </Accordion.Header>
+                    </Accordion.Item>
+                  </Accordion>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* =====Graph Sliders====================================  */}
+        {graphOrTextView ? (<></>) : (
+          hideFiltersForPreview && (
+            <>
+              <div className="forces-container">
+                <div>
+                  <p style={{ margin: '0px' }}>Text Size</p>
+                  <Slider style={{ padding: '8px 0px' }} defaultValue={nodeTextSize} size="small" step={0.1}
+                    min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
+                    classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+                <div>
+                  <p style={{ margin: '0px' }}>Center force</p>
+                  <Slider style={{ padding: '8px 0px' }} defaultValue={centerForceValue} size="small" step={0.01}
+                    min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
+                    classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+                <div>
+                  <p style={{ margin: '0px' }}>Link force</p>
+                  <Slider style={{ padding: '8px 0px' }} size="small" min={0} max={1} defaultValue={linkForceValue}
+                    step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
+                    classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+                <div>
+                  <p style={{ margin: '0px' }}>Link distance</p>
+                  <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
+                    style={{ padding: '8px 0px' }} size="small" min={0} max={1} step={0.01} aria-label="Small"
+                    onChangeCommitted={handleSliderChangeCommitted}
+                    classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                  />
+                </div>
+
+              </div>
+            </>
+          )
+        )}
+
+      </div>
+
+      <div className={`workspace-content ${themeChangericon ? '' : 'night-mode'}`}>
+        {graphOrTextView ? (
+          <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
+            {openedResults.length > 0 ? (
+              openedResults.map((result, index) => (
+                <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}
+                  handleLinkClick={handleLinkClick} themeChangericon={themeChangericon}
+                  collapseOpenedResult={collapseOpenedResult} removeBothSearchResults={removeBothSearchResults}
+                  linkClickLoader={linkClickLoader} linkClickedId={linkClickedId}>
+                </WorkspaceContent>
+              ))
+            ) : (
+              <div className="homepage-opened-file">
+                <div className="homepage-content-container">
+                  {homepageFile.length != 0 && (
+                    <p
+                      dangerouslySetInnerHTML={{ __html: filtersData ? homepageFile.content : '', }}
+                      className="opened-result-description"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="graph-container">
+            <div id="graph-div" className="graph-div"></div>
 
 
-                      {/* =======================Text Filters==============================  */}
-                      <div className="text-filters-div">
-                        <h5>Text Filters</h5>
+            {/* ==============================Filters=============================== */}
+            <div>
+              {showGraphFilters ? (
+                <>
+                  <div className="graph-color-setting">
 
-                        {!graphOrTextView && (
-                          <div className={`${graphOrTextView ? '' : 'text-filters-screen'}`}>
-                            <div className="menus-link">
-                              <div className="sub-accordion">
-                                <Accordion>
-                                  {allCheckboxes.map((category: any, index: any) => (
-                                    <div key={index}>
-                                      {graphOrTextView ? (
-                                        <>
-                                          <Accordion.Item eventKey={index.toString()} key={category.category}
-                                            title={category.category} className="accordion-item"
-                                          >
-                                            <Accordion.Header className="accordion-header">
-                                              {category.category}
-                                            </Accordion.Header>
-                                            <Accordion.Body className="accordion-body">
-                                              <div className="form-check form-check-inline">
-                                                {category.items.map((item: any) => (
-                                                  <div className="form-check form-check-inline" key={item.id}>
-                                                    <input className={`form-check-input ${
-                                                      category.items[item.id - 1]["status"] ===
-                                                      "exclude" ? "customCheckBackground" : ""
-                                                      }`} id={`checkbox${category.category}-${item.id}`}
-                                                      type="checkbox" checked={item.state === "checked"} value={item.value}
-                                                      onChange={() => handleCheckboxClick( category.category,item.id )}
-                                                    />
-                                                    <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                                      {item.value}
-                                                      {item.category}
-                                                    </label>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            </Accordion.Body>
-                                          </Accordion.Item>
-                                        </>
-                                      ):(
-                                        <>
-                                          {!graphFiltersName.includes(category.category) && (
-                                            <Accordion.Item
+                    <div className="graph-color-setting-close-div">
+                      <h5>Graph Filters</h5>
+                      <button onClick={() => setShowGraphFilters(false)}>
+                        {themeChangericon ? (
+                          <img src='/xmarknew.png' alt='filter-icon' />
+
+                        ) : (
+                          <img src='/xmark-dark.png' alt='filter-icon' />
+                        )}
+                      </button>
+                    </div>
+
+                    <div>
+                      <Accordion>
+                        {graphTagFilters.map((category: any, index: any) => (
+                          <div key={index}>
+                            <>
+                              <Accordion.Item eventKey={index.toString()} key={category.category}
+                                title={category.category} className="accordion-item">
+                                <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
+                                <Accordion.Body className="accordion-body">
+                                  <div className="form-check form-check-inline">
+                                    {category.items.map((item: any) => (
+                                      <div className="form-check form-check-inline" key={item.id}>
+                                        <input className={`form-check-input ${category.items[item.id - 1]["status"] === "exclude"
+                                          ? "customCheckBackground" : ""
+                                          }`}
+                                          type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                          checked={item.state === "checked"} value={item.value}
+                                          onChange={() => handleGraphFilters(category.category, item.id, item.value)}
+                                        />
+                                        <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                          {item.value}
+                                          {item.category}
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </>
+                          </div>
+                        ))}
+                      </Accordion>
+                    </div>
+
+
+                    {/* =======================Text Filters==============================  */}
+                    <div className="text-filters-div">
+                      <h5>Text Filters</h5>
+
+                      {!graphOrTextView && (
+                        <div className={`${graphOrTextView ? '' : 'text-filters-screen'}`}>
+                          <div className="menus-link">
+                            <div className="sub-accordion">
+                              <Accordion>
+                                {allCheckboxes.map((category: any, index: any) => (
+                                  <div key={index}>
+                                    {graphOrTextView ? (
+                                      <>
+                                        <Accordion.Item eventKey={index.toString()} key={category.category}
+                                          title={category.category} className="accordion-item"
+                                        >
+                                          <Accordion.Header className="accordion-header">
+                                            {category.category}
+                                          </Accordion.Header>
+                                          <Accordion.Body className="accordion-body">
+                                            <div className="form-check form-check-inline">
+                                              {category.items.map((item: any) => (
+                                                <div className="form-check form-check-inline" key={item.id}>
+                                                  <input className={`form-check-input ${category.items[item.id - 1]["status"] ===
+                                                    "exclude" ? "customCheckBackground" : ""
+                                                    }`} id={`checkbox${category.category}-${item.id}`}
+                                                    type="checkbox" checked={item.state === "checked"} value={item.value}
+                                                    onChange={() => handleCheckboxClick(category.category, item.id)}
+                                                  />
+                                                  <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                                    {item.value}
+                                                    {item.category}
+                                                  </label>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </Accordion.Body>
+                                        </Accordion.Item>
+                                      </>
+                                    ) : (
+                                      <>
+                                        {!graphFiltersName.includes(category.category) && (
+                                          <Accordion.Item
                                             eventKey={index.toString()}
                                             key={category.category}
                                             title={category.category}
@@ -8287,12 +8310,11 @@ const Sidebar = () => {
                                                     key={item.id}
                                                   >
                                                     <input
-                                                      className={`form-check-input ${
-                                                        category.items[item.id - 1]["status"] ===
+                                                      className={`form-check-input ${category.items[item.id - 1]["status"] ===
                                                         "exclude"
-                                                          ? "customCheckBackground"
-                                                          : ""
-                                                      }`}
+                                                        ? "customCheckBackground"
+                                                        : ""
+                                                        }`}
                                                       type="checkbox"
                                                       id={`checkbox${category.category}-${item.id}`}
                                                       checked={item.state === "checked"}
@@ -8315,44 +8337,44 @@ const Sidebar = () => {
                                                 ))}
                                               </div>
                                             </Accordion.Body>
-                                            </Accordion.Item>
-                                          )}
-                                        </>
-                                      )}
-                                    </div>
-                                    
-                                  ))}
-                                </Accordion>
-                              </div>
+                                          </Accordion.Item>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+
+                                ))}
+                              </Accordion>
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  </>
-                ):(
-                  <>
-                    <div className="graph-color-setting-icon">
-                      <button onClick={() => setShowGraphFilters(true)}>
-                        {themeChangericon ? (
-                          <img src='/filter-icon-light.svg' alt='filter-icon'/>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="graph-color-setting-icon">
+                    <button onClick={() => setShowGraphFilters(true)}>
+                      {themeChangericon ? (
+                        <img src='/filter-icon-light.svg' alt='filter-icon' />
 
-                        ):(
-                          <img src='/filter-icon-dark.svg' alt='filter-icon'/>
-                        )}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+                      ) : (
+                        <img src='/filter-icon-dark.svg' alt='filter-icon' />
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-        </div>
-      
-        <ToastContainer />
       </div>
-   
+
+      <ToastContainer />
+    </div>
+
   );
 };
 

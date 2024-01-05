@@ -3,8 +3,6 @@
 }
 
 
-
-
 /* =====================================Homepage================================= */
 /* =====================================Sidebar================================== */
 
@@ -83,21 +81,6 @@
     background: transparent;
 }
 
-
-
-
-/* .navVc {
-    width: 284px;
-    margin: auto;
-    position: relative;
-    height: 100%;
- 
-} */
-
-
-
-
-
 .logoVc {
     width: 300px;
     margin: auto;
@@ -135,6 +118,24 @@
 .night-mode .themeChanger {
     padding-top: 7px;
 }
+
+
+.sidebar-menu-icon {
+    display: none;
+}
+
+.sidebar-workspace-icon {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -215,21 +216,26 @@
     position: relative;
 }
 
+
 .copy-tooltip {
     /* visibility: hidden; */
-    background-color: #dbd9d9;
-    color: #000;
+    background-color: #cccccc;
+    color: #6C655C;
     text-align: center;
     border-radius: 4px;
     padding: 3px 10px;
     position: absolute;
     z-index: 1;
     top: -35px;
-    /* Adjust the distance above the icon */
     left: -35px;
     /* opacity: 0.8; */
     /* transition: opacity 0.3s ease-in-out; */
 
+}
+
+.night-mode .copy-tooltip {
+    background-color: #515151;
+    color: #B3B3B5;
 }
 
 .menuBtn .copy-icon svg {
@@ -294,23 +300,22 @@
     justify-content: space-between;
 }
 
-.set-1 div:last-child {
+/* .set-1 div:last-child { */
+/* display: flex; */
+/* align-items: center; */
+/* justify-content: space-between; */
+/* } */
+
+.search-result-description {
     display: flex;
-    /* align-items: center; */
     justify-content: space-between;
+    align-items: center;
+    /* background-color: purple; */
 }
 
-.set-1 div:last-child img {
-
-    margin-top: 5px;
+.mobile-homepage-video {
+    display: none;
 }
-
-
-/* .filter-data {
-    margin: 20px 0px; 
-    width: 291px;
-    background-color: pink;
-} */
 
 
 .filter-data h1 {
@@ -323,19 +328,19 @@
 }
 
 
-.filter-data .note {
+.filter-data .note p {
     font-size: 0.938rem;
     margin: 0px;
     margin-left: 17px;
     margin-right: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 280px;
+    width: 100%;
     white-space: nowrap;
     color: #6C655C;
 }
 
-.night-mode .filter-data .note {
+.night-mode .filter-data .note p {
     color: #B3B3B5;
 }
 
@@ -351,15 +356,22 @@
 
 
 
-.filter-data .note span,
+.filter-data .note p span,
 .filter-data h1 span {
     background-color: #CFCCC7;
     display: inline-block;
 }
 
-.night-mode .filter-data .note span,
+.night-mode .filter-data .note p span,
 .night-mode .filter-data h1 span {
     background-color: #565959;
+}
+
+.filter-data .note {
+    /* display: flex; */
+    /* flex: 1; */
+    width: 95%;
+    /* background-color: lightblue; */
 }
 
 
@@ -492,24 +504,24 @@
 .form-check-input:checked[type=checkbox] {
     background-image: none !important;
     box-shadow: none !important;
-    border-color: #000 !important;
-    background-color: #000 !important;
+    border-color: #6C655C !important;
+    background-color: #6C655C !important;
 }
 
 .night-mode .form-check-input:checked[type=checkbox] {
-    border-color: #fff !important;
-    background-color: #fff !important;
+    border-color: #B3B3B5 !important;
+    background-color: #B3B3B5 !important;
 }
 
 .form-check-input[type=checkbox] {
     border-radius: 50px !important;
     box-shadow: none !important;
-    border: 1px solid #616161 !important;
+    border: 1px solid #CFCCC7 !important;
     background-color: transparent !important;
 }
 
 .night-mode .form-check-input[type=checkbox] {
-    border: 1px solid #c5c5c5 !important;
+    border: 1px solid #565959 !important;
 }
 
 .form-check-input:disabled {
@@ -587,12 +599,12 @@
     top: 6.3px;
     width: 100%;
     height: 2px;
-    background-color: #3D4043;
+    background-color: #6C655C;
     transform: rotate(-20deg);
 }
 
 .night-mode .customCheckBackground::after {
-    background-color: #c5c5c5;
+    background-color: #B3B3B5;
 }
 
 .customCheckBackground~.form-check-label,
@@ -604,7 +616,7 @@
 .form-check-input.customCheckBackground:checked[type=checkbox] {
     background-image: none !important;
     box-shadow: none !important;
-    border-color: #000 !important;
+    border-color: #565959 !important;
     background-color: transparent !important;
 }
 
@@ -1647,140 +1659,7 @@ button {
     color: #6C655C !important;
 }
 
-@media screen and (min-width: 481px) and (max-width: 767px) {
-    .login-page-container {
-        /* max-width: 75%;
-        margin: 1rem auto; */
-        height: 550px;
-    }
 
-    .login-page-container form .input-group,
-    .signup-page-container form .input-group {
-        height: 37px;
-    }
-
-    .login-page-container form .input-group span,
-    .signup-page-container form .input-group span,
-    .login-page-container form .input-group input,
-    .signup-page-container form .input-group input {
-        height: 100%;
-    }
-
-    .logo img {
-        width: 90px;
-    }
-
-    .logo p {
-        font-size: 24px;
-    }
-
-    .signup-page-container form input,
-    .sign-input input {
-        padding: 7px 15px;
-        font-size: .875rem;
-    }
-
-    .sign-btn button {
-        height: 40px;
-        font-size: 1.15rem;
-    }
-
-    .sign-up button {
-        height: 40px;
-        font-size: 1.15rem;
-    }
-
-
-
-}
-
-@media screen and (max-width: 480px) {
-
-    .login-page-container {
-        height: calc(100vh - 50px) !important;
-    }
-
-    .edit-profile-div,
-    .signup-page-container form,
-    .login-page-container form {
-        max-width: 75% !important;
-        margin: 1rem auto;
-    }
-
-
-    .edit-profile-button-div button {
-        font-size: .82rem !important;
-    }
-
-    .edit-profile-image-div {
-        width: 70px !important;
-        height: 70px !important;
-    }
-
-    .logo img {
-        width: 90px;
-    }
-
-    .logo p {
-        font-size: 24px;
-    }
-
-    .sign-input {
-        margin-top: 0rem !important;
-    }
-
-    .login-page-container form .input-group,
-    .signup-page-container form .input-group {
-        height: 37px;
-    }
-
-    .login-page-container form .input-group span,
-    .signup-page-container form .input-group span,
-    .login-page-container form .input-group input,
-    .signup-page-container form .input-group input {
-        height: 100%;
-    }
-
-
-    .signup-page-container form input,
-    .sign-input input {
-        padding: 7px 15px;
-        font-size: .875rem;
-    }
-
-    .forgot-psd a {
-        font-size: 0.8rem;
-    }
-
-
-
-    .sign-btn button {
-        height: 40px;
-        font-size: 1.15rem;
-    }
-
-
-
-    .sign-up p {
-
-        font-size: 1.25rem;
-
-    }
-
-    .sign-up button {
-
-        height: 40px;
-
-        font-size: 1.15rem;
-    }
-
-
-
-
-
-
-
-}
 
 
 /*  =============================================Dashboard================================== */
@@ -2637,65 +2516,6 @@ button {
     border-color: #616161;
 }
 
-@media screen and (min-width: 481px) and (max-width: 767px) {
-
-    .complete-registration-page,
-    .forgot-password-container {
-        height: 550px;
-    }
-
-    .logo img {
-        width: 90px;
-    }
-
-    .logo p {
-        font-size: 24px;
-    }
-
-    .forgotpassword-page-input input {
-        padding: 7px 15px;
-        font-size: .875rem;
-    }
-
-    .sign-btn button {
-        height: 40px;
-        font-size: 1.15rem;
-    }
-}
-
-@media screen and (max-width: 480px) {
-
-    .complete-registration-page form,
-    .forgot-password-container form {
-        max-width: 75%;
-        margin: 1rem auto;
-    }
-
-    .logo img {
-        width: 90px;
-    }
-
-    .logo p {
-        font-size: 24px;
-    }
-
-    .forgotpassword-page-input {
-        margin-top: 0rem !important;
-    }
-
-    .forgotpassword-page-input input {
-        padding: 7px 15px;
-        font-size: .875rem;
-    }
-
-    .sign-btn button {
-        height: 40px;
-        font-size: 1.15rem;
-    }
-}
-
-
-
 
 
 /* ====================================Reset Passowrd Page========================== */
@@ -2717,8 +2537,17 @@ button {
     margin-top: 35px;
 }
 
+
+
+/* =====================================Media Queries================================== */
+
+
 @media screen and (min-width: 481px) and (max-width: 767px) {
-    .reset-password-container {
+
+    .login-page-container,
+    .reset-password-container,
+    .complete-registration-page,
+    .forgot-password-container {
         height: 550px;
     }
 
@@ -2730,19 +2559,199 @@ button {
         font-size: 24px;
     }
 
+    .forgotpassword-page-input input,
+    .signup-page-container form input,
     .sign-input input {
         padding: 7px 15px;
         font-size: .875rem;
     }
 
+    .sign-up button,
     .sign-btn button {
         height: 40px;
         font-size: 1.15rem;
     }
+
+    .login-page-container form .input-group,
+    .signup-page-container form .input-group {
+        height: 37px;
+    }
+
+    .login-page-container form .input-group span,
+    .signup-page-container form .input-group span,
+    .login-page-container form .input-group input,
+    .signup-page-container form .input-group input {
+        height: 100%;
+    }
+
+
+
 }
 
 @media screen and (max-width: 480px) {
 
+
+
+
+
+
+
+
+
+
+
+
+    /* ====================Dashboard Queries============================================= */
+
+    .sidebar-menu-icon,
+    .sidebar-workspace-icon {
+        display: block;
+    }
+
+    .mobile-icon img,
+    .mobile-icon svg {
+        display: none;
+    }
+
+    .side-nav {
+        width: 100vw;
+
+    }
+
+    .menus {
+        height: 7.2%;
+    }
+
+    .menuBtn,
+    .logoVc {
+        width: 100%;
+        padding: 0 13px;
+    }
+
+    .menuBtn {
+        justify-content: space-between;
+    }
+
+    .copy-icon {
+        margin-right: -7px !important;
+    }
+
+    .search-results .set {
+        width: 100%;
+    }
+
+    .main-homepage {
+        margin-left: 320px;
+        width: calc(100vw - 320px);
+    }
+
+    .search-results {
+        padding-right: 5px;
+    }
+
+    .search-results::-webkit-scrollbar {
+        width: 4px;
+
+    }
+
+    .results-title {
+        margin-bottom: 0px;
+    }
+
+    .results-title span {
+        font-weight: 500;
+    }
+
+    .filter-data h1 {
+        font-size: 1rem;
+    }
+
+    .filter-data .note p {
+        font-size: 0.9rem;
+    }
+
+    .filters-collapse-div p {
+        font-size: 12px;
+    }
+
+    .accordion-header button {
+        font-size: 0.9rem;
+    }
+
+    .form-check-input~.form-check-label {
+        font-size: 0.875rem;
+    }
+
+    .copy-tooltip {
+        font-size: 14px;
+        top: -33px;
+        left: -42px;
+        padding: 3px 8px;
+    }
+
+    .site-name p {
+        font-size: 26px;
+    }
+
+    .mobile-homepage-video {
+        display: block;
+        /* min-width: 300px; */
+        /* padding: 16px; */
+    }
+
+    .mobile-homepage-content-container {
+        width: 100%;
+        height: 223px;
+        /* padding: 0px 0px 0px 0px; */
+    }
+
+    .mobile-homepage-content-container .opened-result-description {
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .mobile-homepage-content-container .opened-result-description h1 {
+        color: #6C655C;
+        font-size: 1.3rem;
+    }
+
+
+    .mobile-homepage-content-container .opened-result-description div {
+        padding: 43.20% 0 0 0 !important;
+        width: 100%;
+        height: 100%;
+        /* position: relative; */
+    }
+
+    .mobile-homepage-content-container .opened-result-description div iframe {
+        height: calc(100% - 55px) !important;
+        /* background-color: #000; */
+    }
+
+    .homepage-opened-file {
+        display: none;
+    }
+
+    /* ====================Dashboard Queries============================================= */
+
+
+
+
+
+
+
+
+
+    .login-page-container {
+        height: calc(100vh - 50px) !important;
+    }
+
+    .edit-profile-div,
+    .signup-page-container form,
+    .login-page-container form,
+    .complete-registration-page form,
+    .forgot-password-container form,
     .reset-password-container form {
         max-width: 75%;
         margin: 1rem auto;
@@ -2756,17 +2765,51 @@ button {
         font-size: 24px;
     }
 
+    .forgotpassword-page-input,
     .sign-input {
         margin-top: 0rem !important;
     }
 
+
+    .forgotpassword-page-input input,
+    .signup-page-container form input,
     .sign-input input {
         padding: 7px 15px;
         font-size: .875rem;
     }
 
+    .sign-up button,
     .sign-btn button {
         height: 40px;
         font-size: 1.15rem;
+    }
+
+    .edit-profile-button-div button {
+        font-size: .82rem !important;
+    }
+
+    .forgot-psd a {
+        font-size: 0.8rem;
+    }
+
+    .edit-profile-image-div {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .login-page-container form .input-group,
+    .signup-page-container form .input-group {
+        height: 37px;
+    }
+
+    .login-page-container form .input-group span,
+    .signup-page-container form .input-group span,
+    .login-page-container form .input-group input,
+    .signup-page-container form .input-group input {
+        height: 100%;
+    }
+
+    .sign-up p {
+        font-size: 1.25rem;
     }
 }
