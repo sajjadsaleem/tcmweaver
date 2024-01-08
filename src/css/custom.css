@@ -2628,9 +2628,13 @@ button {
         display: none;
     }
 
+    .menus {
+        bottom: 100px;
+    }
+
     .main {
         height: auto;
-        width: auto;
+        width: 100%;
         margin-left: 0px;
     }
 
