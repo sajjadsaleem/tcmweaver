@@ -2675,6 +2675,7 @@ button {
 
     .menus {
         height: 7.2%;
+        bottom: 50px;
     }
 
     .menuBtn,
