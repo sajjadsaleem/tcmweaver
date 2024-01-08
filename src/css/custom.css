@@ -2624,13 +2624,10 @@ button {
         height: auto;
     }
 
-    .workspace-content {
+    /* .workspace-content {
         display: none;
-    }
+    } */
 
-    .menus {
-        bottom: 100px;
-    }
 
     .main {
         height: auto;
