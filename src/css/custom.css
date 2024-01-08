@@ -2704,8 +2704,11 @@ button {
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
-        min-height: 65%;
-        max-height: 65%;
+    }
+
+    .results-height {
+        min-height: 38.6vh;
+        max-height: 38.6vh;
     }
 
     .search-results::-webkit-scrollbar {
