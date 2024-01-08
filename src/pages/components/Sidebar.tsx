@@ -32,10 +32,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 
 var internalId: any = 0
-// let searchRequest = 0
-// let cancelToken:any
 let controller: any
-
 
 
 
@@ -178,10 +175,10 @@ const Sidebar = () => {
   // console.log("searchResults", searchResults);
   // console.log("allCheckboxes: ", allCheckboxes);
   // console.log('themeChangeicon' , themeChangericon)
-  // console.log("openedResults: ", openedResults);
+  console.log("openedResults: ", openedResults.length, openedResults);
   // console.log("filtersData: ", filtersData);
-  console.log("graphData: ", graphData);
-  console.log('graphDataAfterFilters', graphDataAfterFilters)
+  // console.log("graphData: ", graphData);
+  // console.log('graphDataAfterFilters', graphDataAfterFilters)
   // console.log("searchValue: ", searchValue);
   // console.log("fileopenedfromgraph", fileOpenedFromGraph);
   // console.log("graphNodeOpened", graphNodeOpened);
@@ -6512,7 +6509,7 @@ const Sidebar = () => {
         const encodedWords = encodeURIComponent(wordsArray.join(","));
         // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
         const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
-        // console.log('response from wander api' , response)
+        // console.log('response from wander api', response)
         if (response) {
 
           function removeDoubleBrackets(content: any) {
@@ -6569,11 +6566,19 @@ const Sidebar = () => {
               updatedGraphData.nodes.push({ id: word.name, tag: word.category });
 
               openedResults.forEach((result) => {
+                // console.log('word.name', word.name, result)
+                // console.log('result', result.content)
                 // Check if the name exists in the content
-                if (result.content.includes(word.name)) {
+                const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
+
+
+                if (pattern.test(result.content)) {
+                  // console.log('inside pattern test ')
                   updatedGraphData.links.push({ source: result.fileName, target: word.name });
                 }
               });
+            } else {
+              console.log(`node already exists (${word.name})`)
             }
           });
 
@@ -7307,6 +7312,20 @@ const Sidebar = () => {
   }
 
 
+  const handleMobileWorkspace = () => {
+    const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+    const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+
+    if (mobileWorkspaceContainer.style.display === 'none') {
+      searchResultsInnerContainer.style.display = 'none';
+      mobileWorkspaceContainer.style.display = 'block';
+    } else {
+      mobileWorkspaceContainer.style.display = 'none';
+      searchResultsInnerContainer.style.display = 'block';
+    }
+  }
+
+
   return (
 
     <div className="homepage-container">
@@ -7402,13 +7421,19 @@ const Sidebar = () => {
             {/* =============Workspace Icon========================== */}
             <div className="sidebar-workspace-icon">
               {themeChangericon ? (
-                <img src="/workspace-icon-light.svg" alt="img"
-                // onClick={() => { handleGraphOrTextView() }}
-                />
+                <>
+                  <img src="/workspace-icon-light.svg" alt="img" onClick={handleMobileWorkspace} />
+                  {openedResults.length > 0 && (
+                    <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                  )}
+                </>
               ) : (
-                <img src="/workspace-icon-dark.svg" alt="img"
-                //  onClick={() => { handleGraphOrTextView() }}
-                />
+                <>
+                  <img src="/workspace-icon-dark.svg" alt="img" onClick={handleMobileWorkspace} />
+                  {openedResults.length > 0 && (
+                    <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                  )}
+                </>
               )}
             </div>
 
@@ -7424,6 +7449,7 @@ const Sidebar = () => {
                 />
               )}
             </div>
+
 
             {syncPopup && (
               <div>
@@ -7714,45 +7740,61 @@ const Sidebar = () => {
           <div className={`search-results ${!shouldShowFilters ? "results-height" : ""}`} >
 
             {searchValue.length > 0 ? (
-              <div>
-                {searchResults.map((result, index) => (
-                  <div className="filter-data" key={index}>
-                    <div className="set set-1">
-                      <div>
-                        <div className="results-title">
-                          <span>{(result as { wordOccurence: number }).wordOccurence}</span>
-
-                          <h1
-                            dangerouslySetInnerHTML={{ __html: (result as { fileNameWithHighlightedWords: string; }).fileNameWithHighlightedWords, }}
-                          // onClick={() => handleFileClick(result["item"])}
-                          />
-                        </div>
-
-                        {themeChangericon ? (
-                          <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
-                        ) : (
-                          <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
-                        )}
-                      </div>
-
-                      <div className="search-result-description">
-                        <div className="note">
-                          <p
-                            dangerouslySetInnerHTML={{ __html: (result as { totalMarkedData: string; }).totalMarkedData, }}
-                          />
-                        </div>
+              <>
+                <div className="search-results-inner-container">
+                  {searchResults.map((result, index) => (
+                    <div className="filter-data" key={index}>
+                      <div className="set set-1">
                         <div>
+                          <div className="results-title">
+                            <span>{(result as { wordOccurence: number }).wordOccurence}</span>
+
+                            <h1
+                              dangerouslySetInnerHTML={{ __html: (result as { fileNameWithHighlightedWords: string; }).fileNameWithHighlightedWords, }}
+                            // onClick={() => handleFileClick(result["item"])}
+                            />
+                          </div>
+
                           {themeChangericon ? (
-                            <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
                           ) : (
-                            <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeBothSearchResults(result)} />
                           )}
+                        </div>
+
+                        <div className="search-result-description">
+                          <div className="note">
+                            <p
+                              dangerouslySetInnerHTML={{ __html: (result as { totalMarkedData: string; }).totalMarkedData, }}
+                            />
+                          </div>
+                          <div>
+                            {themeChangericon ? (
+                              <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            ) : (
+                              <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => openSearchResult(result)} />
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+
+                <div className="mobile-workspace-container">
+                  <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
+                    {openedResults.length > 0 && (
+                      openedResults.map((result, index) => (
+                        <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}
+                          handleLinkClick={handleLinkClick} themeChangericon={themeChangericon}
+                          collapseOpenedResult={collapseOpenedResult} removeBothSearchResults={removeBothSearchResults}
+                          linkClickLoader={linkClickLoader} linkClickedId={linkClickedId}>
+                        </WorkspaceContent>
+                      ))
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              </>
             ) : (
               <>
                 <div className="mobile-homepage-video">
@@ -7764,9 +7806,7 @@ const Sidebar = () => {
                     )}
                   </div>
                 </div>
-
               </>
-
             )}
           </div>
         ) : (
@@ -8281,5 +8321,7 @@ const Sidebar = () => {
 
   );
 };
+
+
 
 export default Sidebar;

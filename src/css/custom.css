@@ -124,8 +124,21 @@
     display: none;
 }
 
+.mobile-workspace-container,
 .sidebar-workspace-icon {
     display: none;
+}
+
+.mobile-workspace-count-badge {
+    position: absolute;
+    bottom: -9px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 0px 5px;
+    /* Adjust padding as needed */
+    font-size: 10px;
 }
 
 
@@ -2595,18 +2608,69 @@ button {
 
 
 
-
-
-
-
-
-
     /* ====================Dashboard Queries============================================= */
 
-    .sidebar-menu-icon,
-    .sidebar-workspace-icon {
+    .sidebar-menu-icon {
         display: block;
     }
+
+    .sidebar-workspace-icon {
+        display: inline-block;
+        position: relative;
+    }
+
+    .sidebar-workspace-icon img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .workspace-content {
+        display: none;
+    }
+
+    .main {
+        height: auto;
+        width: auto;
+        margin-left: 0px;
+    }
+
+    .opened-results {
+        min-width: 300px;
+        max-width: 300px;
+    }
+
+    .view-panel-title {
+        padding: 6px 4px;
+    }
+
+    .view-panel-title h4 {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .view-panel-title-icons {
+        gap: 6px;
+        margin-top: 3px;
+    }
+
+    .view-panel-title-icons img {
+        width: 11px;
+        height: 16px;
+    }
+
+    .opened-result-detail {
+        padding: 0px 0px 0px 4px;
+        height: calc(100vh - 226px);
+    }
+
+    .main::-webkit-scrollbar {
+        height: 5px;
+
+    }
+
+
+
+
 
     .mobile-icon img,
     .mobile-icon svg {
@@ -2647,6 +2711,7 @@ button {
 
     .search-results {
         padding-right: 5px;
+        margin-top: 0px !important;
     }
 
     .search-results::-webkit-scrollbar {
