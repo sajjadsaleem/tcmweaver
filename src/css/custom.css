@@ -143,15 +143,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
 .menus {
     margin-top: 0.9rem !important;
     width: 100%;
@@ -2624,10 +2615,9 @@ button {
         height: auto;
     }
 
-    /* .workspace-content {
+    .workspace-content {
         display: none;
-    } */
-
+    }
 
     .main {
         height: auto;
@@ -2713,6 +2703,8 @@ button {
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
+        min-height: 65%;
+        max-height: 65%;
     }
 
     .search-results::-webkit-scrollbar {
