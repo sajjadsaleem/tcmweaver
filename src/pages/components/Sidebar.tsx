@@ -7782,7 +7782,7 @@ const Sidebar = () => {
                 </div>
 
                 <div className="mobile-workspace-container">
-                  <div className={`${openedResults.length === 0 ? 'main-homepage' : 'main'}`}>
+                  <div className='main'>
                     {openedResults.length > 0 && (
                       openedResults.map((result, index) => (
                         <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}

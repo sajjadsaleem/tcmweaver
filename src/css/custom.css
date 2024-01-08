@@ -2626,8 +2626,8 @@ button {
     }
 
     .opened-results {
-        min-width: 300px;
-        max-width: 300px;
+        min-width: 299px;
+        max-width: 299px;
     }
 
     .view-panel-title {
@@ -2673,11 +2673,7 @@ button {
 
     }
 
-    .menus {
-        height: 10%;
-        /* bottom: 50px; */
-        border: 1px solid blue;
-    }
+
 
     .menuBtn,
     .logoVc {
@@ -2696,16 +2692,19 @@ button {
 
 
 
-    .main-homepage {
+    /* .main-homepage {
         margin-left: 320px;
         width: calc(100vw - 320px);
+    } */
+
+    .menus {
+        /* bottom: 50px; */
+        border: 1px solid blue;
     }
 
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
-        min-height: 60.675vh;
-        max-height: 60.675vh;
         border: 1px solid orange;
     }
 
