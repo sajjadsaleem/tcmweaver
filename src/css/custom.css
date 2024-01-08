@@ -2676,12 +2676,14 @@ button {
     .menus {
         height: 10%;
         /* bottom: 50px; */
+        border: 1px solid blue;
     }
 
     .menuBtn,
     .logoVc {
         width: 100%;
         padding: 0 13px;
+        border: 1px solid red;
     }
 
     .menuBtn {
@@ -2704,6 +2706,7 @@ button {
         margin-top: 0px !important;
         min-height: 60.675vh;
         max-height: 60.675vh;
+        border: 1px solid orange;
     }
 
     .results-height {
