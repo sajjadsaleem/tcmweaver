@@ -175,7 +175,7 @@ const Sidebar = () => {
   // console.log("searchResults", searchResults);
   // console.log("allCheckboxes: ", allCheckboxes);
   // console.log('themeChangeicon' , themeChangericon)
-  console.log("openedResults: ", openedResults.length, openedResults);
+  // console.log("openedResults: ", openedResults.length, openedResults);
   // console.log("filtersData: ", filtersData);
   // console.log("graphData: ", graphData);
   // console.log('graphDataAfterFilters', graphDataAfterFilters)
@@ -2175,7 +2175,7 @@ const Sidebar = () => {
         setShowSearchResultsFound(true)
         console.log("Error fetching search results:", error);
       }
-    }, 300);
+    }, 400);
 
   }
 
@@ -6529,7 +6529,7 @@ const Sidebar = () => {
           });
 
 
-          // console.log('response' , response.data)
+          // console.log('response', response.data)
 
           type YourObjectType = { fileName: any; tag: any };
 
@@ -6540,12 +6540,8 @@ const Sidebar = () => {
           const linkTags = generateLinkTags(response.data.updatedObjects);
           const linkTagsForBacklinks = generateLinkTags(response.data.updatedObjectsForBacklinks);
 
-          // console.log('linkTags',linkTags)
-          // console.log('linkTagsForBacklinks',linkTagsForBacklinks)
-
-
-          // console.log('linkTagsForBacklinks' , linkTagsForBacklinks)
-
+          // console.log('linkTags', linkTags)
+          // console.log('linkTagsForBacklinks', linkTagsForBacklinks)
 
 
           const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || [])
@@ -6558,6 +6554,9 @@ const Sidebar = () => {
             return !searchWords.includes(`-${item.name}`);
           });
 
+          // console.log('filteredData', filteredData)
+          // console.log('filteredDataForBacklinks', filteredDataForBacklinks)
+
 
 
 
@@ -6566,8 +6565,6 @@ const Sidebar = () => {
               updatedGraphData.nodes.push({ id: word.name, tag: word.category });
 
               openedResults.forEach((result) => {
-                // console.log('word.name', word.name, result)
-                // console.log('result', result.content)
                 // Check if the name exists in the content
                 const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
 
@@ -6585,14 +6582,19 @@ const Sidebar = () => {
           filteredDataForBacklinks.forEach((word: any) => {
             if (!nodeExists(word.name)) {
               updatedGraphData.nodes.push({ id: word.name, tag: word.category });
+
               // openedResults.forEach((result) => {
-              //   // Check if the name exists in the content
-              //   if (result.content.includes(word.name)) {
-              //     // Add a link to newLinks
+
+              const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
+
+              // if (pattern.test(result.content)) {
+              // Add a link to newLinks
               updatedGraphData.links.push({ source: word.name, target: fileOpenedFromGraph.id });
-              //   }
+              // }
               // });
               // console.log("nodes:", nodes);
+            } else {
+              console.log(`node already exists (${word.name})`)
             }
           })
 
@@ -6653,16 +6655,33 @@ const Sidebar = () => {
 
           // console.log("updatedGraphData: ", updatedGraphData);
           // let graphNewData = resultData;
+
           setGraphData(updatedGraphData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraph(filteredGraphData);
           setGraphSearchLoader(false)
 
+          // console.log('response again', response)
+
           const originalArray = response.data.updatedObjects;
           const originalArrayForBacklinks = response.data.updatedObjectsForBacklinks
-          const copiedArray = _.cloneDeep(originalArray);
-          const copiedArrayForBacklinks = _.cloneDeep(originalArrayForBacklinks);
-          // console.log('copiedArray',copiedArray)
+          const copiedArrayRaw = _.cloneDeep(originalArray);
+          const copiedArrayForBacklinksRaw = _.cloneDeep(originalArrayForBacklinks);
+          // console.log('copiedArray', copiedArrayRaw)
+          // console.log('copiedArrayForBacklinks', copiedArrayForBacklinksRaw)
+
+          const removeDuplicates = (arr: any) => {
+            return arr.filter((obj: any, index: any, self: any) =>
+              index === self.findIndex((o: any) => o.filename === obj.filename)
+            );
+          };
+
+          const copiedArray = removeDuplicates(copiedArrayRaw);
+          const copiedArrayForBacklinks = removeDuplicates(copiedArrayForBacklinksRaw);
+
+          // console.log('copiedArray', copiedArray)
+          // console.log('copiedArrayForBacklinks', copiedArrayForBacklinks)
+
 
           let updatedOpenedResults: any = [];
 
@@ -6726,22 +6745,30 @@ const Sidebar = () => {
             });
           })
 
+          // console.log('updatedOpenedResults', updatedOpenedResults)
+
           const newOpenedResults = [...openedResults];
-          const filteredUpdatedResults = newOpenedResults.filter((updatedObj: any) => (
-            !updatedOpenedResults.some((existingObj: any) => existingObj.fileName === updatedObj.fileName)
+          // console.log('newOpenedResults', newOpenedResults)
+          const filteredUpdatedResults = updatedOpenedResults.filter((updatedObj: any) => (
+            !newOpenedResults.some((existingObj: any) => existingObj.fileName === updatedObj.fileName)
           ));
 
-          // console.log('filteredupdatedresults' , filteredUpdatedResults)
+          // console.log('filteredupdatedresults', filteredUpdatedResults)
 
 
-          const indexToInsertAfter = filteredUpdatedResults.findIndex((obj) => obj.fileName === fileOpenedFromGraph.id);
+          const indexToInsertAfter = openedResults.findIndex((obj: any) => obj.fileName === fileOpenedFromGraph.id);
+          // console.log('indexToInsertAfter', indexToInsertAfter)
           if (indexToInsertAfter !== -1) {
 
             const insertionIndex = indexToInsertAfter + 1;
 
-            filteredUpdatedResults.splice(insertionIndex, 0, ...updatedOpenedResults);
-            // console.log('filteredUpdatedResults' , filteredUpdatedResults)
-            setOpenedResults(filteredUpdatedResults)
+            const updatedResults = [
+              ...openedResults.slice(0, insertionIndex),
+              ...filteredUpdatedResults,
+              ...openedResults.slice(insertionIndex),
+            ];
+            // console.log('updatedResults', updatedResults)
+            setOpenedResults(updatedResults)
 
           }
         }

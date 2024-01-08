@@ -2626,8 +2626,8 @@ button {
     }
 
     .opened-results {
-        min-width: 299px;
-        max-width: 299px;
+        min-width: 310px;
+        max-width: 310px;
     }
 
     .view-panel-title {
@@ -2679,7 +2679,6 @@ button {
     .logoVc {
         width: 100%;
         padding: 0 13px;
-        border: 1px solid red;
     }
 
     .menuBtn {
@@ -2691,21 +2690,9 @@ button {
     }
 
 
-
-    /* .main-homepage {
-        margin-left: 320px;
-        width: calc(100vw - 320px);
-    } */
-
-    .menus {
-        /* bottom: 50px; */
-        border: 1px solid blue;
-    }
-
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
-        border: 1px solid orange;
     }
 
     .results-height {
