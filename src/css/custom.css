@@ -2674,8 +2674,8 @@ button {
     }
 
     .menus {
-        height: 7.5%;
-        bottom: 50px;
+        height: 10%;
+        /* bottom: 50px; */
     }
 
     .menuBtn,
@@ -2692,9 +2692,7 @@ button {
         margin-right: -7px !important;
     }
 
-    .search-results .set {
-        width: 100%;
-    }
+
 
     .main-homepage {
         margin-left: 320px;
@@ -2704,11 +2702,17 @@ button {
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
+        min-height: 60.675vh;
+        max-height: 60.675vh;
     }
 
     .results-height {
         min-height: 38.6vh;
         max-height: 38.6vh;
+    }
+
+    .search-results .set {
+        width: 100%;
     }
 
     .search-results::-webkit-scrollbar {
