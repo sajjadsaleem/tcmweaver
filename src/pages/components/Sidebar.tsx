@@ -29,10 +29,12 @@ import WorkspaceContent from "./WorkspaceContent";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import MenuIcon from '@mui/icons-material/Menu';
+import TemporaryDrawer from "./RightModal";
 
 
 var internalId: any = 0
 let controller: any
+
 
 
 
@@ -7339,20 +7341,6 @@ const Sidebar = () => {
   }
 
 
-  // const handleMobileWorkspace = () => {
-  //   console.log('helllllo')
-  //   const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
-  //   const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
-
-  //   if (searchResultsInnerContainer && searchResultsInnerContainer.style.display === 'block') {
-  //     searchResultsInnerContainer.style.display = 'none';
-  //     mobileWorkspaceContainer.style.display = 'block';
-  //   } else {
-  //     mobileWorkspaceContainer.style.display = 'none';
-  //     searchResultsInnerContainer.style.display = 'block';
-  //   }
-  // }
-
   const handleMobileWorkspace = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
@@ -7478,18 +7466,12 @@ const Sidebar = () => {
               )}
             </div>
 
-            {/* =============Hamburgur=============================== */}
-            <div className="sidebar-menu-icon">
-              {themeChangericon ? (
-                <img src="/menu-icon-light.svg" alt="img"
-                // onClick={() => { handleGraphOrTextView() }}
-                />
-              ) : (
-                <img src="/menu-icon-dark.svg" alt="img"
-                //  onClick={() => { handleGraphOrTextView() }}
-                />
-              )}
-            </div>
+
+
+            <TemporaryDrawer themeChangeIcon={themeChangericon} textOrGraphView={graphOrTextView}
+              handleThemeChange={handleThemeChangerClick} />
+
+
 
 
             {syncPopup && (

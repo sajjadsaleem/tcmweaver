@@ -1031,10 +1031,10 @@
 
 
 .graph-container {
-    height: 100vh;
-    width: calc(100vw - 346px);
+    height: 100%;
+    width: 100%;
     /* padding-left: 346px; */
-    margin-left: 346px;
+    /* margin-left: 346px; */
     position: relative;
     display: flex;
     overflow-y: hidden;
@@ -2682,6 +2682,7 @@ button {
     }
 
 
+    .graph-search-results,
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
@@ -2690,12 +2691,15 @@ button {
         max-height: calc(100% - 184px);
     }
 
+
+
     .results-height {
         min-height: calc(100% - 341px);
         max-height: calc(100% - 341px);
 
     }
 
+    .graph-search-results .set,
     .search-results .set {
         width: 100%;
     }
@@ -2745,7 +2749,7 @@ button {
     }
 
     .mobile-homepage-video {
-        display: block;
+        display: none;
         /* min-width: 300px; */
         /* padding: 16px; */
     }
@@ -2783,6 +2787,11 @@ button {
     /* .homepage-opened-file {
         display: none;
     } */
+
+    .menus-link {
+        width: 250px;
+
+    }
 
 
 
@@ -2853,6 +2862,7 @@ button {
 
     /* ====================Dashboard Queries============================================= */
 
+
     .side-nav {
         height: calc(100vh - 55px);
         width: 100vw;
@@ -2861,6 +2871,17 @@ button {
 
     .sidebar-menu-icon {
         display: block;
+        text-align: right;
+    }
+
+
+    .sidebar-menu-icon.padding {
+        padding: 10px 18px 0 0;
+    }
+
+    .sidebar-menu-icon img {
+        width: 20px;
+        height: auto;
     }
 
     .sidebar-workspace-icon {
@@ -2911,7 +2932,7 @@ button {
 
     .opened-result-detail {
         padding: 0px 0px 0px 4px;
-        height: calc(100vh - 275px);
+        height: calc(100vh - 276px);
     }
 
     .main::-webkit-scrollbar {
@@ -2950,6 +2971,7 @@ button {
     }
 
 
+    .graph-search-results,
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
@@ -2964,6 +2986,7 @@ button {
 
     }
 
+    .graph-search-results .set,
     .search-results .set {
         width: 100%;
     }
@@ -3057,6 +3080,24 @@ button {
     .menus-filters-visible {
         height: 210px !important;
     }
+
+    .modal-icons img {
+        width: 20px;
+        height: auto;
+        margin-right: 10px;
+
+    }
+
+    .drawer-modal .css-1160xiw-MuiPaper-root-MuiDrawer-paper {
+        background-color: #EDEDED !important;
+        height: calc(100vh - 55px);
+    }
+
+    .night-mode.drawer-modal .css-1160xiw-MuiPaper-root-MuiDrawer-paper {
+        background-color: #323232 !important;
+    }
+
+
 
 
 
