@@ -2626,7 +2626,9 @@ button {
     /* ====================Dashboard Queries============================================= */
 
     .side-nav {
-        height: calc(100vh - 60px);
+        height: calc(100vh - 57px);
+        width: 100vw;
+
     }
 
     .sidebar-menu-icon {
@@ -2697,10 +2699,7 @@ button {
         display: none;
     }
 
-    .side-nav {
-        width: 100vw;
 
-    }
 
 
 
@@ -2731,8 +2730,8 @@ button {
     }
 
     .results-height {
-        min-height: calc(100% - 301px);
-        max-height: calc(100% - 301px);
+        min-height: calc(100% - 341px);
+        max-height: calc(100% - 341px);
 
     }
 
