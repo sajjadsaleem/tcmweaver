@@ -89,7 +89,7 @@
     justify-content: space-between;
     /* height: 8.8%; */
     height: 50px;
-    background-color: lightblue;
+    /* background-color: lightblue; */
 }
 
 .icon-profile {
@@ -155,7 +155,7 @@
     /* position: absolute; */
     /* bottom: 0; */
     display: flex;
-    background-color: lightgoldenrodyellow;
+    /* background-color: lightgoldenrodyellow; */
 
 }
 
@@ -170,7 +170,7 @@
     position: absolute;
     bottom: 0;
     display: flex;
-    background-color: lightgreen;
+    /* background-color: lightgreen; */
 }
 
 /* .filters-scroll {
@@ -213,7 +213,7 @@
     gap: 4px;
     /* height: 9%; */
     height: 55px;
-    background-color: lightcoral;
+    /* background-color: lightcoral; */
 }
 
 .menuBtn .copy-icon {
@@ -433,7 +433,7 @@
     justify-content: space-around;
     /* height: 4.3%; */
     height: 26px;
-    background-color: orange;
+    /* background-color: orange; */
 }
 
 .search-results-found p {
@@ -729,7 +729,7 @@
     overflow-y: scroll;
     padding-left: 10px;
     position: relative;
-    background-color: lightskyblue;
+    /* background-color: lightskyblue; */
 }
 
 .results-toast {
@@ -2641,6 +2641,7 @@ button {
 
     .workspace-content {
         margin-left: 0px;
+        display: none;
     }
 
     .main {
@@ -2726,8 +2727,9 @@ button {
     }
 
     .results-height {
-        min-height: calc(100% - 301px);
-        max-height: calc(100% - 301px);
+        /* min-height: calc(100% - 301px);
+        max-height: calc(100% - 301px); */
+
     }
 
     .search-results .set {
@@ -2820,9 +2822,9 @@ button {
 
 
 
-    .menus-filters-visible {
+    /* .menus-filters-visible {
         height: 170px !important;
-    }
+    } */
 
 
 
