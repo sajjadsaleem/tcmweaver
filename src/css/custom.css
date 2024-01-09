@@ -2679,6 +2679,15 @@ button {
     .logoVc {
         width: 100%;
         padding: 0 13px;
+        background-color: lightblue;
+    }
+
+    .menuBtn {
+        background-color: lightpink;
+    }
+
+    .search-results-found {
+        background-color: lightcyan;
     }
 
     .menuBtn {
@@ -2693,6 +2702,7 @@ button {
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
+        background-color: lightgreen;
     }
 
     .results-height {
@@ -2786,6 +2796,10 @@ button {
 
     .homepage-opened-file {
         display: none;
+    }
+
+    .menus {
+        background-color: lightsalmon;
     }
 
     /* ====================Dashboard Queries============================================= */
