@@ -17,10 +17,12 @@ interface TemporaryDrawerProps {
     themeChangeIcon: boolean;
     textOrGraphView: boolean;
     handleThemeChange: any;
+    handleGraphOrTextView: any;
 }
 
 
-const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, textOrGraphView, handleThemeChange }) => {
+const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, textOrGraphView, handleThemeChange,
+    handleGraphOrTextView }) => {
     const [state, setState] = React.useState({
         top: false,
         left: false,
@@ -50,8 +52,8 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
             onKeyDown={toggleDrawer(anchor, false)}
         >
 
-            <List>
-                <ListItem sx={{ padding: '0' }}>
+            <List sx={{ padding: '0 1rem' }}>
+                <ListItem sx={{ padding: '0' }} onClick={handleGraphOrTextView}>
                     {textOrGraphView ? (
                         <ListItemButton>
                             <div className="modal-icons">

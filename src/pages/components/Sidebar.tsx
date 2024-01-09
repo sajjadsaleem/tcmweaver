@@ -2801,6 +2801,34 @@ const Sidebar = () => {
       graphDiv.innerHTML = "";
     }
 
+    const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+    const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+    let mobileHomepageVideo: any
+
+    console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
+
+    if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
+      searchResultsInnerContainer.style.display = 'none';
+      mobileWorkspaceContainer.style.display = 'none';
+      setTimeout(() => {
+        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+        mobileHomepageVideo.style.display = 'block'
+      }, 200);
+
+    } else if (mobileWorkspaceContainer) {
+      mobileWorkspaceContainer.style.display = 'none';
+      searchResultsInnerContainer.style.display = 'none';
+      setTimeout(() => {
+        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+        mobileHomepageVideo.style.display = 'block'
+      }, 200);
+    } else if (mobileHomepageVideo) {
+      setTimeout(() => {
+        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+        mobileHomepageVideo.style.display = 'block'
+      }, 200);
+    }
+
   };
 
 
@@ -7344,11 +7372,12 @@ const Sidebar = () => {
   const handleMobileWorkspace = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+    console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
     if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
       searchResultsInnerContainer.style.display = 'none';
       mobileWorkspaceContainer.style.display = 'block';
-    } else {
+    } else if (mobileWorkspaceContainer) {
       mobileWorkspaceContainer.style.display = 'none';
       searchResultsInnerContainer.style.display = 'block';
     }
@@ -7449,29 +7478,54 @@ const Sidebar = () => {
 
             {/* =============Workspace Icon========================== */}
             <div className="sidebar-workspace-icon">
-              {themeChangericon ? (
+              {graphOrTextView ? (
                 <>
-                  <img src="/workspace-icon-light.svg" alt="img" onClick={handleMobileWorkspace} />
-                  {openedResults.length > 0 && (
-                    <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                  {themeChangericon ? (
+                    <>
+                      <img src="/workspace-icon-light.svg" alt="img" onClick={handleMobileWorkspace} />
+                      {openedResults.length > 0 && (
+                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <img src="/workspace-icon-dark.svg" alt="img" onClick={handleMobileWorkspace} />
+                      {openedResults.length > 0 && (
+                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                      )}
+                    </>
                   )}
                 </>
+
               ) : (
                 <>
-                  <img src="/workspace-icon-dark.svg" alt="img" onClick={handleMobileWorkspace} />
-                  {openedResults.length > 0 && (
-                    <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                  {themeChangericon ? (
+                    <>
+                      <img src="/graph-logo-light.png" alt="img"
+                      // onClick={handleMobileWorkspace} 
+                      />
+                      {openedResults.length > 0 && (
+                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <img src="/graph-logo-dark.png" alt="img"
+                      // onClick={handleMobileWorkspace} 
+                      />
+                      {openedResults.length > 0 && (
+                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
+                      )}
+                    </>
                   )}
                 </>
+
               )}
+
             </div>
 
-
-
             <TemporaryDrawer themeChangeIcon={themeChangericon} textOrGraphView={graphOrTextView}
-              handleThemeChange={handleThemeChangerClick} />
-
-
+              handleThemeChange={handleThemeChangerClick} handleGraphOrTextView={handleGraphOrTextView} />
 
 
             {syncPopup && (
@@ -7806,7 +7860,7 @@ const Sidebar = () => {
 
                 <div className="mobile-workspace-container">
                   <div className='main'>
-                    {openedResults.length > 0 && (
+                    {openedResults.length > 0 ? (
                       openedResults.map((result, index) => (
                         <WorkspaceContent key={index} result={result} index={index} moveResult={moveResult}
                           handleLinkClick={handleLinkClick} themeChangericon={themeChangericon}
@@ -7814,6 +7868,10 @@ const Sidebar = () => {
                           linkClickLoader={linkClickLoader} linkClickedId={linkClickedId}>
                         </WorkspaceContent>
                       ))
+                    ) : (
+                      <>
+                        <p style={{ paddingTop: '10px' }}>No files open in workspace</p>
+                      </>
                     )}
                   </div>
                 </div>
