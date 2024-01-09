@@ -3088,14 +3088,19 @@ button {
 
     }
 
+    .drawer-modal .css-1ab2xsx,
     .drawer-modal .css-1160xiw-MuiPaper-root-MuiDrawer-paper {
         background-color: #EDEDED !important;
         height: calc(100vh - 55px);
     }
 
+    .night-mode.drawer-modal .css-1ab2xsx,
     .night-mode.drawer-modal .css-1160xiw-MuiPaper-root-MuiDrawer-paper {
         background-color: #323232 !important;
     }
+
+
+
 
 
 
