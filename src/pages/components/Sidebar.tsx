@@ -7339,11 +7339,25 @@ const Sidebar = () => {
   }
 
 
+  // const handleMobileWorkspace = () => {
+  //   console.log('helllllo')
+  //   const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+  //   const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+
+  //   if (searchResultsInnerContainer && searchResultsInnerContainer.style.display === 'block') {
+  //     searchResultsInnerContainer.style.display = 'none';
+  //     mobileWorkspaceContainer.style.display = 'block';
+  //   } else {
+  //     mobileWorkspaceContainer.style.display = 'none';
+  //     searchResultsInnerContainer.style.display = 'block';
+  //   }
+  // }
+
   const handleMobileWorkspace = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
 
-    if (mobileWorkspaceContainer.style.display === 'none') {
+    if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
       searchResultsInnerContainer.style.display = 'none';
       mobileWorkspaceContainer.style.display = 'block';
     } else {
