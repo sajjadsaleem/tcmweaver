@@ -2727,8 +2727,8 @@ button {
     }
 
     .results-height {
-        /* min-height: calc(100% - 301px);
-        max-height: calc(100% - 301px); */
+        min-height: calc(100% - 381px);
+        max-height: calc(100% - 381px);
 
     }
 
@@ -2822,9 +2822,9 @@ button {
 
 
 
-    /* .menus-filters-visible {
-        height: 170px !important;
-    } */
+    .menus-filters-visible {
+        height: 230px !important;
+    }
 
 
 
