@@ -2805,7 +2805,7 @@ const Sidebar = () => {
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
     let mobileHomepageVideo: any
 
-    console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
+    // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
     if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
       searchResultsInnerContainer.style.display = 'none';
@@ -7372,7 +7372,7 @@ const Sidebar = () => {
   const handleMobileWorkspace = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
-    console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
+    // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
     if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
       searchResultsInnerContainer.style.display = 'none';

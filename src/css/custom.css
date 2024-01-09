@@ -2933,7 +2933,7 @@ button {
 
     .opened-result-detail {
         padding: 0px 0px 0px 4px;
-        height: calc(100vh - 276px);
+        height: calc(100vh - 280px);
     }
 
     .main::-webkit-scrollbar {
