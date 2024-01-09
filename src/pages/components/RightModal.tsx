@@ -119,7 +119,7 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
                     <Drawer anchor={anchor} open={state[anchor]} onClose={toggleDrawer(anchor, false)} className={`drawer-modal ${themeChangeIcon ? '' : 'night-mode'}`}>
                         <div className="sidebar-menu-icon padding" >
                             {themeChangeIcon ? (
-                                <img src="/xmarkNew.png" alt="img" onClick={toggleDrawer(anchor, false)} />
+                                <img src="/xmarknew.png" alt="img" onClick={toggleDrawer(anchor, false)} />
                             ) : (
                                 <img src="/xmark-dark.png" alt="img" onClick={toggleDrawer(anchor, false)} />
                             )}
