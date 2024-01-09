@@ -2625,6 +2625,10 @@ button {
 
     /* ====================Dashboard Queries============================================= */
 
+    .side-nav {
+        height: calc(100vh - 60px);
+    }
+
     .sidebar-menu-icon {
         display: block;
     }
@@ -2722,13 +2726,13 @@ button {
         padding-right: 5px;
         margin-top: 0px !important;
         /* background-color: lightgreen; */
-        min-height: calc(100% - 244px);
-        max-height: calc(100% - 244px);
+        min-height: calc(100% - 184px);
+        max-height: calc(100% - 184px);
     }
 
     .results-height {
-        min-height: calc(100% - 381px);
-        max-height: calc(100% - 381px);
+        min-height: calc(100% - 301px);
+        max-height: calc(100% - 301px);
 
     }
 
@@ -2823,8 +2827,10 @@ button {
 
 
     .menus-filters-visible {
-        height: 230px !important;
+        height: 210px !important;
     }
+
+
 
 
 
