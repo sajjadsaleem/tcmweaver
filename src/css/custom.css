@@ -929,7 +929,11 @@
 /* ==========================================Homepage============================= */
 
 .workspace-content {
-    background-color: #EDEDED;
+    /* background-color: #EDEDED; */
+    width: calc(100vw - 346px);
+    margin-left: 346px;
+    background-color: red;
+    height: calc(100vh - 0px);
 }
 
 .homepage-content-container {
@@ -997,9 +1001,10 @@
 /* ==========================================Main=================================*/
 
 .main {
-    height: 100vh;
-    width: calc(100vw - 346px);
-    margin-left: 346px;
+    height: 100%;
+    /* width: calc(100vw - 346px); */
+    /* margin-left: 346px; */
+    width: 100%;
     position: relative;
     display: flex;
     overflow-y: hidden;
@@ -1012,9 +1017,10 @@
 }
 
 .main-homepage {
-    height: 100vh;
-    width: calc(100vw - 346px);
-    margin-left: 346px;
+    height: 100%;
+    /* width: calc(100vw - 346px);
+    margin-left: 346px; */
+    width: 100%;
     position: relative;
     overflow-y: hidden;
     overflow-x: scroll;
@@ -2634,7 +2640,7 @@ button {
     }
 
     .workspace-content {
-        display: none;
+        margin-left: 0px;
     }
 
     .main {
@@ -2715,6 +2721,8 @@ button {
         padding-right: 5px;
         margin-top: 0px !important;
         /* background-color: lightgreen; */
+        min-height: calc(100% - 244px);
+        max-height: calc(100% - 244px);
     }
 
     .results-height {
