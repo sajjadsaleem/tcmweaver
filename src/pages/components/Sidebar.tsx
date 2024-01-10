@@ -2869,33 +2869,39 @@ const Sidebar = () => {
       graphDiv.innerHTML = "";
     }
 
-    const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
-    const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
-    let mobileHomepageVideo: any
+
 
     // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
-    if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
-      searchResultsInnerContainer.style.display = 'none';
-      mobileWorkspaceContainer.style.display = 'none';
-      setTimeout(() => {
-        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
-        mobileHomepageVideo.style.display = 'block'
-      }, 200);
+    if (window.innerWidth < 786) {
+      const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+      const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      let mobileHomepageVideo: any
+      if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
+        searchResultsInnerContainer.style.display = 'none';
+        mobileWorkspaceContainer.style.display = 'none';
+        setTimeout(() => {
+          mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+          mobileHomepageVideo.style.display = 'block'
+        }, 200);
 
-    } else if (mobileWorkspaceContainer) {
-      mobileWorkspaceContainer.style.display = 'none';
-      searchResultsInnerContainer.style.display = 'none';
-      setTimeout(() => {
-        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
-        mobileHomepageVideo.style.display = 'block'
-      }, 200);
-    } else if (mobileHomepageVideo) {
-      setTimeout(() => {
-        mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
-        mobileHomepageVideo.style.display = 'block'
-      }, 200);
+      } else if (mobileWorkspaceContainer) {
+        mobileWorkspaceContainer.style.display = 'none';
+        searchResultsInnerContainer.style.display = 'none';
+        setTimeout(() => {
+          mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+          mobileHomepageVideo.style.display = 'block'
+        }, 200);
+      } else if (mobileHomepageVideo) {
+        setTimeout(() => {
+          mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
+          if (mobileHomepageVideo) {
+            mobileHomepageVideo.style.display = 'block';
+          }
+        }, 200);
+      }
     }
+
 
   };
 

@@ -403,7 +403,7 @@
 
 
 .graph-search-results {
-    margin-top: 6px !important;
+    /* margin-top: 6px !important; */
     margin-bottom: 6px;
     min-height: 43.675%;
     max-height: 43.675%;
