@@ -2996,7 +2996,7 @@ button {
 
 
     .node-preview-detail {
-        height: calc(55.6vh + 0px);
+        height: calc(66vh + 0px);
         border: 1px solid orange;
     }
 
