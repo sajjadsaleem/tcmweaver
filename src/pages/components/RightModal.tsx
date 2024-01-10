@@ -87,7 +87,7 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
 
                 </ListItem>
 
-                {getUser.user_role === 'User' && (
+                {getUser?.user_role === 'User' && (
                     <>
                         <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("profile")}>
                             <ListItemButton>
