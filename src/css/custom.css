@@ -2935,10 +2935,10 @@ button {
 
     .graph-color-setting-close-div h5 {
         font-size: 1.05rem;
-        /* padding-top: 2px; */
+        padding-top: 2px;
     }
 
-    /* .node-text-icon,
+    .node-text-icon,
     .forces-container {
         display: none;
     }
@@ -2954,12 +2954,12 @@ button {
     .graph-forces-container {
         width: 155px;
         color: #6C655C;
-        padding-left: 12px; */
-    /* border: 1px solid red; */
-    /* } */
+        padding-left: 12px;
+        /* border: 1px solid red; */
+    }
 
 
-    /* .node-text-icon-mobile {
+    .node-text-icon-mobile {
         display: block;
         width: 17px;
         margin-right: 1px;
@@ -2968,18 +2968,21 @@ button {
 
     .mobile-node-preview {
 
-        margin-top: 30px !important;
+        margin-top: 4px !important;
         margin-bottom: 6px;
-        min-height: 66.6vh;
-        max-height: 66.6vh; */
-    /* background-color: rgb(116, 97, 100); */
-    /* background-color: rgb(231, 158, 158); */
-    /* width: 100%;
-        margin: auto; */
-    /* overflow-y: scroll; */
-    /* padding-left: 10px;
+        min-height: 61.6vh;
+        max-height: 61.6vh;
+        width: 100%;
+        margin: auto;
+        /* overflow-y: scroll; */
+        padding-left: 10px;
         animation: textFadeRight 1s forwards 1;
-    } */
+    }
+
+
+    .node-preview-detail {
+        height: 55.6vh;
+    }
 
 
 

@@ -7573,6 +7573,24 @@ const Sidebar = () => {
   }
 
 
+  const collapseMobileExpandedNode = () => {
+    const mobileNodePreview: any = document.querySelector('.mobile-node-preview');
+
+
+    if (mobileNodePreview) {
+
+
+      setTimeout(() => {
+        const graphSearchResultsDiv: any = document.querySelector('.graph-search-results');
+        mobileNodePreview.style.display = 'none'
+        graphSearchResultsDiv.style.display = 'block';
+      }, 200);
+    }
+
+    setGraphNodeOpened([]);
+  };
+
+
   return (
 
     <div className="homepage-container">
@@ -8418,6 +8436,7 @@ const Sidebar = () => {
 
                   )}
                 </div>
+
                 {graphNodeOpened && graphNodeOpened.length > 0 && (
                   <div key={animationKey} className="mobile-node-preview">
                     <div className="node-preview-title">
@@ -8452,9 +8471,9 @@ const Sidebar = () => {
                         ) : (
                           <div>
                             {themeChangericon ? (
-                              <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                              <img src="/collapsenew.png" alt="img" onClick={() => collapseMobileExpandedNode()} className="link-collapse-icon" />
                             ) : (
-                              <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                              <img src="/collapse-dark.png" alt="img" onClick={() => collapseMobileExpandedNode()} className="link-collapse-icon" />
                             )}
                           </div>
 
