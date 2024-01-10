@@ -7961,49 +7961,230 @@ const Sidebar = () => {
             ) : (
               <div className={`graph-search-results`} >
                 {graphSearchValue.length > 0 && (
-                  <div>
-                    {searchResults.map((result, index) => (
-                      <div className="filter-data" key={index}>
-                        <div className="set set-1">
-                          <div>
-                            <div className="results-title">
-                              <span> {(result as { wordOccurence: number }).wordOccurence} </span>
-
-                              <h1
-                                dangerouslySetInnerHTML={{
-                                  __html: (result as { fileNameWithHighlightedWords: string; }
-                                  ).fileNameWithHighlightedWords,
-                                }}
-                              // onClick={() => handleFileClick(result["item"])}
-                              />
-                            </div>
-
-                            {themeChangericon ? (
-                              <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                            ) : (
-                              <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                            )}
-                          </div>
-
-                          <div className="search-result-description">
-                            <div className="note">
-                              <p dangerouslySetInnerHTML={{
-                                __html: (result as { totalMarkedData: string; }).totalMarkedData,
-                              }}
-                              />
-                            </div>
+                  <>
+                    <div className="graph-search-results-container">
+                      {searchResults.map((result, index) => (
+                        <div className="filter-data" key={index}>
+                          <div className="set set-1">
                             <div>
+                              <div className="results-title">
+                                <span> {(result as { wordOccurence: number }).wordOccurence} </span>
+
+                                <h1
+                                  dangerouslySetInnerHTML={{
+                                    __html: (result as { fileNameWithHighlightedWords: string; }
+                                    ).fileNameWithHighlightedWords,
+                                  }}
+                                // onClick={() => handleFileClick(result["item"])}
+                                />
+                              </div>
+
                               {themeChangericon ? (
-                                <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
                               ) : (
-                                <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
                               )}
+                            </div>
+
+                            <div className="search-result-description">
+                              <div className="note">
+                                <p dangerouslySetInnerHTML={{
+                                  __html: (result as { totalMarkedData: string; }).totalMarkedData,
+                                }}
+                                />
+                              </div>
+                              <div>
+                                {themeChangericon ? (
+                                  <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                ) : (
+                                  <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
+                      ))}
+                    </div>
+
+                    <div className="graph-mobile-workspace-container">
+                      <div className="graph-container">
+                        <div id="graph-div" className="graph-div"></div>
+
+
+                        {/* ==============================Filters=============================== */}
+                        <div>
+                          {showGraphFilters ? (
+                            <>
+                              <div className="graph-color-setting">
+
+                                <div className="graph-color-setting-close-div">
+                                  <h5>Graph Filters</h5>
+                                  <button onClick={() => setShowGraphFilters(false)}>
+                                    {themeChangericon ? (
+                                      <img src='/xmarknew.png' alt='filter-icon' />
+
+                                    ) : (
+                                      <img src='/xmark-dark.png' alt='filter-icon' />
+                                    )}
+                                  </button>
+                                </div>
+
+                                <div>
+                                  <Accordion>
+                                    {graphTagFilters.map((category: any, index: any) => (
+                                      <div key={index}>
+                                        <>
+                                          <Accordion.Item eventKey={index.toString()} key={category.category}
+                                            title={category.category} className="accordion-item">
+                                            <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
+                                            <Accordion.Body className="accordion-body">
+                                              <div className="form-check form-check-inline">
+                                                {category.items.map((item: any) => (
+                                                  <div className="form-check form-check-inline" key={item.id}>
+                                                    <input className={`form-check-input ${category.items[item.id - 1]["status"] === "exclude"
+                                                      ? "customCheckBackground" : ""
+                                                      }`}
+                                                      type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                                      checked={item.state === "checked"} value={item.value}
+                                                      onChange={() => handleGraphFilters(category.category, item.id, item.value)}
+                                                    />
+                                                    <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                                      {item.value}
+                                                      {item.category}
+                                                    </label>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </Accordion.Body>
+                                          </Accordion.Item>
+                                        </>
+                                      </div>
+                                    ))}
+                                  </Accordion>
+                                </div>
+
+
+                                {/* =======================Text Filters==============================  */}
+                                {/* <div className="text-filters-div">
+                                  <h5>Text Filters</h5>
+
+                                  {!graphOrTextView && (
+                                    <div className={`${graphOrTextView ? '' : 'text-filters-screen'}`}>
+                                      <div className="menus-link">
+                                        <div className="sub-accordion">
+                                          <Accordion>
+                                            {allCheckboxes.map((category: any, index: any) => (
+                                              <div key={index}>
+                                                {graphOrTextView ? (
+                                                  <>
+                                                    <Accordion.Item eventKey={index.toString()} key={category.category}
+                                                      title={category.category} className="accordion-item"
+                                                    >
+                                                      <Accordion.Header className="accordion-header">
+                                                        {category.category}
+                                                      </Accordion.Header>
+                                                      <Accordion.Body className="accordion-body">
+                                                        <div className="form-check form-check-inline">
+                                                          {category.items.map((item: any) => (
+                                                            <div className="form-check form-check-inline" key={item.id}>
+                                                              <input className={`form-check-input ${category.items[item.id - 1]["status"] ===
+                                                                "exclude" ? "customCheckBackground" : ""
+                                                                }`} id={`checkbox${category.category}-${item.id}`}
+                                                                type="checkbox" checked={item.state === "checked"} value={item.value}
+                                                                onChange={() => handleCheckboxClick(category.category, item.id)}
+                                                              />
+                                                              <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                                                {item.value}
+                                                                {item.category}
+                                                              </label>
+                                                            </div>
+                                                          ))}
+                                                        </div>
+                                                      </Accordion.Body>
+                                                    </Accordion.Item>
+                                                  </>
+                                                ) : (
+                                                  <>
+                                                    {!graphFiltersName.includes(category.category) && (
+                                                      <Accordion.Item
+                                                        eventKey={index.toString()}
+                                                        key={category.category}
+                                                        title={category.category}
+                                                        className="accordion-item"
+                                                      >
+                                                        <Accordion.Header className="accordion-header">
+                                                          {category.category}
+                                                        </Accordion.Header>
+                                                        <Accordion.Body className="accordion-body">
+                                                          <div className="form-check form-check-inline">
+                                                            {category.items.map((item: any) => (
+                                                              <div
+                                                                className="form-check form-check-inline"
+                                                                key={item.id}
+                                                              >
+                                                                <input
+                                                                  className={`form-check-input ${category.items[item.id - 1]["status"] ===
+                                                                    "exclude"
+                                                                    ? "customCheckBackground"
+                                                                    : ""
+                                                                    }`}
+                                                                  type="checkbox"
+                                                                  id={`checkbox${category.category}-${item.id}`}
+                                                                  checked={item.state === "checked"}
+                                                                  onChange={() =>
+                                                                    handleCheckboxClick(
+                                                                      category.category,
+                                                                      item.id
+                                                                    )
+                                                                  }
+                                                                  value={item.value}
+                                                                />
+                                                                <label
+                                                                  className="form-check-label"
+                                                                  htmlFor={`checkbox${category.category}-${item.id}`}
+                                                                >
+                                                                  {item.value}
+                                                                  {item.category}
+                                                                </label>
+                                                              </div>
+                                                            ))}
+                                                          </div>
+                                                        </Accordion.Body>
+                                                      </Accordion.Item>
+                                                    )}
+                                                  </>
+                                                )}
+                                              </div>
+
+                                            ))}
+                                          </Accordion>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div> */}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="graph-color-setting-icon">
+                                <button onClick={() => setShowGraphFilters(true)}>
+                                  {themeChangericon ? (
+                                    <img src='/filter-icon-light.svg' alt='filter-icon' />
+
+                                  ) : (
+                                    <img src='/filter-icon-dark.svg' alt='filter-icon' />
+                                  )}
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+
+                    </div>
+                  </>
+
                 )}
               </div>
             )}

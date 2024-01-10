@@ -929,7 +929,7 @@
 /* ==========================================Homepage============================= */
 
 .workspace-content {
-    /* background-color: #EDEDED; */
+    background-color: #EDEDED;
     width: calc(100vw - 346px);
     margin-left: 346px;
     /* background-color: red; */
@@ -969,6 +969,10 @@
 /* ===================================Workspace Content============================================== */
 /* ===================================Graph View=========================================== */
 /* ===================================Filters=========================================== */
+
+.graph-search-results-container {
+    display: none;
+}
 
 .text-filters-div {
     margin-top: 16px;
@@ -2862,6 +2866,69 @@ button {
 
     /* ====================Dashboard Queries============================================= */
 
+    /* ====================Graph=========================================== */
+
+    .graph-search-results {
+        /* padding-right: 5px; */
+        margin-top: 0px !important;
+        min-height: calc(100% - 137px);
+        max-height: calc(100% - 137px);
+        /* background-color: orange; */
+        /* border: 1px solid orange; */
+
+    }
+
+    .graph-search-results-container {
+        display: none;
+    }
+
+    .graph-mobile-workspace-container {
+        /* height: 328px; */
+        height: calc(100vh - 195px);
+        /* border: 1px solid red; */
+
+    }
+
+    .graph-color-setting-icon {
+        top: 0;
+        right: 0;
+    }
+
+    .graph-color-setting-icon button {
+        padding: 0px 2px 1px 2px;
+    }
+
+    .graph-color-setting-icon button img {
+        width: 17px;
+        height: 17px;
+    }
+
+    .graph-color-setting {
+        top: 0;
+        right: 0;
+        width: 185px;
+        padding: 2px 5px 5px 5px;
+        max-height: 305px;
+    }
+
+    .graph-color-setting-close-div button {
+        width: 20px;
+        height: 20px;
+    }
+
+    .graph-color-setting-close-div button img {
+        width: 13px;
+    }
+
+    .graph-color-setting-close-div h5 {
+        font-size: 1.05rem;
+    }
+
+
+
+    /* ====================Graph=========================================== */
+
+
 
     .side-nav {
         height: calc(100vh - 55px);
@@ -2972,7 +3039,8 @@ button {
     }
 
 
-    .graph-search-results,
+
+
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
