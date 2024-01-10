@@ -7647,24 +7647,21 @@ const Sidebar = () => {
               ) : (
                 <img src="/users-dark.svg" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef} />
               )}
-              {/* <img src="/users.png" alt="img" onClick={toggleAccountOptions} style={{ cursor: "pointer" }} ref={usersIconRef}/> */}
+
               {showAccountOptions && (
                 <div className="account-options-container" ref={accountOptionsRef}>
                   <List>
-                    {
-                      _.every(['vault_management'], value => _.includes(getPermissions, value)) && (
-                        <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
-                          <ListItemText primary="Vault Management" />
-                        </ListItem>
-                      )
-                    }
-                    {
-                      _.every(['user_management'], value => _.includes(getPermissions, value)) && (
-                        <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
-                          <ListItemText primary="User Management" />
-                        </ListItem>
-                      )
-                    }
+                    {_.every(['vault_management'], value => _.includes(getPermissions, value)) && (
+                      <ListItem button onClick={() => handleUserManagementClick("vaultmanagement")} dense>
+                        <ListItemText primary="Vault Management" />
+                      </ListItem>
+                    )}
+                    {_.every(['user_management'], value => _.includes(getPermissions, value)) && (
+                      <ListItem button onClick={() => handleUserManagementClick("usermanagement")} dense>
+                        <ListItemText primary="User Management" />
+                      </ListItem>
+                    )}
+
                     {getUser.user_role === 'User' && (
                       <>
                         <ListItem button onClick={() => handleUserOptions("profile")} dense>
@@ -7738,7 +7735,9 @@ const Sidebar = () => {
             </div>
 
             <TemporaryDrawer themeChangeIcon={themeChangericon} textOrGraphView={graphOrTextView}
-              handleThemeChange={handleThemeChangerClick} handleGraphOrTextView={handleGraphOrTextView} />
+              handleThemeChange={handleThemeChangerClick} handleGraphOrTextView={handleGraphOrTextView}
+              handleUserOptions={handleUserOptions} getPermissions={getPermissions}
+              handleUserManagementClick={handleUserManagementClick} getUser={getUser} billingLoader={billingLoader} />
 
 
             {syncPopup && (

@@ -10,6 +10,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import _, { replace, result, update } from "lodash";
+import CircularProgress from '@mui/material/CircularProgress';
 
 type Anchor = 'right';
 
@@ -18,11 +20,16 @@ interface TemporaryDrawerProps {
     textOrGraphView: boolean;
     handleThemeChange: any;
     handleGraphOrTextView: any;
+    handleUserOptions: any;
+    getPermissions: any;
+    handleUserManagementClick: any;
+    getUser: any;
+    billingLoader: any;
 }
 
 
 const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, textOrGraphView, handleThemeChange,
-    handleGraphOrTextView }) => {
+    handleGraphOrTextView, handleUserOptions, getPermissions, handleUserManagementClick, getUser, billingLoader }) => {
     const [state, setState] = React.useState({
         top: false,
         left: false,
@@ -80,6 +87,97 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
 
                 </ListItem>
 
+                {getUser.user_role === 'User' && (
+                    <>
+                        <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("profile")}>
+                            <ListItemButton>
+                                <div className="modal-icons">
+                                    {themeChangeIcon ? (
+                                        <img src="/users.svg" alt="img" />
+                                    ) : (
+                                        <img src="/users-dark.svg" alt="img" />
+                                    )}
+                                </div>
+                                <ListItemText primary="Profile" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("changepassword")}>
+                            <ListItemButton>
+                                <div className="modal-icons">
+                                    {themeChangeIcon ? (
+                                        <img src="/password-light.svg" alt="img" />
+                                    ) : (
+                                        <img src="/password-dark.svg" alt="img" />
+                                    )}
+                                </div>
+                                <ListItemText primary="Change Password" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                            </ListItemButton>
+                        </ListItem>
+
+
+                        <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("billing")}>
+                            <ListItemButton>
+                                <div className="modal-icons">
+                                    {themeChangeIcon ? (
+                                        <img src="/billing-light.svg" alt="img" />
+                                    ) : (
+                                        <img src="/billing-dark.svg" alt="img" />
+                                    )}
+                                </div>
+                                <ListItemText primary="Billing" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                                {billingLoader && <CircularProgress size={17} style={{ color: 'grey' }} />}
+                            </ListItemButton>
+                        </ListItem>
+                    </>
+                )}
+
+
+                <ListItem sx={{ padding: '0' }} onClick={() => handleUserManagementClick("vaultmanagement")}>
+                    {_.every(['vault_management'], value => _.includes(getPermissions, value)) && (
+                        <>
+                            {themeChangeIcon ? (
+                                <ListItemButton>
+                                    <div className="modal-icons">
+                                        <img src="/vault-light.svg" alt="img" />
+                                    </div>
+                                    <ListItemText primary="Vault Management" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                                </ListItemButton>
+                            ) : (
+                                <ListItemButton>
+                                    <div className="modal-icons">
+                                        <img src="/vault-dark.svg" alt="img" />
+                                    </div>
+                                    <ListItemText primary="Vault Management" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                                </ListItemButton>
+                            )}
+                        </>
+                    )}
+                </ListItem>
+
+
+                <ListItem sx={{ padding: '0' }} onClick={() => handleUserManagementClick("usermanagement")}>
+                    {_.every(['user_management'], value => _.includes(getPermissions, value)) && (
+                        <>
+                            {themeChangeIcon ? (
+                                <ListItemButton>
+                                    <div className="modal-icons">
+                                        <img src="/users.svg" alt="img" />
+                                    </div>
+                                    <ListItemText primary="User Management" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                                </ListItemButton>
+                            ) : (
+                                <ListItemButton>
+                                    <div className="modal-icons">
+                                        <img src="/users-dark.svg" alt="img" />
+                                    </div>
+                                    <ListItemText primary="User Management" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                                </ListItemButton>
+                            )}
+                        </>
+                    )}
+                </ListItem>
+
                 <ListItem sx={{ padding: '0' }} onClick={handleThemeChange}>
                     {themeChangeIcon ? (
                         <ListItemButton>
@@ -97,6 +195,31 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
                         </ListItemButton>
                     )}
                 </ListItem>
+
+                <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("logout")}>
+                    {themeChangeIcon ? (
+                        <ListItemButton>
+                            <div className="modal-icons">
+                                <img src="/logout.svg" alt="img" />
+                            </div>
+                            <ListItemText primary="Logout" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                        </ListItemButton>
+                    ) : (
+                        <ListItemButton>
+                            <div className="modal-icons">
+                                <img src="/logout-dark.svg" alt="img" />
+                            </div>
+                            <ListItemText primary="Logout" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
+                        </ListItemButton>
+                    )}
+                </ListItem>
+
+
+
+
+
+
+
 
 
             </List>

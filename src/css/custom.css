@@ -2970,8 +2970,8 @@ button {
 
         margin-top: 4px !important;
         margin-bottom: 6px;
-        min-height: calc(61.6vh + 50px);
-        max-height: calc(61.6vh + 50px);
+        min-height: calc(61.6vh + 55px);
+        max-height: calc(61.6vh + 55px);
 
         width: 100%;
         margin: auto;
