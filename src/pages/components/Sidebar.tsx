@@ -6366,7 +6366,7 @@ const Sidebar = () => {
 
 
   const showNodeClickedFile = async () => {
-    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    // console.log("fileOpenedFromGraph now", fileOpenedFromGraph);
     const matchingResult: any = openedResults.find(
       (result: any) => result.fileName === fileOpenedFromGraph.id
     );
@@ -6576,11 +6576,13 @@ const Sidebar = () => {
   const previewNodeLink = (node: any) => {
     setPreviewNodeLinkLoader(true)
 
-    const matchingResult: any = openedResults.find(
-      (result: any) => result.fileName === node
-    );
+
+
+    const matchingResult: any = openedResults.find((result: any) => result.fileName === node);
+    // console.log('matching result', matchingResult)
 
     if (matchingResult) {
+      // console.log('true')
       setPreviewNodeLinkLoader(false)
       if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
         // Update the array only if the fileName is different
@@ -6588,32 +6590,25 @@ const Sidebar = () => {
         setAnimationKey((prevKey) => prevKey + 1);
       }
     } else {
+      // console.log('false')
       const tableNamesStr = userAccessVaults.join(',');
       // console.log(tableNamesStr)
       axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
         .then((res) => {
           const newDataObject = res.data;
 
-          marked.setOptions({
-            breaks: true,
-          });
+          marked.setOptions({ breaks: true, });
 
           newDataObject.content = marked(newDataObject.content);
-          newDataObject.contentWithRemovedBrackets = marked(
-            newDataObject.content
-          );
+          newDataObject.contentWithRemovedBrackets = marked(newDataObject.content);
 
           const regex = /\[\[([^[\]]+)\]\]/g;
           const hashtagParagraphRegex = /#\S+/g;
-          newDataObject.content = newDataObject.content.replace(
-            hashtagParagraphRegex,
-            ""
-          );
+          newDataObject.content = newDataObject.content.replace(hashtagParagraphRegex, "");
 
           newDataObject.content = newDataObject.content.replace(
-            regex,
-            (match: any, word: any) =>
-              `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            regex, (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
           );
 
           if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {
@@ -7511,9 +7506,7 @@ const Sidebar = () => {
 
   const viewNodeClickedFile = async () => {
     // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
-    const matchingResult: any = openedResults.find(
-      (result: any) => result.fileName === fileOpenedFromGraph.id
-    );
+    const matchingResult: any = openedResults.find((result: any) => result.fileName === fileOpenedFromGraph.id);
 
     if (matchingResult) {
       // console.log("Matching Result:", matchingResult);
@@ -8153,16 +8146,10 @@ const Sidebar = () => {
                 </div>
 
                 <div className="node-preview-detail">
-                  <p
-                    dangerouslySetInnerHTML={{
-                      __html: graphNodeOpened[0].content,
-                    }}
+                  <p dangerouslySetInnerHTML={{ __html: graphNodeOpened[0].content }}
                     className="opened-result-description"
                     onClick={(e: any) => {
-                      if (
-                        e.target.tagName === "SPAN" &&
-                        e.target.style.textDecoration === "underline"
-                      ) {
+                      if (e.target.tagName === "SPAN" && e.target.style.textDecoration === "underline") {
                         const clickedWord = e.target.textContent;
                         previewNodeLink(clickedWord);
                       }
@@ -8488,16 +8475,10 @@ const Sidebar = () => {
                     </div>
 
                     <div className="node-preview-detail">
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: graphNodeOpened[0].content,
-                        }}
+                      <p dangerouslySetInnerHTML={{ __html: graphNodeOpened[0].content, }}
                         className="opened-result-description"
                         onClick={(e: any) => {
-                          if (
-                            e.target.tagName === "SPAN" &&
-                            e.target.style.textDecoration === "underline"
-                          ) {
+                          if (e.target.tagName === "SPAN" && e.target.style.textDecoration === "underline") {
                             const clickedWord = e.target.textContent;
                             previewNodeLink(clickedWord);
                           }
