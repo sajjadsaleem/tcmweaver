@@ -2990,6 +2990,22 @@ button {
     /* ====================Graph=========================================== */
 
 
+    /* ====================User============================================ */
+
+    .edit-user-dialog {
+        width: 320px !important;
+    }
+
+    .edit-user-dialog h2 {
+        font-size: 1.125rem !important;
+    }
+
+    .edit-profile-div-homepage {
+        max-width: 104% !important;
+    }
+
+    /* ====================User============================================ */
+
 
     .side-nav {
         height: calc(100vh - 55px);

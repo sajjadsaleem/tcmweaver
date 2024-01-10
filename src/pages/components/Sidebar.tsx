@@ -7798,7 +7798,7 @@ const Sidebar = () => {
             )}
 
             {showEditUserDialog && (
-              <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }} >
+              <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }} className="edit-user-dialog">
                 <DialogTitle>Edit Profile</DialogTitle>
                 <DialogContent>
 
@@ -7808,7 +7808,7 @@ const Sidebar = () => {
 
                   <Grid container spacing={2} sx={{ paddingTop: 1 }}>
                     <Grid item xs={12}>
-                      <div className="edit-profile-div">
+                      <div className="edit-profile-div edit-profile-div-homepage">
                         <div className="edit-profile-image-div">
                           {formData.image && formData.image !== null && formData.image !== '' ? (
                             <img src={formData.image}
