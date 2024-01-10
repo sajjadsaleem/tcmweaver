@@ -424,7 +424,7 @@ const Sidebar = () => {
   useEffect(() => {
     let element: any;
 
-    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+    if (window.innerWidth <= 575) { // Adjust the threshold according to your design
       element = document.getElementById("graph-div-mobile");
     } else {
       element = document.getElementById("graph-div");
@@ -457,7 +457,7 @@ const Sidebar = () => {
     const updateGraphSize = () => {
       let element: any;
 
-      if (window.innerWidth < 768) { // Adjust the threshold according to your design
+      if (window.innerWidth <= 575) { // Adjust the threshold according to your design
         element = document.getElementById("graph-div-mobile");
       } else {
         element = document.getElementById("graph-div");
@@ -547,7 +547,7 @@ const Sidebar = () => {
         const updateGraphSize = () => {
           let element: any;
 
-          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+          if (window.innerWidth <= 575) { // Adjust the threshold according to your design
             element = document.getElementById("graph-div-mobile");
           } else {
             element = document.getElementById("graph-div");
@@ -575,7 +575,7 @@ const Sidebar = () => {
         const updateGraphSize = () => {
           let element: any;
 
-          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+          if (window.innerWidth <= 575) { // Adjust the threshold according to your design
             element = document.getElementById("graph-div-mobile");
           } else {
             element = document.getElementById("graph-div");
@@ -603,7 +603,7 @@ const Sidebar = () => {
         const updateGraphSize = () => {
           let element: any;
 
-          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+          if (window.innerWidth <= 575) { // Adjust the threshold according to your design
             element = document.getElementById("graph-div-mobile");
           } else {
             element = document.getElementById("graph-div");
@@ -652,7 +652,7 @@ const Sidebar = () => {
   const handleGraphForces = async (graphNewData: any, makingFrom: any) => {
     let element: any;
 
-    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+    if (window.innerWidth <= 575) { // Adjust the threshold according to your design
       element = document.getElementById("graph-div-mobile");
     } else {
       element = document.getElementById("graph-div");
@@ -1219,7 +1219,7 @@ const Sidebar = () => {
       // const svg:any = document.querySelector("#graph-div svg");
       let svgContainer;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         svgContainer = d3.select('#graph-div-mobile');
       } else {
         svgContainer = d3.select('#graph-div');
@@ -1908,7 +1908,7 @@ const Sidebar = () => {
       // const svg:any = document.querySelector("#graph-div svg");
       let svgContainer;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         svgContainer = d3.select('#graph-div-mobile');
       } else {
         svgContainer = d3.select('#graph-div');
@@ -2627,7 +2627,7 @@ const Sidebar = () => {
       setGraphData(resultData);
       let graphDiv: any;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         graphDiv = document.getElementById("graph-div-mobile");
       } else {
         graphDiv = document.getElementById("graph-div");
@@ -2793,7 +2793,7 @@ const Sidebar = () => {
       setGraphData(resultData);
       let graphDiv: any;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         graphDiv = document.getElementById("graph-div-mobile");
       } else {
         graphDiv = document.getElementById("graph-div");
@@ -2859,7 +2859,7 @@ const Sidebar = () => {
     setGraphTagFilters(updatedGraphFilters)
     let graphDiv: any;
 
-    if (window.innerWidth < 768) {
+    if (window.innerWidth <= 575) {
       graphDiv = document.getElementById("graph-div-mobile");
     } else {
       graphDiv = document.getElementById("graph-div");
@@ -3637,7 +3637,7 @@ const Sidebar = () => {
       setCheckGraphStatus(false)
       let graphDiv: any;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         graphDiv = document.getElementById("graph-div-mobile");
       } else {
         graphDiv = document.getElementById("graph-div");
@@ -3665,7 +3665,7 @@ const Sidebar = () => {
   const makeGraph = (graphNewData: any) => {
     let element: any;
 
-    if (window.innerWidth < 768) {
+    if (window.innerWidth <= 575) {
       element = document.getElementById("graph-div-mobile");
     } else {
       element = document.getElementById("graph-div");
@@ -4686,7 +4686,7 @@ const Sidebar = () => {
 
       let svgContainer;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         svgContainer = d3.select('#graph-div-mobile');
       } else {
         svgContainer = d3.select('#graph-div');
@@ -4827,7 +4827,7 @@ const Sidebar = () => {
       } else {
         let graphDiv: any;
 
-        if (window.innerWidth < 768) {
+        if (window.innerWidth <= 575) {
           graphDiv = document.getElementById("graph-div-mobile");
         } else {
           graphDiv = document.getElementById("graph-div");
@@ -4842,7 +4842,7 @@ const Sidebar = () => {
   const makeGraphFromGraphResults = (graphNewData: any) => {
     let element: any;
 
-    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+    if (window.innerWidth <= 575) { // Adjust the threshold according to your design
       element = document.getElementById("graph-div-mobile");
     } else {
       element = document.getElementById("graph-div");
@@ -5847,7 +5847,7 @@ const Sidebar = () => {
 
       let svgContainer;
 
-      if (window.innerWidth < 768) {
+      if (window.innerWidth <= 575) {
         svgContainer = d3.select('#graph-div-mobile');
       } else {
         svgContainer = d3.select('#graph-div');
@@ -5988,7 +5988,7 @@ const Sidebar = () => {
       } else {
         let graphDiv: any;
 
-        if (window.innerWidth < 768) {
+        if (window.innerWidth <= 575) {
           graphDiv = document.getElementById("graph-div-mobile");
         } else {
           graphDiv = document.getElementById("graph-div");
@@ -6087,7 +6087,7 @@ const Sidebar = () => {
   const graphResultExpand = (resultToOpen: any) => {
     let element: any;
 
-    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+    if (window.innerWidth <= 575) { // Adjust the threshold according to your design
       element = document.getElementById("graph-div-mobile");
     } else {
       element = document.getElementById("graph-div");
@@ -8881,6 +8881,53 @@ const Sidebar = () => {
                           </div>
                         </div>
                       )}
+                    </div>
+
+                    {/* ==============================Filters=============================== */}
+                    <div>
+
+
+                      {/* =======================Mobile Sliders============================ */}
+
+                      <div className="text-filters-div">
+                        <h5>Forces</h5>
+                        <div className="graph-forces-container">
+                          <div>
+                            <p style={{ margin: '0px' }}>Text Size</p>
+                            <Slider style={{ padding: '8px 0px' }} defaultValue={nodeTextSize} size="small" step={0.1}
+                              min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
+                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                            />
+                          </div>
+
+                          <div>
+                            <p style={{ margin: '0px' }}>Center force</p>
+                            <Slider style={{ padding: '8px 0px' }} defaultValue={centerForceValue} size="small" step={0.01}
+                              min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
+                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                            />
+                          </div>
+
+                          <div>
+                            <p style={{ margin: '0px' }}>Link force</p>
+                            <Slider style={{ padding: '8px 0px' }} size="small" min={0} max={1} defaultValue={linkForceValue}
+                              step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
+                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                            />
+                          </div>
+
+                          <div>
+                            <p style={{ margin: '0px' }}>Link distance</p>
+                            <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
+                              style={{ padding: '8px 0px' }} size="small" min={0} max={1} step={0.01} aria-label="Small"
+                              onChangeCommitted={handleSliderChangeCommitted}
+                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                            />
+                          </div>
+
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </>

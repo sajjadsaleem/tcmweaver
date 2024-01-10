@@ -2592,13 +2592,41 @@ button {
 
 @media screen and (min-width: 481px) and (max-width: 767px) {
 
+    /* ====================Graph View=================================================== */
+
+    .forces-container {
+        display: none;
+    }
+
+    .graph-color-setting {
+        max-height: 290px;
+    }
+
+    .css-1gv0u6o::after,
+    .css-14gf62f-MuiSlider-thumb::after {
+        width: 20px;
+    }
+
+
+
+    /* ====================Graph View=================================================== */
+
+    .graph-search-results {
+        padding-right: 5px;
+        margin-top: 0px !important;
+        /* background-color: lightgreen; */
+        min-height: calc(100% - 140px);
+        max-height: calc(100% - 140px);
+    }
+
+
+
+
     /* ====================Dashboard Queries============================================= */
 
     .homepage-container {
         height: calc(100vh - 55px);
-        /* width: 280px; */
-
-
+        width: 100%;
     }
 
 
@@ -2615,19 +2643,6 @@ button {
         height: calc(100vh - 0px);
     }
 
-    /* .sidebar-menu-icon {
-        display: block;
-    } */
-
-    /* .sidebar-workspace-icon {
-        display: inline-block;
-        position: relative;
-    } */
-
-    /* .sidebar-workspace-icon img {
-        max-width: 100%;
-        height: auto;
-    } */
 
 
     .main {
@@ -2701,8 +2716,6 @@ button {
         margin-right: -7px !important;
     }
 
-
-    .graph-search-results,
     .search-results {
         padding-right: 5px;
         margin-top: 0px !important;
