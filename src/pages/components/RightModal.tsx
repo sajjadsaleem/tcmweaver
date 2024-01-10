@@ -23,7 +23,7 @@ interface TemporaryDrawerProps {
     handleUserOptions: any;
     getPermissions: any;
     handleUserManagementClick: any;
-    getUser: any;
+    getUser?: any;
     billingLoader: any;
 }
 
@@ -100,6 +100,7 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
                                 </div>
                                 <ListItemText primary="Profile" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
                             </ListItemButton>
+
                         </ListItem>
 
                         <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("changepassword")}>
