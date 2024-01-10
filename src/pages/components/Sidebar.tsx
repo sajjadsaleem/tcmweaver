@@ -7493,6 +7493,7 @@ const Sidebar = () => {
   const handleMobileWorkspace = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+    const mobileHomepageVideo: any = document.querySelector('.mobile-homepage-video');
     // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
     if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
@@ -7501,6 +7502,8 @@ const Sidebar = () => {
     } else if (mobileWorkspaceContainer) {
       mobileWorkspaceContainer.style.display = 'none';
       searchResultsInnerContainer.style.display = 'block';
+    } else if (mobileHomepageVideo) {
+      mobileHomepageVideo.style.display = 'block';
     }
   }
 
@@ -8021,7 +8024,7 @@ const Sidebar = () => {
         {graphOrTextView ? (
           <div className={`search-results ${!shouldShowFilters ? "results-height" : ""}`} >
 
-            {searchValue.length > 0 ? (
+            {searchValue.length > 0 || openedResults.length > 0 ? (
               <>
                 <div className="search-results-inner-container">
                   {searchResults.map((result, index) => (
@@ -8160,7 +8163,7 @@ const Sidebar = () => {
             ) : (
               <>
                 <div className={`graph-search-results`} >
-                  {graphSearchValue.length > 0 && (
+                  {graphSearchValue.length >= 0 && (
                     <>
                       <div className="graph-search-results-container">
                         {searchResults.map((result, index) => (
