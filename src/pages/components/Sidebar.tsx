@@ -422,7 +422,13 @@ const Sidebar = () => {
 
   // make graph on changing theme
   useEffect(() => {
-    let element: any = document.getElementById("graph-div");
+    let element: any;
+
+    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+      element = document.getElementById("graph-div-mobile");
+    } else {
+      element = document.getElementById("graph-div");
+    }
     if (element && element.children) {
       const hasSvg = Array.from(element.children).some((child: any) => child.tagName.toLowerCase() === 'svg');
       if (hasSvg) {
@@ -449,7 +455,13 @@ const Sidebar = () => {
   // set graph width and height on resize
   useEffect(() => {
     const updateGraphSize = () => {
-      const element = document.getElementById('graph-div');
+      let element: any;
+
+      if (window.innerWidth < 768) { // Adjust the threshold according to your design
+        element = document.getElementById("graph-div-mobile");
+      } else {
+        element = document.getElementById("graph-div");
+      }
       if (element) {
         const newWidth = element.offsetWidth;
         const newHeight = element.offsetHeight;
@@ -533,7 +545,13 @@ const Sidebar = () => {
     if (!graphOrTextView) {
       if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
-          const element = document.getElementById('graph-div');
+          let element: any;
+
+          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+            element = document.getElementById("graph-div-mobile");
+          } else {
+            element = document.getElementById("graph-div");
+          }
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
@@ -555,7 +573,13 @@ const Sidebar = () => {
     if (!graphOrTextView) {
       if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
-          const element = document.getElementById('graph-div');
+          let element: any;
+
+          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+            element = document.getElementById("graph-div-mobile");
+          } else {
+            element = document.getElementById("graph-div");
+          }
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
@@ -577,7 +601,13 @@ const Sidebar = () => {
     if (!graphOrTextView) {
       if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         const updateGraphSize = () => {
-          const element = document.getElementById('graph-div');
+          let element: any;
+
+          if (window.innerWidth < 768) { // Adjust the threshold according to your design
+            element = document.getElementById("graph-div-mobile");
+          } else {
+            element = document.getElementById("graph-div");
+          }
           if (element) {
             const newWidth = element.offsetWidth;
             const newHeight = element.offsetHeight;
@@ -620,7 +650,13 @@ const Sidebar = () => {
 
 
   const handleGraphForces = async (graphNewData: any, makingFrom: any) => {
-    let element: any = document.getElementById("graph-div");
+    let element: any;
+
+    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+      element = document.getElementById("graph-div-mobile");
+    } else {
+      element = document.getElementById("graph-div");
+    }
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
 
@@ -1181,7 +1217,13 @@ const Sidebar = () => {
 
 
       // const svg:any = document.querySelector("#graph-div svg");
-      const svgContainer = d3.select('#graph-div');
+      let svgContainer;
+
+      if (window.innerWidth < 768) {
+        svgContainer = d3.select('#graph-div-mobile');
+      } else {
+        svgContainer = d3.select('#graph-div');
+      }
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
 
@@ -1864,7 +1906,13 @@ const Sidebar = () => {
 
 
       // const svg:any = document.querySelector("#graph-div svg");
-      const svgContainer = d3.select('#graph-div');
+      let svgContainer;
+
+      if (window.innerWidth < 768) {
+        svgContainer = d3.select('#graph-div-mobile');
+      } else {
+        svgContainer = d3.select('#graph-div');
+      }
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
 
@@ -2577,7 +2625,14 @@ const Sidebar = () => {
       // console.log('resultData: ' , resultData)
       // let graphNewData = resultData;
       setGraphData(resultData);
-      const graphDiv: any = document.getElementById('graph-div');
+      let graphDiv: any;
+
+      if (window.innerWidth < 768) {
+        graphDiv = document.getElementById("graph-div-mobile");
+      } else {
+        graphDiv = document.getElementById("graph-div");
+      }
+
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -2736,7 +2791,14 @@ const Sidebar = () => {
       // console.log('resultData: ' , resultData)
       // let graphNewData = resultData;
       setGraphData(resultData);
-      const graphDiv: any = document.getElementById('graph-div');
+      let graphDiv: any;
+
+      if (window.innerWidth < 768) {
+        graphDiv = document.getElementById("graph-div-mobile");
+      } else {
+        graphDiv = document.getElementById("graph-div");
+      }
+
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -2795,8 +2857,14 @@ const Sidebar = () => {
       })),
     }));
     setGraphTagFilters(updatedGraphFilters)
+    let graphDiv: any;
 
-    const graphDiv = document.getElementById("graph-div");
+    if (window.innerWidth < 768) {
+      graphDiv = document.getElementById("graph-div-mobile");
+    } else {
+      graphDiv = document.getElementById("graph-div");
+    }
+
     if (graphDiv) {
       graphDiv.innerHTML = "";
     }
@@ -3561,7 +3629,14 @@ const Sidebar = () => {
     } else {
       // console.log('false')
       setCheckGraphStatus(false)
-      const graphDiv: any = document.getElementById('graph-div');
+      let graphDiv: any;
+
+      if (window.innerWidth < 768) {
+        graphDiv = document.getElementById("graph-div-mobile");
+      } else {
+        graphDiv = document.getElementById("graph-div");
+      }
+
       if (graphDiv) {
         const svgElement = graphDiv.querySelector('svg');
         if (svgElement) {
@@ -3582,7 +3657,15 @@ const Sidebar = () => {
 
 
   const makeGraph = (graphNewData: any) => {
-    let element: any = document.getElementById("graph-div");
+    let element: any;
+
+    if (window.innerWidth < 768) {
+      element = document.getElementById("graph-div-mobile");
+    } else {
+      element = document.getElementById("graph-div");
+    }
+
+    // console.log('element', element)
 
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
@@ -4595,7 +4678,13 @@ const Sidebar = () => {
       // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
 
 
-      const svgContainer = d3.select('#graph-div');
+      let svgContainer;
+
+      if (window.innerWidth < 768) {
+        svgContainer = d3.select('#graph-div-mobile');
+      } else {
+        svgContainer = d3.select('#graph-div');
+      }
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
 
@@ -4730,7 +4819,13 @@ const Sidebar = () => {
       if (element) {
         element.appendChild(svgResult.svg);
       } else {
-        const graphDiv: any = document.getElementById("graph-div");
+        let graphDiv: any;
+
+        if (window.innerWidth < 768) {
+          graphDiv = document.getElementById("graph-div-mobile");
+        } else {
+          graphDiv = document.getElementById("graph-div");
+        }
         graphDiv.appendChild(svgResult.svg);
       }
     }
@@ -4739,7 +4834,13 @@ const Sidebar = () => {
 
 
   const makeGraphFromGraphResults = (graphNewData: any) => {
-    let element: any = document.getElementById("graph-div");
+    let element: any;
+
+    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+      element = document.getElementById("graph-div-mobile");
+    } else {
+      element = document.getElementById("graph-div");
+    }
 
     let graphWidth = element.offsetWidth;
     let graphHeight = element.offsetHeight;
@@ -5738,7 +5839,13 @@ const Sidebar = () => {
       // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
 
 
-      const svgContainer = d3.select('#graph-div');
+      let svgContainer;
+
+      if (window.innerWidth < 768) {
+        svgContainer = d3.select('#graph-div-mobile');
+      } else {
+        svgContainer = d3.select('#graph-div');
+      }
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
 
@@ -5873,7 +5980,13 @@ const Sidebar = () => {
       if (element) {
         element.appendChild(svgResult.svg);
       } else {
-        const graphDiv: any = document.getElementById("graph-div");
+        let graphDiv: any;
+
+        if (window.innerWidth < 768) {
+          graphDiv = document.getElementById("graph-div-mobile");
+        } else {
+          graphDiv = document.getElementById("graph-div");
+        }
         graphDiv.appendChild(svgResult.svg);
       }
     }
@@ -5966,7 +6079,13 @@ const Sidebar = () => {
 
 
   const graphResultExpand = (resultToOpen: any) => {
-    let element: any = document.getElementById("graph-div");
+    let element: any;
+
+    if (window.innerWidth < 768) { // Adjust the threshold according to your design
+      element = document.getElementById("graph-div-mobile");
+    } else {
+      element = document.getElementById("graph-div");
+    }
 
     if (element && element.querySelector('svg')) {
       // console.log('The "graph-div" contains an SVG element.');
@@ -6255,6 +6374,7 @@ const Sidebar = () => {
       }
     } else {
       // Now does not come in this else
+      console.log('should not come in this else : showNodeClickedFile')
       try {
         const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
         const newDataObject = await response.json();
@@ -7383,6 +7503,75 @@ const Sidebar = () => {
     }
   }
 
+  const viewNodeClickedFile = async () => {
+    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
+    const matchingResult: any = openedResults.find(
+      (result: any) => result.fileName === fileOpenedFromGraph.id
+    );
+
+    if (matchingResult) {
+      // console.log("Matching Result:", matchingResult);
+
+      if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
+        // Update the array only if the fileName is different
+        setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
+      }
+    } else {
+      // Now does not come in this else
+      console.log('should not come in this else : showNodeClickedFile')
+      try {
+        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
+        const newDataObject = await response.json();
+        // console.log("responseJson: ", responseJson);
+
+        marked.setOptions({
+          breaks: true,
+        });
+
+        newDataObject.content = marked(newDataObject.content);
+        newDataObject.contentWithRemovedBrackets = marked(
+          newDataObject.content
+        );
+
+        const regex = /\[\[([^[\]]+)\]\]/g;
+        const hashtagParagraphRegex = /#\S+/g;
+        newDataObject.content = newDataObject.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+
+        newDataObject.content = newDataObject.content.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        );
+        console.log("newDataObject", newDataObject);
+
+        setGraphNodeOpened(newDataObject);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    }
+
+
+    const graphSearchResultsDiv: any = document.querySelector('.graph-search-results');
+
+
+    if (graphSearchResultsDiv) {
+      graphSearchResultsDiv.style.display = 'none';
+
+      setTimeout(() => {
+        const mobileNodePreview: any = document.querySelector('.mobile-node-preview');
+        mobileNodePreview.style.display = 'block'
+      }, 200);
+    }
+
+    setAnimationKey((prevKey) => prevKey + 1);
+    // sethideFiltersForPreview(false);
+
+
+  }
+
 
   return (
 
@@ -7959,113 +8148,155 @@ const Sidebar = () => {
                 </div>
               </div>
             ) : (
-              <div className={`graph-search-results`} >
-                {graphSearchValue.length > 0 && (
-                  <>
-                    <div className="graph-search-results-container">
-                      {searchResults.map((result, index) => (
-                        <div className="filter-data" key={index}>
-                          <div className="set set-1">
-                            <div>
-                              <div className="results-title">
-                                <span> {(result as { wordOccurence: number }).wordOccurence} </span>
-
-                                <h1
-                                  dangerouslySetInnerHTML={{
-                                    __html: (result as { fileNameWithHighlightedWords: string; }
-                                    ).fileNameWithHighlightedWords,
-                                  }}
-                                // onClick={() => handleFileClick(result["item"])}
-                                />
-                              </div>
-
-                              {themeChangericon ? (
-                                <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                              ) : (
-                                <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
-                              )}
-                            </div>
-
-                            <div className="search-result-description">
-                              <div className="note">
-                                <p dangerouslySetInnerHTML={{
-                                  __html: (result as { totalMarkedData: string; }).totalMarkedData,
-                                }}
-                                />
-                              </div>
+              <>
+                <div className={`graph-search-results`} >
+                  {graphSearchValue.length > 0 && (
+                    <>
+                      <div className="graph-search-results-container">
+                        {searchResults.map((result, index) => (
+                          <div className="filter-data" key={index}>
+                            <div className="set set-1">
                               <div>
+                                <div className="results-title">
+                                  <span> {(result as { wordOccurence: number }).wordOccurence} </span>
+
+                                  <h1
+                                    dangerouslySetInnerHTML={{
+                                      __html: (result as { fileNameWithHighlightedWords: string; }
+                                      ).fileNameWithHighlightedWords,
+                                    }}
+                                  // onClick={() => handleFileClick(result["item"])}
+                                  />
+                                </div>
+
                                 {themeChangericon ? (
-                                  <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                  <img src="/xmarknew.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
                                 ) : (
-                                  <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                  <img src="/xmark-dark.png" alt="img" className="remove-search-result" onClick={() => removeSearchResult(result)} />
                                 )}
+                              </div>
+
+                              <div className="search-result-description">
+                                <div className="note">
+                                  <p dangerouslySetInnerHTML={{
+                                    __html: (result as { totalMarkedData: string; }).totalMarkedData,
+                                  }}
+                                  />
+                                </div>
+                                <div>
+                                  {themeChangericon ? (
+                                    <img src="/arrow-rightnew.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                  ) : (
+                                    <img src="/arrow-right-dark.png" alt="img" className="remove-search-result" onClick={() => graphResultExpand(result)} />
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    <div className="graph-mobile-workspace-container">
-                      <div className="graph-container">
-                        <div id="graph-div" className="graph-div"></div>
+                      <div className="graph-mobile-workspace-container">
+                        <div className="graph-container">
+                          <div id="graph-div-mobile" className="graph-div"></div>
 
 
-                        {/* ==============================Filters=============================== */}
-                        <div>
-                          {showGraphFilters ? (
-                            <>
-                              <div className="graph-color-setting">
+                          {/* ==============================Filters=============================== */}
+                          <div>
+                            {showGraphFilters ? (
+                              <>
+                                <div className="graph-color-setting">
 
-                                <div className="graph-color-setting-close-div">
-                                  <h5>Graph Filters</h5>
-                                  <button onClick={() => setShowGraphFilters(false)}>
-                                    {themeChangericon ? (
-                                      <img src='/xmarknew.png' alt='filter-icon' />
+                                  <div className="graph-color-setting-close-div">
+                                    <h5>Graph Filters</h5>
+                                    <button onClick={() => setShowGraphFilters(false)}>
+                                      {themeChangericon ? (
+                                        <img src='/xmarknew.png' alt='filter-icon' />
 
-                                    ) : (
-                                      <img src='/xmark-dark.png' alt='filter-icon' />
-                                    )}
-                                  </button>
-                                </div>
+                                      ) : (
+                                        <img src='/xmark-dark.png' alt='filter-icon' />
+                                      )}
+                                    </button>
+                                  </div>
 
-                                <div>
-                                  <Accordion>
-                                    {graphTagFilters.map((category: any, index: any) => (
-                                      <div key={index}>
-                                        <>
-                                          <Accordion.Item eventKey={index.toString()} key={category.category}
-                                            title={category.category} className="accordion-item">
-                                            <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
-                                            <Accordion.Body className="accordion-body">
-                                              <div className="form-check form-check-inline">
-                                                {category.items.map((item: any) => (
-                                                  <div className="form-check form-check-inline" key={item.id}>
-                                                    <input className={`form-check-input ${category.items[item.id - 1]["status"] === "exclude"
-                                                      ? "customCheckBackground" : ""
-                                                      }`}
-                                                      type="checkbox" id={`checkbox${category.category}-${item.id}`}
-                                                      checked={item.state === "checked"} value={item.value}
-                                                      onChange={() => handleGraphFilters(category.category, item.id, item.value)}
-                                                    />
-                                                    <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                                      {item.value}
-                                                      {item.category}
-                                                    </label>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            </Accordion.Body>
-                                          </Accordion.Item>
-                                        </>
+                                  <div>
+                                    <Accordion>
+                                      {graphTagFilters.map((category: any, index: any) => (
+                                        <div key={index}>
+                                          <>
+                                            <Accordion.Item eventKey={index.toString()} key={category.category}
+                                              title={category.category} className="accordion-item">
+                                              <Accordion.Header className="accordion-header">{category.category}</Accordion.Header>
+                                              <Accordion.Body className="accordion-body">
+                                                <div className="form-check form-check-inline">
+                                                  {category.items.map((item: any) => (
+                                                    <div className="form-check form-check-inline" key={item.id}>
+                                                      <input className={`form-check-input ${category.items[item.id - 1]["status"] === "exclude"
+                                                        ? "customCheckBackground" : ""
+                                                        }`}
+                                                        type="checkbox" id={`checkbox${category.category}-${item.id}`}
+                                                        checked={item.state === "checked"} value={item.value}
+                                                        onChange={() => handleGraphFilters(category.category, item.id, item.value)}
+                                                      />
+                                                      <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
+                                                        {item.value}
+                                                        {item.category}
+                                                      </label>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              </Accordion.Body>
+                                            </Accordion.Item>
+                                          </>
+                                        </div>
+                                      ))}
+                                    </Accordion>
+                                  </div>
+
+                                  {/* =======================Mobile Sliders============================ */}
+
+                                  <div className="text-filters-div">
+                                    <h5>Forces</h5>
+                                    <div className="graph-forces-container">
+                                      <div>
+                                        <p style={{ margin: '0px' }}>Text Size</p>
+                                        <Slider style={{ padding: '8px 0px' }} defaultValue={nodeTextSize} size="small" step={0.1}
+                                          min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
+                                          classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                                        />
                                       </div>
-                                    ))}
-                                  </Accordion>
-                                </div>
+
+                                      <div>
+                                        <p style={{ margin: '0px' }}>Center force</p>
+                                        <Slider style={{ padding: '8px 0px' }} defaultValue={centerForceValue} size="small" step={0.01}
+                                          min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
+                                          classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <p style={{ margin: '0px' }}>Link force</p>
+                                        <Slider style={{ padding: '8px 0px' }} size="small" min={0} max={1} defaultValue={linkForceValue}
+                                          step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
+                                          classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <p style={{ margin: '0px' }}>Link distance</p>
+                                        <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
+                                          style={{ padding: '8px 0px' }} size="small" min={0} max={1} step={0.01} aria-label="Small"
+                                          onChangeCommitted={handleSliderChangeCommitted}
+                                          classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
+                                        />
+                                      </div>
+
+                                    </div>
+                                  </div>
 
 
-                                {/* =======================Text Filters==============================  */}
-                                {/* <div className="text-filters-div">
+                                  {/* =======================Text Filters==============================  */}
+                                  {/* <div className="text-filters-div">
                                   <h5>Text Filters</h5>
 
                                   {!graphOrTextView && (
@@ -8163,30 +8394,95 @@ const Sidebar = () => {
                                     </div>
                                   )}
                                 </div> */}
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="graph-color-setting-icon">
-                                <button onClick={() => setShowGraphFilters(true)}>
-                                  {themeChangericon ? (
-                                    <img src='/filter-icon-light.svg' alt='filter-icon' />
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="graph-color-setting-icon">
+                                  <button onClick={() => setShowGraphFilters(true)}>
+                                    {themeChangericon ? (
+                                      <img src='/filter-icon-light.svg' alt='filter-icon' />
 
-                                  ) : (
-                                    <img src='/filter-icon-dark.svg' alt='filter-icon' />
-                                  )}
-                                </button>
-                              </div>
-                            </>
-                          )}
+                                    ) : (
+                                      <img src='/filter-icon-dark.svg' alt='filter-icon' />
+                                    )}
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
+
+                      </div>
+                    </>
+
+                  )}
+                </div>
+                {graphNodeOpened && graphNodeOpened.length > 0 && (
+                  <div key={animationKey} className="mobile-node-preview">
+                    <div className="node-preview-title">
+                      <div className="graph-show-node">
+                        {graphNodeOpened.length === 1 ? (
+                          <div>
+                            {themeChangericon ? (
+                              <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                            ) : (
+                              <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
+                            )}
+                            {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
+                            className="graph-node-backarrow-single">
+                          </ArrowBackIcon> */}
+                          </div>
+                        ) : (
+                          <div onClick={handleLeftArrowForPreviousFile}>
+                            {themeChangericon ? (
+                              <img src="/arrow-leftnew.png" alt="img" className="graph-node-backarrow-single" />
+                            ) : (
+                              <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
+                            )}
+                          </div>
+                        )}
+                        <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
                       </div>
 
-                    </div>
-                  </>
 
+                      <div className="preview-node-loader">
+                        {previewNodeLinkLoader ? (
+                          <CircularProgress size={16} style={{ color: 'black' }} />
+                        ) : (
+                          <div>
+                            {themeChangericon ? (
+                              <img src="/collapsenew.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                            ) : (
+                              <img src="/collapse-dark.png" alt="img" onClick={() => collapseExpandedNode()} className="link-collapse-icon" />
+                            )}
+                          </div>
+
+                        )}
+
+                      </div>
+                    </div>
+
+                    <div className="node-preview-detail">
+                      <p
+                        dangerouslySetInnerHTML={{
+                          __html: graphNodeOpened[0].content,
+                        }}
+                        className="opened-result-description"
+                        onClick={(e: any) => {
+                          if (
+                            e.target.tagName === "SPAN" &&
+                            e.target.style.textDecoration === "underline"
+                          ) {
+                            const clickedWord = e.target.textContent;
+                            previewNodeLink(clickedWord);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 )}
-              </div>
+              </>
             )}
 
             <div id="nodeInfo" className="node-click-options">
@@ -8197,9 +8493,15 @@ const Sidebar = () => {
               )}
 
               {themeChangericon ? (
-                <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                <>
+                  <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                  <img src="/node-text.svg" alt="img" className="node-text-icon-mobile" onClick={viewNodeClickedFile} />
+                </>
               ) : (
-                <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                <>
+                  <img src="/node-text-dark.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                  <img src="/node-text-dark.svg" alt="img" className="node-text-icon-mobile" onClick={viewNodeClickedFile} />
+                </>
               )}
 
               {themeChangericon ? (
