@@ -2991,11 +2991,13 @@ button {
         /* overflow-y: scroll; */
         padding-left: 10px;
         animation: textFadeRight 1s forwards 1;
+        border: 1px solid red;
     }
 
 
     .node-preview-detail {
-        height: calc(55.6vh + 50px);
+        height: calc(55.6vh + 0px);
+        border: 1px solid orange;
     }
 
 
