@@ -9025,48 +9025,6 @@ const Sidebar = () => {
                     {/* ==============================Filters=============================== */}
                     <div>
 
-
-                      {/* =======================Mobile Sliders============================ */}
-
-                      <div className="text-filters-div">
-                        <h5>Forces</h5>
-                        <div className="graph-forces-container">
-                          <div>
-                            <p style={{ margin: '0px' }}>Text Size</p>
-                            <Slider style={{ padding: '8px 0px' }} defaultValue={nodeTextSize} size="small" step={0.1}
-                              min={4} max={12} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleNodeTextSizeCommitted}
-                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                            />
-                          </div>
-
-                          <div>
-                            <p style={{ margin: '0px' }}>Center force</p>
-                            <Slider style={{ padding: '8px 0px' }} defaultValue={centerForceValue} size="small" step={0.01}
-                              min={0} max={1} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleCenterForceCommitted}
-                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                            />
-                          </div>
-
-                          <div>
-                            <p style={{ margin: '0px' }}>Link force</p>
-                            <Slider style={{ padding: '8px 0px' }} size="small" min={0} max={1} defaultValue={linkForceValue}
-                              step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
-                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                            />
-                          </div>
-
-                          <div>
-                            <p style={{ margin: '0px' }}>Link distance</p>
-                            <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
-                              style={{ padding: '8px 0px' }} size="small" min={0} max={1} step={0.01} aria-label="Small"
-                              onChangeCommitted={handleSliderChangeCommitted}
-                              classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
-                            />
-                          </div>
-
-                        </div>
-                      </div>
-
                     </div>
                   </div>
                 </>
