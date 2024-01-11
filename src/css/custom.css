@@ -2949,11 +2949,13 @@ button {
 
     }
 
+    .css-wf16b5,
     .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
         background-color: #EDEDED !important;
         height: calc(100vh - 55px) !important;
     }
 
+    .css-wf16b5,
     .night-mode .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
         background-color: #323232 !important;
     }
@@ -3005,7 +3007,7 @@ button {
     .mobile-workspace-content {
         margin-left: 0;
         width: 100%;
-        height: calc(100vh - 129px);
+        height: calc(100vh - 132px);
         border: 1px solid red;
     }
 
