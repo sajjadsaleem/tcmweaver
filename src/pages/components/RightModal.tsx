@@ -60,7 +60,8 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
         >
 
             <List sx={{ padding: '0 1rem' }}>
-                <ListItem sx={{ padding: '0' }} onClick={handleGraphOrTextView}>
+
+                {/* <ListItem sx={{ padding: '0' }} onClick={handleGraphOrTextView}>
                     {textOrGraphView ? (
                         <ListItemButton>
                             <div className="modal-icons">
@@ -85,7 +86,7 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
                         </ListItemButton>
                     )}
 
-                </ListItem>
+                </ListItem> */}
 
                 {getUser?.user_role === 'User' && (
                     <>

@@ -7494,18 +7494,92 @@ const Sidebar = () => {
     const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
     const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
     const mobileHomepageVideo: any = document.querySelector('.mobile-homepage-video');
+    const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+    const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+    const menuBtn: any = document.querySelector('.menuBtn')
+    const searchResultsFound: any = document.querySelector('.search-results-found')
+    const menus: any = document.querySelector('.menus')
+
+
     // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
     if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
       searchResultsInnerContainer.style.display = 'none';
+      sidebarWorkspaceIcon.style.display = 'none'
+      menuBtn.style.display = 'none'
+      searchResultsFound.style.display = 'none'
+      menus.style.display = 'none'
+      mobileTextWorkspaceIcon.style.display = 'flex'
       mobileWorkspaceContainer.style.display = 'block';
     } else if (mobileWorkspaceContainer) {
       mobileWorkspaceContainer.style.display = 'none';
+      mobileTextWorkspaceIcon.style.display = 'none'
+      sidebarWorkspaceIcon.style.display = 'flex'
+      menuBtn.style.display = 'flex'
+      searchResultsFound.style.display = 'flex'
+      menus.style.display = 'flex'
       searchResultsInnerContainer.style.display = 'block';
     } else if (mobileHomepageVideo) {
       mobileHomepageVideo.style.display = 'block';
     }
   }
+
+
+  const handleMobileGraphSearch = () => {
+
+    const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+    const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+    const menuBtn: any = document.querySelector('.menuBtn')
+    const searchResultsFound: any = document.querySelector('.search-results-found')
+
+
+
+    if (mobileTextWorkspaceIcon) {
+      mobileTextWorkspaceIcon.style.display = 'none'
+      sidebarWorkspaceIcon.style.display = 'flex'
+      menuBtn.style.display = 'flex'
+      searchResultsFound.style.display = 'flex'
+
+    }
+
+    handleGraphOrTextView()
+  }
+
+
+  const handleMobileGraphText = () => {
+    handleGraphOrTextView()
+
+
+    setTimeout(() => {
+      const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+      const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      if (searchResultsInnerContainer) {
+        searchResultsInnerContainer.style.display = 'none'
+        mobileWorkspaceContainer.style.display = 'block'
+      }
+    }, 50);
+  }
+
+
+  const handleMobileGraphTextIcon = () => {
+    handleGraphOrTextView()
+
+
+    setTimeout(() => {
+      const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+      const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+      const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+      const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      if (searchResultsInnerContainer) {
+
+        searchResultsInnerContainer.style.display = 'none'
+        mobileWorkspaceContainer.style.display = 'block'
+        sidebarWorkspaceIcon.style.display = 'none'
+        mobileTextWorkspaceIcon.style.display = 'flex'
+      }
+    }, 50);
+  }
+
 
   const viewNodeClickedFile = async () => {
     // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
@@ -7591,6 +7665,25 @@ const Sidebar = () => {
 
     setGraphNodeOpened([]);
   };
+
+
+  const handleMobileGraphIcon = () => {
+
+    const searchResultsFound: any = document.querySelector('.search-results-found')
+    const menuBtn: any = document.querySelector('.menuBtn')
+
+    if (menuBtn && getComputedStyle(menuBtn).display === 'flex') {
+      console.log('found')
+      menuBtn.style.display = 'none'
+      searchResultsFound.style.display = 'none'
+    } else {
+      console.log('not found')
+      menuBtn.style.display = 'flex'
+      searchResultsFound.style.display = 'flex'
+    }
+
+    handleGraphOrTextView()
+  }
 
 
   return (
@@ -7688,40 +7781,69 @@ const Sidebar = () => {
                 <>
                   {themeChangericon ? (
                     <>
-                      <img src="/workspace-icon-light.svg" alt="img" onClick={handleMobileWorkspace} />
-                      {openedResults.length > 0 && (
-                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
-                      )}
+                      <img src="/text-logo.png" alt="img" onClick={handleMobileWorkspace} />
+                      <img src="/graph-logo-light.png" alt="img" onClick={handleMobileGraphIcon} />
+                      <div className="mobile-workspace-count-badge">{openedResults.length}</div>
                     </>
                   ) : (
                     <>
-                      <img src="/workspace-icon-dark.svg" alt="img" onClick={handleMobileWorkspace} />
-                      {openedResults.length > 0 && (
-                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
-                      )}
+                      <img src="/text-logo-night.png" alt="img" onClick={handleMobileWorkspace} />
+                      <img src="/graph-logo-dark.png" alt="img" onClick={handleMobileGraphIcon} />
+                      <div className="mobile-workspace-count-badge">{openedResults.length}</div>
                     </>
                   )}
                 </>
-
               ) : (
                 <>
                   {themeChangericon ? (
                     <>
-                      <img src="/graph-logo-light.png" alt="img"
-                      // onClick={handleMobileWorkspace} 
-                      />
-                      {openedResults.length > 0 && (
-                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
-                      )}
+                      <img src="/search-light.svg" alt="img" onClick={handleMobileGraphIcon} />
+                      <img src="/text-logo.png" alt="img" onClick={handleMobileGraphTextIcon} />
                     </>
                   ) : (
                     <>
-                      <img src="/graph-logo-dark.png" alt="img"
-                      // onClick={handleMobileWorkspace} 
-                      />
-                      {openedResults.length > 0 && (
-                        <div className="mobile-workspace-count-badge">{openedResults.length}</div>
-                      )}
+                      <img src="/search-dark.svg" alt="img" onClick={handleMobileGraphIcon} />
+                      <img src="/text-logo-night.png" alt="img" onClick={handleMobileGraphTextIcon} />
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="mobile-text-workspace-icons">
+              {graphOrTextView ? (
+                <>
+                  {themeChangericon ? (
+                    <>
+                      <img src="/search-light.svg" alt="img" onClick={handleMobileWorkspace} />
+                      <img src="/graph-logo-light.png" alt="img" onClick={handleGraphOrTextView} />
+
+                      {/* <div className="mobile-workspace-count-badge">{openedResults.length}</div> */}
+
+
+                    </>
+                  ) : (
+                    <>
+                      <img src="/search-dark.svg" alt="img" onClick={handleMobileWorkspace} />
+                      <img src="/graph-logo-dark.png" alt="img" onClick={handleGraphOrTextView} />
+
+                      {/* <div className="mobile-workspace-count-badge">{openedResults.length}</div> */}
+
+
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {themeChangericon ? (
+                    <>
+                      <img src="/search-light.svg" alt="img" onClick={handleMobileGraphSearch} />
+                      <img src="/text-logo.png" alt="img" onClick={handleMobileGraphText} />
+                    </>
+                  ) : (
+                    <>
+                      <img src="/search-dark.svg" alt="img" onClick={handleMobileGraphSearch} />
+                      <img src="/text-logo-night.png" alt="img" onClick={handleMobileGraphText} />
                     </>
                   )}
                 </>
@@ -7729,6 +7851,9 @@ const Sidebar = () => {
               )}
 
             </div>
+
+
+
 
             <TemporaryDrawer themeChangeIcon={themeChangericon} textOrGraphView={graphOrTextView}
               handleThemeChange={handleThemeChangerClick} handleGraphOrTextView={handleGraphOrTextView}
@@ -8428,7 +8553,6 @@ const Sidebar = () => {
 
                       </div>
                     </>
-
                   )}
                 </div>
 

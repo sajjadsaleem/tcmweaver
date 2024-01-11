@@ -126,6 +126,7 @@
     display: none;
 }
 
+.mobile-text-workspace-icons,
 .mobile-workspace-container,
 .sidebar-workspace-icon {
     display: none;
@@ -133,14 +134,15 @@
 
 .mobile-workspace-count-badge {
     position: absolute;
-    bottom: -9px;
-    right: -5px;
-    background-color: red;
-    color: white;
+    bottom: -8px;
+    right: 14px;
+    background-color: #898989;
+    color: black;
     border-radius: 50%;
     padding: 0px 5px;
     /* Adjust padding as needed */
     font-size: 10px;
+    font-weight: 700;
 }
 
 
@@ -2900,8 +2902,9 @@ button {
     .graph-search-results {
         /* padding-right: 5px; */
         margin-top: 0px !important;
-        min-height: calc(100% - 137px);
-        max-height: calc(100% - 137px);
+        min-height: calc(100% - 52px);
+        max-height: calc(100% - 52px);
+        border: 1px solid red;
     }
 
     .graph-search-results-container {
@@ -2910,8 +2913,9 @@ button {
 
     .graph-mobile-workspace-container {
         /* height: 328px; */
-        height: calc(100vh - 195px);
+        height: calc(100vh - 110px);
         display: block;
+        border: 1px solid orange;
 
     }
 
@@ -2962,6 +2966,7 @@ button {
 
     .text-filters-div h5 {
         margin-bottom: 0.1rem;
+        font-size: 1.05rem;
     }
 
     .graph-forces-container {
@@ -2970,6 +2975,12 @@ button {
         padding-left: 12px;
         /* border: 1px solid red; */
     }
+
+    .graph-forces-container p {
+        font-size: 0.95rem;
+    }
+
+
 
 
     .node-text-icon-mobile {
@@ -3046,14 +3057,27 @@ button {
     }
 
     .sidebar-workspace-icon {
-        display: inline-block;
+        display: flex;
         position: relative;
+        gap: 7px;
     }
 
     .sidebar-workspace-icon img {
         max-width: 100%;
         height: auto;
+        width: 17px;
     }
+
+    .mobile-text-workspace-icons {
+        gap: 5px;
+    }
+
+    .mobile-text-workspace-icons img {
+        height: auto;
+        width: 17px;
+    }
+
+
 
     .workspace-content {
         margin-left: 0px;
