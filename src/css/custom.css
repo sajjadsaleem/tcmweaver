@@ -6,6 +6,7 @@
 /* =====================================Homepage================================= */
 /* =====================================Sidebar================================== */
 
+.mobile-side-nav,
 .side-nav {
     width: 346px;
     height: 100vh;
@@ -14,10 +15,12 @@
     z-index: 11;
 }
 
+.mobile-side-nav.night-mode,
 .side-nav.night-mode {
     background-color: #323232;
 }
 
+.mobile-side-nav.active,
 .side-nav.active {
     width: 60vw;
 }
@@ -122,6 +125,8 @@
 }
 
 
+
+.dashboard-sidebar-menu-icon,
 .sidebar-menu-icon {
     display: none;
 }
@@ -939,6 +944,7 @@
 
 /* ==========================================Homepage============================= */
 
+.mobile-workspace-content,
 .workspace-content {
     background-color: #EDEDED;
     width: calc(100vw - 346px);
@@ -946,6 +952,8 @@
     /* background-color: red; */
     height: calc(100vh - 0px);
 }
+
+
 
 .homepage-content-container {
     /* margin-top: 20px; */
@@ -1026,6 +1034,8 @@
     overflow-x: auto;
 }
 
+.mobile-workspace-content.night-mode .main,
+.mobile-workspace-content.night-mode .main-homepage,
 .workspace-content.night-mode .main,
 .workspace-content.night-mode .main-homepage {
     background-color: #323232;
@@ -1064,6 +1074,7 @@
     overflow-x: scroll;
 }
 
+.mobile-workspace-content.night-mode .graph-container,
 .workspace-content.night-mode .graph-container {
     background-color: #323232;
 }
@@ -1719,6 +1730,11 @@ button {
 
 /*  =============================================Dashboard================================== */
 
+
+.mobile-dashboard-topbar {
+    display: none;
+}
+
 .dashboard-navigation {
     width: 284px;
     margin: auto;
@@ -1729,6 +1745,7 @@ button {
     text-decoration: none;
     color: black;
 }
+
 
 /* .dashboard-navigation span {
     color: #616161;
@@ -1758,6 +1775,10 @@ button {
 
 .dashboard-navigation-list {
     border-radius: 8px;
+}
+
+.dashboard-navigation-list a {
+    text-decoration: none !important;
 }
 
 .dashboard-navigation-list span {
@@ -2279,6 +2300,10 @@ button {
     outline: none;
 }
 
+.mobile-left-modal {
+    display: none;
+}
+
 
 
 /* =======================================Products Page============================= */
@@ -2638,12 +2663,14 @@ button {
 
 
 
+    .mobile-side-nav,
     .side-nav {
         height: 100%;
         width: 280px;
 
     }
 
+    .mobile-workspace-content,
     .workspace-content {
         margin-left: 280px;
         width: calc(100% - 280px);
@@ -2895,6 +2922,107 @@ button {
 
 @media screen and (max-width: 480px) {
 
+    /*=====================Dashboard Page================================================ */
+
+
+    .mobile-dashboard-topbar {
+        display: block;
+        background-color: #EDEDED;
+
+    }
+
+    .night-mode.mobile-dashboard-topbar {
+        background-color: #323232;
+    }
+
+    .mobile-side-nav {
+        display: none;
+    }
+
+
+
+
+    .mobile-left-modal {
+        display: block;
+        width: 284px;
+        margin: auto;
+
+    }
+
+    .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
+        background-color: #EDEDED !important;
+        height: calc(100vh - 55px) !important;
+    }
+
+    .night-mode .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
+        background-color: #323232 !important;
+    }
+
+    .themeChanger {
+        display: none;
+    }
+
+
+
+    .mobile-dashboard-home-icon img,
+    .mobile-dashboard-home-icon svg {
+        width: 20px !important;
+        margin-right: 10px;
+        filter: invert(30%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+    }
+
+
+    .dashboard-navigation {
+        display: none;
+    }
+
+    .dashboard-hamburgur-icon img {
+        height: auto;
+        width: 20px;
+
+    }
+
+    .logout-section {
+        display: none;
+    }
+
+    .mobile-logout-section {
+        width: 180px;
+        margin: auto;
+        position: absolute;
+        bottom: 50px;
+        left: 30px;
+        /* border: 1px solid red; */
+    }
+
+    .logout-button {
+        width: 180px;
+        border-radius: 7px;
+        padding: 5px;
+    }
+
+
+    .mobile-workspace-content {
+        margin-left: 0;
+        width: 100%;
+        height: calc(100vh - 129px);
+        border: 1px solid red;
+    }
+
+    .mobile-dashboard-main {
+        height: 100% !important;
+    }
+
+    .mobile-dashboard-main .main-user-management,
+    .mobile-dashboard-main .main-vault {
+        width: auto;
+
+    }
+
+
+
+    /*=====================Dashboard Page End================================================ */
+
 
 
 
@@ -3039,12 +3167,14 @@ button {
     /* ====================User============================================ */
 
 
+    .mobile-side-nav,
     .side-nav {
         height: calc(100vh - 55px);
         width: 100vw;
 
     }
 
+    .dashboard-sidebar-menu-icon,
     .sidebar-menu-icon {
         display: block;
         text-align: right;
@@ -3055,7 +3185,12 @@ button {
         padding: 30px 18px 12px 0;
     }
 
+    .dashboard-sidebar-menu-icon.padding {
+        padding: 19px 12px 0px 0px;
+    }
 
+
+    .dashboard-sidebar-menu-icon img,
     .sidebar-menu-icon img {
         width: 20px;
         height: auto;
@@ -3088,9 +3223,11 @@ button {
 
 
 
+
     .workspace-content {
         margin-left: 0px;
         display: none;
+        width: calc(100% - 0px);
     }
 
     .main {

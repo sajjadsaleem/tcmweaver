@@ -61,33 +61,6 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
 
             <List sx={{ padding: '0 1rem' }}>
 
-                {/* <ListItem sx={{ padding: '0' }} onClick={handleGraphOrTextView}>
-                    {textOrGraphView ? (
-                        <ListItemButton>
-                            <div className="modal-icons">
-                                {themeChangeIcon ? (
-                                    <img src="/graph-logo-light.png" alt="img" />
-                                ) : (
-                                    <img src="/graph-logo-dark.png" alt="img" />
-                                )}
-                            </div>
-                            <ListItemText primary="Graph View" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
-                        </ListItemButton>
-                    ) : (
-                        <ListItemButton>
-                            <div className="modal-icons">
-                                {themeChangeIcon ? (
-                                    <img src="/text-logo.png" alt="img" />
-                                ) : (
-                                    <img src="/text-logo-night.png" alt="img" />
-                                )}
-                            </div>
-                            <ListItemText primary="Text View" style={{ color: themeChangeIcon ? '#6C655C' : '#B3B3B5' }} />
-                        </ListItemButton>
-                    )}
-
-                </ListItem> */}
-
                 {getUser?.user_role === 'User' && (
                     <>
                         <ListItem sx={{ padding: '0' }} onClick={() => handleUserOptions("profile")}>
@@ -215,14 +188,6 @@ const TemporaryDrawer: React.FC<TemporaryDrawerProps> = ({ themeChangeIcon, text
                         </ListItemButton>
                     )}
                 </ListItem>
-
-
-
-
-
-
-
-
 
             </List>
 

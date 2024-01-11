@@ -3079,18 +3079,25 @@ const Sidebar = () => {
       setGraphLinkColor('#565959')
     }
 
+    console.log('themeChangericon', themeChangericon)
     const currentTheme = !themeChangericon
     setThemeChangerIcon(!themeChangericon);
     const changeTheme = JSON.stringify(currentTheme)
-    // console.log(changeTheme)
+    console.log('changeTheme', changeTheme)
 
     localStorage.setItem('theme', changeTheme);
 
     const sideNav: any = document.querySelector(`.${"side-nav"}`);
+    // const mobileSidenav: any = document.querySelector(`.${"mobile-side-nav"}`);
     const workspacePanel: any = document.querySelector(`.${"workspace-content"}`);
+    // const mobileWorkspacePanel: any = document.querySelector(`.${"mobile-workspace-content"}`);
 
     sideNav.classList.toggle("night-mode");
     workspacePanel.classList.toggle("night-mode");
+    // if (mobileSidenav || mobileWorkspacePanel) {
+    //   mobileSidenav.classList.toggle("night-mode");
+    //   mobileWorkspacePanel.classList.toggle("night-mode");
+    // }
 
   }
 

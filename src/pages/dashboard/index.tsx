@@ -4,7 +4,7 @@ import AuthLayout from '../components/AuthLayout'
 import { ToastContainer, toast } from "react-toastify";
 import Link from 'next/link';
 import * as Helpers from '../../util/Helpers'
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,      FormControl, Grid,  IconButton,  Input,  InputAdornment,  InputLabel,  List, ListItem, ListItemText,  MenuItem, Paper,Select as MuiSelect, Switch, Table, TableBody, TableCell, TableContainer, TableHead,  TableRow, TextField, Typography } from '@mui/material';
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, IconButton, Input, InputAdornment, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select as MuiSelect, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { DialogProps } from '@mui/material/Dialog';
 import axios from 'axios';
 import router from 'next/router';
@@ -18,14 +18,14 @@ import { FullPageComponentLoading } from '@/util/FullPageComponentLoading';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import CircularProgress from '@mui/material/CircularProgress';
 import { marked } from "marked";
-
+import AdminDrawer from '../components/LeftModal'
 
 const animatedComponents = makeAnimated();
 
 const Dashboard = () => {
 
   const dispatch = useDispatch()
-  const getStAuth = useSelector((state:any) => state.stAuth)
+  const getStAuth = useSelector((state: any) => state.stAuth)
 
   const [themeChangericon, setThemeChangerIcon] = useState(false);
   const [graphOrTextView, setgraphOrTextView] = useState(true);
@@ -34,13 +34,13 @@ const Dashboard = () => {
   const [folders, setFolders] = useState<any>([]);
   const [accessToken, setAccessToken] = useState('');
   const [selectedListItem, setSelectedListItem] = useState(1);
-  const [originalVault , setOriginalVault] = useState([])
-  const [vaultFiles , setVaultFiles] = useState([])
+  const [originalVault, setOriginalVault] = useState([])
+  const [vaultFiles, setVaultFiles] = useState([])
   const [searched, setSearched] = useState<string>("");
-  const [originalUsers , setOriginalUsers] = useState<any>([])
-  const [searchedUsers , setSearchedUsers] = useState([])
-  const [userSearchValue , setUserSearchValue] = useState([])
-  const [showAddUser , setShowAddUser] = useState(false)
+  const [originalUsers, setOriginalUsers] = useState<any>([])
+  const [searchedUsers, setSearchedUsers] = useState([])
+  const [userSearchValue, setUserSearchValue] = useState([])
+  const [showAddUser, setShowAddUser] = useState(false)
   const [formData, setFormData] = useState<any>({
     fullName: '',
     email: '',
@@ -54,105 +54,105 @@ const Dashboard = () => {
   const [showInviteFields, setShowInviteFields] = useState(true);
   const [showOptions, setShowOptions] = useState(-1);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showSetPassword , setShowSetPassword] = useState(false)
-  const [showSetPasswordToggle , setShowSetPasswordToggle] = useState(false)
+  const [showSetPassword, setShowSetPassword] = useState(false)
+  const [showSetPasswordToggle, setShowSetPasswordToggle] = useState(false)
   const [newPasswordData, setNewPasswordData] = useState({
     newPassword: '',
-    confirmPassword:''
+    confirmPassword: ''
   });
-  const [showConfirmPasswordToggle , setShowConfirmPasswordToggle] = useState(false)
-  const [indexToChangePassword , setIndexToChangePassword] = useState<any>(null)
-  const [updatePasswordLoader , setUpdatePasswordLoader] = useState<any>(false)
-  const [showEditUserDialog , setShowEditUserDialog] = useState(false)
-  const [editUserLoader , setEditUserLoader] = useState(false)
-  const [currentUser , setCurrentUser] = useState('')
-  const [currentUserImage , setCurrentUserImage] = useState('')
-  const [proccedBtnLoading , setProceedBtnLoading] = useState(false)
-  const [folderSelectedLoader , setFolderSelectedLoader] = useState(false)
+  const [showConfirmPasswordToggle, setShowConfirmPasswordToggle] = useState(false)
+  const [indexToChangePassword, setIndexToChangePassword] = useState<any>(null)
+  const [updatePasswordLoader, setUpdatePasswordLoader] = useState<any>(false)
+  const [showEditUserDialog, setShowEditUserDialog] = useState(false)
+  const [editUserLoader, setEditUserLoader] = useState(false)
+  const [currentUser, setCurrentUser] = useState('')
+  const [currentUserImage, setCurrentUserImage] = useState('')
+  const [proccedBtnLoading, setProceedBtnLoading] = useState(false)
+  const [folderSelectedLoader, setFolderSelectedLoader] = useState(false)
   const [clickedFolder, setClickedFolder] = useState(null);
   const [taskCompleted, setTaskCompleted] = useState(false);
   // const [selectedFolder, setSelectedFolder] = useState<any>(null);
   const [showVaultFiles, setShowVaultFiles] = useState(false)
-  const [originalVaultFilesToShow , setOriginalVaultFilesToShow] = useState<any>([])
-  const [vaultFilesToShow , setVaultFilesToShow] = useState<any>([])
+  const [originalVaultFilesToShow, setOriginalVaultFilesToShow] = useState<any>([])
+  const [vaultFilesToShow, setVaultFilesToShow] = useState<any>([])
   const [selectedFolders, setSelectedFolders] = useState<any>([]);
-  const [foldersSelectedNext , setFoldersSelectedNext] = useState<any>(false)    
-  const [showFolderComparison , setShowFolderComparison] = useState(false)
-  const [folderToCompare , setFoldersToCompare] = useState([])
-  const [notMatchDropdown , setNotMatchDropdown] = useState([
+  const [foldersSelectedNext, setFoldersSelectedNext] = useState<any>(false)
+  const [showFolderComparison, setShowFolderComparison] = useState(false)
+  const [folderToCompare, setFoldersToCompare] = useState([])
+  const [notMatchDropdown, setNotMatchDropdown] = useState([
     {
       name: 'Vault does not exist'
     }
   ])
-  const [showVaultDelete , setShowVaultDelete] = useState(false)
-  const [vaultToDelete , setVaultToDelete] = useState('')
-  const [packageSearchValue , setPackageSearchValue] = useState([])
-  const [stripePackages , setStripePackages] = useState<any>([])
-  const [searchedStripePackages , setSearchedStripePackages] = useState([])
-  const [showAddVaultPopup , setShowAddVaultPopup] = useState(false)
-  const [packageToAddVault , setPackageToAddVault] = useState<any>({})
-  const [allVaultsToSelect , setAllVaultsToSelect] = useState<any>([])
-  const [defaultVaultsInPackage , setDefaultVaultInPackage] = useState([])
-  const [selectedVaultsForPackage , setSelectedVaultsForPackage] = useState([])
-  const [currentSync , setCurrentSync] = useState(false)
+  const [showVaultDelete, setShowVaultDelete] = useState(false)
+  const [vaultToDelete, setVaultToDelete] = useState('')
+  const [packageSearchValue, setPackageSearchValue] = useState([])
+  const [stripePackages, setStripePackages] = useState<any>([])
+  const [searchedStripePackages, setSearchedStripePackages] = useState([])
+  const [showAddVaultPopup, setShowAddVaultPopup] = useState(false)
+  const [packageToAddVault, setPackageToAddVault] = useState<any>({})
+  const [allVaultsToSelect, setAllVaultsToSelect] = useState<any>([])
+  const [defaultVaultsInPackage, setDefaultVaultInPackage] = useState([])
+  const [selectedVaultsForPackage, setSelectedVaultsForPackage] = useState([])
+  const [currentSync, setCurrentSync] = useState(false)
   const [showCurrentSync, setShowCurrentSync] = useState(false)
-  const [totalFilesToSync , setTotalFilesToSync] = useState<any>(null)
-  const [currentSyncedFiles , setCurrentSyncedFiles] = useState<any>(null)
-  const [selectedVaultsForUser , setSelectedVaultsForUser] = useState([])
-  const [defaultVaultsForUser , setDefaultVaultsForUser] = useState([])
-  const [userToAddVault , setUserToAddVault] = useState<any>({})
-  const [showAddVaultToUserPopup , setShowAddVaultToUserPopup] = useState(false)
+  const [totalFilesToSync, setTotalFilesToSync] = useState<any>(null)
+  const [currentSyncedFiles, setCurrentSyncedFiles] = useState<any>(null)
+  const [selectedVaultsForUser, setSelectedVaultsForUser] = useState([])
+  const [defaultVaultsForUser, setDefaultVaultsForUser] = useState([])
+  const [userToAddVault, setUserToAddVault] = useState<any>({})
+  const [showAddVaultToUserPopup, setShowAddVaultToUserPopup] = useState(false)
   const fileInputRef = useRef<any>(null);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [getUser, setUser] = useState<any>({})
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
-  const [vaultFileToView , setVaultFileToView] = useState({})
-  const [userLogoutPopup , setUserLogoutPopup] = useState(false)
-  const [viewIndividualFile , setViewIndividualFile] = useState<any>({})
-  const [showViewIndividualFile , setShowViewIndividualFile] = useState(false)
-  const [filenameToView , setFilenameToView] = useState('')
+  const [vaultFileToView, setVaultFileToView] = useState({})
+  const [userLogoutPopup, setUserLogoutPopup] = useState(false)
+  const [viewIndividualFile, setViewIndividualFile] = useState<any>({})
+  const [showViewIndividualFile, setShowViewIndividualFile] = useState(false)
+  const [filenameToView, setFilenameToView] = useState('')
   const [scroll, setScroll] = useState<DialogProps['scroll']>('paper');
   const [viewIndividualFileLoader, setViewIndividualFileLoader] = useState(false)
 
-    // console.log('original vault' , originalVault)
-    // console.log('vaultFiles' , vaultFiles)
-    // console.log('originalusers' , originalUsers)
-    // console.log('searchedUsers' , searchedUsers)
-    // console.log('formData' , formData)
-    // console.log('showoption' , showOptions)
-    // console.log('newpasswordData' ,newPasswordData)
-    // console.log('edituserdialog' , showEditUserDialog)
-    // console.log('indexToChangePassword' , indexToChangePassword)
-    // console.log('vaultfilestoshow' , vaultFilesToShow)
-    // console.log('folders' , folders)
-    // console.log('selectedfolders' , selectedFolders)
-    // console.log('foldertocompare'  , folderToCompare)
-    // console.log('vaulttodelete' , vaultToDelete)
-    // console.log('folderselectedloader' , folderSelectedLoader)
-    // console.log('searchedstripepackages' , searchedStripePackages)
-    // console.log('showaddvaultpopup' , showAddVaultPopup)
-    // console.log('pkg to add vault ' , packageToAddVault)
-    // console.log('selectallvaults to ' , allVaultsToSelect)
-    // console.log('defaultVault' , defaultVaultsInPackage)
-    // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
-    // console.log('viewIndividualFile',viewIndividualFile)
+  // console.log('original vault' , originalVault)
+  // console.log('vaultFiles' , vaultFiles)
+  // console.log('originalusers' , originalUsers)
+  // console.log('searchedUsers' , searchedUsers)
+  // console.log('formData' , formData)
+  // console.log('showoption' , showOptions)
+  // console.log('newpasswordData' ,newPasswordData)
+  // console.log('edituserdialog' , showEditUserDialog)
+  // console.log('indexToChangePassword' , indexToChangePassword)
+  // console.log('vaultfilestoshow' , vaultFilesToShow)
+  // console.log('folders' , folders)
+  // console.log('selectedfolders' , selectedFolders)
+  // console.log('foldertocompare'  , folderToCompare)
+  // console.log('vaulttodelete' , vaultToDelete)
+  // console.log('folderselectedloader' , folderSelectedLoader)
+  // console.log('searchedstripepackages' , searchedStripePackages)
+  // console.log('showaddvaultpopup' , showAddVaultPopup)
+  // console.log('pkg to add vault ' , packageToAddVault)
+  // console.log('selectallvaults to ' , allVaultsToSelect)
+  // console.log('defaultVault' , defaultVaultsInPackage)
+  // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
+  // console.log('viewIndividualFile',viewIndividualFile)
 
   useEffect(() => {
     const getInit = () => {
       setUser(getStAuth.stAccessTokenVerify)
     }
     getInit()
-    if(getUser.user) {
-      if(getUser.user.role_id !==1){
+    if (getUser.user) {
+      if (getUser.user.role_id !== 1) {
         router.push('/');
-      } 
+      }
       else {
         setFullPageComponentLoading(false)
       }
     }
 
 
-  }, [getUser , getStAuth])
+  }, [getUser, getStAuth])
 
 
   async function fetchFilenames() {
@@ -161,14 +161,14 @@ const Dashboard = () => {
       // console.log('response.data' , response.data)
       if (response.data) {
         // console.log('res.data' , response.data)
-        const transformedData:any = Object.keys(response.data).map((vault_name) => ({
+        const transformedData: any = Object.keys(response.data).map((vault_name) => ({
           vault_name,
-          files: response.data[vault_name].filenames.map((item:any) => ({ filename: item.filename })),
+          files: response.data[vault_name].filenames.map((item: any) => ({ filename: item.filename })),
           vault_price: response.data[vault_name].vault_price
         }));
-        transformedData.sort((a:any, b:any) => a.vault_name.localeCompare(b.vault_name));
+        transformedData.sort((a: any, b: any) => a.vault_name.localeCompare(b.vault_name));
         // console.log('transformedData' , transformedData)
-        const vaultNames = transformedData.map((item:any) => ({
+        const vaultNames = transformedData.map((item: any) => ({
           value: item.vault_name,
           label: item.vault_name,
         }));
@@ -192,8 +192,8 @@ const Dashboard = () => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           const user = JSON.parse(storedUser);
-          const fullName = response.data.allUsers.find((u:any) => u.email === user.email)?.full_name;
-          const image = response.data.allUsers.find((u:any) => u.email === user.email)?.image;
+          const fullName = response.data.allUsers.find((u: any) => u.email === user.email)?.full_name;
+          const image = response.data.allUsers.find((u: any) => u.email === user.email)?.image;
           setCurrentUser(fullName)
           setCurrentUserImage(image)
         }
@@ -206,13 +206,13 @@ const Dashboard = () => {
 
   }
 
-  useEffect(()=> {
+  useEffect(() => {
     const { usermanagement } = router.query;
     if (usermanagement === "usermanagement") {
       setSelectedListItem(2);
     }
 
-    
+
 
     fetchFilenames();
     fetchUsers();
@@ -231,7 +231,7 @@ const Dashboard = () => {
       // Authorization code is present in the URL, send it to your backend
       console.log('authorizationCode', authorizationCode)
       axios.post("/api/exchangeCodeForToken", { code: authorizationCode })
-        .then((res:any) => {
+        .then((res: any) => {
           // Handle the response from the backend, which may contain the access token
           const accessToken = res.data.accessToken;
           console.log('accessToken ', accessToken)
@@ -256,13 +256,13 @@ const Dashboard = () => {
           //   console.error("Error fetching user email:", userErr.response);
           // })
           setAccessToken(accessToken);
-        
+
           // Now you can use the accessToken to make authenticated requests to Google Drive API.
         })
-        .catch((err:any) => {
+        .catch((err: any) => {
           console.error("Error exchanging authorization code:", err.response);
         });
-    } 
+    }
   }, []);
 
   useEffect(() => {
@@ -277,16 +277,16 @@ const Dashboard = () => {
         params: {
           q: "mimeType='application/vnd.google-apps.folder' and not trashed",
         },
-        })
-        .then((res:any) => {
+      })
+        .then((res: any) => {
           // Handle the list of files from the Google Drive API response
           console.log('Folders:', res.data.files);
           setFolders(res.data.files);
           setFoldersPopup(true)
-          
+
 
         })
-        .catch((err:any) => {
+        .catch((err: any) => {
           console.error("Error fetching files from Google Drive:", err.response);
         });
     }
@@ -295,24 +295,28 @@ const Dashboard = () => {
 
 
   const handleSiteNameClick = () => {
-      // setSearchValue("");
-      // setGraphSearchValue("")
-      // setSearchResults([]);
-      // setOpenedResults([]);
-      // setShouldShowFilters(true);
+    // setSearchValue("");
+    // setGraphSearchValue("")
+    // setSearchResults([]);
+    // setOpenedResults([]);
+    // setShouldShowFilters(true);
   };
 
 
   function handleThemeChangerClick() {
-    // console.log("themeChangerIcon: ", themeChangericon);
+    console.log("themeChangerIcon: ", themeChangericon);
     setThemeChangerIcon(!themeChangericon);
-    const sideNav:any = document.querySelector(`.${"side-nav"}`);
+    const sideNav: any = document.querySelector(`.${"mobile-side-nav"}`);
+    const topbar: any = document.querySelector(`.${"mobile-dashboard-topbar"}`);
     // const mainPanel = document.querySelector(`.${"main"}`);
-    const workspacePanel:any = document.querySelector(`.${"workspace-content"}`);
-    
+    const workspacePanel: any = document.querySelector(`.${"mobile-workspace-content"}`);
+
     sideNav.classList.toggle("night-mode");
+    if (topbar) {
+      topbar.classList.toggle("night-mode");
+    }
     // mainPanel.classList.toggle("night-mode");
-  
+
     // sideNav.classList.toggle("night-mode");
     workspacePanel.classList.toggle("night-mode");
 
@@ -324,33 +328,23 @@ const Dashboard = () => {
   }
 
 
-  const handleGraphOrTextView = () => {
-    // setgraphOrTextView(!graphOrTextView);
-  };
-
-
   const handleLogout = () => {
     Helpers.logout()
     router.push('/login')
   }
 
 
-  // const openSyncDialog = () => {
-  //   setSyncPopup(true)
-  // }
-
-
   const handleCloseDialog = () => {
     setSyncPopup(false);
     setProceedBtnLoading(false)
-    
+
   };
 
 
   const synchronizeFiles = async () => {
     setProceedBtnLoading(true)
     axios.get("/api/googleDriveFiles")
-      .then((res:any) => {
+      .then((res: any) => {
         if (res.data && res.data.authUrl) {
           // Redirect the user to the Google OAuth authorization page
           window.location.href = res.data.authUrl;
@@ -364,16 +358,16 @@ const Dashboard = () => {
         // Helpers.setUser(res.data.user)
         // router.push("/?dashboard");
       })
-      .catch((err:any) => {
+      .catch((err: any) => {
         console.log("err=", err.response);
       })
   }
 
-  const handleDataSync = ()=> {
+  const handleDataSync = () => {
     console.log('now in handleDataSync')
     setTaskCompleted(true)
     // console.log('selectedfolders now' , selectedFolders)
-    const updatedSelectedFolders = selectedFolders.map((folder:any) => {
+    const updatedSelectedFolders = selectedFolders.map((folder: any) => {
       if (!folder.option || folder.option === 'Create new vault') {
         return { ...folder, option: 'Create new vault' };
       }
@@ -387,80 +381,80 @@ const Dashboard = () => {
     setShowCurrentSync(true)
 
     axios.get("api/downloadFiles", {
-            headers: { Authorization: `Bearer ${accessToken}`,},
-            params: { folderId: updatedSelectedFolders, },
-          })
-          .then(async(res:any)=>{
-              const reqData = res.data.data
-              setTotalFilesToSync(res.data.message)
-              // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
-              //   position: "top-right",
-              //   autoClose: 1500,
-              //   hideProgressBar: false,
-              //   closeOnClick: true,
-              //   pauseOnHover: true,
-              //   draggable: true,
-              //   type: "success",
-              //   progress: undefined,
-              //   theme: "light",
-              // });
-              
-              const chunkSize = 50;
-              var currentlySyncronizingFiles = 0
-              
+      headers: { Authorization: `Bearer ${accessToken}`, },
+      params: { folderId: updatedSelectedFolders, },
+    })
+      .then(async (res: any) => {
+        const reqData = res.data.data
+        setTotalFilesToSync(res.data.message)
+        // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
+        //   position: "top-right",
+        //   autoClose: 1500,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   type: "success",
+        //   progress: undefined,
+        //   theme: "light",
+        // });
 
-              for (let i = 0; i < reqData.length; i++) {
-                const downloadedFiles = reqData[i].downloadedFiles;
-              
-                // Split downloadedFiles into chunks
-                for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
-                  const chunk = downloadedFiles.slice(j, j + chunkSize);
-
-                  currentlySyncronizingFiles = currentlySyncronizingFiles + chunk.length
-
-                  setCurrentSyncedFiles(currentlySyncronizingFiles)
-              
-                  const requestData = {
-                    name: reqData[i].name,
-                    option: reqData[i].option,
-                    downloadedFiles: chunk,
-                  };
-                  
-
-                  await axios.post('api/downFilesCheck', requestData,{
-                    headers: {
-                      Authorization: `Bearer ${accessToken}`
-                    }
-                  })
-                  .then((res:any)=>{
-                    // console.log('res' , res.data)
-                    
-                    // setTaskCompleted(false);
-                    // setShowFolderComparison(false)
-                    
-                    // setFolderSelectedLoader(true)
+        const chunkSize = 50;
+        var currentlySyncronizingFiles = 0
 
 
-                  }).catch((err:any)=>{
-                    console.log('err' , err)
-                    // setTaskCompleted(false);
-                  })
-              
-                }
+        for (let i = 0; i < reqData.length; i++) {
+          const downloadedFiles = reqData[i].downloadedFiles;
 
+          // Split downloadedFiles into chunks
+          for (let j = 0; j < downloadedFiles.length; j += chunkSize) {
+            const chunk = downloadedFiles.slice(j, j + chunkSize);
+
+            currentlySyncronizingFiles = currentlySyncronizingFiles + chunk.length
+
+            setCurrentSyncedFiles(currentlySyncronizingFiles)
+
+            const requestData = {
+              name: reqData[i].name,
+              option: reqData[i].option,
+              downloadedFiles: chunk,
+            };
+
+
+            await axios.post('api/downFilesCheck', requestData, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`
               }
-              fetchFilenames()
-              // setTaskCompleted(false)
-              // setFolderSelectedLoader(true)
-              // setSelectedFolders([])
-              setTaskCompleted(false)
-              setShowCurrentSync(false)
+            })
+              .then((res: any) => {
+                // console.log('res' , res.data)
+
+                // setTaskCompleted(false);
+                // setShowFolderComparison(false)
+
+                // setFolderSelectedLoader(true)
 
 
-          }).catch((err:any)=>{
-              console.log('err' , err)
-          })
-        
+              }).catch((err: any) => {
+                console.log('err', err)
+                // setTaskCompleted(false);
+              })
+
+          }
+
+        }
+        fetchFilenames()
+        // setTaskCompleted(false)
+        // setFolderSelectedLoader(true)
+        // setSelectedFolders([])
+        setTaskCompleted(false)
+        setShowCurrentSync(false)
+
+
+      }).catch((err: any) => {
+        console.log('err', err)
+      })
+
 
 
   }
@@ -473,44 +467,44 @@ const Dashboard = () => {
   }
 
 
-  const handleFolderSelection = (selectedFolder:any) => {
-    
-    const updatedFolders:any = folders.map((folder:any) =>
+  const handleFolderSelection = (selectedFolder: any) => {
+
+    const updatedFolders: any = folders.map((folder: any) =>
       folder.id === selectedFolder.id
         ? { ...folder, checked: !folder.checked }
         : folder
     );
     setFolders(updatedFolders);
 
-    const selected = updatedFolders.filter((folder:any) => folder.checked);
+    const selected = updatedFolders.filter((folder: any) => folder.checked);
     // console.log('selected' , selected)
 
-    const updatedSelected:any = selected.map((selectedItem:any) => {
-      const matchingVault:any = originalVault.find(
-        (vault:any) => vault.vault_name === selectedItem.name
+    const updatedSelected: any = selected.map((selectedItem: any) => {
+      const matchingVault: any = originalVault.find(
+        (vault: any) => vault.vault_name === selectedItem.name
       );
 
       // console.log('matchingvault' , matchingVault)
-    
+
       if (matchingVault) {
         return {
           ...selectedItem,
           option: matchingVault.vault_name,
         };
       }
-    
+
       return selectedItem;
     });
 
     // console.log('folders in database' , originalVault)
-    const selectedNames = selected.map((item:any) => item.name);
+    const selectedNames = selected.map((item: any) => item.name);
     // console.log('selectedNames', selectedNames);
-    const filteredVault = originalVault.filter((vault:any) =>
-    selectedNames.some((selectedName:any) =>
-      vault.vault_name === selectedName
-    )
-  );
-  
+    const filteredVault = originalVault.filter((vault: any) =>
+      selectedNames.some((selectedName: any) =>
+        vault.vault_name === selectedName
+      )
+    );
+
     // console.log('filteredVault' , filteredVault);
 
 
@@ -526,23 +520,23 @@ const Dashboard = () => {
   };
 
 
-  const requestSearch = (event:any) => {
+  const requestSearch = (event: any) => {
     // console.log(event.target.value)
     setSearched(event.target.value)
     const searchedVal = event.target.value
-    const filteredRows = originalVault.filter((row:any) => {
+    const filteredRows = originalVault.filter((row: any) => {
       return row.vault_name.toLowerCase().includes(searchedVal.toLowerCase());
     });
-    filteredRows.sort((a:any, b:any) => a.vault_name.localeCompare(b.vault_name));
+    filteredRows.sort((a: any, b: any) => a.vault_name.localeCompare(b.vault_name));
     setVaultFiles(filteredRows);
   };
 
 
-  const requestUserSearch = (event:any) => {
+  const requestUserSearch = (event: any) => {
     // console.log(event.target.value)
     setUserSearchValue(event.target.value)
     const searchedVal = event.target.value
-    const filteredRows = originalUsers.filter((row:any) => {
+    const filteredRows = originalUsers.filter((row: any) => {
       return row.full_name.toLowerCase().includes(searchedVal.toLowerCase());
     });
     setSearchedUsers(filteredRows);
@@ -568,9 +562,9 @@ const Dashboard = () => {
   }
 
 
-  const handleChange = (e:any) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
-    console.log('name' , name)
+    console.log('name', name)
     setFormData({
       ...formData,
       [name]: value,
@@ -579,35 +573,35 @@ const Dashboard = () => {
 
 
   const handleAddUser = async () => {
-    const requiredFields = [ 'email','fullName', 'password', 'confirmPassword'];
-    let emptyField:any = requiredFields.find((field:any) => !formData[field]);
+    const requiredFields = ['email', 'fullName', 'password', 'confirmPassword'];
+    let emptyField: any = requiredFields.find((field: any) => !formData[field]);
 
     if (emptyField) {
       emptyField = emptyField.charAt(0).toUpperCase() + emptyField.slice(1).toLowerCase();
       toast.error(`${emptyField} is required!`, { autoClose: 2000 });
       return;
     } else {
-      if(formData.password !== formData.confirmPassword) {
+      if (formData.password !== formData.confirmPassword) {
         toast.error('Passwords do not match!', { autoClose: 2000 });
         return;
       } else {
         setIsLoading(true);
         await axios.post('/api/addUser', formData)
-        .then(async (res:any)=>{
-          console.log('user add response' , res.data);
-          setOriginalUsers(res.data.allUsers);
-          setSearchedUsers(res.data.allUsers)
-          closeAddUserDialog()
-          setIsLoading(false);
-          toast.success('User added successfully!');
+          .then(async (res: any) => {
+            console.log('user add response', res.data);
+            setOriginalUsers(res.data.allUsers);
+            setSearchedUsers(res.data.allUsers)
+            closeAddUserDialog()
+            setIsLoading(false);
+            toast.success('User added successfully!');
 
 
-        })
-        .catch((error:any)=>{
-          console.log('Error calling addUser api:', error);
-          setIsLoading(false);
-          toast.error('Failed to add user');
-        })
+          })
+          .catch((error: any) => {
+            console.log('Error calling addUser api:', error);
+            setIsLoading(false);
+            toast.error('Failed to add user');
+          })
       }
 
     }
@@ -620,8 +614,8 @@ const Dashboard = () => {
 
 
   const handleInviteUser = async () => {
-    const requiredFields = [ 'email'];
-    let emptyField:any = requiredFields.find((field:any) => !formData[field]);
+    const requiredFields = ['email'];
+    let emptyField: any = requiredFields.find((field: any) => !formData[field]);
     if (emptyField) {
       emptyField = emptyField.charAt(0).toUpperCase() + emptyField.slice(1).toLowerCase();
       toast.error(`${emptyField} is required!`, { autoClose: 2000 });
@@ -629,40 +623,40 @@ const Dashboard = () => {
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-        toast.error('Invalid email!', { autoClose: 1500 });
-        return;
+      toast.error('Invalid email!', { autoClose: 1500 });
+      return;
     }
 
     setIsLoading(true)
-    await axios.post('/api/inviteUser' , formData)
-      .then(async (res:any)=>{
+    await axios.post('/api/inviteUser', formData)
+      .then(async (res: any) => {
         setOriginalUsers(res.data.allUsers);
         setSearchedUsers(res.data.allUsers)
         setShowAddUser(false)
         setIsLoading(false)
         toast.success(res.data.message);
-        setFormData({ fullName: '', email: '', role: 'User', password: '', confirmPassword: '', status: ''});
+        setFormData({ fullName: '', email: '', role: 'User', password: '', confirmPassword: '', status: '' });
       })
-      .catch((error:any)=>{
+      .catch((error: any) => {
         setIsLoading(false)
-        console.log('error' , error)
+        console.log('error', error)
         toast.error(error.response.data.message);
-      }) 
+      })
   }
 
 
-  const handleEllipsisClick = (index:any) => {    
+  const handleEllipsisClick = (index: any) => {
     // console.log('ellispes click' , index)    
     setShowOptions(index === showOptions ? -1 : index);
   };
 
 
-  const handleEditClick = (index:any) => {
-    const userToEdit:any = originalUsers[index]
+  const handleEditClick = (index: any) => {
+    const userToEdit: any = originalUsers[index]
     // console.log('usertoedit' , userToEdit)
     setIndexToChangePassword(index)
     // console.log('usertoedit' , userToEdit)
-    setFormData((prevData:any) => ({
+    setFormData((prevData: any) => ({
       ...prevData,
       role: userToEdit.role_id === 1 ? "Admin" : userToEdit.role_id === 2 ? "User" : "",
       email: userToEdit.email,
@@ -681,41 +675,41 @@ const Dashboard = () => {
     // console.log('emailtoudpatedata' , originalUsers[indexToChangePassword].email)
     // console.log('formData' , formData)
     // setUpdatePasswordLoader(true)
-    const storedUserJson:any = localStorage.getItem("user");
+    const storedUserJson: any = localStorage.getItem("user");
     const storedUser = JSON.parse(storedUserJson)
 
-    console.log('storeduser' , storedUser.role)
+    console.log('storeduser', storedUser.role)
     await axios.post('/api/editUser', {
       email: originalUsers[indexToChangePassword].email,
       currentUser: storedUser.role,
       data: formData
     })
-    .then(async (res:any)=>{
-      // console.log('user updated successfully' , res.data);
-      // await fetchUsers()
-      setOriginalUsers(res.data.allUsers);
-      setSearchedUsers(res.data.allUsers)
-      // closeAddUserDialog()
-      await fetchUsers()
-      setShowEditUserDialog(false)
-      setEditUserLoader(false)
-      toast.success('User updated successfully!');
-      setFormData({
-        fullName: '',
-        email: '',
-        role: 'User',
-        password: '',
-        confirmPassword: '',
-        status: '',
-        image: ''
-      });
-    })
-    .catch((error:any)=>{
-      console.log('Error calling editUser api:', error);
-      setEditUserLoader(false)
-      // setIsLoading(false);
-      toast.error('Failed to updated user data');
-    })
+      .then(async (res: any) => {
+        // console.log('user updated successfully' , res.data);
+        // await fetchUsers()
+        setOriginalUsers(res.data.allUsers);
+        setSearchedUsers(res.data.allUsers)
+        // closeAddUserDialog()
+        await fetchUsers()
+        setShowEditUserDialog(false)
+        setEditUserLoader(false)
+        toast.success('User updated successfully!');
+        setFormData({
+          fullName: '',
+          email: '',
+          role: 'User',
+          password: '',
+          confirmPassword: '',
+          status: '',
+          image: ''
+        });
+      })
+      .catch((error: any) => {
+        console.log('Error calling editUser api:', error);
+        setEditUserLoader(false)
+        // setIsLoading(false);
+        toast.error('Failed to updated user data');
+      })
   }
 
 
@@ -732,32 +726,32 @@ const Dashboard = () => {
   }
 
 
-  const handleSetPasswordClick = (index:any) => {
+  const handleSetPasswordClick = (index: any) => {
     setShowSetPassword(true)
     setIndexToChangePassword(index)
   };
 
 
-  const handleDeleteClick = async (index:any) => {
+  const handleDeleteClick = async (index: any) => {
     setIsDeleting(true);
-    const userEmailToDelete:any = originalUsers[index].email;
+    const userEmailToDelete: any = originalUsers[index].email;
     axios.delete(`/api/deleteUser?email=${userEmailToDelete}`)
-      .then(async (response:any) => {
-        console.log('response after deleting ' , response)
+      .then(async (response: any) => {
+        console.log('response after deleting ', response)
         // await fetchUsers()
         setOriginalUsers(response.data.allUsers);
         setSearchedUsers(response.data.allUsers)
         setIsDeleting(false);
-        handleEllipsisClick(index+1)
+        handleEllipsisClick(index + 1)
         toast.success('User deleted successfully', { autoClose: 1500 });
 
         // console.log('User deleted successfully:', response.data);
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         // Handle any errors that occur during the API request
         console.error('Error deleting user:', error);
         setIsDeleting(false);
-        handleEllipsisClick(index+1)
+        handleEllipsisClick(index + 1)
         toast.error('Failed to delete user', { autoClose: 1500 });
       });
 
@@ -768,7 +762,7 @@ const Dashboard = () => {
     setShowSetPassword(false)
     setNewPasswordData({
       newPassword: '',
-      confirmPassword:''
+      confirmPassword: ''
     });
     setShowSetPasswordToggle(false)
     setShowConfirmPasswordToggle(false)
@@ -777,7 +771,7 @@ const Dashboard = () => {
 
 
   const handleSetPassword = async () => {
-    const emailToUpdatePassword:any = originalUsers[indexToChangePassword].email;
+    const emailToUpdatePassword: any = originalUsers[indexToChangePassword].email;
     if (newPasswordData.newPassword !== newPasswordData.confirmPassword) {
       toast.error('Passwords do not match!', { autoClose: 2000 });
       return;
@@ -787,36 +781,36 @@ const Dashboard = () => {
         email: emailToUpdatePassword,
         password: newPasswordData.newPassword
       })
-      .then((res:any)=>{
-        console.log('set password successfully' , res.data);
-        // closeAddUserDialog()
-        setShowSetPassword(false)
-        setUpdatePasswordLoader(false)
-        toast.success('Password updated successfully!');
-        setNewPasswordData({
-          newPassword: '',
-          confirmPassword: '',
-        });
+        .then((res: any) => {
+          console.log('set password successfully', res.data);
+          // closeAddUserDialog()
+          setShowSetPassword(false)
+          setUpdatePasswordLoader(false)
+          toast.success('Password updated successfully!');
+          setNewPasswordData({
+            newPassword: '',
+            confirmPassword: '',
+          });
 
 
-      })
-      .catch((error:any)=>{
-        console.log('Error calling addUser api:', error);
-        setUpdatePasswordLoader(false)
-        toast.error('Failed to set password');
-      })
+        })
+        .catch((error: any) => {
+          console.log('Error calling addUser api:', error);
+          setUpdatePasswordLoader(false)
+          toast.error('Failed to set password');
+        })
     }
 
 
 
 
     //clear fields after updating password
-    
+
 
   }
 
 
-  const handleSetNewPasswordToggle = (e:any) =>{
+  const handleSetNewPasswordToggle = (e: any) => {
     const { name, value } = e.target;
     setNewPasswordData({
       ...newPasswordData,
@@ -825,7 +819,7 @@ const Dashboard = () => {
   }
 
 
-  const handleVaultRowClick = (vault:any) => {
+  const handleVaultRowClick = (vault: any) => {
     setShowVaultFiles(true)
     // console.log(vault)
     setVaultFilesToShow(vault)
@@ -833,7 +827,7 @@ const Dashboard = () => {
   }
 
 
-  const handleFileView = (file:any) => {
+  const handleFileView = (file: any) => {
     setFilenameToView(file.filename)
     setShowViewIndividualFile(true)
     setViewIndividualFileLoader(true)
@@ -852,24 +846,21 @@ const Dashboard = () => {
         setViewIndividualFileLoader(false)
       })
       .catch((err) => {
-        console.log('err' , err)
+        console.log('err', err)
         setViewIndividualFileLoader(false)
       })
   }
 
 
   const descriptionElementRef = useRef<HTMLElement>(null);
-    useEffect(() => {
-      if (showViewIndividualFile) {
-        const { current: descriptionElement } = descriptionElementRef;
-        if (descriptionElement !== null) {
-          descriptionElement.focus();
-        }
+  useEffect(() => {
+    if (showViewIndividualFile) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
       }
+    }
   }, [showViewIndividualFile]);
-
-
-
 
 
   const closeViewIndivualFileDialog = () => {
@@ -879,22 +870,22 @@ const Dashboard = () => {
   }
 
 
-  const vaultFileSearch = (event:any ) => {
+  const vaultFileSearch = (event: any) => {
     //  console.log(event.target.value)
-      setSearched(event.target.value)
-      const searchedVal = event.target.value
-      const filteredRows = originalVaultFilesToShow.files.filter((row:any) => {
-        return row.filename.toLowerCase().includes(searchedVal.toLowerCase());
-      });
+    setSearched(event.target.value)
+    const searchedVal = event.target.value
+    const filteredRows = originalVaultFilesToShow.files.filter((row: any) => {
+      return row.filename.toLowerCase().includes(searchedVal.toLowerCase());
+    });
 
-      console.log('filteredrows' , filteredRows)
+    console.log('filteredrows', filteredRows)
 
-      setVaultFilesToShow({ ...originalVaultFilesToShow, files: filteredRows });
+    setVaultFilesToShow({ ...originalVaultFilesToShow, files: filteredRows });
 
   }
 
 
-  const handleDeleteVault = (vault:any) => {
+  const handleDeleteVault = (vault: any) => {
     setVaultToDelete(vault.vault_name)
 
     setShowVaultDelete(true)
@@ -904,16 +895,16 @@ const Dashboard = () => {
 
   const deleteVault = () => {
     setProceedBtnLoading(true);
-  
+
     axios.delete(`/api/deleteVault?vaultName=${vaultToDelete}`)
-      .then(async (response:any) => {
+      .then(async (response: any) => {
         await fetchFilenames()
         toast.success('Vault deleted successfully', { autoClose: 1500 });
         setShowVaultDelete(false)
         setProceedBtnLoading(false);
         console.log("Vault deleted successfully");
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         setProceedBtnLoading(false);
         console.log("Error deleting vault:", error.response.data.error.detail);
         if (error.response.data.error.detail && error.response.data.error.detail.includes("referenced from table \"vaultPackages\"")) {
@@ -924,18 +915,18 @@ const Dashboard = () => {
   };
 
 
-  const requestPackageSearch = (event:any) => {
+  const requestPackageSearch = (event: any) => {
     // console.log(event.target.value)
     setPackageSearchValue(event.target.value)
     const searchedVal = event.target.value
-    const filteredRows = stripePackages.filter((row:any) => {
+    const filteredRows = stripePackages.filter((row: any) => {
       return row.name.toLowerCase().includes(searchedVal.toLowerCase());
     });
     setSearchedStripePackages(filteredRows);
   };
 
 
-  const handleDashboardNavigation = (item:any) => {
+  const handleDashboardNavigation = (item: any) => {
     setSelectedListItem(item)
     const storedUser = localStorage.getItem("user");
     let user
@@ -946,39 +937,39 @@ const Dashboard = () => {
 
     // console.log(user)
 
-    const requestData:any = {
+    const requestData: any = {
       user: user,
     };
-    axios.post(`/api/getProducts` , requestData)
-    .then((res:any)=> {
-      // console.log('res' , res)
-      setStripePackages(res.data.stripeProducts)
-      setSearchedStripePackages(res.data.stripeProducts)
-      // console.log('getProducts response' , res.data.stripeProducts)
-    })
-    .catch((err:any)=> {
+    axios.post(`/api/getProducts`, requestData)
+      .then((res: any) => {
+        // console.log('res' , res)
+        setStripePackages(res.data.stripeProducts)
+        setSearchedStripePackages(res.data.stripeProducts)
+        // console.log('getProducts response' , res.data.stripeProducts)
+      })
+      .catch((err: any) => {
 
-    })
+      })
 
 
   }
 
 
-  const convertUnixTimestampToDateTime = (timestamp:any) => {
+  const convertUnixTimestampToDateTime = (timestamp: any) => {
     // Convert the timestamp to milliseconds
     const timestampInMilliseconds = timestamp * 1000;
-  
+
     // Create a Date object
     const date = new Date(timestampInMilliseconds);
-  
+
     // Format the date and time as needed
     const formattedDate = date.toLocaleString(); // Adjust the formatting as needed
-  
+
     return formattedDate;
   };
 
 
-  const getCurrencySign = (currency:any) => {
+  const getCurrencySign = (currency: any) => {
     switch (currency) {
       case 'usd':
         return '$';
@@ -991,11 +982,11 @@ const Dashboard = () => {
   }
 
 
-  const handleShowVaultAddPopup = async (row:any) => {
+  const handleShowVaultAddPopup = async (row: any) => {
     // console.log('row' , row)
     // console.log('allvaultstoselect' , allVaultsToSelect)
-    const currentVaults = row.features.map((feature:any) => feature.name);
-    const defaultValues = allVaultsToSelect.filter((option:any) => currentVaults.includes(option.value));
+    const currentVaults = row.features.map((feature: any) => feature.name);
+    const defaultValues = allVaultsToSelect.filter((option: any) => currentVaults.includes(option.value));
     // console.log('defaultValues' , defaultValues)
     setSelectedVaultsForPackage(defaultValues)
     setDefaultVaultInPackage(defaultValues)
@@ -1013,52 +1004,52 @@ const Dashboard = () => {
 
   const handleVaultsAddToPackage = async () => {
     setEditUserLoader(true)
-    const selectedVaultsValues = selectedVaultsForPackage.map((item:any) => ({ value: item.value }));
+    const selectedVaultsValues = selectedVaultsForPackage.map((item: any) => ({ value: item.value }));
     const dataToSend = {
       packageId: packageToAddVault.id,
       selectedVaults: selectedVaultsValues
     };
 
     axios.post('/api/packageVaultUpdate', dataToSend)
-    .then((res:any)=>{
-      // console.log('res from package vaults udpate' , res.data)
-      const storedUser = localStorage.getItem("user");
-      let user
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        user = userData.email
-      }
+      .then((res: any) => {
+        // console.log('res from package vaults udpate' , res.data)
+        const storedUser = localStorage.getItem("user");
+        let user
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          user = userData.email
+        }
 
-      // console.log(user)
+        // console.log(user)
 
-      const requestData:any = {
-        user: user,
-      };
+        const requestData: any = {
+          user: user,
+        };
 
-      console.log(user)
-      axios.post(`/api/getProducts` , requestData)
-      .then((res:any)=> {
-        setStripePackages(res.data.stripeProducts)
-        setSearchedStripePackages(res.data.stripeProducts)
+        console.log(user)
+        axios.post(`/api/getProducts`, requestData)
+          .then((res: any) => {
+            setStripePackages(res.data.stripeProducts)
+            setSearchedStripePackages(res.data.stripeProducts)
+          })
+          .catch((err: any) => { })
+
+        setEditUserLoader(false)
+        setShowAddVaultPopup(false)
+
+      }).catch((err) => {
+        console.log('error from package vaults udpate', err)
+        setEditUserLoader(false)
+
       })
-      .catch((err:any)=> {})
-
-      setEditUserLoader(false)
-      setShowAddVaultPopup(false)
-
-    }).catch((err)=>{
-      console.log('error from package vaults udpate' , err)
-      setEditUserLoader(false)
-
-    })
   }
 
 
-  const handleShowUserVaultAddPopup = async (row:any) => {
+  const handleShowUserVaultAddPopup = async (row: any) => {
     console.log(row)
-    console.log('allvaultstoselect' , allVaultsToSelect)
-    const currentVaults = row.vaults.map((vlt:any) => vlt);
-    const defaultValues = allVaultsToSelect.filter((option:any) => currentVaults.includes(option.value));
+    console.log('allvaultstoselect', allVaultsToSelect)
+    const currentVaults = row.vaults.map((vlt: any) => vlt);
+    const defaultValues = allVaultsToSelect.filter((option: any) => currentVaults.includes(option.value));
 
     // console.log('defaultValues' , defaultValues)
 
@@ -1078,66 +1069,71 @@ const Dashboard = () => {
 
   const handleVaultsAddToUser = async () => {
     setEditUserLoader(true)
-    const selectedVaultsValues = selectedVaultsForUser.map((item:any) => ({ value: item.value }));
+    const selectedVaultsValues = selectedVaultsForUser.map((item: any) => ({ value: item.value }));
 
     const dataToSend = {
       userId: userToAddVault.id,
       selectedVaults: selectedVaultsValues
     };
 
-    console.log('datatosend' , dataToSend)
+    console.log('datatosend', dataToSend)
 
     axios.post('/api/userVaultUpdate', dataToSend)
-    .then((res:any)=>{
+      .then((res: any) => {
 
-      axios.get(`/api/getUsers`)
-      .then((res:any)=> {
-        setOriginalUsers(res.data.allUsers);
-        setSearchedUsers(res.data.allUsers)
+        axios.get(`/api/getUsers`)
+          .then((res: any) => {
+            setOriginalUsers(res.data.allUsers);
+            setSearchedUsers(res.data.allUsers)
+            setEditUserLoader(false)
+            setShowAddVaultToUserPopup(false)
+          })
+          .catch((err: any) => { })
+
+
+
+      }).catch((err) => {
+        console.log('error from package vaults udpate', err)
         setEditUserLoader(false)
-        setShowAddVaultToUserPopup(false)
+
       })
-      .catch((err:any)=> {})
-
-      
-
-    }).catch((err)=>{
-      console.log('error from package vaults udpate' , err)
-      setEditUserLoader(false)
-
-    })
   }
 
   const handleChooseFile = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileChange = (event:any) => {
+  const handleFileChange = (event: any) => {
     const selectedProfilePicture = event.target.files[0];
-    const previews:any = [];
-        const reader = new FileReader();
-        reader.onload = () => {
-            previews.push(reader.result);
-            if (previews.length) {
-              setFormData({
-                ...formData,
-                image: previews[0],
-              });
-            setImagePreviews(previews);
-            }
-        };
+    const previews: any = [];
+    const reader = new FileReader();
+    reader.onload = () => {
+      previews.push(reader.result);
+      if (previews.length) {
+        setFormData({
+          ...formData,
+          image: previews[0],
+        });
+        setImagePreviews(previews);
+      }
+    };
 
-        reader.readAsDataURL(selectedProfilePicture);
+    reader.readAsDataURL(selectedProfilePicture);
   };
-  
+
 
   const handleEditProfilePicture = () => {
-    setFormData((prevFormData:any) => ({
+    setFormData((prevFormData: any) => ({
       ...prevFormData,
       image: '',
     }));
   }
-    
+
+  const handleNavigationValue = (e: any) => {
+    console.log('event', e)
+    setSelectedListItem(e)
+  }
+
 
   return (
     <LayoutWrapper layout={AdminLayout}>
@@ -1145,9 +1141,11 @@ const Dashboard = () => {
         <>
           <FullPageComponentLoading></FullPageComponentLoading>
         </>
-      ):(
-        <div>
-          <div className="side-nav side-nav-dashboard night-mode">
+      ) : (
+        <div className='admin-dashboard-container'>
+
+
+          <div className='mobile-dashboard-topbar night-mode'>
             <div className={"logoVc"}>
               <div className="site-name" onClick={handleSiteNameClick}>
                 <p>TCM Weaver</p>
@@ -1166,7 +1164,7 @@ const Dashboard = () => {
                     <DialogTitle>Authorization Required</DialogTitle>
                     <DialogContent>
                       <DialogContentText>
-                      You will be redirected to the Google consent page to grant this app access to your Google Drive
+                        You will be redirected to the Google consent page to grant this app access to your Google Drive
                       </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -1179,7 +1177,7 @@ const Dashboard = () => {
                             <span className="processing-text">Please Wait</span>
                             <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                           </>
-                        ):(
+                        ) : (
                           <>Proceed</>
                         )}
                       </Button>
@@ -1193,15 +1191,15 @@ const Dashboard = () => {
                     <DialogTitle>
                       {taskCompleted ? 'Data Sync' : 'Select folder to sync data'}
                     </DialogTitle>
-                    <DialogContent sx={{paddingLeft: '6px'}}>
+                    <DialogContent sx={{ paddingLeft: '6px' }}>
                       <List>
-                        {folders.map((folder:any) => (
-                          <ListItem button key={folder.id} sx={{ paddingLeft: '0px'}}>
+                        {folders.map((folder: any) => (
+                          <ListItem button key={folder.id} sx={{ paddingLeft: '0px' }}>
                             <Checkbox
                               checked={folder.checked}
                               onChange={() => handleFolderSelection(folder)}
                             />
-                            <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px' , marginLeft: '15px' }} />
+                            <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginLeft: '15px' }} />
                             {folder.name}
                           </ListItem>
                         ))}
@@ -1213,7 +1211,7 @@ const Dashboard = () => {
                         Cancel
                       </Button>
                       <Button onClick={handleFoldersNext} color="primary" variant="contained"
-                        disabled={!folders.some((folder:any) => folder.checked)}>
+                        disabled={!folders.some((folder: any) => folder.checked)}>
                         Next
                       </Button>
                     </DialogActions>
@@ -1225,77 +1223,77 @@ const Dashboard = () => {
 
                     <DialogTitle>Selected folders</DialogTitle>
 
-                    <DialogContent sx={{paddingLeft: '6px'}}>
+                    <DialogContent sx={{ paddingLeft: '6px' }}>
                       <div style={{ display: 'flex' }}>
                         <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
                           <List>
-                            {selectedFolders.map((folder:any , index:any) => (
-                              <div key={folder.id} style={{display: 'flex' , alignItems: 'center'}}>
+                            {selectedFolders.map((folder: any, index: any) => (
+                              <div key={folder.id} style={{ display: 'flex', alignItems: 'center' }}>
                                 <ListItem >
                                   <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
                                   {folder.name}
                                 </ListItem>
                                 <ListItem key={folder.id + 1}>
-                                {folderToCompare.some((compareFolder:any) =>
-                                compareFolder.vault_name === folder.name) ? (
-                                  <>
-                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
-                                    <select id={`vaultSelect`} value={folder.option}
-                                      disabled={folderSelectedLoader} 
-                                      defaultValue={folder.name}
-                                      onChange={(e:any) => {
-                                        console.log('e' , e.target)
-                                        setSelectedFolders((prevSelectedFolders:any) => {
-                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
-                                            console.log('prevfolder' , prevFolder , i , index)
-                                            if (i === index) {
-                                              return {
-                                                ...prevFolder,
-                                                option: e.target.value,
-                                              };
-                                            }
-                                            return prevFolder;
+                                  {folderToCompare.some((compareFolder: any) =>
+                                    compareFolder.vault_name === folder.name) ? (
+                                    <>
+                                      <img src='vault.svg' alt='folder logo' style={{ width: '15px', marginRight: '5px' }} />
+                                      <select id={`vaultSelect`} value={folder.option}
+                                        disabled={folderSelectedLoader}
+                                        defaultValue={folder.name}
+                                        onChange={(e: any) => {
+                                          console.log('e', e.target)
+                                          setSelectedFolders((prevSelectedFolders: any) => {
+                                            return prevSelectedFolders.map((prevFolder: any, i: any) => {
+                                              console.log('prevfolder', prevFolder, i, index)
+                                              if (i === index) {
+                                                return {
+                                                  ...prevFolder,
+                                                  option: e.target.value,
+                                                };
+                                              }
+                                              return prevFolder;
+                                            });
                                           });
-                                        });
-                                      }}>
-                                      {originalVault.map((vault:any) => (
+                                        }}>
+                                        {originalVault.map((vault: any) => (
                                           <option key={vault.vault_name} value={vault.vault_name}>
-                                              {`Overwrite ${vault.vault_name}`}
+                                            {`Overwrite ${vault.vault_name}`}
                                           </option>
-                                      ))}
-                                      
-                                    </select>
-                                  </>
-                                ) : (
-                                  <>
-                                    <img src='vault.svg' alt='folder logo' style={{ width: '15px' , marginRight: '5px' }} />
-                                    <select id="vaultSelect"
-                                      disabled={folderSelectedLoader} 
-                                      onChange={(e:any) => {
-                                        console.log('e change' , e.target)
-                                        setSelectedFolders((prevSelectedFolders:any) => {
-                                          return prevSelectedFolders.map((prevFolder:any, i:any) => {
-                                            if (i === index) {
-                                              return {
-                                                ...prevFolder,
-                                                option: e.target.value,
-                                              };
-                                            }
-                                            return prevFolder;
+                                        ))}
+
+                                      </select>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <img src='vault.svg' alt='folder logo' style={{ width: '15px', marginRight: '5px' }} />
+                                      <select id="vaultSelect"
+                                        disabled={folderSelectedLoader}
+                                        onChange={(e: any) => {
+                                          console.log('e change', e.target)
+                                          setSelectedFolders((prevSelectedFolders: any) => {
+                                            return prevSelectedFolders.map((prevFolder: any, i: any) => {
+                                              if (i === index) {
+                                                return {
+                                                  ...prevFolder,
+                                                  option: e.target.value,
+                                                };
+                                              }
+                                              return prevFolder;
+                                            });
                                           });
-                                        });
-                                      }}>
-                                      <option value="Create new vault" selected>Create new vault</option>
-                                      {originalVault.map((vault:any) => (
+                                        }}>
+                                        <option value="Create new vault" selected>Create new vault</option>
+                                        {originalVault.map((vault: any) => (
                                           <option key={vault.vault_name} value={vault.vault_name}>
-                                              {`Overwrite ${vault.vault_name}`}
+                                            {`Overwrite ${vault.vault_name}`}
                                           </option>
-                                      ))}
-                                    </select>
-                                  </>
-                                )}
+                                        ))}
+                                      </select>
+                                    </>
+                                  )}
                                 </ListItem>
-                                </div>
+                              </div>
                             ))}
                           </List>
                         </div>
@@ -1331,7 +1329,7 @@ const Dashboard = () => {
                                       aria-hidden="true">
                                     </span>
                                   </>
-                                ):(
+                                ) : (
                                   <>
                                     <span>
                                       Syncronized {currentSyncedFiles} / {totalFilesToSync} files
@@ -1340,7 +1338,7 @@ const Dashboard = () => {
                                 )
 
                                 }
-                                
+
                               </>
                             )}
                           </ListItem>
@@ -1371,20 +1369,21 @@ const Dashboard = () => {
                                 role="status"
                                 aria-hidden="true"
                                 ></span> */}
-                              </Button> 
+                              </Button>
                             </>
                           ) : (
                             <>
                               <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
-                              Done
+                                Done
                               </Button>
                             </>
                           )}
-                        </>):(
+                        </>) : (
                         <>
                           <Button onClick={() => {
                             setShowFolderComparison(false)
-                            setFoldersPopup(true)}} color="primary">
+                            setFoldersPopup(true)
+                          }} color="primary">
                             Back
                           </Button>
                           {taskCompleted ? (
@@ -1392,39 +1391,39 @@ const Dashboard = () => {
                               <Button color="primary" variant="contained">
                                 Syncronizing
                                 <span
-                                className="spinner-grow spinner-grow-sm ml-2"
-                                role="status"
-                                aria-hidden="true"
+                                  className="spinner-grow spinner-grow-sm ml-2"
+                                  role="status"
+                                  aria-hidden="true"
                                 ></span>
-                              </Button> 
+                              </Button>
                             </>
                           ) : (
                             <>
                               <Button onClick={handleDataSync} color="primary" variant="contained">
-                              Sync
+                                Sync
                               </Button>
                             </>
                           )}
                         </>
                       )}
-                      
-                      
+
+
                     </DialogActions>
 
                   </Dialog>
-                  
+
                 )}
 
                 {showAddUser && (
                   <div>
-                    <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550 , margin: 'auto' }} >
+                    <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550, margin: 'auto' }} >
                       <DialogTitle>Add User</DialogTitle>
                       <DialogContent>
                         <DialogContentText>Please enter the user details:</DialogContentText>
-                        <Grid container spacing={2} sx={{paddingTop:1}}>
+                        <Grid container spacing={2} sx={{ paddingTop: 1 }}>
                           <Grid item xs={12}>
                             <FormControl fullWidth>
-                              <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
+                              <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Role</InputLabel>
                               <MuiSelect name="role" value={formData.role} onChange={handleChange}
                                 size='small'
                               >
@@ -1433,9 +1432,9 @@ const Dashboard = () => {
                               </MuiSelect>
                             </FormControl>
                             <TextField label="Email" type='email' name="email" value={formData.email}
-                              onChange={handleChange} fullWidth margin="normal" size='small'required
+                              onChange={handleChange} fullWidth margin="normal" size='small' required
                             />
-                            <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                               <Typography variant="body1">
                                 Invite User by Sending Email Notification
                               </Typography>
@@ -1455,20 +1454,23 @@ const Dashboard = () => {
                                   type={showPassword ? 'text' : 'password'} label="Password"
                                   name="password" value={formData.password} required
                                   onChange={handleChange} fullWidth margin="normal" size='small'
-                                  InputProps={{ endAdornment: (
+                                  InputProps={{
+                                    endAdornment: (
                                       <InputAdornment position="end">
                                         <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                                           {showPassword ? <Visibility /> : <VisibilityOff />}
                                         </IconButton>
                                       </InputAdornment>
-                                  ),}}
+                                    ),
+                                  }}
                                 />
 
                                 <TextField
                                   type={showPassword ? 'text' : 'password'} label="Confirm password"
-                                  name="confirmPassword"  required value={formData.confirmPassword}
+                                  name="confirmPassword" required value={formData.confirmPassword}
                                   onChange={handleChange} fullWidth margin="normal" size='small'
-                                  InputProps={{ endAdornment: (
+                                  InputProps={{
+                                    endAdornment: (
                                       <InputAdornment position="end">
                                         <IconButton
                                           onClick={() => setShowPassword(!showPassword)} edge="end"
@@ -1476,12 +1478,13 @@ const Dashboard = () => {
                                           {showPassword ? <Visibility /> : <VisibilityOff />}
                                         </IconButton>
                                       </InputAdornment>
-                                  ),}}
+                                    ),
+                                  }}
                                 />
                               </>
                             )}
 
-                          </Grid> 
+                          </Grid>
                         </Grid>
                       </DialogContent>
                       <DialogActions>
@@ -1493,14 +1496,14 @@ const Dashboard = () => {
                             <Button color='primary' onClick={handleInviteUser} disabled={isLoading}>
                               {isLoading ? 'Sending Invite...' : 'Send Invite'}
                             </Button>
-                          </>): (
+                          </>) : (
                           <>
                             <Button color="primary" onClick={handleAddUser} disabled={isLoading}>
                               {isLoading ? 'Saving...' : 'Save'}
                             </Button>
                           </>
                         )}
-                      
+
                       </DialogActions>
                     </Dialog>
                   </div>
@@ -1509,85 +1512,85 @@ const Dashboard = () => {
                 {showSetPassword && (
                   <>
                     <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
-                        <DialogTitle>Set Password</DialogTitle>
-                        <DialogContent>
-                          <DialogContentText>
-                            Please enter the new password:
-                          </DialogContentText>
-                          <TextField
-                            type={showSetPasswordToggle ? 'text' : 'password'}
-                            label="New Password"
-                            name="newPassword"
-                            value={newPasswordData.newPassword}
-                            onChange={handleSetNewPasswordToggle}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <IconButton
-                                    onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
-                                    edge="end"
-                                  >
-                                    {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                  </IconButton>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                          <TextField
-                            type={showConfirmPasswordToggle ? 'text' : 'password'}
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            value={newPasswordData.confirmPassword}
-                            onChange={handleSetNewPasswordToggle}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <IconButton
-                                    onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
-                                    edge="end"
-                                  >
-                                    {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
-                                  </IconButton>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </DialogContent>
-                        <DialogActions>
-                          <Button onClick={closeSetPasswordDialog} color="primary">
-                            Cancel
-                          </Button>
-                          <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
-                            {updatePasswordLoader ? 'Saving...' : 'Save'}
-                          </Button>
-                        </DialogActions>
+                      <DialogTitle>Set Password</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>
+                          Please enter the new password:
+                        </DialogContentText>
+                        <TextField
+                          type={showSetPasswordToggle ? 'text' : 'password'}
+                          label="New Password"
+                          name="newPassword"
+                          value={newPasswordData.newPassword}
+                          onChange={handleSetNewPasswordToggle}
+                          fullWidth
+                          margin="normal"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                                  edge="end"
+                                >
+                                  {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        <TextField
+                          type={showConfirmPasswordToggle ? 'text' : 'password'}
+                          label="Confirm Password"
+                          name="confirmPassword"
+                          value={newPasswordData.confirmPassword}
+                          onChange={handleSetNewPasswordToggle}
+                          fullWidth
+                          margin="normal"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                                  edge="end"
+                                >
+                                  {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={closeSetPasswordDialog} color="primary">
+                          Cancel
+                        </Button>
+                        <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                          {updatePasswordLoader ? 'Saving...' : 'Save'}
+                        </Button>
+                      </DialogActions>
                     </Dialog>
                   </>
                 )}
 
                 {showEditUserDialog && (
                   <>
-                    <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550 , margin: 'auto' }} >
+                    <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }} >
                       <DialogTitle>Edit User</DialogTitle>
                       <DialogContent>
                         <DialogContentText>Please enter the user details:</DialogContentText>
-                        <Grid container spacing={2} sx={{paddingTop:1}}>
+                        <Grid container spacing={2} sx={{ paddingTop: 1 }}>
                           <Grid item xs={12}>
 
                             <div className="edit-profile-div">
                               <div className="edit-profile-image-div">
                                 {formData.image && formData.image !== null && formData.image !== '' ? (
                                   <img src={formData.image}
-                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
                                     alt="Profile Picture"
                                   />
-                                ):(
+                                ) : (
                                   <img src='/profile-avatar.webp'
-                                    style={{ borderRadius: '50%', width: '100%', height: '100%' , objectFit: 'contain' }}
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
                                     alt="Profile"
                                   />
                                 )}
@@ -1612,7 +1615,7 @@ const Dashboard = () => {
 
 
                             <FormControl fullWidth>
-                              <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Role</InputLabel>
+                              <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Role</InputLabel>
                               <MuiSelect
                                 name="role"
                                 value={formData.role}
@@ -1641,9 +1644,9 @@ const Dashboard = () => {
                               margin="normal"
                               size='small'
                             />
-                            <Grid item xs={12} sx={{paddingTop:2}}>
+                            <Grid item xs={12} sx={{ paddingTop: 2 }}>
                               <FormControl fullWidth>
-                                <InputLabel sx={{ background: '#fff' , paddingLeft: 1 , paddingRight: 1 }}>Status</InputLabel>
+                                <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Status</InputLabel>
                                 <MuiSelect name="status" value={formData.status} onChange={handleChange} size='small'>
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
@@ -1651,7 +1654,7 @@ const Dashboard = () => {
                               </FormControl>
                             </Grid>
 
-                          </Grid> 
+                          </Grid>
                         </Grid>
                       </DialogContent>
                       <DialogActions>
@@ -1677,13 +1680,13 @@ const Dashboard = () => {
                       <Button onClick={() => setShowVaultDelete(false)} color="primary">Cancel</Button>
                       <Button onClick={deleteVault} color="primary">
                         {proccedBtnLoading ? (
-                            <>
-                              Deleting {" "}
-                              <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
-                            </>
-                          ) : (
-                            <>Delete</>
-                          )}
+                          <>
+                            Deleting {" "}
+                            <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                          </>
+                        ) : (
+                          <>Delete</>
+                        )}
                       </Button>
                     </DialogActions>
                   </Dialog>
@@ -1692,25 +1695,25 @@ const Dashboard = () => {
                 {showAddVaultPopup && (
                   <>
                     <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
-                      <Paper sx={{ width: 500 }}>                    
+                      <Paper sx={{ width: 500 }}>
                         <DialogTitle>{packageToAddVault.name}</DialogTitle>
-                        <DialogContent sx={{ height: 300}}>
+                        <DialogContent sx={{ height: 300 }}>
                           <DialogContentText>
                             Select vaults to add to this package:
                           </DialogContentText>
-                          <Grid sx={{marginTop: '10px' }}>
+                          <Grid sx={{ marginTop: '10px' }}>
                             <Select
                               closeMenuOnSelect={false}
                               components={animatedComponents}
                               defaultValue={defaultVaultsInPackage}
                               isMulti
                               options={allVaultsToSelect}
-                              onChange={(selectedOptions:any) => {
+                              onChange={(selectedOptions: any) => {
                                 setSelectedVaultsForPackage(selectedOptions);
                               }}
-                            />  
+                            />
                           </Grid>
-                        
+
                         </DialogContent>
 
                         <DialogActions>
@@ -1729,24 +1732,24 @@ const Dashboard = () => {
                 {showAddVaultToUserPopup && (
                   <>
                     <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} >
-                      <Paper sx={{ width: 500 }}>                    
+                      <Paper sx={{ width: 500 }}>
                         <DialogTitle>{userToAddVault.full_name}</DialogTitle>
-                        <DialogContent sx={{ height: 300}}>
+                        <DialogContent sx={{ height: 300 }}>
                           <DialogContentText>
                             Select vaults to give access to this user:
                           </DialogContentText>
 
-                          <Grid sx={{marginTop: '10px' }}>
+                          <Grid sx={{ marginTop: '10px' }}>
                             <Select
                               closeMenuOnSelect={false}
                               components={animatedComponents}
                               defaultValue={defaultVaultsForUser}
                               isMulti
                               options={allVaultsToSelect}
-                              onChange={(selectedOptions:any) => {
+                              onChange={(selectedOptions: any) => {
                                 setSelectedVaultsForUser(selectedOptions);
                               }}
-                            />  
+                            />
                           </Grid>
                         </DialogContent>
 
@@ -1784,26 +1787,26 @@ const Dashboard = () => {
                     <Dialog open={showViewIndividualFile} onClose={closeViewIndivualFileDialog}
                       scroll={scroll} aria-labelledby="scroll-dialog-title"
                       aria-describedby="scroll-dialog-description"
-                      PaperProps={{sx: {width: '500px',height: '400px'},}}
+                      PaperProps={{ sx: { width: '500px', height: '400px' }, }}
                     >
 
                       <DialogTitle id="scroll-dialog-title">
                         {filenameToView}
-                        {viewIndividualFileLoader && <CircularProgress size={13} style={{color: 'black', marginLeft: 20 }} />}
-                        </DialogTitle>
+                        {viewIndividualFileLoader && <CircularProgress size={13} style={{ color: 'black', marginLeft: 20 }} />}
+                      </DialogTitle>
 
                       <DialogContent dividers={scroll === 'paper'}>
                         <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef}
                           tabIndex={-1}
                         >
-                          <Grid container spacing={2} sx={{paddingTop:1}}>
+                          <Grid container spacing={2} sx={{ paddingTop: 1 }}>
                             <Grid item xs={12}>
                               <Typography gutterBottom>
                                 {/* {viewIndividualFile.content} */}
                                 <p dangerouslySetInnerHTML={{ __html: viewIndividualFile.content ?? '' }} />
                               </Typography>
 
-                            </Grid> 
+                            </Grid>
                           </Grid>
                         </DialogContentText>
                       </DialogContent>
@@ -1811,8 +1814,693 @@ const Dashboard = () => {
                       <DialogActions>
                         <Button onClick={closeViewIndivualFileDialog} color="primary">Close</Button>
                       </DialogActions>
-                      </Dialog>
-                  
+                    </Dialog>
+
+                  </>
+                )}
+
+              </div>
+            </div>
+
+            <div className='mobile-left-modal'>
+              <AdminDrawer themeChangericon={themeChangericon} handleThemeChange={handleThemeChangerClick}
+                handleNavigationValue={handleNavigationValue} selectedListItem={selectedListItem}
+                currentUserImage={currentUserImage} currentUser={currentUser} setUserLogoutPopup={setUserLogoutPopup}
+                handleDashboardNavigation={handleDashboardNavigation} />
+            </div>
+          </div>
+
+          <div className="mobile-side-nav side-nav-dashboard night-mode">
+            <div className={"logoVc"}>
+              <div className="site-name" onClick={handleSiteNameClick}>
+                <p>TCM Weaver</p>
+              </div>
+              <div className={"icon-profile"}>
+                <div className={"themeChanger"}>
+                  {themeChangericon ? (
+                    <img src="/dark-mode.png" alt="img" onClick={handleThemeChangerClick} />
+                  ) : (
+                    <img src="/light-mode.png" alt="img" onClick={handleThemeChangerClick} />
+                  )}
+                </div>
+
+                {syncPopup && (<div>
+                  <Dialog open={syncPopup} onClose={handleCloseDialog}>
+                    <DialogTitle>Authorization Required</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        You will be redirected to the Google consent page to grant this app access to your Google Drive
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseDialog} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={synchronizeFiles} color="primary">
+                        {proccedBtnLoading ? (
+                          <>
+                            <span className="processing-text">Please Wait</span>
+                            <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                          </>
+                        ) : (
+                          <>Proceed</>
+                        )}
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </div>)}
+
+                {foldersPopup && (
+                  <Dialog open={foldersPopup} // onClose={handlerFolderPopupClose}
+                  >
+                    <DialogTitle>
+                      {taskCompleted ? 'Data Sync' : 'Select folder to sync data'}
+                    </DialogTitle>
+                    <DialogContent sx={{ paddingLeft: '6px' }}>
+                      <List>
+                        {folders.map((folder: any) => (
+                          <ListItem button key={folder.id} sx={{ paddingLeft: '0px' }}>
+                            <Checkbox
+                              checked={folder.checked}
+                              onChange={() => handleFolderSelection(folder)}
+                            />
+                            <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginLeft: '15px' }} />
+                            {folder.name}
+                          </ListItem>
+                        ))}
+                      </List>
+                    </DialogContent>
+
+                    <DialogActions>
+                      <Button onClick={handlerFolderPopupClose} color="primary">
+                        Cancel
+                      </Button>
+                      <Button onClick={handleFoldersNext} color="primary" variant="contained"
+                        disabled={!folders.some((folder: any) => folder.checked)}>
+                        Next
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+
+                {showFolderComparison && (
+                  <Dialog open={showFolderComparison} onClose={handlerFolderPopupClose}>
+
+                    <DialogTitle>Selected folders</DialogTitle>
+
+                    <DialogContent sx={{ paddingLeft: '6px' }}>
+                      <div style={{ display: 'flex' }}>
+                        <div style={{ flex: 1, marginRight: '10px', paddingLeft: '0px' }}>
+                          <List>
+                            {selectedFolders.map((folder: any, index: any) => (
+                              <div key={folder.id} style={{ display: 'flex', alignItems: 'center' }}>
+                                <ListItem >
+                                  <img src='folder.svg' alt='folder logo' style={{ width: '15px', marginRight: '6px', marginTop: '5px' }} />
+                                  {folder.name}
+                                </ListItem>
+                                <ListItem key={folder.id + 1}>
+                                  {folderToCompare.some((compareFolder: any) =>
+                                    compareFolder.vault_name === folder.name) ? (
+                                    <>
+                                      <img src='vault.svg' alt='folder logo' style={{ width: '15px', marginRight: '5px' }} />
+                                      <select id={`vaultSelect`} value={folder.option}
+                                        disabled={folderSelectedLoader}
+                                        defaultValue={folder.name}
+                                        onChange={(e: any) => {
+                                          console.log('e', e.target)
+                                          setSelectedFolders((prevSelectedFolders: any) => {
+                                            return prevSelectedFolders.map((prevFolder: any, i: any) => {
+                                              console.log('prevfolder', prevFolder, i, index)
+                                              if (i === index) {
+                                                return {
+                                                  ...prevFolder,
+                                                  option: e.target.value,
+                                                };
+                                              }
+                                              return prevFolder;
+                                            });
+                                          });
+                                        }}>
+                                        {originalVault.map((vault: any) => (
+                                          <option key={vault.vault_name} value={vault.vault_name}>
+                                            {`Overwrite ${vault.vault_name}`}
+                                          </option>
+                                        ))}
+
+                                      </select>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <img src='vault.svg' alt='folder logo' style={{ width: '15px', marginRight: '5px' }} />
+                                      <select id="vaultSelect"
+                                        disabled={folderSelectedLoader}
+                                        onChange={(e: any) => {
+                                          console.log('e change', e.target)
+                                          setSelectedFolders((prevSelectedFolders: any) => {
+                                            return prevSelectedFolders.map((prevFolder: any, i: any) => {
+                                              if (i === index) {
+                                                return {
+                                                  ...prevFolder,
+                                                  option: e.target.value,
+                                                };
+                                              }
+                                              return prevFolder;
+                                            });
+                                          });
+                                        }}>
+                                        <option value="Create new vault" selected>Create new vault</option>
+                                        {originalVault.map((vault: any) => (
+                                          <option key={vault.vault_name} value={vault.vault_name}>
+                                            {`Overwrite ${vault.vault_name}`}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </>
+                                  )}
+                                </ListItem>
+                              </div>
+                            ))}
+                          </List>
+                        </div>
+                      </div>
+                      {currentSync && (
+                        <div>
+                          {showCurrentSync && (
+                            <>
+                              <ListItem>We are synchronizing your files. Dont close the popup.</ListItem>
+                            </>
+                          )}
+
+                          <ListItem>
+                            {totalFilesToSync === null ? (
+                              <>
+                                <span className="processing-text">Processing</span>
+                                <span
+                                  className="spinner-grow spinner-grow-sm ml-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                              </>
+                            ) : (
+                              <>
+                                {taskCompleted ? (
+                                  <>
+                                    <span className="processing-text">
+                                      Processing {currentSyncedFiles} / {totalFilesToSync} files
+                                    </span>
+                                    <span
+                                      className="spinner-grow spinner-grow-sm ml-2"
+                                      role="status"
+                                      aria-hidden="true">
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>
+                                      Syncronized {currentSyncedFiles} / {totalFilesToSync} files
+                                    </span>
+                                  </>
+                                )
+
+                                }
+
+                              </>
+                            )}
+                          </ListItem>
+
+                        </div>
+                      )}
+                    </DialogContent>
+
+                    <DialogActions>
+                      {folderSelectedLoader ? (
+                        <>
+                          {/* <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setSelectedFolders([])}} color="primary">
+                            Done
+                          </Button> */}
+                          {/* <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setFoldersPopup(true)}} color="primary">
+                            Back
+                          </Button> */}
+                          {taskCompleted ? (
+                            <>
+                              <Button color="primary" variant="contained" disabled>
+                                Sync
+                                {/* <span
+                                className="spinner-grow spinner-grow-sm ml-2"
+                                role="status"
+                                aria-hidden="true"
+                                ></span> */}
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
+                                Done
+                              </Button>
+                            </>
+                          )}
+                        </>) : (
+                        <>
+                          <Button onClick={() => {
+                            setShowFolderComparison(false)
+                            setFoldersPopup(true)
+                          }} color="primary">
+                            Back
+                          </Button>
+                          {taskCompleted ? (
+                            <>
+                              <Button color="primary" variant="contained">
+                                Syncronizing
+                                <span
+                                  className="spinner-grow spinner-grow-sm ml-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button onClick={handleDataSync} color="primary" variant="contained">
+                                Sync
+                              </Button>
+                            </>
+                          )}
+                        </>
+                      )}
+
+
+                    </DialogActions>
+
+                  </Dialog>
+
+                )}
+
+                {showAddUser && (
+                  <div>
+                    <Dialog open={showAddUser} onClose={closeAddUserDialog} sx={{ width: 550, margin: 'auto' }} >
+                      <DialogTitle>Add User</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>Please enter the user details:</DialogContentText>
+                        <Grid container spacing={2} sx={{ paddingTop: 1 }}>
+                          <Grid item xs={12}>
+                            <FormControl fullWidth>
+                              <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Role</InputLabel>
+                              <MuiSelect name="role" value={formData.role} onChange={handleChange}
+                                size='small'
+                              >
+                                <MenuItem value="User">User</MenuItem>
+                                <MenuItem value="Admin">Admin</MenuItem>
+                              </MuiSelect>
+                            </FormControl>
+                            <TextField label="Email" type='email' name="email" value={formData.email}
+                              onChange={handleChange} fullWidth margin="normal" size='small' required
+                            />
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <Typography variant="body1">
+                                Invite User by Sending Email Notification
+                              </Typography>
+                              <Switch checked={showInviteFields} onChange={toggleInviteFields}
+                                color="primary"
+                              />
+                            </div>
+
+                            {!showInviteFields && (
+                              <>
+                                <TextField label="Full Name" name="fullName" value={formData.fullName}
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
+                                  required
+                                />
+
+                                <TextField
+                                  type={showPassword ? 'text' : 'password'} label="Password"
+                                  name="password" value={formData.password} required
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+
+                                <TextField
+                                  type={showPassword ? 'text' : 'password'} label="Confirm password"
+                                  name="confirmPassword" required value={formData.confirmPassword}
+                                  onChange={handleChange} fullWidth margin="normal" size='small'
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        <IconButton
+                                          onClick={() => setShowPassword(!showPassword)} edge="end"
+                                        >
+                                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </>
+                            )}
+
+                          </Grid>
+                        </Grid>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={closeAddUserDialog} color="primary">
+                          Cancel
+                        </Button>
+                        {showInviteFields ? (
+                          <>
+                            <Button color='primary' onClick={handleInviteUser} disabled={isLoading}>
+                              {isLoading ? 'Sending Invite...' : 'Send Invite'}
+                            </Button>
+                          </>) : (
+                          <>
+                            <Button color="primary" onClick={handleAddUser} disabled={isLoading}>
+                              {isLoading ? 'Saving...' : 'Save'}
+                            </Button>
+                          </>
+                        )}
+
+                      </DialogActions>
+                    </Dialog>
+                  </div>
+                )}
+
+                {showSetPassword && (
+                  <>
+                    <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
+                      <DialogTitle>Set Password</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>
+                          Please enter the new password:
+                        </DialogContentText>
+                        <TextField
+                          type={showSetPasswordToggle ? 'text' : 'password'}
+                          label="New Password"
+                          name="newPassword"
+                          value={newPasswordData.newPassword}
+                          onChange={handleSetNewPasswordToggle}
+                          fullWidth
+                          margin="normal"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setShowSetPasswordToggle(!showSetPasswordToggle)}
+                                  edge="end"
+                                >
+                                  {showSetPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        <TextField
+                          type={showConfirmPasswordToggle ? 'text' : 'password'}
+                          label="Confirm Password"
+                          name="confirmPassword"
+                          value={newPasswordData.confirmPassword}
+                          onChange={handleSetNewPasswordToggle}
+                          fullWidth
+                          margin="normal"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setShowConfirmPasswordToggle(!showConfirmPasswordToggle)}
+                                  edge="end"
+                                >
+                                  {showConfirmPasswordToggle ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={closeSetPasswordDialog} color="primary">
+                          Cancel
+                        </Button>
+                        <Button color="primary" onClick={handleSetPassword} disabled={isLoading}>
+                          {updatePasswordLoader ? 'Saving...' : 'Save'}
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </>
+                )}
+
+                {showEditUserDialog && (
+                  <>
+                    <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }} >
+                      <DialogTitle>Edit User</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>Please enter the user details:</DialogContentText>
+                        <Grid container spacing={2} sx={{ paddingTop: 1 }}>
+                          <Grid item xs={12}>
+
+                            <div className="edit-profile-div">
+                              <div className="edit-profile-image-div">
+                                {formData.image && formData.image !== null && formData.image !== '' ? (
+                                  <img src={formData.image}
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
+                                    alt="Profile Picture"
+                                  />
+                                ) : (
+                                  <img src='/profile-avatar.webp'
+                                    style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'contain' }}
+                                    alt="Profile"
+                                  />
+                                )}
+                              </div>
+
+                              <div className="edit-profile-button-div">
+                                <button onClick={handleChooseFile} >
+                                  Change picture
+                                </button>
+                                <button onClick={handleEditProfilePicture} >
+                                  Remove
+                                </button>
+                                <input
+                                  type="file"
+                                  ref={fileInputRef}
+                                  style={{ display: 'none' }}
+                                  onChange={handleFileChange}
+                                />
+                              </div>
+                            </div>
+
+
+
+                            <FormControl fullWidth>
+                              <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Role</InputLabel>
+                              <MuiSelect
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                                size='small'
+                              >
+                                <MenuItem value="User">User</MenuItem>
+                                <MenuItem value="Admin">Admin</MenuItem>
+                              </MuiSelect>
+                            </FormControl>
+                            <TextField
+                              label="Email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleChange}
+                              fullWidth
+                              margin="normal"
+                              size='small'
+                            />
+                            <TextField
+                              label="Full Name"
+                              name="fullName"
+                              value={formData.fullName}
+                              onChange={handleChange}
+                              fullWidth
+                              margin="normal"
+                              size='small'
+                            />
+                            <Grid item xs={12} sx={{ paddingTop: 2 }}>
+                              <FormControl fullWidth>
+                                <InputLabel sx={{ background: '#fff', paddingLeft: 1, paddingRight: 1 }}>Status</InputLabel>
+                                <MuiSelect name="status" value={formData.status} onChange={handleChange} size='small'>
+                                  <MenuItem value="Active">Active</MenuItem>
+                                  <MenuItem value="Inactive">Inactive</MenuItem>
+                                </MuiSelect>
+                              </FormControl>
+                            </Grid>
+
+                          </Grid>
+                        </Grid>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={closeEditUserDailog} color="primary">Cancel</Button>
+                        <Button color="primary" onClick={handleEditUser} disabled={editUserLoader}>
+                          {editUserLoader ? 'Saving...' : 'Save'}
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </>
+                )}
+
+                {showVaultDelete && (
+                  <Dialog open={showVaultDelete} onClose={() => setShowVaultDelete(false)}>
+                    <DialogTitle>Delete Vault</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        Are you sure you want to delete
+                        <strong style={{ fontWeight: 'bold' }}> {vaultToDelete}</strong> ?
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={() => setShowVaultDelete(false)} color="primary">Cancel</Button>
+                      <Button onClick={deleteVault} color="primary">
+                        {proccedBtnLoading ? (
+                          <>
+                            Deleting {" "}
+                            <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
+                          </>
+                        ) : (
+                          <>Delete</>
+                        )}
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+
+                {showAddVaultPopup && (
+                  <>
+                    <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} >
+                      <Paper sx={{ width: 500 }}>
+                        <DialogTitle>{packageToAddVault.name}</DialogTitle>
+                        <DialogContent sx={{ height: 300 }}>
+                          <DialogContentText>
+                            Select vaults to add to this package:
+                          </DialogContentText>
+                          <Grid sx={{ marginTop: '10px' }}>
+                            <Select
+                              closeMenuOnSelect={false}
+                              components={animatedComponents}
+                              defaultValue={defaultVaultsInPackage}
+                              isMulti
+                              options={allVaultsToSelect}
+                              onChange={(selectedOptions: any) => {
+                                setSelectedVaultsForPackage(selectedOptions);
+                              }}
+                            />
+                          </Grid>
+
+                        </DialogContent>
+
+                        <DialogActions>
+                          <Button onClick={closeAddVaultPopup} color="primary">
+                            Cancel
+                          </Button>
+                          <Button color="primary" onClick={handleVaultsAddToPackage} disabled={editUserLoader}>
+                            {editUserLoader ? 'Saving...' : 'Save'}
+                          </Button>
+                        </DialogActions>
+                      </Paper>
+                    </Dialog>
+                  </>
+                )}
+
+                {showAddVaultToUserPopup && (
+                  <>
+                    <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} >
+                      <Paper sx={{ width: 500 }}>
+                        <DialogTitle>{userToAddVault.full_name}</DialogTitle>
+                        <DialogContent sx={{ height: 300 }}>
+                          <DialogContentText>
+                            Select vaults to give access to this user:
+                          </DialogContentText>
+
+                          <Grid sx={{ marginTop: '10px' }}>
+                            <Select
+                              closeMenuOnSelect={false}
+                              components={animatedComponents}
+                              defaultValue={defaultVaultsForUser}
+                              isMulti
+                              options={allVaultsToSelect}
+                              onChange={(selectedOptions: any) => {
+                                setSelectedVaultsForUser(selectedOptions);
+                              }}
+                            />
+                          </Grid>
+                        </DialogContent>
+
+                        <DialogActions>
+                          <Button onClick={closeAddVaultToUserPopup} color="primary">
+                            Cancel
+                          </Button>
+                          <Button color="primary" onClick={handleVaultsAddToUser} disabled={editUserLoader}>
+                            {editUserLoader ? 'Saving...' : 'Save'}
+                          </Button>
+                        </DialogActions>
+                      </Paper>
+                    </Dialog>
+                  </>
+                )}
+
+                {userLogoutPopup && (
+                  <div >
+                    <Dialog open={userLogoutPopup} onClose={() => setUserLogoutPopup(false)} className="user-logout-div">
+                      <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                      <DialogActions>
+                        <Button onClick={() => setUserLogoutPopup(false)} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={handleLogout} color="primary">
+                          Logout
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </div>
+                )}
+
+                {showViewIndividualFile && (
+                  <>
+                    <Dialog open={showViewIndividualFile} onClose={closeViewIndivualFileDialog}
+                      scroll={scroll} aria-labelledby="scroll-dialog-title"
+                      aria-describedby="scroll-dialog-description"
+                      PaperProps={{ sx: { width: '500px', height: '400px' }, }}
+                    >
+
+                      <DialogTitle id="scroll-dialog-title">
+                        {filenameToView}
+                        {viewIndividualFileLoader && <CircularProgress size={13} style={{ color: 'black', marginLeft: 20 }} />}
+                      </DialogTitle>
+
+                      <DialogContent dividers={scroll === 'paper'}>
+                        <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef}
+                          tabIndex={-1}
+                        >
+                          <Grid container spacing={2} sx={{ paddingTop: 1 }}>
+                            <Grid item xs={12}>
+                              <Typography gutterBottom>
+                                {/* {viewIndividualFile.content} */}
+                                <p dangerouslySetInnerHTML={{ __html: viewIndividualFile.content ?? '' }} />
+                              </Typography>
+
+                            </Grid>
+                          </Grid>
+                        </DialogContentText>
+                      </DialogContent>
+
+                      <DialogActions>
+                        <Button onClick={closeViewIndivualFileDialog} color="primary">Close</Button>
+                      </DialogActions>
+                    </Dialog>
+
                   </>
                 )}
 
@@ -1821,49 +2509,49 @@ const Dashboard = () => {
 
             <div className='dashboard-navigation'>
               <List>
-                <Link href="/">
+                <Link href="/" className='home-link'>
                   <ListItem className={`dashboard-navigation-list ${selectedListItem === 0 ? 'selected-dashboard-navigation-list' : ''}`}
                     onClick={() => setSelectedListItem(0)}>
-                      <img src='home.png' alt="Home" style={{ marginRight: '10px' }} />
-                      <ListItemText primary="Home" />
+                    <img src='home.png' alt="Home" style={{ marginRight: '10px' }} />
+                    <ListItemText primary="Home" />
                   </ListItem>
                 </Link>
 
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 1 ? 'selected-dashboard-navigation-list' : ''}`}
                   onClick={() => setSelectedListItem(1)}>
-                    <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
-                    <ListItemText primary="Vault Management" />
+                  <img src='vault.svg' alt="Vault" style={{ marginRight: '10px' }} />
+                  <ListItemText primary="Vault Management" />
                 </ListItem>
 
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 2 ? 'selected-dashboard-navigation-list' : ''}`}
                   onClick={() => setSelectedListItem(2)}>
-                    {themeChangericon ? (
-                      <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
-                    ):(
-                      <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
-                    )}
-                    
-                    <ListItemText primary="User Management" />
+                  {themeChangericon ? (
+                    <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                  ) : (
+                    <img src='users-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                  )}
+
+                  <ListItemText primary="User Management" />
                 </ListItem>
 
                 <ListItem className={`dashboard-navigation-list ${selectedListItem === 3 ? 'selected-dashboard-navigation-list' : ''}`}
                   onClick={() => handleDashboardNavigation(3)}>
-                    {/* <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} /> */}
-                    <SubscriptionsIcon></SubscriptionsIcon>
-                    <ListItemText style={{marginLeft: '10px'}} primary="Packages" />
+                  {/* <img src='users.svg' alt="Users" style={{ marginRight: '10px' }} /> */}
+                  <SubscriptionsIcon></SubscriptionsIcon>
+                  <ListItemText style={{ marginLeft: '10px' }} primary="Packages" />
                 </ListItem>
 
               </List>
             </div>
-            
+
             <div className='logout-section'>
               <div className='avatar-title'>
                 <div className='profile-avatar'>
                   {currentUserImage && currentUserImage !== null && currentUserImage !== '' ? (
-                      <img src={currentUserImage}alt="Profile Picture"/>
-                    ):(
-                      <img src='/profile-avatar.webp' alt="Profile"/>
-                    )}
+                    <img src={currentUserImage} alt="Profile Picture" />
+                  ) : (
+                    <img src='/profile-avatar.webp' alt="Profile" />
+                  )}
                   {/* <img src={currentUserImage} alt="Profile Picture"/> */}
                 </div>
                 <div className="profile-title"><h4>{currentUser}</h4></div>
@@ -1872,9 +2560,9 @@ const Dashboard = () => {
               <div className='logout-button-div'>
                 <button className="logout-button" onClick={() => setUserLogoutPopup(true)} >
                   {themeChangericon ? (
-                      <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
-                  ):(
-                      <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                    <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
+                  ) : (
+                    <img src='logout-dark.svg' alt="Users" style={{ marginRight: '10px' }} />
                   )}
                   Logout
                 </button>
@@ -1882,9 +2570,9 @@ const Dashboard = () => {
             </div>
 
           </div>
-            
-          <div className="workspace-content night-mode">
-            <div className='main main-setting'>
+
+          <div className="mobile-workspace-content night-mode">
+            <div className='main main-setting mobile-dashboard-main'>
               {selectedListItem === 0 && (
                 <div></div>
               )}
@@ -1896,105 +2584,106 @@ const Dashboard = () => {
                       {showVaultFiles ? (
                         <>
                           <h5>
-                            <span onClick={() => {setShowVaultFiles(false)}} style={{ cursor: 'pointer' }}>
-                              Vault 
+                            <span onClick={() => { setShowVaultFiles(false) }} style={{ cursor: 'pointer' }}>
+                              Vault
                             </span>
                             / {vaultFilesToShow.vault_name}
-                          </h5></>):(<>
-                          <h5>Vaults</h5>
-                        </>
+                          </h5></>) : (<>
+                            <h5>Vaults</h5>
+                          </>
                       )}
-                      
+
                     </div>
 
                     <div className="vault-search">
                       <div>
                         {showVaultFiles ? (
                           <>
-                          <input className='vault-searchbar' placeholder='Search file' value={searched}
-                          onChange={vaultFileSearch} />
+                            <input className='vault-searchbar' placeholder='Search file' value={searched}
+                              onChange={vaultFileSearch} />
                           </>
-                        ):(
+                        ) : (
                           <input className='vault-searchbar' placeholder='Search file' value={searched}
-                          onChange={requestSearch} />
+                            onChange={requestSearch} />
                         )}
                       </div>
                       <div>
                         {showVaultFiles ? (
                           <button className='vault-sync-btn' onClick={() => {
-                            setShowVaultFiles(false);}}  style={{marginRight: '5px'}}>
-                          back
-                        </button>
-                        ):(
+                            setShowVaultFiles(false);
+                          }} style={{ marginRight: '5px' }}>
+                            back
+                          </button>
+                        ) : (
                           <button className='vault-sync-btn' onClick={() => setSyncPopup(true)}>
-                          Sync
-                          {themeChangericon ? (
-                            <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                          ):(
-                            <img src='sync-dark.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
-                          )}
-                          
-                        </button>
+                            Sync
+                            {themeChangericon ? (
+                              <img src='sync.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                            ) : (
+                              <img src='sync-dark.svg' alt='Sync Icon' style={{ marginLeft: '12px' }} />
+                            )}
+
+                          </button>
                         )}
-                        
+
                       </div>
                     </div>
                   </div>
 
                   {showVaultFiles ? (
-                      <div className="vault-table">
-                        <Paper className='vault-table-paper'>
-                          <TableContainer className='vault-table-scroll'>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                              <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
-                                <TableRow className='vault-table-row'>
-                                  <TableCell sx={{width: '15%'}}>
-                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
-                                  </TableCell>
-                                  <TableCell sx={{width: '45%'}}>
-                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
-                                  </TableCell>
-                                  <TableCell sx={{borderTopRightRadius: '17px'}}>
-                                    <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
-                                  </TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {vaultFilesToShow.files.map((row:any , index:any) => (
-                                  <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    key={index} className='vault-table-row vault-file-hover'
-                                  >
-                                    <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                                    <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
-                                    <TableCell className='vault-table-body-row'>
-                                      <span style={{ display: 'flex', alignItems: 'center' }}>
-                                        <img src="eye.png" alt="File View" className='vault-view-icon'
-                                          style={{ width: '20px', height: '20px', marginRight: '10px' }}
-                                          onClick={() => handleFileView(row)}
-                                        />
-                                      </span>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        </Paper>
-                      </div>
-                  ):(
-                    <div className="vault-table"> 
+                    <div className="vault-table">
                       <Paper className='vault-table-paper'>
                         <TableContainer className='vault-table-scroll'>
                           <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                            <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                            <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none' }} className='vault-table-head' >
                               <TableRow className='vault-table-row'>
-                                <TableCell sx={{borderTopLeftRadius: '17px' , width: '15%'}}>
+                                <TableCell sx={{ width: '15%' }}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
+                                </TableCell>
+                                <TableCell sx={{ width: '45%' }}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>File</Typography>
+                                </TableCell>
+                                <TableCell sx={{ borderTopRightRadius: '17px' }}>
+                                  <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Actions</Typography>
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {vaultFilesToShow.files.map((row: any, index: any) => (
+                                <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                  key={index} className='vault-table-row vault-file-hover'
+                                >
+                                  <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
+                                  <TableCell className='vault-table-body-row'>{row.filename}</TableCell>
+                                  <TableCell className='vault-table-body-row'>
+                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                      <img src="eye.png" alt="File View" className='vault-view-icon'
+                                        style={{ width: '20px', height: '20px', marginRight: '10px' }}
+                                        onClick={() => handleFileView(row)}
+                                      />
+                                    </span>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Paper>
+                    </div>
+                  ) : (
+                    <div className="vault-table">
+                      <Paper className='vault-table-paper'>
+                        <TableContainer className='vault-table-scroll'>
+                          <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
+                            <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none' }} className='vault-table-head' >
+                              <TableRow className='vault-table-row'>
+                                <TableCell sx={{ borderTopLeftRadius: '17px', width: '15%' }}>
                                   <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
                                     No#
                                   </Typography>
                                 </TableCell>
 
-                                <TableCell sx={{width: '45%'}} >
+                                <TableCell sx={{ width: '45%' }} >
                                   <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>
                                     Vaults
                                   </Typography>
@@ -2006,7 +2695,7 @@ const Dashboard = () => {
                                   </Typography>
                                 </TableCell> */}
 
-                                <TableCell sx={{borderTopRightRadius: '17px'}}>
+                                <TableCell sx={{ borderTopRightRadius: '17px' }}>
                                   <Typography variant='subtitle1' fontWeight="bold" className='vault-table-head-row'>
                                     Actions
                                   </Typography>
@@ -2015,9 +2704,9 @@ const Dashboard = () => {
                             </TableHead>
 
                             <TableBody>
-                              {vaultFiles.map((row:any , index) => (
+                              {vaultFiles.map((row: any, index) => (
                                 <TableRow key={index} className='vault-table-row hover-row'
-                                  sx={{ '&:last-child td, &  :last-child th': { border: 0 } }} 
+                                  sx={{ '&:last-child td, &  :last-child th': { border: 0 } }}
                                   onDoubleClick={() => handleVaultRowClick(row)}
                                 >
                                   <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
@@ -2029,7 +2718,7 @@ const Dashboard = () => {
                                       {row.vault_name}&nbsp;&nbsp;&nbsp;({row.files.length})
                                     </span>
                                   </TableCell>
-                                  
+
                                   <TableCell scope="row" className='vault-table-body-row'>
                                     <span style={{ display: 'flex', alignItems: 'center' }}>
                                       <img src="eye.png" alt="Folder Icon" className='vault-view-icon'
@@ -2042,8 +2731,8 @@ const Dashboard = () => {
                                         onClick={() => handleDeleteVault(row)}
                                       />
                                     </span>
-                                    
-                                    
+
+
 
                                   </TableCell>
                                 </TableRow>
@@ -2067,7 +2756,7 @@ const Dashboard = () => {
                     <div className="user-search">
                       <div>
                         <input className='user-searchbar' placeholder='Search user' value={userSearchValue}
-                        onChange={requestUserSearch} />
+                          onChange={requestUserSearch} />
                       </div>
                       <div>
                         <button className='add-user' onClick={showAddUserPopup}>
@@ -2083,45 +2772,45 @@ const Dashboard = () => {
                       <TableContainer sx={{ overflowX: 'inherit' }} className='vault-table-scroll'>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
 
-                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none' }} className='vault-table-head' >
                             <TableRow className='vault-table-row'>
 
-                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '6%'}}>
+                              <TableCell sx={{ borderTopLeftRadius: '17px', width: '6%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width:'20%'}}>
+                              <TableCell sx={{ width: '20%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '25%'}}>
+                              <TableCell sx={{ width: '25%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Email</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '7%'}}>
+                              <TableCell sx={{ width: '7%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Role</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '8%'}}>
+                              <TableCell sx={{ width: '8%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Status</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '18%'}}>
-                              <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
+                              <TableCell sx={{ width: '18%' }}>
+                                <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults Access</Typography>
                               </TableCell>
 
-                              <TableCell sx={{width: '18%'}}>
+                              <TableCell sx={{ width: '18%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Subscriptions</Typography>
                               </TableCell>
 
-                              <TableCell sx={{borderTopRightRadius: '17px' , width:'10%'}}>
+                              <TableCell sx={{ borderTopRightRadius: '17px', width: '10%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Action</Typography>
                               </TableCell>
                             </TableRow>
                           </TableHead>
-                          
+
                           <TableBody>
-                            {searchedUsers.map((row:any , index) => (
+                            {searchedUsers.map((row: any, index) => (
                               <TableRow
                                 key={row.email}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -2134,25 +2823,25 @@ const Dashboard = () => {
                                 <TableCell className='vault-table-body-row' style={{ color: row.status === 'Active' ? '#28C76F' : 'inherit' }}>
                                   {row.status}
                                 </TableCell>
-                                  
+
                                 <TableCell>
                                   {row.vaults && row.vaults.length > 0 ? (
-                                      <>
-                                        {row.vaults.map((vault:any , index:any) => (
-                                          <button className="package-vaults" key={index}>
-                                            {vault}
-                                          </button>
-                                        ))}
-                                      </>
-                                      ):(
-                                      <>
-                                        <p style={{display: 'inline'}}>No vault attached</p>
-                                        
-                                      </>
+                                    <>
+                                      {row.vaults.map((vault: any, index: any) => (
+                                        <button className="package-vaults" key={index}>
+                                          {vault}
+                                        </button>
+                                      ))}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p style={{ display: 'inline' }}>No vault attached</p>
+
+                                    </>
                                   )}
-                                    
-                                  <img src="attach-vault.png" alt="logo" 
-                                    style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
+
+                                  <img src="attach-vault.png" alt="logo"
+                                    style={{ width: '15px', height: '15px', cursor: 'pointer', marginLeft: '5px' }}
                                     onClick={() => handleShowUserVaultAddPopup(row)}
                                   />
                                 </TableCell>
@@ -2160,7 +2849,7 @@ const Dashboard = () => {
                                 <TableCell>
                                   {row.subscriptions && row.subscriptions.length > 0 ? (
                                     <>
-                                      {row.subscriptions.map((subscription:any, index:any) => (
+                                      {row.subscriptions.map((subscription: any, index: any) => (
                                         <button className="package-vaults" key={index}>
                                           {subscription}
                                         </button>
@@ -2174,9 +2863,9 @@ const Dashboard = () => {
                                 </TableCell>
 
                                 <TableCell className='vault-table-body-row'>
-                                  <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index+1)}>
-                                    <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image'/>
-                                    {showOptions === index+1 && (
+                                  <div className='user-action-icon-div' onClick={() => handleEllipsisClick(index + 1)}>
+                                    <img className='user-action-icon' src='ellipsis.svg' alt='ellipses image' />
+                                    {showOptions === index + 1 && (
                                       <div className='options-div'>
                                         <div onClick={() => handleEditClick(index)}>Edit</div>
                                         <div onClick={() => handleSetPasswordClick(index)}>Set Password</div>
@@ -2187,7 +2876,7 @@ const Dashboard = () => {
                                     )}
                                   </div>
                                 </TableCell>
-                            
+
                               </TableRow>
                             ))}
                           </TableBody>
@@ -2209,7 +2898,7 @@ const Dashboard = () => {
                     <div className="user-search">
                       <div>
                         <input className='user-searchbar' placeholder='Search package' value={packageSearchValue}
-                        onChange={requestPackageSearch} />
+                          onChange={requestPackageSearch} />
                       </div>
                       {/* <div>
                         <button className='add-user' onClick={showAddUserPopup}>
@@ -2222,23 +2911,23 @@ const Dashboard = () => {
 
                   <div className="user-table">
                     <Paper className='vault-table-paper'>
-                      <TableContainer component={Paper} sx={{ overflowX: 'inherit' ,borderTopLeftRadius: '16px',borderTopRightRadius: '16px'}}>
+                      <TableContainer component={Paper} sx={{ overflowX: 'inherit', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table" className='vault-table-container'>
-                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none'}} className='vault-table-head' >
+                          <TableHead sx={{ backgroundColor: '#F4F4F4', boxShadow: 'none' }} className='vault-table-head' >
                             <TableRow className='vault-table-row'>
-                              <TableCell sx={{borderTopLeftRadius: '17px' , width: '13%'}}>
+                              <TableCell sx={{ borderTopLeftRadius: '17px', width: '13%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>No#</Typography>
                               </TableCell>
-                              <TableCell sx={{width: '25%'}}>
+                              <TableCell sx={{ width: '25%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Name</Typography>
                               </TableCell>
-                              <TableCell sx={{width: '10%'}}>
+                              <TableCell sx={{ width: '10%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Price</Typography>
                               </TableCell>
-                              <TableCell sx={{width: '10%'}}>
+                              <TableCell sx={{ width: '10%' }}>
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Created</Typography>
                               </TableCell>
-                              <TableCell sx={{ width: '30%'}} >
+                              <TableCell sx={{ width: '30%' }} >
                                 <Typography variant="subtitle1" fontWeight="bold" className='vault-table-head-row'>Vaults</Typography>
                               </TableCell>
                               {/* <TableCell sx={{borderTopRightRadius: '17px'}}>
@@ -2248,43 +2937,43 @@ const Dashboard = () => {
                           </TableHead>
 
                           <TableBody>
-                            {searchedStripePackages.map((row:any , index) => (
+                            {searchedStripePackages.map((row: any, index) => (
                               <TableRow
                                 key={row.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 className='vault-table-row user-row-hover'
                               >
-                                  <TableCell component="th" scope="row" className='vault-table-body-row'>
-                                    {index + 1}
-                                  </TableCell>
-                                  <TableCell className='vault-table-body-row'>{row.name}</TableCell>
-                                  <TableCell className='vault-table-body-row'>
-                                    {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
-                                  </TableCell>
-                                  <TableCell className='vault-table-body-row'>
-                                    {convertUnixTimestampToDateTime(row.created)}
-                                  </TableCell>
-                                  <TableCell>
-                                    {row.features && row.features.length > 0 ? (
-                                      <>
-                                        {row.features.map((feature:any , index:any) => (
-                                          <button className="package-vaults" key={index}>
-                                            {feature.name}
-                                          </button>
-                                        ))}
-                                      </>
-                                      ):(
-                                      <>
-                                        <p style={{display: 'inline'}}>No vault attached</p>
-                                        
-                                      </>
-                                    )}
-                                    
-                                    <img src="attach-vault.png" alt="logo" 
-                                      style={{ width: '15px', height: '15px', cursor: 'pointer' , marginLeft:'5px' }}
-                                      onClick={() => handleShowVaultAddPopup(row)}
-                                    />
-                                  </TableCell>
+                                <TableCell component="th" scope="row" className='vault-table-body-row'>
+                                  {index + 1}
+                                </TableCell>
+                                <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+                                <TableCell className='vault-table-body-row'>
+                                  {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                                </TableCell>
+                                <TableCell className='vault-table-body-row'>
+                                  {convertUnixTimestampToDateTime(row.created)}
+                                </TableCell>
+                                <TableCell>
+                                  {row.features && row.features.length > 0 ? (
+                                    <>
+                                      {row.features.map((feature: any, index: any) => (
+                                        <button className="package-vaults" key={index}>
+                                          {feature.name}
+                                        </button>
+                                      ))}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p style={{ display: 'inline' }}>No vault attached</p>
+
+                                    </>
+                                  )}
+
+                                  <img src="attach-vault.png" alt="logo"
+                                    style={{ width: '15px', height: '15px', cursor: 'pointer', marginLeft: '5px' }}
+                                    onClick={() => handleShowVaultAddPopup(row)}
+                                  />
+                                </TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -2292,17 +2981,16 @@ const Dashboard = () => {
                       </TableContainer>
                     </Paper>
                   </div>
-              </div>
+                </div>
 
               )}
-  
+
             </div>
           </div>
-    
+
           <ToastContainer autoClose={1500} />
         </div>
       )}
-      
     </LayoutWrapper>
   );
 }
