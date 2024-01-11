@@ -3013,7 +3013,7 @@ button {
         margin-left: 0;
         width: 100%;
         height: calc(100vh - 125px);
-        border: 1px solid red;
+        /* border: 1px solid red; */
     }
 
     .mobile-dashboard-main {
