@@ -7797,6 +7797,15 @@ const Sidebar = () => {
               )}
             </div>
 
+            {/* =============Mobile Graph Loader======================*/}
+            {graphSearchLoader && (
+              <div className="mobile-graph-loader-container">
+                <CircularProgress size={13} style={{ color: 'black' }} />
+              </div>
+            )}
+
+
+
             {/* =============Workspace Icon========================== */}
             <div className="sidebar-workspace-icon">
               {graphOrTextView ? (

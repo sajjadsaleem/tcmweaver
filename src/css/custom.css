@@ -126,6 +126,11 @@
     display: none;
 }
 
+
+
+
+
+.mobile-graph-loader-container,
 .mobile-text-workspace-icons,
 .mobile-workspace-container,
 .sidebar-workspace-icon {
@@ -3062,6 +3067,10 @@ button {
         gap: 7px;
     }
 
+    .mobile-graph-loader-container {
+        display: block;
+    }
+
     .sidebar-workspace-icon img {
         max-width: 100%;
         height: auto;
@@ -3118,7 +3127,7 @@ button {
     .opened-result-detail {
         padding: 0px 0px 0px 4px;
         height: calc(100vh - 172px);
-        border: 1px solid orange;
+        /* border: 1px solid orange; */
     }
 
     .main::-webkit-scrollbar {
@@ -3165,7 +3174,7 @@ button {
         /* background-color: lightgreen; */
         min-height: calc(100% - 184px);
         max-height: calc(100% - 184px);
-        border: 1px solid red;
+        /* border: 1px solid red; */
     }
 
     .mobile-text-workspace-view {
