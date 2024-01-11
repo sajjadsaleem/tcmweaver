@@ -7499,6 +7499,7 @@ const Sidebar = () => {
     const menuBtn: any = document.querySelector('.menuBtn')
     const searchResultsFound: any = document.querySelector('.search-results-found')
     const menus: any = document.querySelector('.menus')
+    const searchResults: any = document.querySelector('.search-results');
 
 
     // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
@@ -7511,6 +7512,7 @@ const Sidebar = () => {
       menus.style.display = 'none'
       mobileTextWorkspaceIcon.style.display = 'flex'
       mobileWorkspaceContainer.style.display = 'block';
+      searchResults.classList.add('mobile-text-workspace-view');
     } else if (mobileWorkspaceContainer) {
       mobileWorkspaceContainer.style.display = 'none';
       mobileTextWorkspaceIcon.style.display = 'none'
@@ -7519,6 +7521,7 @@ const Sidebar = () => {
       searchResultsFound.style.display = 'flex'
       menus.style.display = 'flex'
       searchResultsInnerContainer.style.display = 'block';
+      searchResults.classList.remove('mobile-text-workspace-view');
     } else if (mobileHomepageVideo) {
       mobileHomepageVideo.style.display = 'block';
     }
@@ -7547,17 +7550,28 @@ const Sidebar = () => {
 
 
   const handleMobileGraphText = () => {
+
     handleGraphOrTextView()
 
-
     setTimeout(() => {
+      const searchResults: any = document.querySelector('.search-results');
       const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
       const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      const menus: any = document.querySelector('.menus');
+
       if (searchResultsInnerContainer) {
         searchResultsInnerContainer.style.display = 'none'
+        menus.style.display = 'none'
+        searchResults.classList.add('mobile-text-workspace-view');
         mobileWorkspaceContainer.style.display = 'block'
+      } else {
+        console.log('ehhhhhhl')
       }
-    }, 50);
+
+
+    }, 100);
+
+
   }
 
 
@@ -7566,16 +7580,24 @@ const Sidebar = () => {
 
 
     setTimeout(() => {
+      const searchResults: any = document.querySelector('.search-results');
+
       const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
       const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
       const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
       const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      const menus: any = document.querySelector('.menus');
+
       if (searchResultsInnerContainer) {
 
         searchResultsInnerContainer.style.display = 'none'
-        mobileWorkspaceContainer.style.display = 'block'
         sidebarWorkspaceIcon.style.display = 'none'
+        searchResults.classList.add('mobile-text-workspace-view');
+        mobileWorkspaceContainer.style.display = 'block'
         mobileTextWorkspaceIcon.style.display = 'flex'
+        menus.style.display = 'none'
+
+
       }
     }, 50);
   }
@@ -8191,7 +8213,7 @@ const Sidebar = () => {
                   ))}
                 </div>
 
-                <div className="mobile-workspace-container">
+                <div className="mobile-workspace-container ">
                   <div className='main'>
                     {openedResults.length > 0 ? (
                       openedResults.map((result, index) => (

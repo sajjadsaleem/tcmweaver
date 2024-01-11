@@ -2904,7 +2904,7 @@ button {
         margin-top: 0px !important;
         min-height: calc(100% - 52px);
         max-height: calc(100% - 52px);
-        border: 1px solid red;
+        /* border: 1px solid red; */
     }
 
     .graph-search-results-container {
@@ -2915,7 +2915,7 @@ button {
         /* height: 328px; */
         height: calc(100vh - 110px);
         display: block;
-        border: 1px solid orange;
+        /* border: 1px solid orange; */
 
     }
 
@@ -3117,7 +3117,8 @@ button {
 
     .opened-result-detail {
         padding: 0px 0px 0px 4px;
-        height: calc(100vh - 280px);
+        height: calc(100vh - 172px);
+        border: 1px solid orange;
     }
 
     .main::-webkit-scrollbar {
@@ -3164,6 +3165,12 @@ button {
         /* background-color: lightgreen; */
         min-height: calc(100% - 184px);
         max-height: calc(100% - 184px);
+        border: 1px solid red;
+    }
+
+    .mobile-text-workspace-view {
+        min-height: calc(100% - 52px);
+        max-height: calc(100% - 52px);
     }
 
     .results-height {
