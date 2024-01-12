@@ -30,6 +30,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import MenuIcon from '@mui/icons-material/Menu';
 import TemporaryDrawer from "./RightModal";
+import UnstyledTextareaIntroduction from "./contactSupport";
 
 
 var internalId: any = 0
@@ -168,8 +169,10 @@ const Sidebar = () => {
   const [linkClickedId, setLinkClickedId] = useState('')
   const [nodeSizeChangeChecker, setNodeSizeChangeChecker] = useState(true)
   const [showSearchResultsFound, setShowSearchResultsFound] = useState(false)
-
-
+  const [showContactSupportToast, setShowContactSupportToast] = useState(false)
+  const [contactSupportLoader, setContactSupportLoader] = useState(false)
+  const [contactSupportMessage, setContactSupportMessage] = useState('')
+  const [linkedClickFromFile, setLinkClickFromFile] = useState('')
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -205,6 +208,7 @@ const Sidebar = () => {
   // console.log('rawSearchResults' , rawSearchResults)
   // console.log('search value' , searchValue)
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
+  // console.log('contactSupportMessage', contactSupportMessage)
 
 
 
@@ -6236,6 +6240,7 @@ const Sidebar = () => {
 
 
   const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result: any) => {
+    setLinkClickFromFile(linkClicked)
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
     // console.log('result' , result.id)
@@ -6248,12 +6253,39 @@ const Sidebar = () => {
       // console.log('response' , response)
       const linkFile = await response.json();
 
+      if (linkFile.hasOwnProperty("message")) {
+        const showToast = () => {
+          toast(
+            <div className="contact-support-message">
+              <p>{linkFile.message}</p>
+              {!showContactSupportToast && (
+                <button className="contact-support-button" onClick={() => setShowContactSupportToast(true)}>Contact Support</button>
+              )}
+            </div>,
+            {
+              position: "top-right",
+              autoClose: 2500,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              type: "error",
+              theme: "light",
+            }
+          );
+        };
+
+        showToast()
+      }
+
+
       const newDataObject = _.cloneDeep(linkFile)
 
       let textToConvert = newDataObject.content;
       const regexForRemovedBrackets = /\[\[([^[\]]+)\]\]/g;
 
-      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets, (match: any, word: any) => `${word}`);
+      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets, (match: any, word: any) => `${word} `);
       newDataObject.contentWithRemovedBrackets = contentWithRemovedBrackets;
 
       marked.setOptions({ breaks: true, });
@@ -6271,7 +6303,7 @@ const Sidebar = () => {
         const contentWithoutHashtags = newDataObject.content.replace(hashtagParagraphRegex, "");
 
         const contentWithStyledWords = contentWithoutHashtags.replace(regex,
-          (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+          (match: any, word: any) => `< span style = "text-decoration: underline; cursor: pointer;" > ${word}</span > `
         );
         // console.log("contentwithstyledword", contentWithStyledWords);
         // console.log('openedresults' , openedResults)
@@ -6385,7 +6417,7 @@ const Sidebar = () => {
       // Now does not come in this else
       console.log('should not come in this else : showNodeClickedFile')
       try {
-        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
+        const response = await fetch(`/ api / linkFile ? q = ${fileOpenedFromGraph.id} `);
         const newDataObject = await response.json();
         // console.log("responseJson: ", responseJson);
 
@@ -6408,7 +6440,7 @@ const Sidebar = () => {
         newDataObject.content = newDataObject.content.replace(
           regex,
           (match: any, word: any) =>
-            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            `< span style = "text-decoration: underline; cursor: pointer;" > ${word}</span > `
         );
         console.log("newDataObject", newDataObject);
 
@@ -6596,7 +6628,7 @@ const Sidebar = () => {
       // console.log('false')
       const tableNamesStr = userAccessVaults.join(',');
       // console.log(tableNamesStr)
-      axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
+      axios.post(`/ api / linkFile ? q = ${node}& av=${tableNamesStr} `)
         .then((res) => {
           const newDataObject = res.data;
 
@@ -6611,7 +6643,7 @@ const Sidebar = () => {
 
           newDataObject.content = newDataObject.content.replace(
             regex, (match: any, word: any) =>
-            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+            `< span style = "text-decoration: underline; cursor: pointer;" > ${word}</span > `
           );
 
           if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {
@@ -6661,14 +6693,14 @@ const Sidebar = () => {
         setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
-        // responseJson = await axios.get(`/api/search?q=${encodedWords}&AccessVaults=${tableNamesStr}`);
-        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
+        // responseJson = await axios.get(`/ api / search ? q = ${ encodedWords }& AccessVaults=${ tableNamesStr } `);
+        const response = await axios.get(`/ api / wanderNode ? q = ${encodedWords}& av=${tableNamesStr}& sa=${graphSearchWordsArray}& bl=${fileOpenedFromGraph.id} `)
         // console.log('response from wander api', response)
         if (response) {
 
           function removeDoubleBrackets(content: any) {
             const regex = /\[\[([^[\]]+)\]\]/g;
-            return content.replace(regex, (match: any, word: any) => `${word}`);
+            return content.replace(regex, (match: any, word: any) => `${word} `);
           }
 
 
@@ -6702,10 +6734,10 @@ const Sidebar = () => {
             .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
           // Use filter to remove objects that match any word in searchWords with a hyphen
-          const filteredData = linkTags.filter((item: any) => !searchWords.includes(`-${item.name}`));
+          const filteredData = linkTags.filter((item: any) => !searchWords.includes(`- ${item.name} `));
 
           const filteredDataForBacklinks = linkTagsForBacklinks.filter((item: any) => {
-            return !searchWords.includes(`-${item.name}`);
+            return !searchWords.includes(`- ${item.name} `);
           });
 
           // console.log('filteredData', filteredData)
@@ -6720,7 +6752,7 @@ const Sidebar = () => {
 
               openedResults.forEach((result) => {
                 // Check if the name exists in the content
-                const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
+                const pattern = new RegExp(`< span[^>] *> ${word.name}<\\/span>`, 'gi');
 
 
                 if (pattern.test(result.content)) {
@@ -7710,6 +7742,49 @@ const Sidebar = () => {
     handleGraphOrTextView()
   }
 
+  const hanndleCloseContactSupportPopup = () => {
+    setShowContactSupportToast(false)
+  }
+
+  const handleContactSupportMessage = async () => {
+    setContactSupportLoader(true)
+    // console.log('linkclickedid', linkedClickFromFile)
+    try {
+      // Assuming contactSupportMessage is a state variable
+      const response = await axios.post('/api/contactSupport', {
+        message: contactSupportMessage,
+        file: linkedClickFromFile,
+      });
+
+      setContactSupportLoader(false)
+      setShowContactSupportToast(false)
+      setLinkClickFromFile('')
+      setContactSupportMessage('')
+      toast(`${response.data.message}`, {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        type: "success",
+        theme: "light",
+      }
+      );
+
+
+
+
+      // You can add further logic here based on the API response
+    } catch (error: any) {
+      setContactSupportLoader(false)
+      // Handle any errors that occurred during the API request
+      console.error('Error sending message:', error.message);
+    }
+
+  }
+
 
   return (
 
@@ -8115,6 +8190,26 @@ const Sidebar = () => {
                           <>buy now</>
                         )}
                     </Button> */}
+                </DialogActions>
+              </Dialog>
+            )}
+
+            {showContactSupportToast && (
+              <Dialog open={showContactSupportToast} onClose={hanndleCloseContactSupportPopup}>
+                <DialogTitle>Contact Support</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please enter the message:
+                  </DialogContentText>
+                  <UnstyledTextareaIntroduction setContactSupportMessage={setContactSupportMessage} linkedClickFromFile={linkedClickFromFile} />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={hanndleCloseContactSupportPopup} color="primary">
+                    Cancel
+                  </Button>
+                  <Button color="primary" onClick={handleContactSupportMessage} disabled={isLoading}>
+                    {contactSupportLoader ? 'Sending...' : 'Send Message'}
+                  </Button>
                 </DialogActions>
               </Dialog>
             )}

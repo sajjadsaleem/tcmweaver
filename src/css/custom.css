@@ -983,6 +983,30 @@
     background-color: #000;
 }
 
+.contact-support-message p {
+    color: #6C655C;
+}
+
+.contact-support-button {
+    background-color: #323232;
+    color: #B3B3B5 !important;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.contact-support-button:hover {
+    background-color: #808080;
+}
+
+.contact-support-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(128, 128, 128, 0.5);
+}
+
 
 /* ===================================Homepage========================================== */
 /* ===================================Workspace Content============================================== */

@@ -54,7 +54,6 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
 
                         {linkClickLoader && result?.id === linkClickedId ? (
                             <CircularProgress size={16} style={{ color: 'black' }} />
-
                         ) : (
                             <>
                                 {themeChangericon ? (

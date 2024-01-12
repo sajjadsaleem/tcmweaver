@@ -8,8 +8,8 @@ export default async function linkFile(req, res) {
         const inputValue = `${req.query.q}.md`
         const tableNamesStr = req.query.av
         const tableNames = tableNamesStr.split(',');
-        console.log('inputValue: ', inputValue)
-        console.log('tableNames', tableNames)
+        // console.log('inputValue: ', inputValue)
+        // console.log('tableNames', tableNames)
 
         const db = drizzle(sql)
         const datasets = []
@@ -50,13 +50,21 @@ export default async function linkFile(req, res) {
             return result;
         }, {});
 
-        // console.log('updatedobjects', updatedDatasets)
+        console.log('updatedobjects', updatedDatasets)
 
-        const desiredFormat = {
-            id: updatedDatasets[0].id,
-            fileName: updatedObject.dataset.filename,
-            content: updatedObject.dataset.content
-        };
+        let desiredFormat
+        if (updatedDatasets.length > 0) {
+            desiredFormat = {
+                id: updatedDatasets[0].id,
+                fileName: updatedObject.dataset.filename,
+                content: updatedObject.dataset.content
+            };
+        } else {
+            desiredFormat = {
+                message: 'File not found'
+            }
+        }
+
 
         // console.log('desiredFormat', desiredFormat)
 
