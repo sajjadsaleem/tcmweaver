@@ -6261,7 +6261,10 @@ const Sidebar = () => {
             <div className="contact-support-message">
               <p>{linkFile.message}</p>
               {!showContactSupportToast && (
-                <button className="contact-support-button" onClick={() => setShowContactSupportToast(true)}>Contact Support</button>
+                <p>Please contact: <a href="mailto:support@tcmweaver.com">support@tcmweaver.com</a></p>
+
+
+                // <button className="contact-support-button" onClick={() => setShowContactSupportToast(true)}>Contact Support</button>
               )}
             </div>,
             {
