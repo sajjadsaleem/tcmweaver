@@ -172,7 +172,7 @@ const Sidebar = () => {
   const [showContactSupportToast, setShowContactSupportToast] = useState(false)
   const [contactSupportLoader, setContactSupportLoader] = useState(false)
   const [contactSupportMessage, setContactSupportMessage] = useState('')
-  const [linkedClickFromFile, setLinkClickFromFile] = useState('')
+  const [linkClickFromFile, setLinkClickFromFile] = useState('')
 
   // console.log("filesData: ", filesData);
   // console.log("filters file data: ", filtersFileData);
@@ -6240,6 +6240,7 @@ const Sidebar = () => {
 
 
   const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result: any) => {
+    console.log(linkClickedFromFile, linkClicked, linkClickFromFile)
     setLinkClickFromFile(linkClicked)
     // console.log("linkClickedFromFile: ", linkClickedFromFile);
     // console.log("linkClicked: ", linkClicked);
@@ -6254,6 +6255,7 @@ const Sidebar = () => {
       const linkFile = await response.json();
 
       if (linkFile.hasOwnProperty("message")) {
+
         const showToast = () => {
           toast(
             <div className="contact-support-message">
@@ -6279,8 +6281,11 @@ const Sidebar = () => {
         showToast()
       }
 
+      // console.log('linkFile', linkFile)
+
 
       const newDataObject = _.cloneDeep(linkFile)
+      console.log('newdataobject', newDataObject)
 
       let textToConvert = newDataObject.content;
       const regexForRemovedBrackets = /\[\[([^[\]]+)\]\]/g;
@@ -6302,9 +6307,15 @@ const Sidebar = () => {
         // console.log("newDataObject", newDataObject);
         const contentWithoutHashtags = newDataObject.content.replace(hashtagParagraphRegex, "");
 
+        // console.log('contentWithoutHashtags', contentWithoutHashtags)
+
         const contentWithStyledWords = contentWithoutHashtags.replace(regex,
-          (match: any, word: any) => `< span style = "text-decoration: underline; cursor: pointer;" > ${word}</span > `
+          (match: any, word: any) => `<span style = "text-decoration: underline; cursor: pointer;"> ${word}</ > `
         );
+
+        // console.log('contentWithStyledWords', contentWithStyledWords)
+
+
         // console.log("contentwithstyledword", contentWithStyledWords);
         // console.log('openedresults' , openedResults)
         const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile);
@@ -7753,7 +7764,7 @@ const Sidebar = () => {
       // Assuming contactSupportMessage is a state variable
       const response = await axios.post('/api/contactSupport', {
         message: contactSupportMessage,
-        file: linkedClickFromFile,
+        file: linkClickFromFile,
       });
 
       setContactSupportLoader(false)
@@ -8201,7 +8212,7 @@ const Sidebar = () => {
                   <DialogContentText>
                     Please enter the message:
                   </DialogContentText>
-                  <UnstyledTextareaIntroduction setContactSupportMessage={setContactSupportMessage} linkedClickFromFile={linkedClickFromFile} />
+                  <UnstyledTextareaIntroduction setContactSupportMessage={setContactSupportMessage} linkClickFromFile={linkClickFromFile} />
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={hanndleCloseContactSupportPopup} color="primary">

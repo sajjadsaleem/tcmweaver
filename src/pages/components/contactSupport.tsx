@@ -55,16 +55,16 @@ const StyledTextareaAutosize = styled(BaseTextareaAutosize)(
 
 interface UnstyledTextareaIntroductionProps {
   setContactSupportMessage: (value: string) => void;
-  linkedClickFromFile: any;
+  linkClickFromFile: any;
 }
 
-const UnstyledTextareaIntroduction: React.FC<UnstyledTextareaIntroductionProps> = ({ setContactSupportMessage, linkedClickFromFile }) => {
+const UnstyledTextareaIntroduction: React.FC<UnstyledTextareaIntroductionProps> = ({ setContactSupportMessage, linkClickFromFile }) => {
   return (
     <>
       <StyledTextareaAutosize
         aria-label="empty textarea"
         placeholder="Empty"
-        value={`${linkedClickFromFile} - not found`}
+        value={`${linkClickFromFile} - not found`}
         disabled
       />
 
