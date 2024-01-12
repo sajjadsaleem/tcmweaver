@@ -2918,6 +2918,176 @@ button {
 
 
 
+
+    /* =========================Dashboard Page================================= */
+
+    .mobile-dashboard-topbar {
+        display: block;
+        background-color: #EDEDED;
+
+    }
+
+    .night-mode.mobile-dashboard-topbar {
+        background-color: #323232;
+    }
+
+    .mobile-side-nav {
+        display: none;
+    }
+
+
+
+
+    .mobile-left-modal {
+        display: block;
+        /* width: 284px; */
+        width: auto;
+        /* margin: auto; */
+        padding: 0 17px;
+
+    }
+
+
+    .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
+        background-color: #EDEDED !important;
+        height: calc(100vh - 55px) !important;
+    }
+
+    .night-mode .css-4t3x6l-MuiPaper-root-MuiDrawer-paper {
+        background-color: #323232 !important;
+    }
+
+
+
+
+
+
+
+    .themeChanger {
+        display: none;
+    }
+
+
+
+    .mobile-dashboard-home-icon img,
+    .mobile-dashboard-home-icon svg {
+        width: 20px !important;
+        margin-right: 10px;
+        filter: invert(30%) sepia(4%) saturate(2%) hue-rotate(28deg) brightness(100%) contrast(96%);
+    }
+
+
+    .dashboard-navigation {
+        display: none;
+    }
+
+    .dashboard-hamburgur-icon img {
+        height: auto;
+        width: 20px;
+
+    }
+
+    .logout-section {
+        display: none;
+    }
+
+    .mobile-logout-section {
+        width: 200px;
+        margin: auto;
+        position: absolute;
+        bottom: 15px;
+        left: 10px;
+        /* border: 1px solid red; */
+    }
+
+    .mobile-logout-section .avatar-title {
+        margin-bottom: 4px;
+    }
+
+    .mobile-logout-section .profile-avatar img {
+        height: 30px;
+        width: 30px;
+    }
+
+    .mobile-logout-section h4 {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .logout-button {
+        width: 180px;
+        border-radius: 7px;
+        padding: 5px;
+    }
+
+    .admin-dashboard-container {
+        height: calc(100vh - 55px) !important;
+        position: fixed;
+        /* background-color: orange; */
+        width: 100%;
+    }
+
+    .mobile-workspace-content {
+        margin-left: 0;
+        width: 100%;
+        height: calc(100vh - 125px);
+        /* border: 1px solid red; */
+    }
+
+    .mobile-dashboard-main {
+        height: 100% !important;
+    }
+
+    .mobile-dashboard-main .main-user-management,
+    .mobile-dashboard-main .main-vault {
+        width: auto;
+
+    }
+
+
+    .mobile-dashboard-addvaulttouser-buttons,
+    .mobile-dashboard-addvaulttouser-paper {
+        width: 290px !important;
+    }
+
+    .mobile-dashboard-addvaulttouser-paper h2 {
+        width: 280px !important;
+    }
+
+
+    .mobile-dashboard-add-user {
+        width: 320px !important;
+    }
+
+    .mobile-dashboard-addvaulttouser {
+        width: 280px !important;
+        padding: 15px 15px !important;
+        padding-top: 0px !important;
+    }
+
+    .mobile-dashboard-edituser-dialog {
+        width: 360px !important;
+    }
+
+    .mobile-dashboard-edituserpicture {
+        max-width: 100% !important;
+    }
+
+    .vault-header {
+        width: 740px;
+    }
+
+    .mobile-dashboard-listitem-button {
+        padding: 0 10px !important;
+    }
+
+
+
+
+    /* =========================Dashboard Page End================================= */
+
+
+
 }
 
 @media screen and (max-width: 480px) {
@@ -2944,7 +3114,7 @@ button {
 
     .mobile-left-modal {
         display: block;
-        width: 284px;
+        width: 320px;
         margin: auto;
 
     }
@@ -3008,6 +3178,12 @@ button {
         padding: 5px;
     }
 
+    .admin-dashboard-container {
+        height: calc(100vh - 55px) !important;
+        position: fixed;
+        background-color: orange;
+        width: 100%;
+    }
 
     .mobile-workspace-content {
         margin-left: 0;
@@ -3025,6 +3201,64 @@ button {
         width: auto;
 
     }
+
+
+    .mobile-dashboard-addvaulttouser-buttons,
+    .mobile-dashboard-addvaulttouser-paper {
+        width: 290px !important;
+    }
+
+    .mobile-dashboard-addvaulttouser-paper h2 {
+        width: 280px !important;
+    }
+
+
+    .mobile-dashboard-add-user {
+        width: 320px !important;
+    }
+
+    .mobile-dashboard-addvaulttouser {
+        width: 280px !important;
+        padding: 15px 15px !important;
+        padding-top: 0px !important;
+    }
+
+    .mobile-dashboard-edituser-dialog {
+        width: 360px !important;
+    }
+
+    .mobile-dashboard-edituserpicture {
+        max-width: 100% !important;
+    }
+
+    /* 
+    .vault-search,
+.user-search {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    margin-bottom: 15px;
+ 
+} */
+
+    .vault-header {
+        padding: 0 0 0 20px;
+        width: 345px;
+
+    }
+
+    .user-search input {
+        width: 90%;
+    }
+
+    .add-user {
+        width: 125px;
+        font-size: 15px;
+        padding: 10px 0;
+    }
+
+
+
 
 
 

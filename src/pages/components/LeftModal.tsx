@@ -66,7 +66,7 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
                 <ListItem sx={{ padding: '0' }} className={`dashboard-navigation-list ${selectedListItem === 0 ?
                     'selected-dashboard-navigation-list' : ''}`} onClick={() => handleNavigationValue(0)}>
                     <Link href="/">
-                        <ListItemButton>
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
                             <div className="mobile-dashboard-home-icon modal-icons">
                                 <img src="/home.png" alt="img" />
                             </div>
@@ -78,15 +78,15 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
 
                 <ListItem sx={{ padding: '0' }} onClick={() => handleNavigationValue(1)}>
                     {themeChangericon ? (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/vault-light.svg" alt="img" />
                             </div>
                             <ListItemText primary="Vault Management" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
                         </ListItemButton>
                     ) : (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/vault-dark.svg" alt="img" />
                             </div>
                             <ListItemText primary="Vault Management" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
@@ -96,15 +96,15 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
 
                 <ListItem sx={{ padding: '0' }} onClick={() => handleNavigationValue(2)}>
                     {themeChangericon ? (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/users.svg" alt="img" />
                             </div>
                             <ListItemText primary="User Management" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
                         </ListItemButton>
                     ) : (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/users-dark.svg" alt="img" />
                             </div>
                             <ListItemText primary="User Management" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
@@ -115,7 +115,7 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
 
                 <ListItem sx={{ padding: '0' }} onClick={() => handleDashboardNavigation(3)}>
                     {themeChangericon ? (
-                        <ListItemButton>
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
                             <div className="modal-icons mobile-dashboard-home-icon">
                                 <SubscriptionsIcon></SubscriptionsIcon>
 
@@ -123,7 +123,7 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
                             <ListItemText primary="Packages" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
                         </ListItemButton>
                     ) : (
-                        <ListItemButton>
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
                             <div className="modal-icons mobile-dashboard-home-icon">
                                 <SubscriptionsIcon></SubscriptionsIcon>
                             </div>
@@ -136,15 +136,15 @@ const AdminDrawer: React.FC<AdminDrawerProps> = ({ themeChangericon, handleTheme
 
                 <ListItem sx={{ padding: '0' }} onClick={handleThemeChange}>
                     {themeChangericon ? (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/dark-mode.png" alt="img" />
                             </div>
                             <ListItemText primary="Dark Mode" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
                         </ListItemButton>
                     ) : (
-                        <ListItemButton>
-                            <div className="modal-icons">
+                        <ListItemButton className='mobile-dashboard-listitem-button'>
+                            <div className="modal-icons mobile-dashboard-home-icon">
                                 <img src="/light-modenew.svg" alt="img" />
                             </div>
                             <ListItemText primary="Light Mode" style={{ color: themeChangericon ? '#6C655C' : '#B3B3B5' }} />
