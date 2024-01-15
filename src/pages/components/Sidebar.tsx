@@ -98,6 +98,7 @@ const Sidebar = () => {
   const [themeChangericon, setThemeChangerIcon] = useState<any>()
   const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [openedResults, setOpenedResults] = useState<OpenedResult[]>([]);
+  const [openedResultsRawData, setOpenedResultsRawData] = useState<any>([])
   const [isCopied, setIsCopied] = useState(false);
   const [filtersData, setFiltersData] = useState<any>([]);
   const [graphData, setGraphData] = useState<any>([]);
@@ -2606,11 +2607,8 @@ const Sidebar = () => {
         // Step 4: Remove nodes with ids in excludedNodeIds
         filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
-        // Now, graphDataCopy is updated with the desired changes.
-        // console.log('filteredGraphData: ', filteredGraphData);
-        // console.log('resultData',resultData)
-
-        // makeGraph(filteredGraphData)
+        console.log('updatedOpenedResults', updatedOpenedResults)
+        console.log('excludedNodeIds', excludedNodeIds)
 
 
         setTimeout(() => {
@@ -3229,9 +3227,7 @@ const Sidebar = () => {
 
 
   const handleGraphFilters = (category: any, id: any, valueOfFilter: any) => {
-    // console.log('graphdata' , graphData)
     const graphDataCopy = _.cloneDeep(graphData);
-    // console.log('graphdatacopy' , graphDataCopy)
 
     const updatedCheckboxes: any = graphTagFilters.map((checkboxCategory: any) => {
       if (checkboxCategory.category === category) {
@@ -3357,18 +3353,13 @@ const Sidebar = () => {
       // Iterate through each object
       if (openedResults.length > 0) {
 
-        // finalCount = openedResults.length;
 
-        // add all nodes
         openedResults.forEach(async (result) => {
-          // Create a node for the fileName
           const nodeId = result.fileName;
-          // console.log('result' , result)
+
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
-          // console.log('match' , match)
-          // let nodeTag:any = match ? match[0] : null;
+
           let nodeTag: any = matches ? matches.map(match => match.substring(1)) : ["tagnotfound"];
-          // const tag = matches ? matches.map(match => match.substring(1)) : [];
 
 
           if (!nodeExists(nodeId)) {
@@ -3468,19 +3459,11 @@ const Sidebar = () => {
         searchResults.forEach((result) => {
           let matchingFile: any = result;
 
-          marked.setOptions({
-            breaks: true,
-          });
+          marked.setOptions({ breaks: true });
 
           let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
 
           matchingFile.content = marked(editedResult);
-          // console.log("markedContent", matchingFile);
-
-
-
-          // matchingFile.content = marked(matchingFile.content);
-          // console.log("markedContent", matchingFile);
 
           const regex = /\[\[([^[\]]+)\]\]/g;
           const hashtagParagraphRegex = /#\S+/g;
@@ -3521,28 +3504,16 @@ const Sidebar = () => {
           }
         });
 
-        // finalCount = updatedOpenedResults.length;
-        // console.log("updatedOpenedResults: ", updatedOpenedResults);
-
         // add all nodes
         updatedOpenedResults.forEach(async (result: any) => {
           const nodeId = result.fileName;
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
-          // console.log('match' , match)
-          // let nodeTag:any = match ? match[0] : null;
           let nodeTag: any = matches ? matches.map((match: any) => match.substring(1)) : ["tagnotfound"];
-          // const tag = matches ? matches.map(match => match.substring(1)) : [];
 
 
           if (!nodeExists(nodeId)) {
             nodes.push({ id: nodeId, tag: nodeTag });
           }
-          // const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
-          // const nodeTag = match ? match[0] : null;
-          // const cleanedTag = nodeTag.substring(1);
-          // if (!nodeExists(nodeId)) {
-          //   nodes.push({ id: nodeId, tag: cleanedTag });
-          // }
         })
 
 
@@ -3621,10 +3592,11 @@ const Sidebar = () => {
         // Step 4: Remove nodes with ids in excludedNodeIds
         filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
-        // Now, graphDataCopy is updated with the desired changes.
-        // console.log('filteredGraphData: ', filteredGraphData);
 
-        // makeGraph(filteredGraphData)
+        // Filter text notes
+        const filteredUpdatedOpenedResults = updatedOpenedResults.filter((note: any) => !excludedNodeIds.includes(note.fileName))
+
+        // console.log('filteredUpdatedOpenedResults', filteredUpdatedOpenedResults)
 
         setTimeout(() => {
           if (resultData.nodes.length === 0) {
@@ -3633,7 +3605,8 @@ const Sidebar = () => {
             setGraphData(resultData);
             setGraphDataAfterFilters(filteredGraphData)
             makeGraph(filteredGraphData);
-            setOpenedResults(updatedOpenedResults);
+            setOpenedResultsRawData(updatedOpenedResults)
+            setOpenedResults(filteredUpdatedOpenedResults);
           }
 
         }, 200);
@@ -6014,15 +5987,11 @@ const Sidebar = () => {
     const copySearchResults = _.cloneDeep(rawSearchResults);
     // console.log('rawSearchResults',rawSearchResults)
 
-    let matchingFile: any = copySearchResults.find(
-      (file: any) => file.fileName === resultToOpen.fileName
-    );
+    let matchingFile: any = copySearchResults.find((file: any) => file.fileName === resultToOpen.fileName);
 
 
 
-    marked.setOptions({
-      breaks: true,
-    });
+    marked.setOptions({ breaks: true });
 
     let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
     matchingFile.content = marked(editedResult);
@@ -6034,15 +6003,9 @@ const Sidebar = () => {
     if (matchingFile) {
       const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
 
-      const contentWithStyledWords = contentWithoutHashtags.replace(
-        regex,
-        (match: any, word: any) =>
-          `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+      const contentWithStyledWords = contentWithoutHashtags.replace(regex, (match: any, word: any) =>
+        `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
       );
-
-      // console.log(contentWithStyledWords)
-
-      // let markedData = marked(contentWithStyledWords);
 
       const updatedResultToOpen = {
         ...resultToOpen,
@@ -6050,14 +6013,13 @@ const Sidebar = () => {
         openedFromResults: true,
       };
 
-      const doesExist = openedResults.some(
-        (result) => result.fileName === updatedResultToOpen.fileName
-      );
+      const doesExist = openedResults.some((result) => result.fileName === updatedResultToOpen.fileName);
 
 
 
       if (!doesExist) {
         const updatedOpenedResults = [...openedResults, updatedResultToOpen];
+        setOpenedResultsRawData(updatedOpenedResults)
         setOpenedResults(updatedOpenedResults);
       } else {
         console.log("An object with the same fileName already exists.");
@@ -6085,6 +6047,7 @@ const Sidebar = () => {
           });
         });
       }, 10);
+
     } else {
       console.log('no matching file found')
     }
@@ -8234,7 +8197,6 @@ const Sidebar = () => {
 
         </div>
 
-
         {/* =======================Search Bar=======================================  */}
         <div className={"menuBtn"}>
           {graphOrTextView ? (
@@ -8983,7 +8945,7 @@ const Sidebar = () => {
             <div id="graph-div" className="graph-div"></div>
 
 
-            {/* ==============================Filters=============================== */}
+            {/* ==============================Settings=============================== */}
             <div>
               {showGraphFilters ? (
                 <>
@@ -8994,13 +8956,13 @@ const Sidebar = () => {
                       <button onClick={() => setShowGraphFilters(false)}>
                         {themeChangericon ? (
                           <img src='/xmarknew.png' alt='filter-icon' />
-
                         ) : (
                           <img src='/xmark-dark.png' alt='filter-icon' />
                         )}
                       </button>
                     </div>
 
+                    {/*=======================Graph Filters==============================*/}
                     <div>
                       <Accordion>
                         {graphTagFilters.map((category: any, index: any) => (
@@ -9036,7 +8998,7 @@ const Sidebar = () => {
                     </div>
 
 
-                    {/* =======================Text Filters==============================  */}
+                    {/*=======================Text Filters===============================*/}
                     <div className="text-filters-div">
                       <h5>Text Filters</h5>
 
@@ -9136,10 +9098,6 @@ const Sidebar = () => {
                       )}
                     </div>
 
-                    {/* ==============================Filters=============================== */}
-                    <div>
-
-                    </div>
                   </div>
                 </>
               ) : (
@@ -9148,7 +9106,6 @@ const Sidebar = () => {
                     <button onClick={() => setShowGraphFilters(true)}>
                       {themeChangericon ? (
                         <img src='/filter-icon-light.svg' alt='filter-icon' />
-
                       ) : (
                         <img src='/filter-icon-dark.svg' alt='filter-icon' />
                       )}
