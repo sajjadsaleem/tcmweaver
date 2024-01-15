@@ -6431,7 +6431,7 @@ const Sidebar = () => {
       // Now does not come in this else
       console.log('should not come in this else : showNodeClickedFile')
       try {
-        const response = await fetch(`/ api / linkFile ? q = ${fileOpenedFromGraph.id} `);
+        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
         const newDataObject = await response.json();
         // console.log("responseJson: ", responseJson);
 
@@ -6642,7 +6642,7 @@ const Sidebar = () => {
       // console.log('false')
       const tableNamesStr = userAccessVaults.join(',');
       // console.log(tableNamesStr)
-      axios.post(`/ api / linkFile ? q = ${node}& av=${tableNamesStr} `)
+      axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
         .then((res) => {
           const newDataObject = res.data;
 
@@ -6680,6 +6680,7 @@ const Sidebar = () => {
 
 
   const wanderClickedNode = async () => {
+    // console.log('hello')
 
     const updatedGraphData: any = { ...graphData };
     // console.log('rawsearchresults' , rawSearchResults)
@@ -6703,12 +6704,13 @@ const Sidebar = () => {
 
       // console.log('graphSearchWordsArray',graphSearchWordsArray)
 
+      // console.log('hello')
       try {
         setGraphSearchLoader(true)
         const tableNamesStr = userAccessVaults.join(',');
         const encodedWords = encodeURIComponent(wordsArray.join(","));
         // responseJson = await axios.get(`/ api / search ? q = ${ encodedWords }& AccessVaults=${ tableNamesStr } `);
-        const response = await axios.get(`/ api / wanderNode ? q = ${encodedWords}& av=${tableNamesStr}& sa=${graphSearchWordsArray}& bl=${fileOpenedFromGraph.id} `)
+        const response = await axios.get(`/api/wanderNode?q=${encodedWords}&av=${tableNamesStr}&sa=${graphSearchWordsArray}&bl=${fileOpenedFromGraph.id}`)
         // console.log('response from wander api', response)
         if (response) {
 
@@ -6751,7 +6753,7 @@ const Sidebar = () => {
           const filteredData = linkTags.filter((item: any) => !searchWords.includes(`- ${item.name} `));
 
           const filteredDataForBacklinks = linkTagsForBacklinks.filter((item: any) => {
-            return !searchWords.includes(`- ${item.name} `);
+            return !searchWords.includes(`-${item.name} `);
           });
 
           // console.log('filteredData', filteredData)
@@ -6766,7 +6768,7 @@ const Sidebar = () => {
 
               openedResults.forEach((result) => {
                 // Check if the name exists in the content
-                const pattern = new RegExp(`< span[^>] *> ${word.name}<\\/span>`, 'gi');
+                const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
 
 
                 if (pattern.test(result.content)) {
