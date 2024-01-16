@@ -304,7 +304,7 @@ const Dashboard = () => {
 
 
   function handleThemeChangerClick() {
-    console.log("themeChangerIcon: ", themeChangericon);
+    // console.log("themeChangerIcon: ", themeChangericon);
     setThemeChangerIcon(!themeChangericon);
     const sideNav: any = document.querySelector(`.${"mobile-side-nav"}`);
     const topbar: any = document.querySelector(`.${"mobile-dashboard-topbar"}`);
@@ -364,7 +364,7 @@ const Dashboard = () => {
   }
 
   const handleDataSync = () => {
-    console.log('now in handleDataSync')
+    // console.log('now in handleDataSync')
     setTaskCompleted(true)
     // console.log('selectedfolders now' , selectedFolders)
     const updatedSelectedFolders = selectedFolders.map((folder: any) => {

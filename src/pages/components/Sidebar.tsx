@@ -2613,6 +2613,7 @@ const Sidebar = () => {
 
         setTimeout(() => {
           setOpenedResults(updatedOpenedResults)
+          setOpenedResultsRawData(updatedOpenedResults)
           setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraph(filteredGraphData);
@@ -2645,7 +2646,9 @@ const Sidebar = () => {
       } else {
         console.log('Element with ID "graph-div" not found. in generateGraphfromSearch function ');
       }
+
       setOpenedResults(searchResultsForGraph);
+      setOpenedResultsRawData(searchResultsForGraph)
     }
   };
 
@@ -2779,6 +2782,7 @@ const Sidebar = () => {
 
         setTimeout(() => {
           setOpenedResults(updatedOpenedResults)
+          setOpenedResultsRawData(updatedOpenedResults)
           setGraphData(resultData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraphFromGraphResults(filteredGraphData);
@@ -2812,6 +2816,7 @@ const Sidebar = () => {
         console.log('Element with ID "graph-div" not found. in generateGraphfromSearch function ');
       }
       setOpenedResults(searchResultsForGraph);
+      setOpenedResultsRawData(searchResultsForGraph)
     }
   };
 
@@ -2825,6 +2830,7 @@ const Sidebar = () => {
     setGraphSearchValue("")
     setSearchResults([]);
     setOpenedResults([]);
+    setOpenedResultsRawData([])
 
     sethideFiltersForPreview(true);
     setGraphNodeOpened([])
@@ -3266,6 +3272,8 @@ const Sidebar = () => {
       return checkboxCategory;
     });
 
+    // console.log('updatedcheckboxes', updatedCheckboxes)
+
     setGraphTagFilters(updatedCheckboxes);
 
 
@@ -3281,18 +3289,11 @@ const Sidebar = () => {
       });
     });
 
-    // console.log('excluded' , excludedValues)
 
-    // Step 2: Find corresponding node ids in graphDataCopy
     const excludedNodeIds: any = [];
 
     // console.log('graphDatacopy' ,graphDataCopy)
     if (graphDataCopy.nodes.length > 0) {
-      // graphDataCopy.nodes.forEach((node:any) => {
-      //   if (excludedValues.includes(node.tag)) {
-      //     excludedNodeIds.push(node.id);
-      //   }
-      // });
 
       graphDataCopy.nodes.forEach((node: any) => {
         const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
@@ -3303,7 +3304,6 @@ const Sidebar = () => {
         }
       });
 
-      console.log('excluded ids', excludedNodeIds)
 
       // console.log('excludedNodeIds',excludedNodeIds)
 
@@ -3315,11 +3315,19 @@ const Sidebar = () => {
       // Step 4: Remove nodes with ids in excludedNodeIds
       filteredGraphData.nodes = graphDataCopy.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
-      // Now, graphDataCopy is updated with the desired changes.
-      // console.log('filteredGraphData: ', filteredGraphData);
+      console.log('openedResults', openedResults)
+      console.log('openedResultsRawData', openedResultsRawData)
+      console.log('excluded ids', excludedNodeIds)
+
+      const filteredOpenedResults = openedResultsRawData.filter((note: any) => !excludedNodeIds.includes(note.fileName));
+      console.log('filteredOpenedResults', filteredOpenedResults)
+
+
+
 
       setGraphDataAfterFilters(filteredGraphData)
       makeGraph(filteredGraphData)
+      setOpenedResults(filteredOpenedResults)
 
     } else {
       console.log('No graph data found , handleGraphFilters')
@@ -3346,20 +3354,18 @@ const Sidebar = () => {
       setShouldShowFilters(false);
       const nodes: any = [];
       const links: any = [];
-      // let finalCount = 0;
 
       const nodeExists = (id: any) => { return nodes.some((node: any) => node.id === id); };
 
-      // Iterate through each object
       if (openedResults.length > 0) {
 
 
-        openedResults.forEach(async (result) => {
+        openedResultsRawData.forEach(async (result: any) => {
           const nodeId = result.fileName;
 
           const matches = result.contentWithRemovedBrackets.match(/#(\w+-?\w*)/g);
 
-          let nodeTag: any = matches ? matches.map(match => match.substring(1)) : ["tagnotfound"];
+          let nodeTag: any = matches ? matches.map((match: any) => match.substring(1)) : ["tagnotfound"];
 
 
           if (!nodeExists(nodeId)) {
@@ -3369,29 +3375,23 @@ const Sidebar = () => {
 
         // console.log('nodes' ,nodes)
 
-        openedResults.map((result: any) => {
+        openedResultsRawData.map((result: any) => {
           const nodeId = result.fileName
 
-          const underlinedWords: any = result.content.match(
-            /<span[^>]*>(.*?)<\/span>/g
-          );
-          // console.log("underlinedWords", underlinedWords);
+          const underlinedWords: any = result.content.match(/<span[^>]*>(.*?)<\/span>/g);
+
           let wordsArray: any = [];
           if (underlinedWords && Array.isArray(underlinedWords)) {
             wordsArray = underlinedWords.map((span: any) => {
-              // Use a regular expression to extract the text content between the <span> tags
               const match = /<span[^>]*>(.*?)<\/span>/.exec(span);
-              // Check if a match was found and return the extracted text, or an empty string if not
               return match ? match[1] : "";
             });
           }
 
           wordsArray.forEach((word: any) => {
             const nodeWithWord = nodes.find((node: any) => node.id === word);
-
             if (nodeWithWord) {
               if (nodeId !== nodeWithWord.id) {
-                // Node with the word exists, update its tag
                 links.push({ source: nodeId, target: nodeWithWord.id });
               }
             }
@@ -3415,22 +3415,14 @@ const Sidebar = () => {
 
         // Step 2: Find corresponding node ids in graphDataCopy
         const excludedNodeIds: any = [];
-        // resultData.nodes.forEach((node:any) => {
-        //   if (excludedValues.includes(node.tag)) {
-        //     excludedNodeIds.push(node.id);
-        //   }
-        // });
 
         resultData.nodes.forEach((node: any) => {
           const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
-          // Check if any of the tags exist in the excludedValues array
           if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
             excludedNodeIds.push(node.id);
           }
         });
-
-        // console.log('excludedNodeIds',excludedNodeIds)
 
         // Step 3: Remove links with source or target matching excluded node ids
         filteredGraphData.links = resultData.links.filter((link: any) => {
@@ -3439,11 +3431,6 @@ const Sidebar = () => {
 
         // Step 4: Remove nodes with ids in excludedNodeIds
         filteredGraphData.nodes = resultData.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
-
-        // Now, graphDataCopy is updated with the desired changes.
-        // console.log('filteredGraphData: ', filteredGraphData);
-
-        // makeGraph(filteredGraphData)
 
         setTimeout(() => {
 
@@ -3633,8 +3620,6 @@ const Sidebar = () => {
       } else {
         console.log('Element with ID "graph-div" not found.');
       }
-
-
 
       setShouldShowFilters(true);
       setSearchValue(graphSearchValue)
@@ -5981,11 +5966,8 @@ const Sidebar = () => {
 
 
   const openSearchResult = (resultToOpen: any) => {
-    // console.log('now here ' ,resultToOpen)
-    // console.log('now here ' ,rawSearchResults)
 
     const copySearchResults = _.cloneDeep(rawSearchResults);
-    // console.log('rawSearchResults',rawSearchResults)
 
     let matchingFile: any = copySearchResults.find((file: any) => file.fileName === resultToOpen.fileName);
 
@@ -6022,7 +6004,7 @@ const Sidebar = () => {
         setOpenedResultsRawData(updatedOpenedResults)
         setOpenedResults(updatedOpenedResults);
       } else {
-        console.log("An object with the same fileName already exists.");
+        console.log("An object with the same fileName already exists in openedResults.");
       }
 
       // scroll to where the file is opened
@@ -6157,10 +6139,9 @@ const Sidebar = () => {
 
 
   const collapseOpenedResult = (resultToCollapse: any) => {
-    // console.log("resultToCollapse", resultToCollapse);
-    const collapsedResult = openedResults.filter(
-      (item: any) => item.fileName !== resultToCollapse.fileName
-    );
+    const collapsedResult = openedResults.filter((item: any) => item.fileName !== resultToCollapse.fileName);
+
+    setOpenedResultsRawData(collapsedResult)
     setOpenedResults(collapsedResult);
   };
 
@@ -6308,6 +6289,7 @@ const Sidebar = () => {
 
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
+            setOpenedResultsRawData(updatedOpenedResults)
             setLinkClickLoader(false)
           } else {
             // console.log('not found')
@@ -6321,6 +6303,7 @@ const Sidebar = () => {
 
             // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
+            setOpenedResultsRawData(updatedOpenedResults)
             setLinkClickLoader(false)
           }
 
@@ -6934,6 +6917,7 @@ const Sidebar = () => {
             ];
             // console.log('updatedResults', updatedResults)
             setOpenedResults(updatedResults)
+            setOpenedResultsRawData(updatedResults)
 
           }
         }
@@ -6959,7 +6943,8 @@ const Sidebar = () => {
           const filteredData = response.data.filter((item: any) => {
             return !searchWords.includes(`-${item.fileName}`);
           });
-          console.log("filteredData", filteredData);
+
+          // console.log("filteredData", filteredData);
           filteredData.forEach((result: any) => {
             result.contentWithRemovedBrackets = marked(result.content);
             const match = result.contentWithRemovedBrackets.match(/#(\w+)/);
@@ -7152,6 +7137,7 @@ const Sidebar = () => {
 
           // Update the openedResults state with the new array
           setOpenedResults(updatedOpenedResults);
+          setOpenedResultsRawData(updatedOpenedResults)
 
           // console.log("Updated openedResults:", openedResults);
         });
@@ -7496,6 +7482,7 @@ const Sidebar = () => {
     updatedResults.splice(toIndex, 0, movedResult);
 
     setOpenedResults(updatedResults);
+    setOpenedResultsRawData(updatedResults)
   };
 
 
