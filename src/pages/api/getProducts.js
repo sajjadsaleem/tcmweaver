@@ -18,29 +18,45 @@ export default async function getProducts(req, res) {
         try {
             const db = drizzle(sql)
             const stripeProducts = await stripe.products.list({ expand: ['data.default_price'], active: true });
-            // console.log('stripe products', stripeProducts)
+            // console.log('stripe products', stripeProducts.data.length)
 
             if (req.body.user) {
                 const customerId = await db.select({ customerId: users.stripe_customer_id }).from(users).where(eq(users.email, req.body.user))
-                // console.log('customerId', customerId)
 
-                const customerSubscriptions = await stripe.subscriptions.list({
-                    customer: customerId[0].customerId
-                });
+                console.log('customerid', customerId)
 
-                // console.log(customerSubscriptions)
+                try {
+                    const customerSubscriptions = await stripe.subscriptions.list({
+                        customer: customerId[0].customerId
+                    });
 
-                // const packageIds = await db.select({ packageId: userPackagesTable.package_id }).from(userPackagesTable).where(eq(userPackagesTable.user_id, userId[0].userId))
-                // console.log(packageIds)
+                    console.log('customer subscriptions', customerSubscriptions)
+
+                    const responseData = {
+                        stripeProducts: stripeProducts.data,
+                        customerSubscriptions: customerSubscriptions.data
+                    };
+
+                    res.status(200).json(responseData);
+                }
+                catch (error) {
+
+                    console.log('error', error)
+
+                    const responseData = {
+                        stripeProducts: stripeProducts.data,
+                    };
+
+                    res.status(200).json(responseData);
+
+                }
 
 
 
-                const responseData = {
-                    stripeProducts: stripeProducts.data,
-                    customerSubscriptions: customerSubscriptions.data
-                };
 
-                res.status(200).json(responseData);
+
+
+
             } else {
                 const responseData = {
                     stripeProducts: stripeProducts.data
