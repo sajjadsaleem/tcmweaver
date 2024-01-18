@@ -5972,6 +5972,7 @@ const Sidebar = () => {
     let matchingFile: any = copySearchResults.find((file: any) => file.fileName === resultToOpen.fileName);
 
 
+    console.log('matchingFile', matchingFile)
 
     marked.setOptions({ breaks: true });
 
@@ -8713,15 +8714,15 @@ const Sidebar = () => {
 
             <div id="nodeInfo" className="node-click-options">
               {themeChangericon ? (
-                <img src="/xmarknew.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
+                <img src="/xmark-light.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
               ) : (
                 <img src="/xmarkNode-dark.png" alt="img" className="node-remove-icon" onClick={removeClickedNode} />
               )}
 
               {themeChangericon ? (
                 <>
-                  <img src="/node-text.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
-                  <img src="/node-text.svg" alt="img" className="node-text-icon-mobile" onClick={viewNodeClickedFile} />
+                  <img src="/node-text-light.svg" alt="img" className="node-text-icon" onClick={showNodeClickedFile} />
+                  <img src="/node-text.svg-light" alt="img" className="node-text-icon-mobile" onClick={viewNodeClickedFile} />
                 </>
               ) : (
                 <>
@@ -8731,7 +8732,7 @@ const Sidebar = () => {
               )}
 
               {themeChangericon ? (
-                <img src="/wander-light.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
+                <img src="/wander-light-new.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
               ) : (
                 <img src="/wander-dark.svg" alt="img" className="node-wander-icon" onClick={wanderClickedNode} />
               )}
