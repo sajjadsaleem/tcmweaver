@@ -1313,7 +1313,7 @@ const Sidebar = () => {
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
-      svg.call(zoom);
+      svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
 
@@ -2008,7 +2008,7 @@ const Sidebar = () => {
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
-      svg.call(zoom);
+      svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
 
@@ -4737,7 +4737,7 @@ const Sidebar = () => {
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
-      svg.call(zoom);
+      svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
 
@@ -5905,7 +5905,7 @@ const Sidebar = () => {
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
-      svg.call(zoom);
+      svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
 
