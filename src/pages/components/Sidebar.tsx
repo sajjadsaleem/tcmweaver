@@ -3645,27 +3645,27 @@ const Sidebar = () => {
     function ForceGraph(
       { nodes, links }: { nodes: any; links: any },
       {
-        nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
-        nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
-        nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
-        nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
-        nodeStroke = "#fff", // node stroke color
-        nodeStrokeWidth = 0, // node stroke width, in pixels
-        nodeStrokeOpacity = 1, // node stroke opacity
-        nodeRadius = 4, // node radius, in pixels
+        nodeId = (d: any) => d.id,
+        nodeGroup = null,
+        nodeGroups = null as any[] | null,
+        nodeTitle = null,
+        nodeFill = "currentColor",
+        nodeStroke = "#fff",
+        nodeStrokeWidth = 0,
+        nodeStrokeOpacity = 1,
+        nodeRadius = 4,
         nodeStrength = -30,
-        linkSource = ({ source }: { source: string }) => source, // Specify the type as string
-        linkTarget = ({ target }: { target: string }) => target, // Specify the type as string
-        linkStroke = graphLinkColor, // link stroke color
-        linkStrokeOpacity = 1, // link stroke opacity
-        linkStrokeWidth = 0.5, // given d in links, returns a stroke width in pixels
-        linkStrokeLinecap = "round", // link stroke linecap
+        linkSource = ({ source }: { source: string }) => source,
+        linkTarget = ({ target }: { target: string }) => target,
+        linkStroke = graphLinkColor,
+        linkStrokeOpacity = 1,
+        linkStrokeWidth = 0.5,
+        linkStrokeLinecap = "round",
         linkStrength = 0.3,
-        colors = d3.schemeTableau10, // an array of color strings, for the node groups
-        width = 640, // outer width, in pixels
-        height = 400, // outer height, in pixels
-        invalidation = undefined, // when this promise resolves, stop the simulation
+        colors = d3.schemeTableau10,
+        width = 640,
+        height = 400,
+        invalidation = undefined,
       } = {}
     ) {
       // Compute values.
@@ -3973,7 +3973,7 @@ const Sidebar = () => {
         }))
         .on("tick", ticked);
 
-      simulation.tick()
+      // simulation.tick()
 
       const svg = d3.create("svg").attr("width", width).attr("height", height)
         .attr("viewBox", [-width / 2, -height / 2, width, height])
@@ -3995,9 +3995,6 @@ const Sidebar = () => {
       svg.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
-      // console.log('nodes' , nodes)
-
-      // console.log('links' , links)
 
       const node = container
         .append("g")
@@ -6627,10 +6624,8 @@ const Sidebar = () => {
 
 
   const wanderClickedNode = async () => {
-    // console.log('hello')
 
     const updatedGraphData: any = { ...graphData };
-    // console.log('rawsearchresults' , rawSearchResults)
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
 
@@ -6703,29 +6698,48 @@ const Sidebar = () => {
             return !searchWords.includes(`-${item.name} `);
           });
 
-          // console.log('filteredData', filteredData)
-          // console.log('filteredDataForBacklinks', filteredDataForBacklinks)
-
-
-
 
           filteredData.forEach((word: any) => {
             if (!nodeExists(word.name)) {
               updatedGraphData.nodes.push({ id: word.name, tag: word.category });
 
               openedResults.forEach((result) => {
-                // Check if the name exists in the content
                 const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
-
-
                 if (pattern.test(result.content)) {
-                  // console.log('inside pattern test ')
                   updatedGraphData.links.push({ source: result.fileName, target: word.name });
                 }
               });
+
+              response.data.updatedObjects.forEach((result: any) => {
+                const wordName = word.name;
+                const wordNamePattern = `\\[\\[(${wordName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\]\\]`;
+                const regex = new RegExp(wordNamePattern, 'g');
+                if (regex.test(result.content)) {
+                  updatedGraphData.links.push({ source: result.fileName, target: word.name });
+                }
+              })
+
             } else {
-              console.log(`node already exists (${word.name})`)
+              console.log(`wander node already exists: (${word.name})`)
+              openedResults.forEach((result) => {
+                const pattern = new RegExp(`<span[^>]*>${word.name}<\\/span>`, 'gi');
+                if (pattern.test(result.content)) {
+                  updatedGraphData.links.push({ source: result.fileName, target: word.name });
+                }
+              });
+
+              response.data.updatedObjects.forEach((result: any) => {
+                const wordName = word.name;
+                const wordNamePattern = `\\[\\[(${wordName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\]\\]`;
+                const regex = new RegExp(wordNamePattern, 'g');
+                if (regex.test(result.content)) {
+                  updatedGraphData.links.push({ source: result.fileName, target: word.name });
+                }
+              })
             }
+
+
+
           });
 
           filteredDataForBacklinks.forEach((word: any) => {
@@ -6743,7 +6757,7 @@ const Sidebar = () => {
               // });
               // console.log("nodes:", nodes);
             } else {
-              console.log(`node already exists (${word.name})`)
+              console.log(`wander node already exists (${word.name})`)
             }
           })
 
@@ -6906,7 +6920,7 @@ const Sidebar = () => {
 
 
           const indexToInsertAfter = openedResults.findIndex((obj: any) => obj.fileName === fileOpenedFromGraph.id);
-          // console.log('indexToInsertAfter', indexToInsertAfter)
+          console.log('indexToInsertAfter', indexToInsertAfter)
           if (indexToInsertAfter !== -1) {
 
             const insertionIndex = indexToInsertAfter + 1;
