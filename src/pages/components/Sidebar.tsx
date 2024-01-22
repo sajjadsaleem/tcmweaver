@@ -953,7 +953,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
@@ -1641,7 +1640,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
@@ -3734,7 +3732,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
@@ -4007,6 +4004,7 @@ const Sidebar = () => {
         .selectAll("line")
         .data(links)
         .join("line");
+
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
       svg.call(zoom);
@@ -4389,7 +4387,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
@@ -4398,7 +4395,6 @@ const Sidebar = () => {
       }
 
       function handleNodeClick(event: any, d: any) {
-        // console.log(event, d);
         setFileOpenedFromGraph(d);
         // Get the div element and set its content based on the clicked node
         const nodeInfoDiv: any = document.getElementById("nodeInfo");
@@ -4447,6 +4443,7 @@ const Sidebar = () => {
       }
 
       function handleMouseOver(this: any, event: any, d: any) {
+        console.log('event', event)
 
         // console.log('event' , event, 'nodes' , nodes)
 
@@ -4641,9 +4638,6 @@ const Sidebar = () => {
       }
 
 
-
-
-
       // console.log("nodes ", nodes);
       const customNodes: any = nodes;
 
@@ -4659,15 +4653,6 @@ const Sidebar = () => {
           return radius + 15
         }))
         .on("tick", ticked);
-
-
-      // const svg = d3
-      // .create("svg")
-      // .attr("width", width)
-      // .attr("height", height)
-      // .attr("viewBox", [-width / 2, -height / 2, width, height])
-      // .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-      // .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
 
 
       let svgContainer;
@@ -4914,7 +4899,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
@@ -5560,7 +5544,6 @@ const Sidebar = () => {
 
         for (const word of tag) {
           if (tagColors[word]) {
-            console.log(`Color found for ${word}: ${tagColors[word]}`);
             return tagColors[word];
           }
         }
