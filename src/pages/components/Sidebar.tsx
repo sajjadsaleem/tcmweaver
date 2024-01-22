@@ -942,17 +942,23 @@ const Sidebar = () => {
 
       function getColorByTag(tag: string) {
 
-        tag = tag[0].split('-')[0];
-
-        const tagColors: Record<string, string> = {};
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -1624,17 +1630,23 @@ const Sidebar = () => {
 
       function getColorByTag(tag: string) {
 
-        tag = tag[0].split('-')[0];
-
-        const tagColors: Record<string, string> = {};
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -3710,20 +3722,25 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: any) {
-        // Define a mapping of tags to colors
-
-        tag = tag[0].split('-')[0];
-
-        const tagColors: Record<string, string> = {};
 
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
+
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -4361,16 +4378,23 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: string) {
-        tag = tag[0].split('-')[0];
-        const tagColors: Record<string, string> = {};
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -4779,16 +4803,13 @@ const Sidebar = () => {
 
     let svgResult: any
     if (checkGraphStatus) {
-      // WanderGraph(graphNewData , options)
       svgResult = WanderGraph(graphNewData, options)
-
     } else {
       svgResult = ForceGraph(graphNewData, options);
       if (element) {
         element.appendChild(svgResult.svg);
       } else {
         let graphDiv: any;
-
         if (window.innerWidth <= 575) {
           graphDiv = document.getElementById("graph-div-mobile");
         } else {
@@ -4882,18 +4903,23 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: string) {
-        tag = tag[0].split('-')[0];
-        const tagColors: Record<string, string> = {};
-
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
-        // console.log(showAddGraphNodeColor)
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -5523,16 +5549,23 @@ const Sidebar = () => {
       }
 
       function getColorByTag(tag: string) {
-        tag = tag[0].split('-')[0];
-        const tagColors: Record<string, string> = {};
         const themeBasedColors = themeChangericon ? showAddGraphNodeColor.find((group: any) => group.mode === "light mode") : showAddGraphNodeColor.find((group: any) => group.mode === "dark mode");
 
+        const tagColors: Record<string, string> = {};
         themeBasedColors.data.forEach((colorGroup: any) => {
           const tag = colorGroup.tag;
           tagColors[tag] = colorGroup.color;
         });
 
-        return tagColors[tag] || nodeFill;
+
+        for (const word of tag) {
+          if (tagColors[word]) {
+            console.log(`Color found for ${word}: ${tagColors[word]}`);
+            return tagColors[word];
+          }
+        }
+
+        return nodeFill;
       }
 
       function handleNodeClick(event: any, d: any) {
@@ -6418,6 +6451,7 @@ const Sidebar = () => {
     setGraphNodeOpened([]);
   };
 
+
   const removeNodeAndConnected = (graphData: any, nodeId: any) => {
 
     const updatedGraphData = { ...graphData };
@@ -6920,7 +6954,7 @@ const Sidebar = () => {
 
 
           const indexToInsertAfter = openedResults.findIndex((obj: any) => obj.fileName === fileOpenedFromGraph.id);
-          console.log('indexToInsertAfter', indexToInsertAfter)
+          // console.log('indexToInsertAfter', indexToInsertAfter)
           if (indexToInsertAfter !== -1) {
 
             const insertionIndex = indexToInsertAfter + 1;
