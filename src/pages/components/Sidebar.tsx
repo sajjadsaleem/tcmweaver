@@ -1317,6 +1317,16 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
+
       // // In the ticked function, update the positions of text and title elements
 
       // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
@@ -2011,6 +2021,16 @@ const Sidebar = () => {
       svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
+
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
 
       // // In the ticked function, update the positions of text and title elements
 
@@ -3994,7 +4014,10 @@ const Sidebar = () => {
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s")
 
+
       const container = svg.append("g");
+
+
 
       const link = container.append("g").attr("id", "links-g-tag")
         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
@@ -4062,6 +4085,17 @@ const Sidebar = () => {
         .data(nodes)
         .join("title")
         .text((d: any) => d.id);
+
+
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svg.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
 
       // In the ticked function, update the positions of text and title elements
 
@@ -4741,6 +4775,17 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
+
+
       // // In the ticked function, update the positions of text and title elements
 
       // if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
@@ -5227,6 +5272,16 @@ const Sidebar = () => {
         .data(nodes)
         .join("title")
         .text((d: any) => d.id);
+
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svg.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
 
       // In the ticked function, update the positions of text and title elements
 
@@ -5908,6 +5963,16 @@ const Sidebar = () => {
       svgContainer.call(zoom);
 
       document.addEventListener("click", hideNodeInfo);
+
+      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
+      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
+
+      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
+        const desiredNodeCountForFit = 10;
+        const minimumScale = 1;
+        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
+        return scale;
+      }
 
       // // In the ticked function, update the positions of text and title elements
 
