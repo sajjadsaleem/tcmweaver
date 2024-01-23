@@ -1317,15 +1317,7 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
-      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
-      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
 
-      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
-        const desiredNodeCountForFit = 10;
-        const minimumScale = 1;
-        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
-        return scale;
-      }
 
       // // In the ticked function, update the positions of text and title elements
 
@@ -2022,15 +2014,7 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
-      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
-      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
 
-      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
-        const desiredNodeCountForFit = 10;
-        const minimumScale = 1;
-        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
-        return scale;
-      }
 
       // // In the ticked function, update the positions of text and title elements
 
@@ -5964,15 +5948,7 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
-      const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
-      svgContainer.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
 
-      function calculateInitialZoom(nodeCount: any, width: any, height: any) {
-        const desiredNodeCountForFit = 10;
-        const minimumScale = 1;
-        const scale = Math.max(minimumScale, Math.min(3, Math.sqrt(desiredNodeCountForFit / nodeCount)));
-        return scale;
-      }
 
       // // In the ticked function, update the positions of text and title elements
 
