@@ -196,7 +196,7 @@ const Sidebar = () => {
   // console.log('homepagefile', homepageFile)
   // console.log('useraccessvaults' , userAccessVaults)
   // console.log('showaddgraphnodecolor' , showAddGraphNodeColor)
-  console.log('slidervalue', sliderValue)
+  // console.log('slidervalue', sliderValue)
   // console.log('shouldShowFilters' , shouldShowFilters)
   // console.log('searchResults' , searchResults.length)
   // console.log(textColorForNode)
@@ -2384,8 +2384,10 @@ const Sidebar = () => {
 
         node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
         // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+
         nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-        nodeTitles.text((d: any) => d.id);
+
+        // nodeTitles.text((d: any) => d.id);
       }
 
       function handleMouseOver(this: any, event: any, d: any) {
@@ -2643,13 +2645,13 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
@@ -2822,6 +2824,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+
       function ticked() {
 
         // console.log('helllllo')
@@ -2946,22 +2949,21 @@ const Sidebar = () => {
             else {
               return d.y + 12
             }
-
           });
 
 
-        nodeTitles
-          .text((d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.id
-            }
-            else {
-              return d.id
-            }
-          });
+        // nodeTitles
+        //   .text((d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.id
+        //     }
+        //     else {
+        //       return d.id
+        //     }
+        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -3325,14 +3327,14 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      container.select("#titles-g-tag").remove();
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // container.select("#titles-g-tag").remove();
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
@@ -3493,6 +3495,21 @@ const Sidebar = () => {
       console.log('in makeGraphFromGraphResults>force graph')
 
 
+      function ticked() {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
+
+        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+
+        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+
+        // nodeTitles.text((d: any) => d.id);
+      }
+
       function zoomed(event: any) {
         container.attr("transform", event.transform);
       }
@@ -3566,18 +3583,6 @@ const Sidebar = () => {
         return textWidth;
       }
 
-      function ticked() {
-        link
-          .attr("x1", (d: any) => d.source.x)
-          .attr("y1", (d: any) => d.source.y)
-          .attr("x2", (d: any) => d.target.x)
-          .attr("y2", (d: any) => d.target.y);
-
-        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-        nodeTitles.text((d: any) => d.id);
-      }
 
       function handleMouseOver(this: any, event: any, d: any) {
         // console.log('hello mouseover')
@@ -3830,13 +3835,13 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
       const initialZoomLevel = calculateInitialZoom(nodes.length, width, height);
       svg.call(zoom.transform, d3.zoomIdentity.scale(initialZoomLevel));
@@ -4127,18 +4132,18 @@ const Sidebar = () => {
           });
 
 
-        nodeTitles
-          .text((d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.id
-            }
-            else {
-              return d.id
-            }
-          });
+        // nodeTitles
+        //   .text((d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.id
+        //     }
+        //     else {
+        //       return d.id
+        //     }
+        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -4514,14 +4519,14 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      container.select("#titles-g-tag").remove();
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // container.select("#titles-g-tag").remove();
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
@@ -4862,18 +4867,18 @@ const Sidebar = () => {
           });
 
 
-        nodeTitles
-          .text((d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.id
-            }
-            else {
-              return d.id
-            }
-          });
+        // nodeTitles
+        //   .text((d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.id
+        //     }
+        //     else {
+        //       return d.id
+        //     }
+        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -5248,14 +5253,14 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      container.select("#titles-g-tag").remove();
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // container.select("#titles-g-tag").remove();
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
@@ -5553,18 +5558,18 @@ const Sidebar = () => {
           });
 
 
-        nodeTitles
-          .text((d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.id
-            }
-            else {
-              return d.id
-            }
-          });
+        // nodeTitles
+        //   .text((d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.id
+        //     }
+        //     else {
+        //       return d.id
+        //     }
+        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -5943,14 +5948,14 @@ const Sidebar = () => {
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      container.select("#titles-g-tag").remove();
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // container.select("#titles-g-tag").remove();
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
@@ -5975,7 +5980,6 @@ const Sidebar = () => {
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
-          // Handle invalidation here
           simulation.stop();
         });
       }
@@ -9646,7 +9650,7 @@ const Sidebar = () => {
 
                 <div>
                   <p style={{ margin: '0px' }}>Link force</p>
-                  <Slider style={{ padding: '8px 0px' }} size="small" min={0} max={1} defaultValue={linkForceValue}
+                  <Slider style={{ padding: '8px 0px' }} size="small" min={0.01} max={1} defaultValue={linkForceValue}
                     step={0.01} aria-label="Small" valueLabelDisplay="auto" onChangeCommitted={handleLinkForceCommitted}
                     classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
                   />
