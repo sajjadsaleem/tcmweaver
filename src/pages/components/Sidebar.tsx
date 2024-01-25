@@ -210,7 +210,7 @@ const Sidebar = () => {
   // console.log('search value' , searchValue)
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
   // console.log('contactSupportMessage', contactSupportMessage)
-  console.log('nodeTextSize', nodeTextSize)
+  // console.log('nodeTextSize', nodeTextSize)
 
 
 
@@ -7497,12 +7497,17 @@ const Sidebar = () => {
           const searchWords = (searchValue.match(/(-?)"([^"]*)"|\S+/g) || [])
             .map((match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2"));
 
+          console.log('searchWords', searchWords)
+
           // Use filter to remove objects that match any word in searchWords with a hyphen
           const filteredData = linkTags.filter((item: any) => !searchWords.includes(`- ${item.name} `));
 
           const filteredDataForBacklinks = linkTagsForBacklinks.filter((item: any) => {
             return !searchWords.includes(`-${item.name} `);
           });
+
+          // console.log('filteredData', filteredData)
+          // console.log('filteredDataForBacklinks', filteredDataForBacklinks)
 
 
           filteredData.forEach((word: any) => {
@@ -7564,6 +7569,9 @@ const Sidebar = () => {
               // console.log("nodes:", nodes);
             } else {
               console.log(`wander node already exists (${word.name})`)
+              updatedGraphData.links.push({ source: word.name, target: fileOpenedFromGraph.id });
+
+
             }
           })
 
