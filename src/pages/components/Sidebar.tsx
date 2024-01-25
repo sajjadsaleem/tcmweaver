@@ -2300,6 +2300,24 @@ const Sidebar = () => {
       console.log('in make graph>force graph')
 
 
+
+      function ticked() {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
+
+        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+
+        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+
+        // nodeTitles.text((d: any) => d.id);
+      }
+
+
+
       function zoomed(event: any) {
         container.attr("transform", event.transform);
       }
@@ -2375,20 +2393,6 @@ const Sidebar = () => {
         return textWidth;
       }
 
-      function ticked() {
-        link
-          .attr("x1", (d: any) => d.source.x)
-          .attr("y1", (d: any) => d.source.y)
-          .attr("x2", (d: any) => d.target.x)
-          .attr("y2", (d: any) => d.target.y);
-
-        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
-        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
-
-        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-
-        // nodeTitles.text((d: any) => d.id);
-      }
 
       function handleMouseOver(this: any, event: any, d: any) {
         // console.log('hello mouseover')
@@ -2485,7 +2489,13 @@ const Sidebar = () => {
 
 
       function handleMouseOut(this: any, d: any) {
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
         d3.select(this).attr("r", calculateNodeRadius(nodeObject))
           .transition().duration(400).attr("fill-opacity", 1);
@@ -3044,7 +3054,7 @@ const Sidebar = () => {
       }
 
       function handleMouseOver(this: any, event: any, d: any) {
-        console.log('event', event)
+        // console.log('event', event)
 
         // console.log('event' , event, 'nodes' , nodes)
 
@@ -3155,9 +3165,20 @@ const Sidebar = () => {
       }
 
       function handleMouseOut(this: any, d: any) {
+        // console.log('d to check', d)
         // console.log('d', d.fromElement.getAttribute("id"))
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        // let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
+
+        // console.log('tempmouseovernode', tempMouseOverNode)
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
+
+        // console.log('nodeobject', nodeObject)
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
@@ -3678,7 +3699,13 @@ const Sidebar = () => {
 
 
       function handleMouseOut(this: any, d: any) {
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
         d3.select(this).attr("r", calculateNodeRadius(nodeObject))
           .transition().duration(400).attr("fill-opacity", 1);
@@ -4336,8 +4363,12 @@ const Sidebar = () => {
       }
 
       function handleMouseOut(this: any, d: any) {
-        // console.log('d', d.fromElement.getAttribute("id"))
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
@@ -5072,7 +5103,12 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
 
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
@@ -5759,7 +5795,13 @@ const Sidebar = () => {
       }
 
       function handleMouseOut(this: any, d: any) {
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
@@ -6449,7 +6491,13 @@ const Sidebar = () => {
       }
 
       function handleMouseOut(this: any, d: any) {
-        let tempMouseOverNode = d.fromElement.getAttribute("id")
+        let tempMouseOverNode
+        if (d.fromElement) {
+          tempMouseOverNode = d.fromElement.getAttribute("id");
+        } else {
+          tempMouseOverNode = d.target.getAttribute("id");
+        }
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)

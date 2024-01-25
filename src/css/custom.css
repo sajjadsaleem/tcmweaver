@@ -46,6 +46,8 @@
     height: 10px;
 }
 
+
+
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -71,6 +73,9 @@
 .night-mode ::-webkit-scrollbar-thumb:hover {
     background: #B3B3B5;
 }
+
+
+
 
 
 .node-preview-detail::-webkit-scrollbar-thumb,
@@ -837,6 +842,10 @@
     height: 66.6vh;
     margin: auto;
 
+    scrollbar-color: transparent transparent;
+    /* thumb-color track-color */
+    scrollbar-width: thin;
+
 }
 
 
@@ -1434,6 +1443,10 @@
     width: 100%;
     height: calc(100vh - 80px);
     padding: 0 16px;
+
+    scrollbar-color: transparent transparent;
+    /* thumb-color track-color */
+    scrollbar-width: thin;
 }
 
 .opened-result-detail p {
