@@ -210,6 +210,7 @@ const Sidebar = () => {
   // console.log('search value' , searchValue)
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
   // console.log('contactSupportMessage', contactSupportMessage)
+  console.log('nodeTextSize', nodeTextSize)
 
 
 
@@ -539,6 +540,7 @@ const Sidebar = () => {
       if (graphData && typeof graphData === 'object' && !Array.isArray(graphData)) {
         // setGraphResizeChecker(false)
         // setNodeSizeChangeChecker(false)
+        // console.log('nodetextsize ', nodeTextSize)
         handleGraphForces(graphDataAfterFilters, 'nodeTextChange')
       }
     }
@@ -2650,7 +2652,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "8px") // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -2834,8 +2836,9 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-
       function ticked() {
+        // tickedValue++
+        // console.log('ticked value', tickedValue)
 
         // console.log('helllllo')
 
@@ -3343,7 +3346,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "8px") // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -3857,7 +3860,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "8px") // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -4545,7 +4548,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "8px") // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -5284,7 +5287,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", "8px") // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -5985,7 +5988,7 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", nodeTextSize) // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
@@ -6051,7 +6054,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        // nodeTitle = null, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -6075,10 +6078,10 @@ const Sidebar = () => {
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      // if (nodeTitle === null) {
+      //   let nodeTitle = (_: any, i: any) => N[i];
+      // }
+      // const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -6165,7 +6168,10 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+      // let tickedValueNew = 0
       function ticked() {
+        // tickedValueNew++
+        // console.log('tickedValueNew', tickedValueNew)
 
         // console.log('ticked')
 
@@ -6290,18 +6296,18 @@ const Sidebar = () => {
           });
 
 
-        nodeTitles
-          .text((d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.id
-            }
-            else {
-              return d.id
-            }
-          });
+        // nodeTitles
+        //   .text((d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.id
+        //     }
+        //     else {
+        //       return d.id
+        //     }
+        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -6681,19 +6687,19 @@ const Sidebar = () => {
         .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
         .attr("y", (d: any) => d.y + nodeRadius + 12)
         .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .style("font-size", nodeTextSize) // Adjust the font size based on your preference
+        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
         .style("pointer-events", "none")
         .text((d: any) => d.id)
         .attr('fill', textColorForNode);
 
-      container.select("#titles-g-tag").remove();
-      const nodeTitles = container
-        .append("g")
-        .attr("id", "titles-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("title")
-        .text((d: any) => d.id);
+      // container.select("#titles-g-tag").remove();
+      // const nodeTitles = container
+      //   .append("g")
+      //   .attr("id", "titles-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("title")
+      //   .text((d: any) => d.id);
 
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
@@ -6712,9 +6718,9 @@ const Sidebar = () => {
       // if (G && color) {
       //   node.attr("fill", (_:any, i:any) => color(G[i]));
       // }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
@@ -6768,7 +6774,7 @@ const Sidebar = () => {
     let matchingFile: any = copySearchResults.find((file: any) => file.fileName === resultToOpen.fileName);
 
 
-    console.log('matchingFile', matchingFile)
+    // console.log('matchingFile', matchingFile)
 
     marked.setOptions({ breaks: true });
 
