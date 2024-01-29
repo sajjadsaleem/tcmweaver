@@ -2302,7 +2302,7 @@ const Sidebar = () => {
       console.log('in make graph>force graph')
 
 
-
+      let tickCount = 0
       function ticked() {
         link
           .attr("x1", (d: any) => d.source.x)
@@ -2311,12 +2311,21 @@ const Sidebar = () => {
           .attr("y2", (d: any) => d.target.y);
 
         node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+
         // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
 
-        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        // nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+
+        if (tickCount % 5 === 0) {
+          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        }
+
+        tickCount++;
 
         // nodeTitles.text((d: any) => d.id);
       }
+
+      const debouncedUpdate = _.debounce(ticked, 10);
 
 
 
@@ -2584,7 +2593,11 @@ const Sidebar = () => {
           let radius = calculateNodeRadius(d)
           return radius + 15
         }))
-        .on("tick", ticked);
+        .on("tick", () => {
+          debouncedUpdate();
+        });
+
+
 
       // simulation.tick()
 
@@ -2836,6 +2849,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+      let tickCount = 0
       function ticked() {
         // tickedValue++
         // console.log('ticked value', tickedValue)
@@ -2939,30 +2953,45 @@ const Sidebar = () => {
         //   }
         // });
 
-        nodeText
-          .attr("x", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.x - (getNodeTextWidth(d) / 4.5)
-            }
-            else {
-              return d.x - (getNodeTextWidth(d) / 4.5)
-            }
+        // nodeText
+        //   .attr("x", (d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.x - (getNodeTextWidth(d) / 4.5)
+        //     }
+        //     else {
+        //       return d.x - (getNodeTextWidth(d) / 4.5)
+        //     }
 
-          })
-          .attr("y", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
+        //   })
+        //   .attr("y", (d: any) => {
+        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
+        //       return checkEachNode.id === d.id
+        //     })
+        //     if (xmark) {
+        //       return xmark.y + 12
+        //     }
+        //     else {
+        //       return d.y + 12
+        //     }
+        //   });
+
+
+        if (tickCount % 5 === 0) {
+          nodeText
+            .attr("x", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
             })
-            if (xmark) {
-              return xmark.y + 12
-            }
-            else {
-              return d.y + 12
-            }
-          });
+            .attr("y", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+              return xmark ? xmark.y + 12 : d.y + 12;
+            });
+        }
+
+        tickCount++;
 
 
         // nodeTitles
@@ -2984,6 +3013,8 @@ const Sidebar = () => {
 
         // console.log('link',link)
       }
+
+      const debouncedUpdate = _.debounce(ticked, 10);
 
       function zoomed(event: any) {
         container.attr("transform", event.transform);
@@ -3277,7 +3308,11 @@ const Sidebar = () => {
           let radius = calculateNodeRadius(d)
           return radius + 15
         }))
-        .on("tick", ticked);
+        .on("tick", () => {
+          debouncedUpdate();
+        });
+
+
 
 
       let svgContainer;
@@ -3519,6 +3554,7 @@ const Sidebar = () => {
       console.log('in makeGraphFromGraphResults>force graph')
 
 
+      let tickCount = 0
       function ticked() {
         link
           .attr("x1", (d: any) => d.source.x)
@@ -3527,9 +3563,16 @@ const Sidebar = () => {
           .attr("y2", (d: any) => d.target.y);
 
         node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+
+
         // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
 
-        nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+
+        if (tickCount % 5 === 0) {
+          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        }
+
+        tickCount++;
 
         // nodeTitles.text((d: any) => d.id);
       }
@@ -4034,6 +4077,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+      let tickCount = 0
       function ticked() {
 
         // console.log('helllllo')
@@ -4135,31 +4179,23 @@ const Sidebar = () => {
         //   }
         // });
 
-        nodeText
-          .attr("x", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.x - (getNodeTextWidth(d) / 4.5)
-            }
-            else {
-              return d.x - (getNodeTextWidth(d) / 4.5)
-            }
 
-          })
-          .attr("y", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
+        if (tickCount % 5 === 0) {
+          nodeText
+            .attr("x", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
             })
-            if (xmark) {
-              return xmark.y + 12
-            }
-            else {
-              return d.y + 12
-            }
+            .attr("y", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+              return xmark ? xmark.y + 12 : d.y + 12;
+            });
+        }
 
-          });
+        tickCount++
+
+
+
 
 
         // nodeTitles
@@ -4776,6 +4812,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+      let tickCount = 0
       function ticked() {
 
         // console.log('ticked')
@@ -4829,6 +4866,7 @@ const Sidebar = () => {
         node
           .attr('cx', (d: any) => d.x)
           .attr('cy', (d: any) => d.y)
+
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
         //     return checkEachNode.id === d.id
@@ -4874,31 +4912,20 @@ const Sidebar = () => {
         //   }
         // });
 
-        nodeText
-          .attr("x", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.x - (getNodeTextWidth(d) / 4.5)
-            }
-            else {
-              return d.x - (getNodeTextWidth(d) / 4.5)
-            }
 
-          })
-          .attr("y", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
+        if (tickCount % 5 === 0) {
+          nodeText
+            .attr("x", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
             })
-            if (xmark) {
-              return xmark.y + 12
-            }
-            else {
-              return d.y + 12
-            }
+            .attr("y", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+              return xmark ? xmark.y + 12 : d.y + 12;
+            });
+        }
 
-          });
+        tickCount++
 
 
         // nodeTitles
@@ -4916,9 +4943,6 @@ const Sidebar = () => {
 
         formattingNodes = []
         formattingNodeCopy = []
-
-
-        // console.log('link',link)
       }
 
       function zoomed(event: any) {
@@ -5472,6 +5496,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
+      let tickCount = 0
       function ticked() {
 
         // console.log('ticked')
@@ -5570,31 +5595,20 @@ const Sidebar = () => {
         //   }
         // });
 
-        nodeText
-          .attr("x", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.x - (getNodeTextWidth(d) / 4.5)
-            }
-            else {
-              return d.x - (getNodeTextWidth(d) / 4.5)
-            }
 
-          })
-          .attr("y", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
+        if (tickCount % 5 === 0) {
+          nodeText
+            .attr("x", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
             })
-            if (xmark) {
-              return xmark.y + 12
-            }
-            else {
-              return d.y + 12
-            }
+            .attr("y", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+              return xmark ? xmark.y + 12 : d.y + 12;
+            });
+        }
 
-          });
+        tickCount++
 
 
         // nodeTitles
@@ -6168,7 +6182,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      // let tickedValueNew = 0
+      let tickCount = 0
       function ticked() {
         // tickedValueNew++
         // console.log('tickedValueNew', tickedValueNew)
@@ -6224,6 +6238,7 @@ const Sidebar = () => {
         node
           .attr('cx', (d: any) => d.x)
           .attr('cy', (d: any) => d.y)
+
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
         //     return checkEachNode.id === d.id
@@ -6269,31 +6284,19 @@ const Sidebar = () => {
         //   }
         // });
 
-        nodeText
-          .attr("x", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
+        if (tickCount % 5 === 0) {
+          nodeText
+            .attr("x", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
             })
-            if (xmark) {
-              return xmark.x - (getNodeTextWidth(d) / 4.5)
-            }
-            else {
-              return d.x - (getNodeTextWidth(d) / 4.5)
-            }
+            .attr("y", (d: any) => {
+              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+              return xmark ? xmark.y + 12 : d.y + 12;
+            });
+        }
 
-          })
-          .attr("y", (d: any) => {
-            const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-              return checkEachNode.id === d.id
-            })
-            if (xmark) {
-              return xmark.y + 12
-            }
-            else {
-              return d.y + 12
-            }
-
-          });
+        tickCount++;
 
 
         // nodeTitles
