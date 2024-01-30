@@ -2406,12 +2406,10 @@ const Sidebar = () => {
 
 
       function handleMouseOver(this: any, event: any, d: any) {
-        // console.log('hello mouseover')
-        // Set the initial state before transitioning
         d3.select(this as SVGElement)
-          // .attr("fill", "red") // Change to your desired color
           .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
           .attr("fill-opacity", 1); // Set initial opacity to 1
+        // .attr("fill", "red") // Change to your desired color
 
         // Initialize the links with their original stroke color and opacity
         link
@@ -2449,7 +2447,7 @@ const Sidebar = () => {
             }
           })
           .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : '8px'
+            return nodeData.id === d.id ? '12px' : nodeTextSize
           })
 
         // Start the transition
@@ -2518,7 +2516,11 @@ const Sidebar = () => {
         // Reset the opacity of all nodes to their original value with a transition
         node.transition().duration(200).attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+
+        console.log('nodetextsize', nodeTextSize)
+        nodeText.transition().duration(200)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
       }
 
 
@@ -3133,7 +3135,7 @@ const Sidebar = () => {
             }
           })
           .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : '8px'
+            return nodeData === d ? '12px' : nodeTextSize
           })
 
         // Start the transition
@@ -3226,7 +3228,7 @@ const Sidebar = () => {
         // Reset the opacity of all nodes to their original value with a transition
         node.transition().duration(200).attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -3693,7 +3695,7 @@ const Sidebar = () => {
             }
           })
           .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : '8px'
+            return nodeData === d ? '12px' : nodeTextSize
           })
 
         // Start the transition
@@ -3763,7 +3765,7 @@ const Sidebar = () => {
         // Reset the opacity of all nodes to their original value with a transition
         node.transition().duration(200).attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
       }
 
 
@@ -4336,7 +4338,7 @@ const Sidebar = () => {
             }
           })
           .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : '8px'
+            return nodeData === d ? '12px' : nodeTextSize
           })
 
         // Start the transition
@@ -4422,7 +4424,7 @@ const Sidebar = () => {
         // Reset the opacity of all nodes to their original value with a transition
         node.transition().duration(200).attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', '8px')
+        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -5063,7 +5065,7 @@ const Sidebar = () => {
             }
           })
           .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : '8px'
+            return nodeData === d ? '12px' : nodeTextSize
           })
 
         // Start the transition
@@ -5154,7 +5156,7 @@ const Sidebar = () => {
         node.transition().duration(200).attr("fill-opacity", 1);
         nodeText.transition().duration(200)
           .style('opacity', 1)
-          .style('font-size', '8px')
+          .style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -9350,7 +9352,7 @@ const Sidebar = () => {
 
                                       <div>
                                         <p style={{ margin: '0px' }}>Link distance</p>
-                                        <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -300, -50)} valueLabelDisplay="auto"
+                                        <Slider defaultValue={mapSliderValueToReal(sliderValue, 0, 1, -30, -300)} valueLabelDisplay="auto"
                                           style={{ padding: '8px 0px' }} size="small" min={0} max={1} step={0.01} aria-label="Small"
                                           onChangeCommitted={handleLinkDistaneCommitted}
                                           classes={{ track: 'custom-slider-track', thumb: 'custom-slider-thumb', rail: 'custom-slider-rail', }}
