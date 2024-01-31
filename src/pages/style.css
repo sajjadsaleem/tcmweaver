@@ -4,8 +4,3 @@ body {
     /* font-family: 'Inter', sans-serif; */
     margin: 0;
 }
-
-* {
-    scrollbar-color: #CFCCC7 transparent;
-    scrollbar-width: thin;
-}

@@ -2,6 +2,13 @@
     display: flex;
 }
 
+@supports (-moz-appearance: none) {
+    * {
+        scrollbar-color: #CFCCC7 transparent;
+        scrollbar-width: thin;
+    }
+}
+
 
 /* =====================================Homepage================================= */
 /* =====================================Sidebar================================== */
