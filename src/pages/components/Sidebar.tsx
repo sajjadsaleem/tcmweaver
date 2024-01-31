@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Fzf, FzfOptions, byLengthAsc } from "fzf";
-import _, { replace, result, update } from "lodash";
+import { Fzf, FzfOptions } from "fzf";
+import _ from "lodash";
 import Accordion from "react-bootstrap/Accordion";
 import { marked } from "marked";
 import * as d3 from "d3";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
-import ContentCopySharpIcon from "@mui/icons-material/ContentCopySharp";
 import axios from "axios";
-import { FormControl, Grid, IconButton, InputAdornment, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Slider, TextField } from "@mui/material";
+import { Grid, IconButton, InputAdornment, List, ListItem, ListItemText, Slider, TextField } from "@mui/material";
 import * as Helpers from '../../util/Helpers'
-import Link from "next/link";
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -22,13 +20,7 @@ import { stAccessTokenVerify } from '../../store/apps/auth'
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CircularProgress from '@mui/material/CircularProgress';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WorkspaceContent from "./WorkspaceContent";
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import MenuIcon from '@mui/icons-material/Menu';
 import TemporaryDrawer from "./RightModal";
 import UnstyledTextareaIntroduction from "./contactSupport";
 
@@ -72,13 +64,6 @@ const Sidebar = () => {
     contentWithRemovedBrackets: string;
   }
 
-  // interface Node {
-  //   id: string;
-  //   tag: string;
-  //   // Add other properties here as needed
-  // }
-
-
   interface CustomNode extends d3.SimulationNodeDatum {
     id: string;
     x: number;
@@ -92,7 +77,7 @@ const Sidebar = () => {
   const [searchValue, setSearchValue] = useState("");
   const [graphSearchValue, setGraphSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [checkboxes, setCheckboxes] = useState([]);
+  // const [checkboxes, setCheckboxes] = useState([]);
   const [allCheckboxes, setAllCheckboxes] = useState([]);
   const [shouldShowFilters, setShouldShowFilters] = useState(true);
   const [themeChangericon, setThemeChangerIcon] = useState<any>()
@@ -139,9 +124,8 @@ const Sidebar = () => {
   const [updatePasswordLoader, setUpdatePasswordLoader] = useState<any>(false)
   const [homepageFile, setHomepageFile] = useState<any>([])
   const [getPackage, setPackage] = useState([])
-  const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
+  // const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
   const [showLockedVaultPopup, setShowLockedVaultPopup] = useState(false)
-  const [clickedVault, setClickedVault] = useState('')
   const [userAccessVaults, setUserAccessVaults] = useState<any>([])
   const accountOptionsRef = useRef<any>(null);
   const usersIconRef = useRef<any>(null);
@@ -149,10 +133,8 @@ const Sidebar = () => {
   const [billingLoader, setBillingLoader] = useState(false)
   const [previewNodeLinkLoader, setPreviewNodeLinkLoader] = useState<any>(false)
   const [animationKey, setAnimationKey] = useState(0);
-  const [showColorSetting, setShowColorSetting] = useState(false)
   const [showAddGraphNodeColor, setShowAddGraphNodeColor] = useState<any>([])
   const [nodeColorRemoveCheck, setNodeColorRemoveCheck] = useState<any>('')
-  const [nodeTagsColors, setNodeTagsColors] = useState<any>([])
   const [rawSearchResults, setRawSearchResults] = useState<any>([])
   const [textSearchLoader, setTextSearchLoader] = useState<any>(false)
   const [graphSearchLoader, setGraphSearchLoader] = useState<any>(false)
@@ -165,7 +147,6 @@ const Sidebar = () => {
   const [graphTagFilters, setGraphTagFilters] = useState<any>([])
   const [showGraphFilters, setShowGraphFilters] = useState<any>(false)
   const [graphDataAfterFilters, setGraphDataAfterFilters] = useState<any>([])
-  const [showSearchResultToast, setShowSearchResultToast] = useState<any>(false)
   const [linkClickLoader, setLinkClickLoader] = useState<boolean>(false)
   const [linkClickedId, setLinkClickedId] = useState('')
   const [nodeSizeChangeChecker, setNodeSizeChangeChecker] = useState(true)
@@ -204,7 +185,6 @@ const Sidebar = () => {
   // console.log('checkGraphStatus', checkGraphStatus)
   // console.log('graphsize' , graphSize)
   // console.log('graphTagFilters' , graphTagFilters)
-
   // console.log('showSearchResultToast',showSearchResultToast)
   // console.log('rawSearchResults' , rawSearchResults)
   // console.log('search value' , searchValue)
@@ -220,7 +200,6 @@ const Sidebar = () => {
     const query = new URLSearchParams(window.location.search);
     if (query) {
       const sessionId = query.get('session_id');
-      // console.log('sessionid' , sessionId)
       if (query.get('success')) {
         toast("Payment successful", {
           position: "top-right",
@@ -532,7 +511,6 @@ const Sidebar = () => {
     setTextColorForNode(checkTheme ? '#6C655C' : '#B3B3B5')
     setGraphLinkColor(checkTheme ? '#CFCCC7' : '#565959')
   }, []);
-
 
 
   useEffect(() => {
@@ -7435,7 +7413,6 @@ const Sidebar = () => {
 
 
   const wanderClickedNode = async () => {
-
     const updatedGraphData: any = { ...graphData };
     const matchingResult = openedResults.find((result) => result.fileName === fileOpenedFromGraph.id);
     // console.log('matching result' , matchingResult)
@@ -7638,6 +7615,7 @@ const Sidebar = () => {
           // console.log("updatedGraphData: ", updatedGraphData);
           // let graphNewData = resultData;
 
+          // console.log('updatedGraphData', updatedGraphData, 'filteredGraphData', filteredGraphData)
           setGraphData(updatedGraphData);
           setGraphDataAfterFilters(filteredGraphData)
           makeGraph(filteredGraphData);
@@ -7649,16 +7627,31 @@ const Sidebar = () => {
           const originalArrayForBacklinks = response.data.updatedObjectsForBacklinks
           const copiedArrayRaw = _.cloneDeep(originalArray);
           const copiedArrayForBacklinksRaw = _.cloneDeep(originalArrayForBacklinks);
-          // console.log('copiedArray', copiedArrayRaw)
-          // console.log('copiedArrayForBacklinks', copiedArrayForBacklinksRaw)
+
+          // console.log('copiedArraybefore', copiedArrayRaw)
+          // console.log('copiedArrayForBacklinksbefore', copiedArrayForBacklinksRaw)
+
+
+          // const removeDuplicates = (arr: any) => {
+          //   return arr.filter((obj: any, index: any, self: any) =>
+          //     index === self.findIndex((o: any) => o.filename === obj.filename)
+          //   );
+          // };
+
+          let uniqueFileNames: any = {};
 
           const removeDuplicates = (arr: any) => {
-            return arr.filter((obj: any, index: any, self: any) =>
-              index === self.findIndex((o: any) => o.filename === obj.filename)
-            );
-          };
+            return arr.filter((obj: any) => {
+              if (!uniqueFileNames[obj.fileName]) {
+                uniqueFileNames[obj.fileName] = true;
+                return true;
+              }
+              return false;
+            });
+          }
 
           const copiedArray = removeDuplicates(copiedArrayRaw);
+          uniqueFileNames = {}
           const copiedArrayForBacklinks = removeDuplicates(copiedArrayForBacklinksRaw);
 
           // console.log('copiedArray', copiedArray)
@@ -7683,8 +7676,7 @@ const Sidebar = () => {
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
 
-            const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex, (match: any, word: any) =>
+            const contentWithStyledWords = contentWithoutHashtags.replace(regex, (match: any, word: any) =>
               `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
@@ -7713,8 +7705,7 @@ const Sidebar = () => {
             // console.log("contentWithoutHashtags", contentWithoutHashtags);
 
 
-            const contentWithStyledWords = contentWithoutHashtags.replace(
-              regex, (match: any, word: any) =>
+            const contentWithStyledWords = contentWithoutHashtags.replace(regex, (match: any, word: any) =>
               `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
             );
             // console.log("contentwithstyledwords", contentWithStyledWords);
