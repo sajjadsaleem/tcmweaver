@@ -940,14 +940,15 @@ const Dashboard = () => {
     const requestData: any = {
       user: user,
     };
+
     axios.post(`/api/getProducts`, requestData)
       .then((res: any) => {
-        // console.log('res' , res)
+        // console.log('res from getting stripe products', res.data.stripeProducts)
         setStripePackages(res.data.stripeProducts)
         setSearchedStripePackages(res.data.stripeProducts)
-        // console.log('getProducts response' , res.data.stripeProducts)
       })
       .catch((err: any) => {
+        console.log('Error gettintg stripe products: ', err)
 
       })
 
@@ -975,9 +976,8 @@ const Dashboard = () => {
         return '$';
       case 'eur':
         return '€';
-      // Add more currency cases as needed
       default:
-        return currency; // Return the currency name if not found
+        return currency;
     }
   }
 
@@ -2289,13 +2289,21 @@ const Dashboard = () => {
                                 <TableCell component="th" scope="row" className='vault-table-body-row'>
                                   {index + 1}
                                 </TableCell>
+
                                 <TableCell className='vault-table-body-row'>{row.name}</TableCell>
+
                                 <TableCell className='vault-table-body-row'>
-                                  {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                                  {row.default_price && row.default_price.currency && (
+                                    <>
+                                      {getCurrencySign(row.default_price.currency)} {row.default_price.unit_amount_decimal / 100}
+                                    </>
+                                  )}
                                 </TableCell>
+
                                 <TableCell className='vault-table-body-row'>
                                   {convertUnixTimestampToDateTime(row.created)}
                                 </TableCell>
+
                                 <TableCell>
                                   {row.features && row.features.length > 0 ? (
                                     <>

@@ -8,7 +8,7 @@ const Products = () => {
   const [productsData, setProductsData] = useState<any>([])
   const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
-  console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
+  // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
 
   const router = useRouter();
 
@@ -115,13 +115,15 @@ const Products = () => {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontWeight: '700', fontSize: '32px' }}>
-                  ${(product.default_price.unit_amount) / 100}
+                  {product.default_price && product.default_price.unit_amount && (
+                    `$${product.default_price.unit_amount / 100}`
+                  )}
                 </span>
-                <span style={{ color: 'grey', fontSize: '14px', width: '50px', lineHeight: '1' }}>
-                  {product.default_price.recurring && product.default_price.recurring.interval === 'month' ? 'per month'
-                    : product.default_price.recurring && product.default_price.recurring.interval === 'year' ? 'per year'
-                      : product.default_price.recurring === null ? product.default_price.type === 'one_time' ? 'one time' : '' : ''
 
+                <span style={{ color: 'grey', fontSize: '14px', width: '50px', lineHeight: '1' }}>
+                  {product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'month' ? 'per month'
+                    : product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'year' ? 'per year'
+                      : product.default_price && product.default_price.recurring === null ? product.default_price.type === 'one_time' ? 'one time' : '' : ''
                   }
                 </span>
               </p>
@@ -138,7 +140,7 @@ const Products = () => {
               ) : (
                 <>
                   <button className='product-button' onClick={() => getStripe(product)}>
-                    {product.default_price.recurring && product.default_price.recurring.trial_period_days === null
+                    {product.default_price && product.default_price.recurring && product.default_price.recurring.trial_period_days === null
                       ? 'Subscribe'
                       : `Start Trial`
                     }
