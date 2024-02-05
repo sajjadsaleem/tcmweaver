@@ -190,7 +190,7 @@ const Sidebar = () => {
   // console.log('search value' , searchValue)
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
   // console.log('contactSupportMessage', contactSupportMessage)
-  console.log('nodeTextSize', nodeTextSize)
+  // console.log('nodeTextSize', nodeTextSize)
 
 
 
