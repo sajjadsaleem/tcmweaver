@@ -2223,7 +2223,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id,
         nodeGroup = null,
         nodeGroups = null as any[] | null,
-        nodeTitle = null,
+        nodeTitle,
         nodeFill = "currentColor",
         nodeStroke = "#fff",
         nodeStrokeWidth = 0,
@@ -2241,16 +2241,37 @@ const Sidebar = () => {
         width = 640,
         height = 400,
         invalidation = undefined,
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
       // Compute values.
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -2280,7 +2301,6 @@ const Sidebar = () => {
       console.log('in make graph>force graph')
 
 
-      let tickCount = 0
       function ticked() {
         link
           .attr("x1", (d: any) => d.source.x)
@@ -2288,22 +2308,22 @@ const Sidebar = () => {
           .attr("x2", (d: any) => d.target.x)
           .attr("y2", (d: any) => d.target.y);
 
-        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+        // node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
 
-        // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
 
-        // nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        // node.select("text")
+        //   .attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5))
+        //   .attr("y", (d: any) => d.y + 12);
 
-        if (tickCount % 5 === 0) {
-          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-        }
 
-        tickCount++;
+
+        //   nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+
+
 
         // nodeTitles.text((d: any) => d.id);
       }
-
-      const debouncedUpdate = _.debounce(ticked, 10);
 
 
 
@@ -2364,14 +2384,16 @@ const Sidebar = () => {
         return value !== null && typeof value === "object" ? value.valueOf() : value;
       }
 
-      function getNodeTextWidth(d: any) {
+
+
+      function getNodeTextWidth(d: any, text: string) {
         // Create a hidden div to measure the text width
         const tempDiv: any = d3.select('body')
           .append('div')
           .attr('class', 'temp-text-container')
           .style('position', 'absolute')
           .style('visibility', 'hidden')
-          .text(d.id);
+          .text(text); // Use the actual text content here
 
         // Get the width of the hidden div
         const textWidth = tempDiv.node().getBoundingClientRect().width;
@@ -2385,9 +2407,12 @@ const Sidebar = () => {
 
       function handleMouseOver(this: any, event: any, d: any) {
         d3.select(this as SVGElement)
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-          .attr("fill-opacity", 1); // Set initial opacity to 1
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1) // Set initial opacity to 1
         // .attr("fill", "red") // Change to your desired color
+
+
 
         // Initialize the links with their original stroke color and opacity
         link
@@ -2403,38 +2428,58 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Initialize the nodes with their original fill color and opacity
-        node.attr("fill-opacity", (nodeData) => {
-          if (nodeData === d) {
-            return 1; // Opacity of the hovered node
-          } else if (areNodesConnected(nodeData, d)) {
-            return 1; // Opacity of directly connected nodes
-          } else {
-            return 0.1; // Opacity of other nodes
-          }
-        });
-
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
+        node
+          .attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
-              return 1
+              return 1; // Opacity of the hovered node
             } else if (areNodesConnected(nodeData, d)) {
-              return 1
+              return 1; // Opacity of directly connected nodes
             } else {
-              return 0.1
+              return 0.1; // Opacity of other nodes
             }
           })
+
+
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData.id === d.id ? '12px' : nodeTextSize
+        //   })
+
+        // Start the transition
+        // d3.select(this as SVGElement)
+        //   .transition().duration(400).attr("r", nodeRadius);
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(d) * 1.2);
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
           .style("font-size", (nodeData: any) => {
             return nodeData.id === d.id ? '12px' : nodeTextSize
           })
-
-        // Start the transition
-        d3.select(this as SVGElement)
-          .transition().duration(400).attr("r", nodeRadius);
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
 
         // Change the color of the links directly connected to the hovered node
         link
-          .transition().duration(400)
+          .transition()
+          .duration(400)
           .attr("stroke", (linkData: any) => {
             // console.log('stroke' , linkData , d)
             if (linkData.source === d || linkData.target === d) {
@@ -2446,7 +2491,8 @@ const Sidebar = () => {
 
         // Transition to reduce the opacity of nodes that are not directly connected
         node
-          .transition().duration(600)
+          .transition()
+          .duration(400)
           .attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -2457,9 +2503,12 @@ const Sidebar = () => {
             }
           });
 
+
+
         // Transition to reduce the opacity of links that are not directly connected
         link
-          .transition().duration(600)
+          .transition()
+          .duration(400)
           .attr("stroke-opacity", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
               // console.log(linkData.source , linkData.target , d)
@@ -2477,28 +2526,63 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+        // console.log('d', d)
+        const nodeData = d.fromElement.__data__;
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
 
+        // console.log('tempMouseOverNode', tempMouseOverNode)
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
-        d3.select(this).attr("r", calculateNodeRadius(nodeObject))
-          .transition().duration(400).attr("fill-opacity", 1);
+
+        d3.select(this)
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1);
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
 
 
         // Reset the color and opacity of all links to their original values with a transition
-        link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
 
-        console.log('nodetextsize', nodeTextSize)
-        nodeText.transition().duration(200)
-          .style('opacity', 1)
-          .style("font-size", `${nodeTextSize}px`)
+        // console.log('nodetextsize', nodeTextSize)
+        // nodeText.transition().duration(200)
+        //   .style('opacity', 1)
+        //   .style("font-size", `${nodeTextSize}px`)
       }
 
 
@@ -2573,15 +2657,11 @@ const Sidebar = () => {
           let radius = calculateNodeRadius(d)
           return radius + 15
         }))
-        .on("tick", () => {
-          debouncedUpdate();
-        });
+        .on("tick", ticked);
 
-
-
-      // simulation.tick()
-
-      const svg = d3.create("svg").attr("width", width).attr("height", height)
+      const svg = d3.create("svg")
+        .attr("width", width)
+        .attr("height", height)
         .attr("viewBox", [-width / 2, -height / 2, width, height])
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s")
@@ -2591,7 +2671,8 @@ const Sidebar = () => {
 
 
 
-      const link = container.append("g").attr("id", "links-g-tag")
+      const link = container.append("g")
+        .attr("id", "links-g-tag")
         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
         .attr("stroke-opacity", linkStrokeOpacity)
         .attr("stroke-width", typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
@@ -2606,20 +2687,21 @@ const Sidebar = () => {
 
       document.addEventListener("click", hideNodeInfo);
 
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", 'nodes-g-tag')
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
-        .attr("r", (d: any) => {
-          const radius = calculateNodeRadius(d)
-          return radius;
-        })
+        // .join("circle")
+        .join("g")
+        // .attr("r", (d: any) => {
+        //   const radius = calculateNodeRadius(d)
+        //   return radius;
+        // })
         .attr("id", function (d: any) {
           return "node-" + d.id
         })
@@ -2627,28 +2709,53 @@ const Sidebar = () => {
           const color = getColorByTag(d.tag);
           return color;
         })
-        .on("mouseover", handleMouseOver) // Add mouseover event listener
+        .on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut)
         .on("click", handleNodeClick)
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // Append text labels to the container, positioned near the nodes
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+
+
+
+
+      // Append text labels to the container, positioned near the nodes
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // const nodeTitles = container
       //   .append("g")
@@ -2675,12 +2782,12 @@ const Sidebar = () => {
       // if (L) link.attr("stroke", ({ index: i }) => L[i]);
       if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
       if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-      if (G && color) {
-        node.attr("fill", (_, i) => color(G[i]));
-      }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (G && color) {
+      //   node.attr("fill", (_, i) => color(G[i]));
+      // }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         // invalidation.then(() => {
@@ -2713,7 +2820,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -2731,6 +2838,28 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
 
@@ -2740,10 +2869,9 @@ const Sidebar = () => {
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -2829,7 +2957,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      let tickCount = 0
+      // let tickCount = 0
       function ticked() {
         // tickedValue++
         // console.log('ticked value', tickedValue)
@@ -2885,9 +3013,15 @@ const Sidebar = () => {
 
 
 
-        node
-          .attr('cx', (d: any) => d.x)
-          .attr('cy', (d: any) => d.y)
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
+
+
+        // node
+        //   .attr('cx', (d: any) => d.x)
+        //   .attr('cy', (d: any) => d.y)
+
+
+
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
         //     return checkEachNode.id === d.id
@@ -2959,19 +3093,19 @@ const Sidebar = () => {
         //   });
 
 
-        if (tickCount % 5 === 0) {
-          nodeText
-            .attr("x", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-            })
-            .attr("y", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-              return xmark ? xmark.y + 12 : d.y + 12;
-            });
-        }
+        // if (tickCount % 5 === 0) {
+        //   nodeText
+        //     .attr("x", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+        //       return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
+        //     })
+        //     .attr("y", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+        //       return xmark ? xmark.y + 12 : d.y + 12;
+        //     });
+        // }
 
-        tickCount++;
+        // tickCount++;
 
 
         // nodeTitles
@@ -3074,8 +3208,10 @@ const Sidebar = () => {
 
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
+          .transition()
+          .duration(400)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
           .attr("fill-opacity", 1); // Set initial opacity to 1
 
         // Initialize the links with their original stroke color and opacity
@@ -3101,26 +3237,40 @@ const Sidebar = () => {
             }
           });
 
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
-            if (nodeData === d) {
-              return 1
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1
-            } else {
-              return 0.1
-            }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
         d3.select(this as SVGElement)
+          .select('circle')
           .transition()
           .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .attr("r", calculateNodeRadius(d) * 1.2); // Optionally, increase the node size
+
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
+
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -3137,7 +3287,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of nodes that are not directly connected
         node
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("fill-opacity", (nodeData: any) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -3164,7 +3314,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of links that are not directly connected
         link
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("stroke-opacity", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
               return 1; // Opacity of links directly connected to the hovered node
@@ -3183,10 +3333,22 @@ const Sidebar = () => {
         // console.log('d', d.fromElement.getAttribute("id"))
         // let tempMouseOverNode = d.fromElement.getAttribute("id")
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+        const nodeData = d.fromElement.__data__;
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
 
         // console.log('tempmouseovernode', tempMouseOverNode)
@@ -3196,17 +3358,48 @@ const Sidebar = () => {
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+          // .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1); // Reset opacity
+
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
+
+
 
         // Reset the color and opacity of all links to their original values with a transition
         link
-          .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
+        // nodeText
+        // .transition()
+        // .duration(200)
+        // .style('opacity', 1)
+        // .style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -3308,8 +3501,7 @@ const Sidebar = () => {
       const container = svg
 
       container.select("#links-g-tag").remove();
-      const link = container
-        .append("g")
+      const link = container.append("g")
         .attr("id", "links-g-tag")
         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
         .attr("stroke-opacity", linkStrokeOpacity)
@@ -3326,18 +3518,19 @@ const Sidebar = () => {
 
 
       container.select("#nodes-g-tag").remove();
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", "nodes-g-tag")
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
+        // .join("circle")
+        .join("g")
         .attr("id", (d: any) => `node-${d.id}`)
-        .attr("r", calculateNodeRadius)
+        // .attr("r", calculateNodeRadius)
         .attr("fill", (d: any) => {
           const color = getColorByTag(d.tag);
           return color;
@@ -3348,23 +3541,42 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // // Append text labels to the container, positioned near the nodes
-      container.select("#text-g-tag").remove();
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+      // // Append text labels to the container, positioned near the nodes
+      // container.select("#text-g-tag").remove();
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // container.select("#titles-g-tag").remove();
       // const nodeTitles = container
@@ -3401,9 +3613,9 @@ const Sidebar = () => {
       // if (G && color) {
       //   node.attr("fill", (_:any, i:any) => color(G[i]));
       // }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
@@ -3477,7 +3689,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -3495,16 +3707,36 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined, // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
       // Compute values.
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -3534,7 +3766,6 @@ const Sidebar = () => {
       console.log('in makeGraphFromGraphResults>force graph')
 
 
-      let tickCount = 0
       function ticked() {
         link
           .attr("x1", (d: any) => d.source.x)
@@ -3542,17 +3773,20 @@ const Sidebar = () => {
           .attr("x2", (d: any) => d.target.x)
           .attr("y2", (d: any) => d.target.y);
 
-        node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
+
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
+
+        // node.attr("cx", (d: any) => d.x).attr("cy", (d: any) => d.y);
 
 
         // nodeText.attr("x", (d: any) => d.x + 12).attr("y", (d: any) => d.y);
 
 
-        if (tickCount % 5 === 0) {
-          nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
-        }
+        // if (tickCount % 5 === 0) {
+        //   nodeText.attr("x", (d: any) => d.x - (getNodeTextWidth(d) / 4.5)).attr("y", (d: any) => d.y + 12);
+        // }
 
-        tickCount++;
+        // tickCount++;
 
         // nodeTitles.text((d: any) => d.id);
       }
@@ -3636,7 +3870,9 @@ const Sidebar = () => {
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .transition()
+          .duration(400)
           .attr("fill-opacity", 1); // Set initial opacity to 1
 
         // Initialize the links with their original stroke color and opacity
@@ -3651,36 +3887,49 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Initialize the nodes with their original fill color and opacity
-        node.attr("fill-opacity", (nodeData) => {
-          if (nodeData === d) {
-            return 1; // Opacity of the hovered node
-          } else if (areNodesConnected(nodeData, d)) {
-            return 1; // Opacity of directly connected nodes
-          } else {
-            return 0.1; // Opacity of other nodes
-          }
-        });
-
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
+        node
+          .attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
-              return 1
+              return 1; // Opacity of the hovered node
             } else if (areNodesConnected(nodeData, d)) {
-              return 1
+              return 1; // Opacity of directly connected nodes
             } else {
-              return 0.1
+              return 0.1; // Opacity of other nodes
             }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+          });
+
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
-        d3.select(this as SVGElement)
+        d3.select(this)
+          .select('circle') // Select the nested circle element
           .transition()
-          .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .duration(400)
+          .attr("r", calculateNodeRadius(d) * 1.2);
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -3697,7 +3946,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of nodes that are not directly connected
         node
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("fill-opacity", (nodeData) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -3711,7 +3960,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of links that are not directly connected
         link
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("stroke-opacity", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
               return 1; // Opacity of links directly connected to the hovered node
@@ -3726,24 +3975,64 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
+
+        const nodeData = d.fromElement.__data__;
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
 
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
-        d3.select(this).attr("r", calculateNodeRadius(nodeObject))
-          .transition().duration(400).attr("fill-opacity", 1);
+
+        d3.select(this)
+          // .attr("r", calculateNodeRadius(nodeObject))
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1);
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
 
 
         // Reset the color and opacity of all links to their original values with a transition
-        link.transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+        link
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
+        // nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
       }
 
 
@@ -3820,7 +4109,9 @@ const Sidebar = () => {
         }))
         .on("tick", ticked);
 
-      const svg = d3.create("svg").attr("width", width).attr("height", height)
+      const svg = d3.create("svg")
+        .attr("width", width)
+        .attr("height", height)
         .attr("viewBox", [-width / 2, -height / 2, width, height])
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         .style("transition", "fill-opacity 0.2s, stroke-opacity 0.2s");
@@ -3844,20 +4135,21 @@ const Sidebar = () => {
 
       // console.log('links' , links)
 
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", 'nodes-g-tag')
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
         .join("circle")
-        .attr("r", (d: any) => {
-          const radius = calculateNodeRadius(d)
-          return radius;
-        })
+        .join("g")
+        // .attr("r", (d: any) => {
+        //   const radius = calculateNodeRadius(d)
+        //   return radius;
+        // })
         .attr("id", function (d: any) {
           return "node-" + d.id
         })
@@ -3871,22 +4163,45 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // Append text labels to the container, positioned near the nodes
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+
+
+      // Append text labels to the container, positioned near the nodes
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // const nodeTitles = container
       //   .append("g")
@@ -3912,12 +4227,12 @@ const Sidebar = () => {
       // if (L) link.attr("stroke", ({ index: i }) => L[i]);
       if (W) link.attr("stroke-width", (d: any, i: any) => `${W[i]}`);
       if (L) link.attr("stroke", (d: any, i: any) => `${L[i]}`);
-      if (G && color) {
-        node.attr("fill", (_, i) => color(G[i]));
-      }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (G && color) {
+      //   node.attr("fill", (_, i) => color(G[i]));
+      // }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         // invalidation.then(() => {
@@ -3950,7 +4265,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -3968,6 +4283,28 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
 
@@ -3977,10 +4314,9 @@ const Sidebar = () => {
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -4057,10 +4393,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      let tickCount = 0
       function ticked() {
-
-        // console.log('helllllo')
 
         link
           .attr("x1", (d: any) => {
@@ -4109,11 +4442,14 @@ const Sidebar = () => {
           });
 
 
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
 
 
-        node
-          .attr('cx', (d: any) => d.x)
-          .attr('cy', (d: any) => d.y)
+
+        // node
+        //   .attr('cx', (d: any) => d.x)
+        //   .attr('cy', (d: any) => d.y)
+
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
         //     return checkEachNode.id === d.id
@@ -4160,19 +4496,19 @@ const Sidebar = () => {
         // });
 
 
-        if (tickCount % 5 === 0) {
-          nodeText
-            .attr("x", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-            })
-            .attr("y", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-              return xmark ? xmark.y + 12 : d.y + 12;
-            });
-        }
+        // if (tickCount % 5 === 0) {
+        //   nodeText
+        //     .attr("x", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+        //       return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
+        //     })
+        //     .attr("y", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+        //       return xmark ? xmark.y + 12 : d.y + 12;
+        //     });
+        // }
 
-        tickCount++
+        // tickCount++
 
 
 
@@ -4278,7 +4614,9 @@ const Sidebar = () => {
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .transition()
+          .duration(400)
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
           .attr("fill-opacity", 1); // Set initial opacity to 1
 
         // Initialize the links with their original stroke color and opacity
@@ -4304,26 +4642,39 @@ const Sidebar = () => {
             }
           });
 
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
-            if (nodeData === d) {
-              return 1
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1
-            } else {
-              return 0.1
-            }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
         d3.select(this as SVGElement)
+          .select('circle')
           .transition()
           .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .attr("r", calculateNodeRadius(d) * 1.2); // Optionally, increase the node size
+
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -4340,7 +4691,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of nodes that are not directly connected
         node
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("fill-opacity", (nodeData: any) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -4383,26 +4734,65 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+
+        const nodeData = d.fromElement.__data__;
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+          // .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1); // Reset opacity
+
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
+
 
         // Reset the color and opacity of all links to their original values with a transition
         link
-          .transition().duration(400).attr("stroke", linkStroke).attr("stroke-opacity", linkStrokeOpacity);
+          .transition()
+          .duration(400)
+          .attr("stroke", linkStroke)
+          .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
-        nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
+        // nodeText.transition().duration(200).style('opacity', 1).style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -4529,18 +4919,19 @@ const Sidebar = () => {
 
 
       container.select("#nodes-g-tag").remove();
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", "nodes-g-tag")
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
+        // .join("circle")
+        .join("g")
         .attr("id", (d: any) => `node-${d.id}`)
-        .attr("r", calculateNodeRadius)
+        // .attr("r", calculateNodeRadius)
         .attr("fill", (d: any) => {
           const color = getColorByTag(d.tag);
           return color;
@@ -4551,23 +4942,43 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // // Append text labels to the container, positioned near the nodes
-      container.select("#text-g-tag").remove();
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+      // // Append text labels to the container, positioned near the nodes
+      // container.select("#text-g-tag").remove();
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // container.select("#titles-g-tag").remove();
       // const nodeTitles = container
@@ -4595,9 +5006,9 @@ const Sidebar = () => {
       // if (G && color) {
       //   node.attr("fill", (_:any, i:any) => color(G[i]));
       // }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
@@ -4672,7 +5083,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -4690,21 +5101,43 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
       // Compute values.
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
-      // Replace the input nodes and links with mutable objects for the simulation.
+
+      console.log('In handleGraphForces>WanderGraph')
 
 
 
@@ -4792,7 +5225,6 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      let tickCount = 0
       function ticked() {
 
         // console.log('ticked')
@@ -4843,9 +5275,15 @@ const Sidebar = () => {
             return d.target.y
           });
 
+
         node
-          .attr('cx', (d: any) => d.x)
-          .attr('cy', (d: any) => d.y)
+          .attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
+
+
+
+        // node
+        //   .attr('cx', (d: any) => d.x)
+        //   .attr('cy', (d: any) => d.y)
 
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
@@ -4893,19 +5331,19 @@ const Sidebar = () => {
         // });
 
 
-        if (tickCount % 5 === 0) {
-          nodeText
-            .attr("x", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-            })
-            .attr("y", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-              return xmark ? xmark.y + 12 : d.y + 12;
-            });
-        }
+        // if (tickCount % 5 === 0) {
+        //   nodeText
+        //     .attr("x", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+        //       return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
+        //     })
+        //     .attr("y", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+        //       return xmark ? xmark.y + 12 : d.y + 12;
+        //     });
+        // }
 
-        tickCount++
+        // tickCount++
 
 
         // nodeTitles
@@ -5005,7 +5443,9 @@ const Sidebar = () => {
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .transition()
+          .duration(400)
           .attr("fill-opacity", 1); // Set initial opacity to 1
 
         // Initialize the links with their original stroke color and opacity
@@ -5031,26 +5471,39 @@ const Sidebar = () => {
             }
           });
 
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
-            if (nodeData === d) {
-              return 1
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1
-            } else {
-              return 0.1
-            }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
         d3.select(this as SVGElement)
+          .select('circle')
           .transition()
           .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .attr("r", calculateNodeRadius(d) * 1.2); // Optionally, increase the node size
+
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -5067,7 +5520,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of nodes that are not directly connected
         node
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("fill-opacity", (nodeData: any) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -5111,17 +5564,50 @@ const Sidebar = () => {
       function handleMouseOut(this: any, d: any) {
 
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+        const nodeData = d.fromElement.__data__;
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
+
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+          // .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1);
+
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
+
 
         // Reset the color and opacity of all links to their original values with a transition
         link
@@ -5131,10 +5617,16 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
-        nodeText.transition().duration(200)
-          .style('opacity', 1)
-          .style('font-size', `${nodeTextSize}px`)
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
+
+        // nodeText
+        // .transition()
+        // .duration(200)
+        //   .style('opacity', 1)
+        //   .style('font-size', `${nodeTextSize}px`)
 
       }
 
@@ -5238,8 +5730,7 @@ const Sidebar = () => {
       const container = svg
 
       container.select("#links-g-tag").remove();
-      const link = container
-        .append("g")
+      const link = container.append("g")
         .attr("id", "links-g-tag")
         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
         .attr("stroke-opacity", linkStrokeOpacity)
@@ -5254,16 +5745,17 @@ const Sidebar = () => {
 
 
       container.select("#nodes-g-tag").remove();
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", "nodes-g-tag")
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
+        // .join("circle")
+        .join("g")
         .attr("id", (d: any) => `node-${d.id}`)
         .attr("r", function (d) {
           return calculateNodeRadius(d);
@@ -5278,23 +5770,43 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // // Append text labels to the container, positioned near the nodes
-      container.select("#text-g-tag").remove();
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+      // // Append text labels to the container, positioned near the nodes
+      // container.select("#text-g-tag").remove();
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // container.select("#titles-g-tag").remove();
       // const nodeTitles = container
@@ -5322,9 +5834,9 @@ const Sidebar = () => {
       // if (G && color) {
       //   node.attr("fill", (_:any, i:any) => color(G[i]));
       // }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
@@ -5360,7 +5872,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -5378,16 +5890,37 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
       // Compute values.
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      if (nodeTitle === null) {
-        let nodeTitle = (_: any, i: any) => N[i];
-      }
-      const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -5476,10 +6009,9 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      let tickCount = 0
+
       function ticked() {
 
-        // console.log('ticked')
 
         link
           .attr("x1", (d: any) => {
@@ -5527,9 +6059,12 @@ const Sidebar = () => {
             return d.target.y
           });
 
-        node
-          .attr('cx', (d: any) => d.x)
-          .attr('cy', (d: any) => d.y)
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
+
+
+        // node
+        //   .attr('cx', (d: any) => d.x)
+        //   .attr('cy', (d: any) => d.y)
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
         //     return checkEachNode.id === d.id
@@ -5576,19 +6111,19 @@ const Sidebar = () => {
         // });
 
 
-        if (tickCount % 5 === 0) {
-          nodeText
-            .attr("x", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-            })
-            .attr("y", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-              return xmark ? xmark.y + 12 : d.y + 12;
-            });
-        }
+        // if (tickCount % 5 === 0) {
+        //   nodeText
+        //     .attr("x", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
+        //       return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
+        //     })
+        //     .attr("y", (d: any) => {
+        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
+        //       return xmark ? xmark.y + 12 : d.y + 12;
+        //     });
+        // }
 
-        tickCount++
+        // tickCount++
 
 
         // nodeTitles
@@ -5688,8 +6223,10 @@ const Sidebar = () => {
 
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
+          .transition()
+          .duration(400)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
           .attr("fill-opacity", 1); // Set initial opacity to 1
 
         // Initialize the links with their original stroke color and opacity
@@ -5715,26 +6252,39 @@ const Sidebar = () => {
             }
           });
 
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
-            if (nodeData === d) {
-              return 1
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1
-            } else {
-              return 0.1
-            }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
         d3.select(this as SVGElement)
+          .select('circle')
           .transition()
-          .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .duration(400)
+          .attr("r", calculateNodeRadius(d) * 1.2);
+
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -5750,7 +6300,8 @@ const Sidebar = () => {
 
         // Transition to reduce the opacity of nodes that are not directly connected
         node
-          .transition().duration(600)
+          .transition()
+          .duration(400)
           .attr("fill-opacity", (nodeData: any) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -5777,7 +6328,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of links that are not directly connected
         link
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("stroke-opacity", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
               return 1; // Opacity of links directly connected to the hovered node
@@ -5793,18 +6344,50 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+        const nodeData = d.fromElement.__data__;
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
+
+
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
 
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+          // .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1);
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
 
         // Reset the color and opacity of all links to their original values with a transition
         link
@@ -5814,16 +6397,18 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node.transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
 
 
-        nodeText.transition().duration(200)
-          .style('opacity', 1)
-          .style("font-size", (nodeData: any) => {
-            let orginalNodeSize = nodeTextSize + 'px'
-            return orginalNodeSize
-          })
+        // nodeText.transition().duration(200)
+        //   .style('opacity', 1)
+        //   .style("font-size", (nodeData: any) => {
+        //     let orginalNodeSize = nodeTextSize + 'px'
+        //     return orginalNodeSize
+        //   })
 
       }
 
@@ -5952,13 +6537,15 @@ const Sidebar = () => {
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
+        // .join("circle")
+        .join("g")
         .attr("id", (d: any) => `node-${d.id}`)
-        .attr("r", function (d) {
-          return calculateNodeRadius(d);
-        })
+        // .attr("r", function (d) {
+        //   return calculateNodeRadius(d);
+        // })
         .attr("fill", (d: any) => {
           const color = getColorByTag(d.tag);
           return color;
@@ -5969,23 +6556,43 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // // Append text labels to the container, positioned near the nodes
-      container.select("#text-g-tag").remove();
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+      // // Append text labels to the container, positioned near the nodes
+      // container.select("#text-g-tag").remove();
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // container.select("#titles-g-tag").remove();
       // const nodeTitles = container
@@ -6013,9 +6620,9 @@ const Sidebar = () => {
       // if (G && color) {
       //   node.attr("fill", (_:any, i:any) => color(G[i]));
       // }
-      if (T) {
-        node.append("title").text((d: any, i: any) => String(T[i]));
-      }
+      // if (T) {
+      //   node.append("title").text((d: any, i: any) => String(T[i]));
+      // }
 
       if (invalidation != null) {
         (invalidation as Promise<void>).then(() => {
@@ -6048,7 +6655,7 @@ const Sidebar = () => {
         nodeId = (d: any) => d.id, // given d in nodes, returns a unique identifier (string)
         nodeGroup = null, // given d in nodes, returns an (ordinal) value for color
         nodeGroups = null as any[] | null, // an array of ordinal values representing the node groups
-        // nodeTitle = null, // given d in nodes, a title string
+        nodeTitle, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 0, // node stroke width, in pixels
@@ -6066,16 +6673,36 @@ const Sidebar = () => {
         width = 640, // outer width, in pixels
         height = 400, // outer height, in pixels
         invalidation = undefined // when this promise resolves, stop the simulation
+      }: {
+        nodeId?: (d: any) => string;
+        nodeGroup?: ((node: any) => string) | null;
+        nodeGroups?: any[] | null;
+        nodeTitle?: ((node: any, index: number) => string) | null;
+        nodeFill?: string;
+        nodeStroke?: string;
+        nodeStrokeWidth?: number;
+        nodeStrokeOpacity?: number;
+        nodeRadius?: number;
+        nodeStrength?: number;
+        linkSource?: (d: any) => string;
+        linkTarget?: (d: any) => string;
+        linkStroke?: string;
+        linkStrokeOpacity?: number;
+        linkStrokeWidth?: number;
+        linkStrokeLinecap?: string;
+        linkStrength?: number;
+        colors?: any;
+        width?: number;
+        height?: number;
+        invalidation?: any;
       } = {}
     ) {
       // Compute values.
       const N = d3.map(nodes, nodeId).map(intern);
       const LS = d3.map(links, linkSource).map(intern);
       const LT = d3.map(links, linkTarget).map(intern);
-      // if (nodeTitle === null) {
-      //   let nodeTitle = (_: any, i: any) => N[i];
-      // }
-      // const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+      if (nodeTitle === undefined) nodeTitle = (_: any, i: any) => N[i];
+      const T: any = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
       const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
       const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
       const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
@@ -6162,13 +6789,7 @@ const Sidebar = () => {
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
 
-      let tickCount = 0
       function ticked() {
-        // tickedValueNew++
-        // console.log('tickedValueNew', tickedValueNew)
-
-        // console.log('ticked')
-
         link
           .attr("x1", (d: any) => {
             const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
@@ -6215,9 +6836,8 @@ const Sidebar = () => {
             return d.target.y
           });
 
-        node
-          .attr('cx', (d: any) => d.x)
-          .attr('cy', (d: any) => d.y)
+        node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
+
 
         // .attr("cx", (d: any) => {
         //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
@@ -6263,21 +6883,6 @@ const Sidebar = () => {
         //     return d.y
         //   }
         // });
-
-        if (tickCount % 5 === 0) {
-          nodeText
-            .attr("x", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-              return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-            })
-            .attr("y", (d: any) => {
-              const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-              return xmark ? xmark.y + 12 : d.y + 12;
-            });
-        }
-
-        tickCount++;
-
 
         // nodeTitles
         //   .text((d: any) => {
@@ -6376,9 +6981,12 @@ const Sidebar = () => {
 
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
+          .transition()
+          .duration(400)
           // .attr("fill", "red") // Change to your desired color
-          .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
-          .attr("fill-opacity", 1); // Set initial opacity to 1
+          // .attr("r", calculateNodeRadius(d) * 1.1) // Optionally, increase the node size
+          .attr("fill-opacity", 1);
+
 
         // Initialize the links with their original stroke color and opacity
         link
@@ -6403,26 +7011,40 @@ const Sidebar = () => {
             }
           });
 
-        nodeText
-          .transition().duration(300)
-          .style('opacity', (nodeData: any) => {
-            if (nodeData === d) {
-              return 1
-            } else if (areNodesConnected(nodeData, d)) {
-              return 1
-            } else {
-              return 0.1
-            }
-          })
-          .style("font-size", (nodeData: any) => {
-            return nodeData === d ? '12px' : nodeTextSize
-          })
+        // nodeText
+        //   .transition().duration(300)
+        //   .style('opacity', (nodeData: any) => {
+        //     if (nodeData === d) {
+        //       return 1
+        //     } else if (areNodesConnected(nodeData, d)) {
+        //       return 1
+        //     } else {
+        //       return 0.1
+        //     }
+        //   })
+        //   .style("font-size", (nodeData: any) => {
+        //     return nodeData === d ? '12px' : nodeTextSize
+        //   })
 
         // Start the transition
         d3.select(this as SVGElement)
+          .select('circle')
           .transition()
           .duration(400) // Transition duration in milliseconds
-          .attr("r", nodeRadius); // Optionally, increase the node size
+          .attr("r", calculateNodeRadius(d) * 1.2); // Optionally, increase the node size
+
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style("font-size", (nodeData: any) => {
+            return nodeData.id === d.id ? '12px' : nodeTextSize
+          })
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 20 + "px"
+          })
+
 
         // Change the color of the links directly connected to the hovered node
         link
@@ -6438,7 +7060,8 @@ const Sidebar = () => {
 
         // Transition to reduce the opacity of nodes that are not directly connected
         node
-          .transition().duration(600)
+          .transition()
+          .duration(400)
           .attr("fill-opacity", (nodeData: any) => {
             if (nodeData === d) {
               return 1; // Opacity of the hovered node
@@ -6465,7 +7088,7 @@ const Sidebar = () => {
         // Transition to reduce the opacity of links that are not directly connected
         link
           .transition()
-          .duration(600)
+          .duration(400)
           .attr("stroke-opacity", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
               return 1; // Opacity of links directly connected to the hovered node
@@ -6481,18 +7104,49 @@ const Sidebar = () => {
 
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
-        if (d.fromElement) {
-          tempMouseOverNode = d.fromElement.getAttribute("id");
-        } else {
+        const nodeData = d.fromElement.__data__;
+
+        // if (d.fromElement) {
+        //   tempMouseOverNode = d.fromElement.getAttribute("id");
+        // } else {
+        //   tempMouseOverNode = d.target.getAttribute("id");
+        // }
+
+        if (nodeData && nodeData.id) {
+          tempMouseOverNode = nodeData.id;
+        } else if (d.target) {
+          // For non-Firefox browsers or when __data__ is not available
           tempMouseOverNode = d.target.getAttribute("id");
+        } else if (d.relatedTarget) {
+          // For Firefox
+          tempMouseOverNode = d.relatedTarget.getAttribute("id");
         }
 
         const nodeObject = { id: tempMouseOverNode.replace("node-", "") };
 
         d3.select(this)
           // .attr("fill", nodeFill) // Reset to the original node color
-          .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
-          .transition().duration(400).attr("fill-opacity", 1); // Reset opacity
+          // .attr("r", calculateNodeRadius(nodeObject)) // Reset to the original node size
+          .transition()
+          .duration(400)
+          .attr("fill-opacity", 1); // Reset opacity
+
+
+        d3.select(this)
+          .select('circle') // Select the nested circle element
+          .transition()
+          .duration(400)
+          .attr("r", calculateNodeRadius(nodeObject));
+
+        d3.select(this)
+          .select('text')
+          .transition()
+          .duration(400)
+          .style('opacity', 1)
+          .style("font-size", `${nodeTextSize}px`)
+          .attr("dy", function (d: any, i: number) {
+            return nodeRadius + 10 + "px"
+          })
 
         // Reset the color and opacity of all links to their original values with a transition
         link
@@ -6502,16 +7156,19 @@ const Sidebar = () => {
           .attr("stroke-opacity", linkStrokeOpacity);
 
         // Reset the opacity of all nodes to their original value with a transition
-        node.transition().duration(200).attr("fill-opacity", 1);
+        node
+          .transition()
+          .duration(200)
+          .attr("fill-opacity", 1);
 
 
 
-        nodeText.transition().duration(200)
-          .style('opacity', 1)
-          .style("font-size", (nodeData: any) => {
-            let orginalNodeSize = nodeTextSize + 'px'
-            return orginalNodeSize
-          })
+        // nodeText.transition().duration(200)
+        //   .style('opacity', 1)
+        //   .style("font-size", (nodeData: any) => {
+        //     let orginalNodeSize = nodeTextSize + 'px'
+        //     return orginalNodeSize
+        //   })
 
       }
 
@@ -6633,20 +7290,21 @@ const Sidebar = () => {
 
 
       container.select("#nodes-g-tag").remove();
-      const node = container
-        .append("g")
+      const node = container.append("g")
         .attr("id", "nodes-g-tag")
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
+        // .selectAll("circle")
+        .selectAll("g")
         .data(nodes)
-        .join("circle")
+        // .join("circle")
+        .join("g")
         .attr("id", (d: any) => `node-${d.id}`)
-        .attr("r", function (d) {
-          return calculateNodeRadius(d);
-        })
+        // .attr("r", function (d) {
+        //   return calculateNodeRadius(d);
+        // })
         .attr("fill", (d: any) => {
           const color = getColorByTag(d.tag);
           return color;
@@ -6657,23 +7315,42 @@ const Sidebar = () => {
         .classed("node-pointer", true)
         .call(drag(simulation) as any, drag(simulation));
 
-      // // Append text labels to the container, positioned near the nodes
-      container.select("#text-g-tag").remove();
-      const nodeText = container
-        .append("g")
-        .attr("id", "text-g-tag")
-        .selectAll("title")
-        .data(nodes)
-        .join("text")
-        // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-        // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-        .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-        .attr("y", (d: any) => d.y + nodeRadius + 12)
-        .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-        .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      node.append("circle")
+        .attr("r", (d: any) => {
+          const radius = calculateNodeRadius(d)
+          return radius;
+        })
+
+      node.append("text")
+        .text(function (d: any, i: number) {
+          return T[i];
+        })
+        .attr("dy", function (d: any, i: number) {
+          return nodeRadius + 10 + "px"
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", nodeTextSize)
+        .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-        .text((d: any) => d.id)
-        .attr('fill', textColorForNode);
+
+
+      // // Append text labels to the container, positioned near the nodes
+      // container.select("#text-g-tag").remove();
+      // const nodeText = container
+      //   .append("g")
+      //   .attr("id", "text-g-tag")
+      //   .selectAll("title")
+      //   .data(nodes)
+      //   .join("text")
+      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
+      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
+      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
+      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
+      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
+      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
+      //   .style("pointer-events", "none")
+      //   .text((d: any) => d.id)
+      //   .attr('fill', textColorForNode);
 
       // container.select("#titles-g-tag").remove();
       // const nodeTitles = container
