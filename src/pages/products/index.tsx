@@ -31,7 +31,6 @@ const Products = () => {
           setCustomerSubscriptions(products)
           setProductsData(res.data.stripeProducts)
         } else {
-          // console.log('res.data.stripeProducts', res.data)
           setProductsData(res.data.stripeProducts)
         }
 
