@@ -7443,8 +7443,8 @@ const Sidebar = () => {
     // console.log("markedContent", matchingFile);
 
     const regex = /\[\[([^[\]]+)\]\]/g;
-    // const hashtagParagraphRegex = /<p>#.*?<\/p>/g;
     const hashtagParagraphRegex = /#\S+/g;
+
     if (matchingFile) {
       const contentWithoutHashtags = matchingFile.content.replace(hashtagParagraphRegex, "");
 
