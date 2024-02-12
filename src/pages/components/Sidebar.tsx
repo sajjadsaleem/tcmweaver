@@ -180,7 +180,7 @@ const Sidebar = () => {
   // console.log('slidervalue', sliderValue)
   // console.log('shouldShowFilters' , shouldShowFilters)
   // console.log('searchResults' , searchResults.length)
-  // console.log(textColorForNode)
+  // console.log('textColorForNode',textColorForNode)
   // console.log('previousGraphData' , previousGraphData)
   // console.log('checkGraphStatus', checkGraphStatus)
   // console.log('graphsize' , graphSize)
@@ -191,6 +191,7 @@ const Sidebar = () => {
   // console.log('hideFiltersForPreview',hideFiltersForPreview)
   // console.log('contactSupportMessage', contactSupportMessage)
   // console.log('nodeTextSize', nodeTextSize)
+  // console.log('centerForceValue', centerForceValue)
 
 
 
@@ -6478,8 +6479,8 @@ const Sidebar = () => {
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
         .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0.02 : 0.05; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0.02 : 0.05; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15

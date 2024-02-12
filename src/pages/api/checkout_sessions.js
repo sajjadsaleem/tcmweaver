@@ -64,7 +64,6 @@ export default async function createCheckoutSession(req, res) {
                 });
 
                 res.status(200).json({ sessionUrl: session.url, sessionId: session.id });
-
             }
 
         } else {
@@ -110,8 +109,6 @@ export default async function createCheckoutSession(req, res) {
 
             }
         }
-
-
     } catch (err) {
         res.status(err.statusCode || 500).json(err.message);
     }

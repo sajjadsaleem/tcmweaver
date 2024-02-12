@@ -25,10 +25,12 @@ export default async function getProducts(req, res) {
 
                 console.log('customerid', customerId)
 
-                try {
+                if (customerId[0].customerId) {
                     const customerSubscriptions = await stripe.subscriptions.list({
                         customer: customerId[0].customerId
                     });
+
+
 
                     console.log('customer subscriptions', customerSubscriptions)
 
@@ -38,24 +40,15 @@ export default async function getProducts(req, res) {
                     };
 
                     res.status(200).json(responseData);
-                }
-                catch (error) {
 
-                    console.log('error', error)
+                } else {
 
                     const responseData = {
                         stripeProducts: stripeProducts.data,
                     };
 
                     res.status(200).json(responseData);
-
                 }
-
-
-
-
-
-
 
             } else {
                 const responseData = {

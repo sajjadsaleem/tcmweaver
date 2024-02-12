@@ -3,178 +3,198 @@ import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useRouter } from 'next/router';
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'stripe-pricing-table': any; // or specify the correct type if available
+    }
+  }
+}
+
+
 
 const Products = () => {
-  const [productsData, setProductsData] = useState<any>([])
-  const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
+  // const [productsData, setProductsData] = useState<any>([])
+  // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
+
 
   // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
 
-  const router = useRouter();
+  // const router = useRouter();
 
   // get all products from stripe on startup
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    let user: any = {}
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      user = { user: userData.email }
-    }
+  // useEffect(() => {
 
-    // console.log('user', user)
+  //   const storedUser = localStorage.getItem("user");
+  //   let user: any = {}
+  //   if (storedUser) {
+  //     const userData = JSON.parse(storedUser);
+  //     user = { user: userData.email }
+  //   }
 
-    axios.post(`/api/getProducts`, user)
-      .then((res: any) => {
-        if (res.data.customerSubscriptions) {
-          // console.log('res', res)
-          const products = res.data.customerSubscriptions.map((subscription: any) => subscription.plan.product);
-          setCustomerSubscriptions(products)
-          setProductsData(res.data.stripeProducts)
-        } else {
-          setProductsData(res.data.stripeProducts)
-        }
+  //   // console.log('user', user)
 
-      })
-      .catch((err: any) => {
-        console.log('error getting products', err)
-      })
+  //   axios.post(`/api/getProducts`, user)
+  //     .then((res: any) => {
+  //       if (res.data.customerSubscriptions) {
+  //         // console.log('res', res)
+  //         const products = res.data.customerSubscriptions.map((subscription: any) => subscription.plan.product);
+  //         setCustomerSubscriptions(products)
+  //         setProductsData(res.data.stripeProducts)
+  //       } else {
+  //         setProductsData(res.data.stripeProducts)
+  //       }
 
-  }, [])
+  //     })
+  //     .catch((err: any) => {
+  //       console.log('error getting products', err)
+  //     })
 
-
-  const getStripe = (product: any) => {
-
-    if (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-      const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-    }
+  // }, [])
 
 
-    const storedData: any = localStorage.getItem("user");
-    // console.log('storedData' , storedData)
-    const userObject: any = JSON.parse(storedData)
-    // console.log('userobject' , userObject)
+  // const getStripe = (product: any) => {
 
-    if (userObject === null) {
-      router.push('/login');
-    } else {
-      axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}&email=${userObject.email}`)
-        .then((res: any) => {
-          axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
-            .then((res: any) => {
-              console.log('sessionId saved')
-            })
-            .catch((err: any) => {
-              console.log('error saving sessionId', err)
-            })
+  //   if (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  //     const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+  //   }
 
-          // console.log('res' , res.data.sessionId)
-          window.location.href = res.data.sessionUrl;
 
-        })
-        .catch((err: any) => {
-          console.log('err', err)
-        })
+  //   const storedData: any = localStorage.getItem("user");
+  //   // console.log('storedData' , storedData)
+  //   const userObject: any = JSON.parse(storedData)
+  //   // console.log('userobject' , userObject)
 
-    }
-  }
+  //   if (userObject === null) {
+  //     router.push('/login');
+  //   } else {
+  //     axios.post(`/api/checkout_sessions?productId=${product.default_price.id}&trial_period_days=${product.default_price.recurring.trial_period_days}&email=${userObject.email}`)
+  //       .then((res: any) => {
+  //         axios.post(`/api/addSession?session_id=${res.data.sessionId}&user_email=${userObject.email}`)
+  //           .then((res: any) => {
+  //             console.log('sessionId saved')
+  //           })
+  //           .catch((err: any) => {
+  //             console.log('error saving sessionId', err)
+  //           })
+
+  //         // console.log('res' , res.data.sessionId)
+  //         window.location.href = res.data.sessionUrl;
+
+  //       })
+  //       .catch((err: any) => {
+  //         console.log('err', err)
+  //       })
+
+  //   }
+  // }
 
 
   return (
+    // <div>
+    //   <div className='product-page-body'>
+    //     <img src='graph-logoold.png' alt='logo' style={{ width: '70px' }} />
+    //     <h3 style={{ marginLeft: '12px', color: '#616161', marginBottom: '0px' }}>TCM Weaver</h3>
+    //   </div>
+
+    //   <div className='products-container'>
+
+    //     {productsData.map((product: any, index: any) => (
+    //       <div className='product-div' key={index}>
+
+    //         <div style={{ marginBottom: '22px', minHeight: '75px' }}>
+    //           <span className='product-name'>
+    //             {customerSubscriptions && customerSubscriptions.includes(product.id) ? (
+    //               <div style={{ position: "relative" }}>
+    //                 {product.name}
+    //                 <span style={{ backgroundColor: '#E1E1E1', padding: '3px 10px', borderRadius: '6px', fontSize: '14px', float: 'right' }}>
+    //                   current
+    //                 </span>
+    //               </div>
+    //             ) : (
+    //               <>
+    //                 {product.name}
+    //               </>
+    //             )}
+    //           </span>
+    //           <span className='product-description'>
+    //             {product.description}
+    //           </span>
+    //         </div>
+
+    //         <div style={{ display: 'flex', flexDirection: 'column' }}>
+    //           <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    //             <span style={{ fontWeight: '700', fontSize: '32px' }}>
+    //               {product.default_price && product.default_price.unit_amount && (
+    //                 `$${product.default_price.unit_amount / 100}`
+    //               )}
+    //             </span>
+
+    //             <span style={{ color: 'grey', fontSize: '14px', width: '50px', lineHeight: '1' }}>
+    //               {product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'month' ? 'per month'
+    //                 : product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'year' ? 'per year'
+    //                   : product.default_price && product.default_price.recurring === null ? product.default_price.type === 'one_time' ? 'one time' : '' : ''
+    //               }
+    //             </span>
+    //           </p>
+
+    //           {customerSubscriptions.includes(product.id) ? (
+    //             <button className='product-button' style={{ cursor: 'no-drop', backgroundColor: '#1565c0', opacity: '0.6' }}
+    //             //  onClick={() => getStripe(product)}
+    //             >
+    //               {product.default_price.recurring && product.default_price.recurring.trial_period_days === null
+    //                 ? 'Subscribe'
+    //                 : `Start Trial`
+    //               }
+    //             </button>
+    //           ) : (
+    //             <>
+    //               <button className='product-button' onClick={() => getStripe(product)}>
+    //                 {product.default_price && product.default_price.recurring && product.default_price.recurring.trial_period_days === null
+    //                   ? 'Subscribe'
+    //                   : `Start Trial`
+    //                 }
+    //               </button>
+    //             </>
+
+    //           )
+    //           }
+
+    //         </div>
+
+    //         {product.features.length > 0 && (
+    //           <div>
+    //             <span className='product-features-heading'>
+    //               This includes:
+    //             </span>
+    //             {product.features.map((feature: any, index: any) => (
+    //               <div key={index} className='product-features-div'>
+    //                 <div>
+    //                   <img src='tick-icon.jpg' alt='icon' width='13px' />
+    //                 </div>
+    //                 <span>{feature.name}</span>
+
+    //               </div>
+
+    //             ))}
+    //           </div>
+
+    //         )}
+
+    //       </div>
+    //     ))}
+
+    //   </div>
+
+    // </div>
     <div>
-      <div className='product-page-body'>
-        <img src='graph-logoold.png' alt='logo' style={{ width: '70px' }} />
-        <h3 style={{ marginLeft: '12px', color: '#616161', marginBottom: '0px' }}>TCM Weaver</h3>
-      </div>
 
-      <div className='products-container'>
-
-        {productsData.map((product: any, index: any) => (
-          <div className='product-div' key={index}>
-
-            <div style={{ marginBottom: '22px', minHeight: '75px' }}>
-              <span className='product-name'>
-                {customerSubscriptions && customerSubscriptions.includes(product.id) ? (
-                  <div style={{ position: "relative" }}>
-                    {product.name}
-                    <span style={{ backgroundColor: '#E1E1E1', padding: '3px 10px', borderRadius: '6px', fontSize: '14px', float: 'right' }}>
-                      current
-                    </span>
-                  </div>
-                ) : (
-                  <>
-                    {product.name}
-                  </>
-                )}
-              </span>
-              <span className='product-description'>
-                {product.description}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontWeight: '700', fontSize: '32px' }}>
-                  {product.default_price && product.default_price.unit_amount && (
-                    `$${product.default_price.unit_amount / 100}`
-                  )}
-                </span>
-
-                <span style={{ color: 'grey', fontSize: '14px', width: '50px', lineHeight: '1' }}>
-                  {product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'month' ? 'per month'
-                    : product.default_price && product.default_price.recurring && product.default_price.recurring.interval === 'year' ? 'per year'
-                      : product.default_price && product.default_price.recurring === null ? product.default_price.type === 'one_time' ? 'one time' : '' : ''
-                  }
-                </span>
-              </p>
-
-              {customerSubscriptions.includes(product.id) ? (
-                <button className='product-button' style={{ cursor: 'no-drop', backgroundColor: '#1565c0', opacity: '0.6' }}
-                //  onClick={() => getStripe(product)}
-                >
-                  {product.default_price.recurring && product.default_price.recurring.trial_period_days === null
-                    ? 'Subscribe'
-                    : `Start Trial`
-                  }
-                </button>
-              ) : (
-                <>
-                  <button className='product-button' onClick={() => getStripe(product)}>
-                    {product.default_price && product.default_price.recurring && product.default_price.recurring.trial_period_days === null
-                      ? 'Subscribe'
-                      : `Start Trial`
-                    }
-                  </button>
-                </>
-
-              )
-              }
-
-            </div>
-
-            {product.features.length > 0 && (
-              <div>
-                <span className='product-features-heading'>
-                  This includes:
-                </span>
-                {product.features.map((feature: any, index: any) => (
-                  <div key={index} className='product-features-div'>
-                    <div>
-                      <img src='tick-icon.jpg' alt='icon' width='13px' />
-                    </div>
-                    <span>{feature.name}</span>
-
-                  </div>
-
-                ))}
-              </div>
-
-            )}
-
-          </div>
-        ))}
-
-      </div>
-
+      <stripe-pricing-table pricing-table-id="prctbl_1OeT0HDIjS01COwV1crw380f"
+        publishable-key="pk_live_51OeKtoDIjS01COwV377lJJe6q9TrLUiIMgqM2fhcHOSuw6KyGuBfR2iJkoTk4tcqxZ41rPVhHYcIF9n2BJbIhTFI00n3CgQ4wp">
+      </stripe-pricing-table>
+      {/* <stripe-pricing-table pricing-table-id="prctbl_1O5RycFD17P5ok9cTyPkAxVZ"
+        publishable-key="pk_test_51O2vx2FD17P5ok9cEi3ICZO4uHq4OF9GCZRwuxJ2emh8c475yE1GKZ0ZLjVSmmzt4v9TPP6EGLplh5sehpP5XFMx009w0LvZyz">
+      </stripe-pricing-table> */}
     </div>
   );
 };

@@ -23,51 +23,6 @@ export default async function signup(req, res) {
         return res.status(500).end();
     } else {
         try {
-
-            // const form = formidable({ multiples: true });
-
-            // let full_name, email, password, confirm_password, image
-
-
-            // const parseForm = (req) => {
-            //     return new Promise((resolve, reject) => {
-            //         form.parse(req, (err, fields, files) => {
-            //             if (err) {
-            //                 console.error('Error parsing form data:', err);
-            //                 reject(err);
-            //                 return;
-            //             }
-
-            //             ({ full_name, email, password, confirm_password, image } = fields);
-            //             // const { image } = files;
-
-
-            //             resolve({ full_name, email, password, confirm_password, image });
-            //         });
-            //     });
-            // };
-
-            // const formData = await parseForm(req);
-
-            // console.log(formData)
-
-            // form.parse(req, async (err, fields, files) => {
-            //     if (err) {
-            //         console.error('Error parsing form data:', err);
-            //         res.status(500).json({ error: 'Internal Server Error' });
-            //         return;
-            //     }
-
-            //     // Access the form fields (e.g., fields.full_name, fields.email, etc.)
-            //     { full_name, email, password, confirm_password } = fields;
-            //     console.log('fullname', full_name, 'email', email)
-            // })
-
-
-
-
-
-
             const { full_name, email, password, confirm_password, image } = req.body;
 
             const rules = [
@@ -75,7 +30,6 @@ export default async function signup(req, res) {
                 { email: ['required', 'email'] },
                 { password: ['required'] },
                 { confirm_password: ['required'] },
-
             ]
 
             const { errors, isValid } = Validation.validateSignupData(req.body, rules);
@@ -90,6 +44,7 @@ export default async function signup(req, res) {
             }
 
             const db = drizzle(sql)
+
             const userEmailCheck = await db.select().from(users).where(eq(users.email, email));
             if (userEmailCheck.length > 0) {
                 return res.status(500).send({
@@ -112,12 +67,8 @@ export default async function signup(req, res) {
 
             const saltRounds = 12;
             const salt = await bcrypt.genSalt(saltRounds);
-            // Hash the password using bcrypt
+
             const hashedPassword = await bcrypt.hash(password, salt);
-
-            // console.log('hashed password', hashedPassword)
-
-
 
             let newUser = await db.insert(users).values({
                 role_id: 2,

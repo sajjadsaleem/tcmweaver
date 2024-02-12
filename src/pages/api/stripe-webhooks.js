@@ -14,6 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 const webhookSigningKey = process.env.STRIPE_WEBHOOK_SIGNING_KEY;
 
 export default async (req, res) => {
+    console.log('=====================req', webhookSigningKey, req)
     if (req.method === 'POST') {
         const db = drizzle(sql)
         const buf = await buffer(req);
