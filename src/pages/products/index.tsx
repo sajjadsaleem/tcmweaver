@@ -15,8 +15,11 @@ declare global {
 
 
 const Products = () => {
+  const [userData, userUserData] = useState<any>({})
   // const [productsData, setProductsData] = useState<any>([])
   // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
+
+  console.log('userData', userData)
 
 
   // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
@@ -24,34 +27,35 @@ const Products = () => {
   // const router = useRouter();
 
   // get all products from stripe on startup
-  // useEffect(() => {
+  useEffect(() => {
 
-  //   const storedUser = localStorage.getItem("user");
-  //   let user: any = {}
-  //   if (storedUser) {
-  //     const userData = JSON.parse(storedUser);
-  //     user = { user: userData.email }
-  //   }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const userDataCheck = JSON.parse(storedUser);
+      userUserData(userDataCheck.email);
+    } else {
 
-  //   // console.log('user', user)
+    }
 
-  //   axios.post(`/api/getProducts`, user)
-  //     .then((res: any) => {
-  //       if (res.data.customerSubscriptions) {
-  //         // console.log('res', res)
-  //         const products = res.data.customerSubscriptions.map((subscription: any) => subscription.plan.product);
-  //         setCustomerSubscriptions(products)
-  //         setProductsData(res.data.stripeProducts)
-  //       } else {
-  //         setProductsData(res.data.stripeProducts)
-  //       }
+    //   // console.log('user', user)
 
-  //     })
-  //     .catch((err: any) => {
-  //       console.log('error getting products', err)
-  //     })
+    //   axios.post(`/api/getProducts`, user)
+    //     .then((res: any) => {
+    //       if (res.data.customerSubscriptions) {
+    //         // console.log('res', res)
+    //         const products = res.data.customerSubscriptions.map((subscription: any) => subscription.plan.product);
+    //         setCustomerSubscriptions(products)
+    //         setProductsData(res.data.stripeProducts)
+    //       } else {
+    //         setProductsData(res.data.stripeProducts)
+    //       }
 
-  // }, [])
+    //     })
+    //     .catch((err: any) => {
+    //       console.log('error getting products', err)
+    //     })
+
+  }, [])
 
 
   // const getStripe = (product: any) => {
@@ -194,7 +198,7 @@ const Products = () => {
         publishable-key="pk_live_51OeKtoDIjS01COwV377lJJe6q9TrLUiIMgqM2fhcHOSuw6KyGuBfR2iJkoTk4tcqxZ41rPVhHYcIF9n2BJbIhTFI00n3CgQ4wp">
       </stripe-pricing-table> */}
       <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
-        publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6">
+        publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData}>
       </stripe-pricing-table>
 
 

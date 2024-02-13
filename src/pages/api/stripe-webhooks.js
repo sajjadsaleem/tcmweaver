@@ -20,7 +20,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 const webhookSigningKey = process.env.STRIPE_WEBHOOK_SIGNING_KEY;
 
 export default async (req, res) => {
-    console.log('=====================req', webhookSigningKey, req)
     if (req.method === 'POST') {
         const db = drizzle(sql)
         const buf = await buffer(req);
@@ -42,7 +41,8 @@ export default async (req, res) => {
                         }
                     });
                 });
-                // console.log('productData', productData.data[0].price.product)
+
+                console.log('productData', productData.data[0].price.product)
                 const productName = await stripe.products.list({
                     ids: [productData.data[0].price.product],
                 });
@@ -57,13 +57,13 @@ export default async (req, res) => {
 
 
                 const userId = await db.select({ user_id: users.id }).from(users)
-                    .where(eq(users.session_id, event.data.object.id));
+                    .where(eq(users.email, event.data.object.client_reference_id));
 
                 // console.log('userid', userId)
 
-                const removeSessionId = await db.update(users)
-                    .set({ session_id: '' })
-                    .where(eq(users.id, userId[0].user_id));
+                // const removeSessionId = await db.update(users)
+                //     .set({ session_id: '' })
+                //     .where(eq(users.id, userId[0].user_id));
 
                 // console.log('userid', userId, 'packageid', packageId)
 
