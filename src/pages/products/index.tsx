@@ -15,7 +15,7 @@ declare global {
 
 
 const Products = () => {
-  const [userData, userUserData] = useState<any>({})
+  const [userData, setUserData] = useState<any>({})
   // const [productsData, setProductsData] = useState<any>([])
   // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
@@ -32,7 +32,7 @@ const Products = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userDataCheck = JSON.parse(storedUser);
-      userUserData(userDataCheck.email);
+      setUserData(userDataCheck.email);
     } else {
 
     }
