@@ -56,8 +56,12 @@ export default async (req, res) => {
 
                 console.log("=============client reference id ", event.data.object.client_reference_id)
 
+                // const userId = await db.select({ user_id: users.id }).from(users)
+                //     .where(eq(users.email, event.data.object.client_reference_id));
                 const userId = await db.select({ user_id: users.id }).from(users)
-                    .where(eq(users.email, event.data.object.client_reference_id));
+                    .where(eq(users.id, event.data.object.client_reference_id));
+
+
 
                 console.log('userid', userId)
 
