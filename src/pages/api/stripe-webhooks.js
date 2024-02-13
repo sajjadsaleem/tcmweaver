@@ -28,7 +28,6 @@ export default async (req, res) => {
 
         try {
             event = stripe.webhooks.constructEvent(buf, sig, webhookSigningKey);
-            // console.log('event type ', event.type)
 
             if (event.type === 'checkout.session.completed') {
                 // console.log('event', event.data.object.subscription)
@@ -60,7 +59,7 @@ export default async (req, res) => {
                 const userId = await db.select({ user_id: users.id }).from(users)
                     .where(eq(users.email, event.data.object.client_reference_id));
 
-                // console.log('userid', userId)
+                console.log('userid', userId)
 
                 // const removeSessionId = await db.update(users)
                 //     .set({ session_id: '' })

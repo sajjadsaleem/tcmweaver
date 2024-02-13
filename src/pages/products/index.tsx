@@ -19,7 +19,7 @@ const Products = () => {
   // const [productsData, setProductsData] = useState<any>([])
   // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
-  console.log('userData', userData)
+  // console.log('userData', typeof userData)
 
 
   // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
@@ -32,7 +32,22 @@ const Products = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userDataCheck = JSON.parse(storedUser);
-      setUserData(userDataCheck.email);
+      const email: any = userDataCheck.email
+      axios.post('/api/getUserData', { email })
+        .then((res: any) => {
+          // console.log('res', res.data[0].id, typeof res.data[0].id.toString())
+          let id = res.data[0].id.toString()
+          setUserData(id);
+
+
+        })
+        .catch((err) => {
+          console.log('error getting user id', err)
+
+        })
+
+
+
     } else {
 
     }
