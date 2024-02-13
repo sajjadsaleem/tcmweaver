@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useRouter } from 'next/router';
+import Script from 'next/script';
 
 declare global {
   namespace JSX {
@@ -189,12 +190,15 @@ const Products = () => {
     // </div>
     <div>
 
-      <stripe-pricing-table pricing-table-id="prctbl_1OeT0HDIjS01COwV1crw380f"
+      {/* <stripe-pricing-table pricing-table-id="prctbl_1OeT0HDIjS01COwV1crw380f"
         publishable-key="pk_live_51OeKtoDIjS01COwV377lJJe6q9TrLUiIMgqM2fhcHOSuw6KyGuBfR2iJkoTk4tcqxZ41rPVhHYcIF9n2BJbIhTFI00n3CgQ4wp">
-      </stripe-pricing-table>
-      {/* <stripe-pricing-table pricing-table-id="prctbl_1O5RycFD17P5ok9cTyPkAxVZ"
-        publishable-key="pk_test_51O2vx2FD17P5ok9cEi3ICZO4uHq4OF9GCZRwuxJ2emh8c475yE1GKZ0ZLjVSmmzt4v9TPP6EGLplh5sehpP5XFMx009w0LvZyz">
       </stripe-pricing-table> */}
+      <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
+        publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6">
+      </stripe-pricing-table>
+
+
+      <Script async src="https://js.stripe.com/v3/pricing-table.js" />
     </div>
   );
 };

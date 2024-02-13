@@ -7,6 +7,12 @@ import { packagesTable } from '../../db/schema/packages';
 import { userPackagesTable } from '../../db/schema/userPackages';
 import { eq, lt, gte, ne, and } from "drizzle-orm";
 
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2023-10-16',
 });
@@ -148,8 +154,4 @@ export default async (req, res) => {
     }
 };
 
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
+
