@@ -18,8 +18,7 @@ const ConfirmationPage = () => {
         async function getSessionData(sessionId: any) {
             try {
 
-                console.log('other keys key ', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
-                console.log('secret key ', process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY)
+
                 console.log('sessionId ', sessionId)
                 const session = await stripe.checkout.sessions.retrieve(sessionId);
                 console.log('Session data:', session);
