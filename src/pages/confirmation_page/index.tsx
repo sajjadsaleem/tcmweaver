@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify';
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 
 const ConfirmationPage = () => {
 
@@ -14,7 +16,8 @@ const ConfirmationPage = () => {
 
         async function getSessionData(sessionId: any) {
             try {
-                const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+                console.log('secret key ', process.env.STRIPE_SECRET_KEY)
+                console.log('sessionId ', sessionId)
                 const session = await stripe.checkout.sessions.retrieve(sessionId);
                 console.log('Session data:', session);
                 return session;
@@ -27,7 +30,7 @@ const ConfirmationPage = () => {
 
         if (query) {
             const sessionId = query.get('checkout_session');
-            console.log('sessionId ', sessionId)
+
 
             getSessionData(sessionId);
 
