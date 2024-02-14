@@ -1,9 +1,8 @@
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify';
-import { loadStripe } from '@stripe/stripe-js';
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 
 
 const ConfirmationPage = () => {
@@ -20,7 +19,7 @@ const ConfirmationPage = () => {
             try {
 
                 console.log('other keys key ', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
-                console.log('secret key ', process.env.STRIPE_SECRET_KEY)
+                console.log('secret key ', process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY)
                 console.log('sessionId ', sessionId)
                 const session = await stripe.checkout.sessions.retrieve(sessionId);
                 console.log('Session data:', session);
