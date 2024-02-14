@@ -8,6 +8,7 @@ const ConfirmationPage = () => {
 
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
+        console.log('query ==============', query)
         if (query) {
             const sessionId = query.get('session_id');
             if (query.get('success')) {
@@ -38,10 +39,10 @@ const ConfirmationPage = () => {
                 });
             }
 
-            router.replace({
-                pathname: router.pathname,
-                query: {},
-            }, undefined, { shallow: true });
+            // router.replace({
+            //     pathname: router.pathname,
+            //     query: {},
+            // }, undefined, { shallow: true });
         }
     }, []);
 
