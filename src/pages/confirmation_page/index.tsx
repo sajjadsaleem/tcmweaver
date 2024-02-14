@@ -6,7 +6,7 @@ const ConfirmationPage = () => {
 
     const router = useRouter();
 
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
@@ -14,6 +14,7 @@ const ConfirmationPage = () => {
 
         async function getSessionData(sessionId: any) {
             try {
+                const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
                 const session = await stripe.checkout.sessions.retrieve(sessionId);
                 console.log('Session data:', session);
                 return session;
