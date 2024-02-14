@@ -6,10 +6,33 @@ const ConfirmationPage = () => {
 
     const router = useRouter();
 
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
+        console.log('=======query', query)
+
+        async function getSessionData(sessionId: any) {
+            try {
+                const session = await stripe.checkout.sessions.retrieve(sessionId);
+                console.log('Session data:', session);
+                return session;
+            } catch (error) {
+                console.error('Error retrieving session data:', error);
+                throw error;
+            }
+        }
+
+
         if (query) {
-            const sessionId = query.get('session_id');
+            const sessionId = query.get('checkout_session');
+            console.log('sessionId ', sessionId)
+
+            getSessionData(sessionId);
+
+
+
+
             if (query.get('success')) {
                 toast("Payment successful", {
                     position: "top-right",
