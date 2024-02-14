@@ -16,10 +16,11 @@ declare global {
 
 const Products = () => {
   const [userData, setUserData] = useState<any>({})
+  const [userEmail, setUserEmail] = useState()
   // const [productsData, setProductsData] = useState<any>([])
   // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
-  // console.log('userData', typeof userData)
+  // console.log('userData', typeof userEmail, userEmail)
 
 
   // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
@@ -33,22 +34,18 @@ const Products = () => {
     if (storedUser) {
       const userDataCheck = JSON.parse(storedUser);
       const email: any = userDataCheck.email
+      setUserEmail(email)
       axios.post('/api/getUserData', { email })
         .then((res: any) => {
           // console.log('res', res.data[0].id, typeof res.data[0].id.toString())
           let id = res.data[0].id.toString()
           setUserData(id);
-
-
         })
         .catch((err) => {
           console.log('error getting user id', err)
-
         })
-
-
-
     } else {
+      console.log('no user logged in')
 
     }
 
@@ -213,7 +210,7 @@ const Products = () => {
         publishable-key="pk_live_51OeKtoDIjS01COwV377lJJe6q9TrLUiIMgqM2fhcHOSuw6KyGuBfR2iJkoTk4tcqxZ41rPVhHYcIF9n2BJbIhTFI00n3CgQ4wp">
       </stripe-pricing-table> */}
       <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
-        publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData}>
+        publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData} customer-email={userEmail}>
       </stripe-pricing-table>
 
 

@@ -41,20 +41,19 @@ export default async (req, res) => {
                     });
                 });
 
-                // console.log('productData', productData.data[0].price.product)
+                console.log('productData', productData.data[0].price.product)
                 const productName = await stripe.products.list({
                     ids: [productData.data[0].price.product],
                 });
-                // console.log('product name', productName.data[0].name)
+
+
+                console.log('product name', productName.data[0].name)
 
                 const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
                     .where(eq(packagesTable.name, productName.data[0].name))
 
-                // console.log('packageId', packageId[0].packageId)
+                console.log('packageId', packageId[0].packageId)
 
-
-
-                console.log("=============client reference id ", event.data.object.client_reference_id)
 
                 // const userId = await db.select({ user_id: users.id }).from(users)
                 //     .where(eq(users.email, event.data.object.client_reference_id));
