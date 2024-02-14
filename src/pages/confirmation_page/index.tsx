@@ -38,10 +38,10 @@ const ConfirmationPage = () => {
                 });
             }
 
-            router.replace({
-                pathname: router.pathname,
-                query: {},
-            }, undefined, { shallow: true });
+            // router.replace({
+            //     pathname: router.pathname,
+            //     query: {},
+            // }, undefined, { shallow: true });
         }
     }, []);
 
