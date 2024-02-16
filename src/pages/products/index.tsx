@@ -17,10 +17,13 @@ declare global {
 const Products = () => {
   const [userData, setUserData] = useState<any>({})
   const [userEmail, setUserEmail] = useState()
+  const [customerSession, setCustomerSession] = useState("")
+
   // const [productsData, setProductsData] = useState<any>([])
   // const [customerSubscriptions, setCustomerSubscriptions] = useState<any>([])
 
-  // console.log('userData', typeof userEmail, userEmail)
+  // console.log('useremail', typeof userEmail, userEmail)
+  // console.log('userid', typeof userData, userData)
 
 
   // console.log('productsData', productsData, 'customerSubscriptions', customerSubscriptions)
@@ -32,19 +35,47 @@ const Products = () => {
 
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
+      // ===============If User is Logged in=======================
+
       const userDataCheck = JSON.parse(storedUser);
       const email: any = userDataCheck.email
       setUserEmail(email)
       axios.post('/api/getUserData', { email })
-        .then((res: any) => {
+        .then(async (res: any) => {
           // console.log('res', res.data[0].id, typeof res.data[0].id.toString())
+          console.log('res', res.data)
           let id = res.data[0].id.toString()
           setUserData(id);
+          if (res.data[0].stripe_customer_id) {
+            console.log(' now here ===================', res.data[0].stripe_customer_id)
+            const userCustomerId = res.data[0].stripe_customer_id
+            // const customerSession = await stripe.customerSessions.create({
+            //   customer: 'cus_PZCiL2Dnnp0BH3',
+            //   components: {
+            //     pricing_table: {
+            //       enabled: true,
+            //     },
+            //   },
+            // });
+
+            // console.log('customer session', customerSession)
+            // setCustomerSession(customerSession.client_secret)
+
+          } else {
+            console.log(' now there ===================')
+
+            setCustomerSession("")
+          }
+
         })
         .catch((err) => {
           console.log('error getting user id', err)
         })
+
+
+
     } else {
+      // ===============If User is Not Logged in=======================
       console.log('no user logged in')
 
     }
