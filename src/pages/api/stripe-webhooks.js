@@ -66,9 +66,10 @@ export default async (req, res) => {
                 //     .where(eq(users.email, event.data.object.client_reference_id));
 
 
-                let userId = null
+
 
                 if (event.data.object.client_reference_id) {
+                    let userId = null
                     userId = await db.select({ user_id: users.id }).from(users)
                         .where(eq(users.id, event.data.object.client_reference_id));
 
@@ -118,16 +119,24 @@ export default async (req, res) => {
 
                 } else {
 
+                    console.log('======now in new user ')
+
                     const userData = {
                         role_id: 2,
                         email: event.data.object.customer_details.email,
                         username: event.data.object.customer_details.email,
                         password: await bcrypt.hash('pending', 12),
-                        full_name: 'pending'
+                        full_name: 'pending',
+                        stripe_customer_id: event.data.object.customer
                     };
+
+                    console.log('=============now at 1')
 
                     const userExists = await db.select({ email: users.email, }).from(users)
                         .where(eq(event.data.object.customer_details.email, users.email));
+
+
+                    console.log('===========now at 2', userExists)
 
                     if (userExists.length > 0) {
                         return res.status(500).send({
@@ -146,10 +155,48 @@ export default async (req, res) => {
                         full_name: userData.full_name,
                         username: userData.username,
                         status: 'Inactive',
+                        stripe_customer_id: userData.stripe_customer_id
                     }).returning();
+
+                    console.log('=======now at 3 newUser', newUser)
+
+                    const checkUser = await db.select().from(userPackagesTable).where(
+                        and(
+                            eq(userPackagesTable.user_id, newUser[0].id),
+                            eq(userPackagesTable.package_id, packageId[0].packageId)
+                        )
+                    );
+
+                    // console.log('checkuser', checkUser)
+
+                    if (checkUser.length > 0) {
+                        // const updatePackage = await db.update(userPackagesTable)
+                        //     .values({ user_id: userId, package_id: packageId })
+
+                        console.log('sub id', event.data.object.subscription)
+
+                        const udpatedPackage = await db.update(userPackagesTable)
+                            .set({
+                                user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                            })
+                            .where(
+                                and(
+                                    eq(userPackagesTable.user_id, newUser[0].id),
+                                    eq(userPackagesTable.package_id, packageId[0].packageId)
+                                )
+                            )
+                            .returning();
+
+                    }
+                    else {
+                        const updatePackage = await db.insert(userPackagesTable)
+                            .values({ user_id: newUser[0].id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })
+                    }
+
 
 
                     if (newUser) {
+                        console.log('=======now at 4 newUser')
                         const newPendingUser = newUser
 
                         const userId = newPendingUser[0].id
