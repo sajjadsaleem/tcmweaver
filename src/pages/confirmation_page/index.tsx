@@ -59,34 +59,6 @@ const ConfirmationPage = () => {
                 getSessionData(sessionId);
             }
 
-            // if (query.get('success')) {
-            //     toast("Payment successful", {
-            //         position: "top-right",
-            //         autoClose: 1500,
-            //         hideProgressBar: false,
-            //         closeOnClick: true,
-            //         pauseOnHover: true,
-            //         draggable: true,
-            //         progress: undefined,
-            //         type: "success",
-            //         theme: "light",
-            //     });
-            // }
-
-            // if (query.get('canceled')) {
-            //     toast("Payment failed", {
-            //         position: "top-right",
-            //         autoClose: 1500,
-            //         hideProgressBar: false,
-            //         closeOnClick: true,
-            //         pauseOnHover: true,
-            //         draggable: true,
-            //         progress: undefined,
-            //         type: "error",
-            //         theme: "light",
-            //     });
-            // }
-
             // router.replace({
             //     pathname: router.pathname,
             //     query: {},
@@ -95,7 +67,10 @@ const ConfirmationPage = () => {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <div>Loading...</div>
+            </div>)
     }
 
 
