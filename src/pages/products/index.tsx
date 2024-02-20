@@ -17,10 +17,15 @@ declare global {
 
 
 const Products = () => {
+
+  const router = useRouter()
+
   const [userData, setUserData] = useState<any>({})
   const [userEmail, setUserEmail] = useState()
   const [customerSession, setCustomerSession] = useState("")
   const [loginState, setLoginState] = useState(false)
+  const [loading, setLoading] = useState(true);
+  
 
   // console.log('login state ', loginState)
 
@@ -34,47 +39,45 @@ const Products = () => {
 
       setLoginState(true)
 
+
       const userDataCheck = JSON.parse(storedUser);
       const email: any = userDataCheck.email
-      setUserEmail(email)
+
       axios.post('/api/getUserData', { email })
         .then(async (res: any) => {
-          // console.log('res', res.data[0].id, typeof res.data[0].id.toString())
           console.log('res', res.data)
-          let id = res.data[0].id.toString()
-          setUserData(id);
+
           if (res.data[0].stripe_customer_id) {
-            console.log(' now here ===================', res.data[0].stripe_customer_id)
-            const userCustomerId = res.data[0].stripe_customer_id
-            // const customerSession = await stripe.customerSessions.create({
-            //   customer: 'cus_PZCiL2Dnnp0BH3',
-            //   components: {
-            //     pricing_table: {
-            //       enabled: true,
-            //     },
-            //   },
-            // });
-
-            // console.log('customer session', customerSession)
-            // setCustomerSession(customerSession.client_secret)
-
+            // ==============If logged in user already has a stripe subscription=================
+            try {
+              const billingResponse = await axios.post(`/api/stripe-billing?customer_id=${res.data[0].stripe_customer_id}`);
+              window.location.href = billingResponse.data.url;
+            } catch (err) {
+              console.log('err from stripe billing', err);
+            }
+              
           } else {
 
-            setCustomerSession("")
-          }
+            // ==============If logged in user does not have a stripe subscription=================
 
+
+            let id = res.data[0].id.toString()
+            setUserData(id);
+            let email = res.data[0].email
+            setUserEmail(email)
+
+          }
         })
         .catch((err) => {
           console.log('error getting user id', err)
         })
-
-
+        .finally(() => setLoading(false));
 
     } else {
       // ===============If User is Not Logged in=======================
 
       setLoginState(false)
-      console.log('no user logged in')
+      setLoading(false);
 
     }
 
@@ -87,15 +90,27 @@ const Products = () => {
 
   return (
     <div>
-      {loginState ? (
-        <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
-          publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData} customer-email={userEmail}>
-        </stripe-pricing-table>
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          Loading...
+        </div>
       ) : (
-        <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
-          publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" >
-        </stripe-pricing-table>
+        loginState ? (
+          <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
+            publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData} customer-email={userEmail}>
+          </stripe-pricing-table>
+        ) : (
+          <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
+            publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" >
+          </stripe-pricing-table>
+        )
       )}
+
+
+
+
+
+      
 
 
 

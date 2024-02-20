@@ -46,7 +46,7 @@ export default async function stripeBilling(req, res) {
 
                 customer: req.query.customer_id,
                 configuration: configuration.id,
-                return_url: 'https://tcmweaver.vercel.app/',
+                return_url: 'https://www.tcmweaver.com/',
             });
 
             return res.status(200).json(session);

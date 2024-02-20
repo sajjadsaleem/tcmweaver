@@ -9338,6 +9338,7 @@ const Sidebar = () => {
                         )}
                       </>
                     )}
+
                     <ListItem button onClick={() => handleUserOptions("logout")} dense>
                       <ListItemText primary="Logout" />
                     </ListItem>

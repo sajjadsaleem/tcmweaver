@@ -16,16 +16,16 @@ export default async function getUsers(req, res) {
                 .where(eq(users.email, req.body.email));
 
 
-            const customerSession = await stripe.customerSessions.create({
-                customer: 'cus_PZCiL2Dnnp0BH3',
-                components: {
-                    pricing_table: {
-                        enabled: true,
-                    },
-                },
-            });
+            // const customerSession = await stripe.customerSessions.create({
+            //     customer: 'cus_PZCiL2Dnnp0BH3',
+            //     components: {
+            //         pricing_table: {
+            //             enabled: true,
+            //         },
+            //     },
+            // });
 
-            console.log('customer session ', customerSession)
+            // console.log('customer session ', customerSession)
 
 
             res.status(200).json(userId);

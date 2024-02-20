@@ -56,7 +56,7 @@ export default async (req, res) => {
                 const packageId = await db.select({ packageId: packagesTable.id }).from(packagesTable)
                     .where(eq(packagesTable.name, productName.data[0].name))
 
-                console.log('packageId', packageId[0].packageId)
+                // console.log('packageId', packageId[0].packageId)
 
 
 
@@ -74,7 +74,7 @@ export default async (req, res) => {
                         .where(eq(users.id, event.data.object.client_reference_id));
 
 
-                    console.log('userid', userId)
+                    // console.log('userid', userId)
 
                     // const removeSessionId = await db.update(users)
                     //     .set({ session_id: '' })
@@ -119,7 +119,7 @@ export default async (req, res) => {
 
                 } else {
 
-                    console.log('======now in new user ')
+                    // console.log('======now in new user ')
 
                     const userData = {
                         role_id: 2,
@@ -130,13 +130,13 @@ export default async (req, res) => {
                         stripe_customer_id: event.data.object.customer
                     };
 
-                    console.log('=============now at 1')
+                    // console.log('=============now at 1')
 
                     const userExists = await db.select({ email: users.email, }).from(users)
                         .where(eq(event.data.object.customer_details.email, users.email));
 
 
-                    console.log('===========now at 2', userExists)
+                    // console.log('===========now at 2', userExists)
 
                     if (userExists.length > 0) {
                         return res.status(500).send({
@@ -158,7 +158,7 @@ export default async (req, res) => {
                         stripe_customer_id: userData.stripe_customer_id
                     }).returning();
 
-                    console.log('=======now at 3 newUser', newUser)
+                    // console.log('=======now at 3 newUser', newUser)
 
                     const checkUser = await db.select().from(userPackagesTable).where(
                         and(
@@ -173,7 +173,7 @@ export default async (req, res) => {
                         // const updatePackage = await db.update(userPackagesTable)
                         //     .values({ user_id: userId, package_id: packageId })
 
-                        console.log('sub id', event.data.object.subscription)
+                        // console.log('sub id', event.data.object.subscription)
 
                         const udpatedPackage = await db.update(userPackagesTable)
                             .set({
@@ -193,15 +193,13 @@ export default async (req, res) => {
                             .values({ user_id: newUser[0].id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })
                     }
 
-
-
                     if (newUser) {
-                        console.log('=======now at 4 newUser')
+                        // console.log('=======now at 4 newUser')
                         const newPendingUser = newUser
 
                         const userId = newPendingUser[0].id
                         const signedToken = jwt.sign({ id: userId }, { subject: 'user invitation email verification' })
-                        console.log('======== now at 5signed token  ', signedToken)
+                        // console.log('======== now at 5signed token  ', signedToken)
 
                         const updatedUser = await db.update(users)
                             .set({ verification_token: signedToken })
@@ -209,7 +207,7 @@ export default async (req, res) => {
 
                         const verification_token = updatedUser[0].verification_token
 
-                        console.log('=========now at 6verification_token', verification_token)
+                        // console.log('=========now at 6verification_token', verification_token)
 
 
                         //////////////////////////////////////////////////
