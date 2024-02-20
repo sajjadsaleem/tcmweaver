@@ -73,6 +73,15 @@ export default async (req, res) => {
                     userId = await db.select({ user_id: users.id }).from(users)
                         .where(eq(users.id, event.data.object.client_reference_id));
 
+                        // const udpateStripeCustomerID = await db.insert(users)
+                        // .values({ user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })
+
+                    const userStripeCustomerId = await db.update(users).set({ stripe_customer_id: event.data.object.customer })
+                        .where(eq(users.id, event.data.object.client_reference_id))
+                        .returning();
+
+                    
+
 
                     // console.log('userid', userId)
 
