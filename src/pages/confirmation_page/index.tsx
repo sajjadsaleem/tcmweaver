@@ -130,6 +130,7 @@ const ConfirmationPage = () => {
                     }}
                         onMouseEnter={(e: any) => e.target.style.backgroundColor = '#45a049'}
                         onMouseLeave={(e: any) => e.target.style.backgroundColor = '#4CAF50'}
+                        onClick={() => window.location.href = 'https://www.tcmweaver.com'}
                     >
                         OK
                     </button>
