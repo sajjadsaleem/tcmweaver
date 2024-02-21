@@ -142,19 +142,26 @@ export default async (req, res) => {
                         .where(eq(users.email, userExists[0].email)).returning();
 
 
-                        // const udpatedPackage = await db.update(userPackagesTable)
-                        //     .set({
-                        //         package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
-                        //     })
-                        //     .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
+                      
+                        const checkUserExist = await db.select().from(userPackagesTable)
+                            .where(eq(userExists[0].id, userPackagesTable.user_id))
 
-                            
-                        const updatedPackage = await db.insert(userPackagesTable)
-                                .values({ user_id: userExists[0].id })
-                                .onConflictDoUpdate({
-                                target: [userPackagesTable.user_id],
-                                set: { package_id: packageId[0].packageId , stripe_subscription_id: event.data.object.subscription }
-                                });
+                        if(checkUserExist.length > 0){
+                              const udpatedPackage = await db.update(userPackagesTable)
+                            .set({
+                                package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                            })
+                            .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
+
+                        } else {
+                            const insertNewUserPackage = await db.insert(userPackagesTable)
+                            .values({
+                                user_id: userExists[0].id,
+                                package_id: packageId[0].packageId,
+                                stripe_subscription_id: event.data.object.subscription
+                            })
+
+                        }
 
                     } else {
 
