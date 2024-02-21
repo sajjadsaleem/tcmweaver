@@ -149,10 +149,10 @@ export default async (req, res) => {
                         //     .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
 
                             
-                        const updatedPackage = await db.insert(users)
+                        const updatedPackage = await db.insert(userPackagesTable)
                                 .values({ user_id })
                                 .onConflictDoUpdate({
-                                target: [users.user_id],
+                                target: [userPackagesTable.user_id],
                                 set: { package_id: packageId[0].packageId , stripe_subscription_id: event.data.object.subscription }
                                 });
 
