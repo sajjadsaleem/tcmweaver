@@ -255,6 +255,7 @@ const Sidebar = () => {
 
           let homepageFile = _.cloneDeep(data);
 
+          homepageFile.homeObjects[0].content = homepageFile.homeObjects[0].content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
           const markedHomeObjects = homepageFile.homeObjects.map((obj: any) => ({
             ...obj,
             content: marked(obj.content),
@@ -8778,7 +8779,7 @@ const Sidebar = () => {
   };
 
 
-  const handleUserOptions = (itemName: any) => {
+  const handleUserOptions = (itemName: any) => {  
     if (itemName === 'profile') {
       // console.log('getuser' , getUser)
       setFormData((prevData) => ({

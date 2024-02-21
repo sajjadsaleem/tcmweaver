@@ -40,17 +40,7 @@ const Welcome = () => {
                         responseData.welcomePageData[0].content = marked(editedResult);
                         let markedWelcomePageData = responseData.welcomePageData
 
-
-
-
-
-
-
                         setWelcomePage(markedWelcomePageData[0])
-
-
-
-
                     })
                     .catch((err: any) => {
                         console.log('Error fetching node colors', err)
@@ -70,7 +60,7 @@ const Welcome = () => {
 
 
     return (
-        <div dangerouslySetInnerHTML={{ __html: welcomePage.content }}></div>
+            <div dangerouslySetInnerHTML={{ __html: welcomePage.content }}></div>
     )
 }
 

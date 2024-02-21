@@ -984,7 +984,8 @@
     height: 100%;
 }
 
-.homepage-content-container .opened-result-description h1 {
+.homepage-content-container .opened-result-description h1,
+.homepage-content-container .opened-result-description a {
     color: #6C655C;
 }
 
@@ -998,6 +999,11 @@
     height: calc(100% - 55px) !important;
     background-color: #000;
 }
+
+.night-mode .homepage-content-container .opened-result-description a {
+    color: #B3B3B5;
+}
+
 
 .contact-support-message p {
     color: #6C655C;
