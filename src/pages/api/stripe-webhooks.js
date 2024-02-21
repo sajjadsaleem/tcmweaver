@@ -150,7 +150,7 @@ export default async (req, res) => {
 
                             
                         const updatedPackage = await db.insert(userPackagesTable)
-                                .values({ user_id })
+                                .values({ user_id: userExists[0].id })
                                 .onConflictDoUpdate({
                                 target: [userPackagesTable.user_id],
                                 set: { package_id: packageId[0].packageId , stripe_subscription_id: event.data.object.subscription }
