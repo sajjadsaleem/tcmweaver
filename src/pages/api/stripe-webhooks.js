@@ -130,117 +130,126 @@ export default async (req, res) => {
 
                     // console.log('======now in new user ')
 
-                    const userData = {
-                        role_id: 2,
-                        email: event.data.object.customer_details.email,
-                        username: event.data.object.customer_details.email,
-                        password: await bcrypt.hash('pending', 12),
-                        full_name: 'pending',
-                        stripe_customer_id: event.data.object.customer
-                    };
-
-                    // console.log('=============now at 1')
-
-                    const userExists = await db.select({ email: users.email, }).from(users)
+                    const userExists = await db.select().from(users)
                         .where(eq(event.data.object.customer_details.email, users.email));
 
-
-                    // console.log('===========now at 2', userExists)
+                    console.log('========userExists' , userExists )
 
                     if (userExists.length > 0) {
-                        return res.status(500).send({
-                            success: false,
-                            status: "error",
-                            message: 'User already exists'
-                        });
-                    }
+                        //==================User not loged in but already exists================
 
-                    let newUser = await db.insert(users).values({
-                        role_id: userData.role_id,
-                        email: userData.email,
-                        password: userData.password,
-                        verification_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
-                        forgot_password_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
-                        full_name: userData.full_name,
-                        username: userData.username,
-                        status: 'Inactive',
-                        stripe_customer_id: userData.stripe_customer_id
-                    }).returning();
+                        const userStripeCustomerId = await db.update(users).set({ stripe_customer_id: event.data.object.customer })
+                        .where(eq(users.email, userExists[0].email)).returning();
 
-                    // console.log('=======now at 3 newUser', newUser)
-
-                    const checkUser = await db.select().from(userPackagesTable).where(
-                        and(
-                            eq(userPackagesTable.user_id, newUser[0].id),
-                            eq(userPackagesTable.package_id, packageId[0].packageId)
-                        )
-                    );
-
-                    // console.log('checkuser', checkUser)
-
-                    if (checkUser.length > 0) {
-                        // const updatePackage = await db.update(userPackagesTable)
-                        //     .values({ user_id: userId, package_id: packageId })
-
-                        // console.log('sub id', event.data.object.subscription)
 
                         const udpatedPackage = await db.update(userPackagesTable)
                             .set({
-                                user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                                package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
                             })
-                            .where(
-                                and(
-                                    eq(userPackagesTable.user_id, newUser[0].id),
-                                    eq(userPackagesTable.package_id, packageId[0].packageId)
-                                )
-                            )
-                            .returning();
+                            .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
 
-                    }
-                    else {
+                    } else {
+
+                        const userData = {
+                            role_id: 2,
+                            email: event.data.object.customer_details.email,
+                            username: event.data.object.customer_details.email,
+                            password: await bcrypt.hash('pending', 12),
+                            full_name: 'pending',
+                            stripe_customer_id: event.data.object.customer
+                        };
+        
+                        let newUser = await db.insert(users).values({
+                            role_id: userData.role_id,
+                            email: userData.email,
+                            password: userData.password,
+                            verification_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
+                            forgot_password_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
+                            full_name: userData.full_name,
+                            username: userData.username,
+                            status: 'Inactive',
+                            stripe_customer_id: userData.stripe_customer_id
+                        }).returning();
+    
+                        // console.log('=======now at 3 newUser', newUser)
+    
+                        // const checkUser = await db.select().from(userPackagesTable).where(
+                        //     and(
+                        //         eq(userPackagesTable.user_id, newUser[0].id),
+                        //         eq(userPackagesTable.package_id, packageId[0].packageId)
+                        //     )
+                        // );
+    
+                        // console.log('checkuser', checkUser)
+    
+                        // if (checkUser.length > 0) {
+                            // const updatePackage = await db.update(userPackagesTable)
+                            //     .values({ user_id: userId, package_id: packageId })
+    
+                            // console.log('sub id', event.data.object.subscription)
+    
+                            // const udpatedPackage = await db.update(userPackagesTable)
+                            //     .set({
+                            //         user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                            //     })
+                            //     .where(
+                            //         and(
+                            //             eq(userPackagesTable.user_id, newUser[0].id),
+                            //             eq(userPackagesTable.package_id, packageId[0].packageId)
+                            //         )
+                            //     )
+                            //     .returning();
+    
+                        // }
+                        // else {
                         const updatePackage = await db.insert(userPackagesTable)
                             .values({ user_id: newUser[0].id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })
+                        // }
+    
+                        if (newUser) {
+                            // console.log('=======now at 4 newUser')
+                            const newPendingUser = newUser
+    
+                            const userId = newPendingUser[0].id
+                            const signedToken = jwt.sign({ id: userId }, { subject: 'user invitation email verification' })
+                            // console.log('======== now at 5signed token  ', signedToken)
+    
+                            const updatedUser = await db.update(users)
+                                .set({ verification_token: signedToken })
+                                .where(eq(users.id, userId)).returning({ verification_token: users.verification_token });
+    
+                            const verification_token = updatedUser[0].verification_token
+    
+                            // console.log('=========now at 6verification_token', verification_token)
+    
+    
+                            //////////////////////////////////////////////////
+                            // Create a transporter with your email service settings
+                            const transporter = nodemailer.createTransport({
+                                host: process.env.MAIL_HOST,
+                                port: process.env.MAIL_PORT,
+                                secure: true,
+                                auth: {
+                                    user: process.env.MAIL_USERNAME,
+                                    pass: process.env.MAIL_PASSWORD,
+                                },
+                            });
+    
+    
+                            // Email sending function
+                            const emailSending = await transporter.sendMail({
+                                from: process.env.MAIL_FROM + ' <' + process.env.MAIL_SENDER_EMAIL + '>',
+                                to: userData.email,
+                                subject: 'Registration',
+                                html: '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tcm Weaver Registration</title></head><body><style>body,html{padding:0;margin:0 auto}</style><div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;font-weight:400;font-size:15px;color:#020c30;min-height:100%;margin:0;padding:0;width:600px;background-color:#f6f6f9"><table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin:0 auto;padding:0;max-width:600px"><tbody><tr><td align="center" valign="center" style="text-align:center;padding:40px"><h2 style="text-align:center">TCM WEAVER</h2></td></tr><tr><td align="left" valign="center"><div style="text-align:left;margin:0 20px;padding:40px;background-color:#fff;border-radius:6px"><div style="padding-bottom:30px;line-height:27px">Welcome! Thankyou for subscribing to Tcm Weaver . You are invited to access Tcm Weaver platform.<br><a href="' + process.env.BASE_URL + '/invitation/' + userId + '/' + verification_token + '" style="font-weight:600;color:#6923ff">Click here</a> to complete setting up your account and set password.</div><div style="padding-bottom:0;line-height:25px">Kind regards,<br>Tcm Weaver<tr><td align="center" valign="center" style="font-size:13px;text-align:center;padding:20px;color:#6d6e7c"></td></tr></div></div></td></tr></tbody></table></div></body></html>',
+                            });
+                        }
+    
+
                     }
 
-                    if (newUser) {
-                        // console.log('=======now at 4 newUser')
-                        const newPendingUser = newUser
 
-                        const userId = newPendingUser[0].id
-                        const signedToken = jwt.sign({ id: userId }, { subject: 'user invitation email verification' })
-                        // console.log('======== now at 5signed token  ', signedToken)
-
-                        const updatedUser = await db.update(users)
-                            .set({ verification_token: signedToken })
-                            .where(eq(users.id, userId)).returning({ verification_token: users.verification_token });
-
-                        const verification_token = updatedUser[0].verification_token
-
-                        // console.log('=========now at 6verification_token', verification_token)
-
-
-                        //////////////////////////////////////////////////
-                        // Create a transporter with your email service settings
-                        const transporter = nodemailer.createTransport({
-                            host: process.env.MAIL_HOST,
-                            port: process.env.MAIL_PORT,
-                            secure: true,
-                            auth: {
-                                user: process.env.MAIL_USERNAME,
-                                pass: process.env.MAIL_PASSWORD,
-                            },
-                        });
-
-
-                        // Email sending function
-                        const emailSending = await transporter.sendMail({
-                            from: process.env.MAIL_FROM + ' <' + process.env.MAIL_SENDER_EMAIL + '>',
-                            to: userData.email,
-                            subject: 'Registration',
-                            html: '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tcm Weaver Registration</title></head><body><style>body,html{padding:0;margin:0 auto}</style><div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;font-weight:400;font-size:15px;color:#020c30;min-height:100%;margin:0;padding:0;width:600px;background-color:#f6f6f9"><table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin:0 auto;padding:0;max-width:600px"><tbody><tr><td align="center" valign="center" style="text-align:center;padding:40px"><h2 style="text-align:center">TCM WEAVER</h2></td></tr><tr><td align="left" valign="center"><div style="text-align:left;margin:0 20px;padding:40px;background-color:#fff;border-radius:6px"><div style="padding-bottom:30px;line-height:27px">Welcome! Thankyou for subscribing to Tcm Weaver . You are invited to access Tcm Weaver platform.<br><a href="' + process.env.BASE_URL + '/invitation/' + userId + '/' + verification_token + '" style="font-weight:600;color:#6923ff">Click here</a> to complete setting up your account and set password.</div><div style="padding-bottom:0;line-height:25px">Kind regards,<br>Tcm Weaver<tr><td align="center" valign="center" style="font-size:13px;text-align:center;padding:20px;color:#6d6e7c"></td></tr></div></div></td></tr></tbody></table></div></body></html>',
-                        });
-                    }
-
+                    
                 }
 
             }
