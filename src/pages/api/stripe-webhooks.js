@@ -142,11 +142,19 @@ export default async (req, res) => {
                         .where(eq(users.email, userExists[0].email)).returning();
 
 
-                        const udpatedPackage = await db.update(userPackagesTable)
-                            .set({
-                                package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
-                            })
-                            .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
+                        // const udpatedPackage = await db.update(userPackagesTable)
+                        //     .set({
+                        //         package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                        //     })
+                        //     .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
+
+                            
+                        const updatedPackage = await db.insert(users)
+                                .values({ user_id })
+                                .onConflictDoUpdate({
+                                target: [users.user_id],
+                                set: { package_id: packageId[0].packageId , stripe_subscription_id: event.data.object.subscription }
+                                });
 
                     } else {
 
