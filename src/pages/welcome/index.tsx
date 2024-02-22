@@ -60,7 +60,9 @@ const Welcome = () => {
 
 
     return (
+        <div>
             <div dangerouslySetInnerHTML={{ __html: welcomePage.content }}></div>
+        </div>
     )
 }
 

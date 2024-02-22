@@ -138,30 +138,72 @@ export default async (req, res) => {
                     if (userExists.length > 0) {
                         //==================User not loged in but already exists================
 
-                        const userStripeCustomerId = await db.update(users).set({ stripe_customer_id: event.data.object.customer })
-                        .where(eq(users.email, userExists[0].email)).returning();
+                        const oldUserEmailWhoPaid = userExists[0].email
+                        const oldUserIdWhoPaid = userExists[0].id
+
+
+                        // const newPendingUser = newUser
+    
+                        // const userId = newPendingUser[0].id
+                        // const signedToken = jwt.sign({ id: oldUserIdWhoPaid }, { subject: 'user invitation email verification' })
+
+                        // const updatedUser = await db.update(users)
+                        //     .set({ verification_token: signedToken })
+                        //     .where(eq(users.id, userId)).returning({ verification_token: users.verification_token });
+
+                        // const verification_token = updatedUser[0].verification_token
+
+                        // console.log('=========now at verification_token', verification_token)
+
+
+                        //////////////////////////////////////////////////
+                        // Create a transporter with your email service settings
+                        const transporter = nodemailer.createTransport({
+                            host: process.env.MAIL_HOST,
+                            port: process.env.MAIL_PORT,
+                            secure: true,
+                            auth: {
+                                user: process.env.MAIL_USERNAME,
+                                pass: process.env.MAIL_PASSWORD,
+                            },
+                        });
+                        
+                        // support@modern-vitality.com
+
+                        // Email sending function
+                        const emailSending = await transporter.sendMail({
+                            from: process.env.MAIL_FROM + ' <' + process.env.MAIL_SENDER_EMAIL + '>',
+                            to: 'taimoorattique389@gmail.com',
+                            subject: 'Stripe Payment',
+                            html: '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tcm Weaver Registration</title></head><body><style>body,html{padding:0;margin:0 auto}</style><div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;font-weight:400;font-size:15px;color:#020c30;min-height:100%;margin:0;padding:0;width:600px;background-color:#f6f6f9"><table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin:0 auto;padding:0;max-width:600px"><tbody><tr><td align="center" valign="center" style="text-align:center;padding:40px"><h2 style="text-align:center">TCM WEAVER</h2></td></tr><tr><td align="left" valign="center"><div style="text-align:left;margin:0 20px;padding:40px;background-color:#fff;border-radius:6px"><div style="padding-bottom:30px;line-height:27px">A payment is made on stripe by a existing customer<br><h4>Customer detail:</h4> "'+oldUserEmailWhoPaid+'"<br><br><h4> New payment details:</h4><br><h5>Email</h5>"'+oldUserEmailWhoPaid+'"<br><h5>Stripe customer id:</h5>"'+event.data.object.customer+'"<br><h5>Stripe subscription id:</h5>"'+event.data.object.subscription+'"<br></div><div style="padding-bottom:0;line-height:25px">Kind regards,<br>Tcm Weaver<tr><td align="center" valign="center" style="font-size:13px;text-align:center;padding:20px;color:#6d6e7c"></td></tr></div></div></td></tr></tbody></table></div></body></html>',
+                        });
+
+
+
+                        // const userStripeCustomerId = await db.update(users).set({ stripe_customer_id: event.data.object.customer })
+                        // .where(eq(users.email, userExists[0].email)).returning();
 
 
                       
-                        const checkUserExist = await db.select().from(userPackagesTable)
-                            .where(eq(userExists[0].id, userPackagesTable.user_id))
+                        // const checkUserExist = await db.select().from(userPackagesTable)
+                        //     .where(eq(userExists[0].id, userPackagesTable.user_id))
 
-                        if(checkUserExist.length > 0){
-                              const udpatedPackage = await db.update(userPackagesTable)
-                            .set({
-                                package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
-                            })
-                            .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
+                        // if(checkUserExist.length > 0){
+                        //       const udpatedPackage = await db.update(userPackagesTable)
+                        //     .set({
+                        //         package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription
+                        //     })
+                        //     .where(eq(userPackagesTable.user_id, userExists[0].id)).returning();
 
-                        } else {
-                            const insertNewUserPackage = await db.insert(userPackagesTable)
-                            .values({
-                                user_id: userExists[0].id,
-                                package_id: packageId[0].packageId,
-                                stripe_subscription_id: event.data.object.subscription
-                            })
+                        // } else {
+                        //     const insertNewUserPackage = await db.insert(userPackagesTable)
+                        //     .values({
+                        //         user_id: userExists[0].id,
+                        //         package_id: packageId[0].packageId,
+                        //         stripe_subscription_id: event.data.object.subscription
+                        //     })
 
-                        }
+                        // }
 
                     } else {
 
