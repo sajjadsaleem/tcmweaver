@@ -60,8 +60,8 @@ const Welcome = () => {
 
 
     return (
-        <div>
-            <div dangerouslySetInnerHTML={{ __html: welcomePage.content }}></div>
+        <div style={{padding: '20px'}}>
+            <div className='welcome-page-container' dangerouslySetInnerHTML={{ __html: welcomePage.content }}></div>
         </div>
     )
 }

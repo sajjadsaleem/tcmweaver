@@ -3829,3 +3829,11 @@ button {
         font-size: 1.25rem;
     }
 }
+
+
+
+/*=========================Welcome Page====================================*/
+
+.welcome-page-container iframe {
+    width: 60% !important;
+}
