@@ -3834,6 +3834,6 @@ button {
 
 /*=========================Welcome Page====================================*/
 
-.welcome-page-container iframe {
-    width: 60% !important;
+.welcome-page-main {
+    padding: 20px;
 }
