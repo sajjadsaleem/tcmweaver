@@ -1502,10 +1502,7 @@ const Sidebar = () => {
       //   (match: any, word: any) => `${word}`
       // );
 
-      const contentWithRemovedBrackets = textToConvert.replace(
-        regex,
-        (match: any, word: any) => `${word}`
-      );
+      const contentWithRemovedBrackets = textToConvert.replace(regex,(match: any, word: any) => `${word}`);
       entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
 
 
@@ -8056,7 +8053,9 @@ const Sidebar = () => {
       // console.log(tableNamesStr)
       axios.post(`/api/linkFile?q=${node}&av=${tableNamesStr}`)
         .then((res) => {
-          const newDataObject = res.data;
+          let newDataObject = res.data;
+
+          newDataObject.content = newDataObject.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
 
           marked.setOptions({ breaks: true, });
 
@@ -8069,7 +8068,7 @@ const Sidebar = () => {
 
           newDataObject.content = newDataObject.content.replace(
             regex, (match: any, word: any) =>
-            `< span style = "text-decoration: underline; cursor: pointer;" > ${word}</span > `
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
           );
 
           if (graphNodeOpened.length === 0 || newDataObject.fileName !== graphNodeOpened[0].fileName) {

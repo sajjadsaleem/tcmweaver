@@ -4,7 +4,6 @@ import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { vaultsTable } from '../../db/schema/vaults';
 import { eq, lt, gte, ne } from "drizzle-orm";
 import { Fzf } from 'fzf';
-import pg from 'pg';
 
 
 
@@ -16,11 +15,11 @@ export default async function search(req, res) {
         const inputValue = req.query.q.replace(/,/g, ' ');
         // console.log('req inputValue:', inputValue);
         const wordsArray = req.query.q.split(',');
+        console.log('inputValue: ', inputValue)
         console.log('req wordsArray: ', wordsArray)
 
         const db = drizzle(sql)
 
-        // const client = await pool.connect();
 
 
         let rows = []
@@ -29,7 +28,6 @@ export default async function search(req, res) {
             const selectQuery = drizzleSql`SELECT * FROM `;
             const selectQueryJoint = `${table}`
             selectQuery.queryChunks[0].value[0] += selectQueryJoint
-            console.log('selectquery', selectQuery, table)
             const queryResult = await db.execute(drizzleSql`${selectQuery}`);
             console.log('queryresult', queryResult.rows.length)
             for (const item of queryResult.rows) {
@@ -50,6 +48,41 @@ export default async function search(req, res) {
                 fileName: item.filename.replace(/\.md$/, '')
             };
         });
+
+
+        //===========getting the synonyms file from vault and formatt it into object==================
+
+        const standardVaultReference = await db.select({referenceNo: vaultsTable.reference_table}).from(vaultsTable).where(eq(vaultsTable.vault_name , 'Standard Vault'))
+
+        const selectQuery = drizzleSql`SELECT * FROM `;
+        const selectQueryJoint = `${standardVaultReference[0].referenceNo} where filename = 'Synonyms.md'`
+        selectQuery.queryChunks[0].value[0] += selectQueryJoint
+        const queryResult = await db.execute(drizzleSql`${selectQuery}`);
+
+        function parseSynonyms(text) {
+            const lines = text.split('\n');
+            const synonyms = {};
+            lines.forEach(line => {
+                // Skip empty or whitespace-only lines
+                if (line.trim() === '') {
+                    return;
+                }
+                const parts = line.split(' ');
+                const key = parts.shift().substring(1); // Remove the leading '#' and take the first part
+                const values = parts.join(' ').split(',').filter(value => value.trim() !== ''); // Join the remaining parts, split by comma, and remove blank values
+                synonyms[key] = values;
+            });
+            return synonyms;
+        }
+        
+        // Example usage
+        const synonyms = parseSynonyms(queryResult.rows[0].content);
+        console.log('==================synonyms' , synonyms);
+
+        //===========end getting the synonyms file from vault and format it into object==================
+
+
+        
 
 
         // filter the data
@@ -114,24 +147,7 @@ export default async function search(req, res) {
                 newEntries.push(file);
             }
         }
-        // console.log('newEntries: ', newEntries)
-
-        // Remove ".md" extension
-        // const extensionRemovedData = newEntries.map(item => {
-        //     return {
-        //         ...item,
-        //         fileName: item.filename.replace(/\.md$/, '')
-        //     };
-        // });
-
-        // // console.log('extensionRemovedData', extensionRemovedData)
-
-        // // remove filters file from other data
-        // const filesWithoutFilters = extensionRemovedData.filter(item => item.fileName !== "SAMPLE FILTERS");
-
-        // console.log('filesWithoutFilters', filesWithoutFilters[0])
-
-
+      
         console.log('newEntries = ', newEntries.length)
 
 
