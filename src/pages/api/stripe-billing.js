@@ -11,12 +11,24 @@ export default async function stripeBilling(req, res) {
             // console.log('req', req.query.customer_id)
 
             const allProducts = await stripe.products.list({ active: true });
-            // console.log(allProducts)
+            // console.log('======================1',allProducts)
 
-            const formattedProducts = allProducts.data.map(product => ({
-                product: product.id,
-                prices: [product.default_price],
-            }));
+            const allPrices = await stripe.prices.list({});
+            // console.log('======================2' , allPrices)
+
+            const formattedProducts = allProducts.data.map(product => {
+                // Filter prices based on the product id
+                const prices = allPrices.data
+                    .filter(price => price.product === product.id)
+                    .map(price => price.id);
+            
+                // Return formatted product object
+                return {
+                    product: product.id,
+                    prices: prices
+                };
+            });
+            // console.log('====================formattedProducts' , formattedProducts)
 
             const configuration = await stripe.billingPortal.configurations.create({
                 features: {
@@ -51,7 +63,7 @@ export default async function stripeBilling(req, res) {
 
             return res.status(200).json(session);
         } catch (error) {
-            console.log('Error adding user:', error);
+            console.log('Error :', error);
             res.status(500).json({ message: error });
         }
     } else {
