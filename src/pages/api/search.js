@@ -82,6 +82,73 @@ export default async function search(req, res) {
         //===========end getting the synonyms file from vault and format it into object==================
 
 
+        function findSynonyms(wordsArray, synonyms) {
+            const result = {};
+        
+            wordsArray.forEach(word => {
+                // Check if the word is present in the keys
+                if (synonyms[word]) {
+                    if (!result[word]) {
+                        result[word] = synonyms[word].slice();
+                    }
+                } else {
+                    // Check if the word is present in the values
+                    for (const key in synonyms) {
+                        if (synonyms[key].includes(word)) {
+                            result[word] = synonyms[key].filter(val => val !== word);
+                            result[word].push(key);
+                            break;
+                        }
+                    }
+                }
+            });
+        
+            return result;
+        }
+        
+        // Finding synonyms
+        const synonymsResult = findSynonyms(wordsArray, synonyms);
+        console.log('Synonyms:', synonymsResult);
+
+
+        function updateInputValue(inputValue, synonymsResult) {
+            const updatedInputValue = inputValue.split(' ').map(word => {
+                if (synonymsResult[word]) {
+                    return `${word} OR ${synonymsResult[word].join(' OR ')}`;
+                }
+                return word;
+            }).join(' ');
+        
+            return updatedInputValue;
+        }
+        
+        // Update input value with synonyms
+        const updatedInputValue = updateInputValue(inputValue, synonymsResult);
+        console.log('Updated Input Value:', updatedInputValue);
+
+
+        function updateWordsArray(wordsArray, synonymsResult) {
+            const updatedWordsArray = [];
+        
+            wordsArray.forEach(word => {
+                if (word === 'OR') {
+                    updatedWordsArray.push(word);
+                } else {
+                    updatedWordsArray.push(word);
+                    if (synonymsResult[word]) {
+                        updatedWordsArray.push(...synonymsResult[word]);
+                    }
+                }
+            });
+        
+            return updatedWordsArray;
+        }
+        
+        // Update wordsArray with synonyms
+        const updatedWordsArray = updateWordsArray(wordsArray, synonymsResult);
+        console.log('Updated Words Array:', updatedWordsArray);
+
+
         
 
 
@@ -92,21 +159,21 @@ export default async function search(req, res) {
             fuzzy: false,
         };
 
-        for (let i = 0; i < wordsArray.length; i++) {
-            // console.log('each word',wordsArray[i])
-            if (wordsArray[i].startsWith("-")) {
-                wordsArray[i] = wordsArray[i].substring(1);
+        for (let i = 0; i < updatedWordsArray.length; i++) {
+            // console.log('each word',updatedWordsArray[i])
+            if (updatedWordsArray[i].startsWith("-")) {
+                updatedWordsArray[i] = updatedWordsArray[i].substring(1);
             }
-            // console.log('each word',wordsArray[i])
+            // console.log('each word',updatedWordsArray[i])
         }
 
         let newTestFiles = [];
         let newEntries = [];
 
         for (const file of extensionRemovedData) {
-            let inputExpression = inputValue;
+            let inputExpression = updatedInputValue;
             const fzf = new Fzf([file], options);
-            for (const word of wordsArray) {
+            for (const word of updatedWordsArray) {
                 if (word === "OR" || word === "AND") {
                     continue;
                 } else {
