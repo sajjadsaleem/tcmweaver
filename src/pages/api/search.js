@@ -52,10 +52,10 @@ export default async function search(req, res) {
 
         //===========getting the synonyms file from vault and formatt it into object==================
 
-        const standardVaultReference = await db.select({referenceNo: vaultsTable.reference_table}).from(vaultsTable).where(eq(vaultsTable.vault_name , 'Standard Vault'))
+        const standardVaultReference = await db.select({referenceNo: vaultsTable.reference_table}).from(vaultsTable).where(eq(vaultsTable.vault_name , 'CONFIG'))
 
         const selectQuery = drizzleSql`SELECT * FROM `;
-        const selectQueryJoint = `${standardVaultReference[0].referenceNo} where filename = 'Synonyms.md'`
+        const selectQueryJoint = `${standardVaultReference[0].referenceNo} where filename = 'synonyms.md'`
         selectQuery.queryChunks[0].value[0] += selectQueryJoint
         const queryResult = await db.execute(drizzleSql`${selectQuery}`);
 
