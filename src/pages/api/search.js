@@ -59,99 +59,102 @@ export default async function search(req, res) {
         selectQuery.queryChunks[0].value[0] += selectQueryJoint
         const queryResult = await db.execute(drizzleSql`${selectQuery}`);
 
-        function parseSynonyms(text) {
-            const lines = text.split('\n');
-            const synonyms = {};
-            lines.forEach(line => {
-                // Skip empty or whitespace-only lines
-                if (line.trim() === '') {
-                    return;
-                }
-                const parts = line.split(' ');
-                const key = parts.shift().substring(1); // Remove the leading '#' and take the first part
-                const values = parts.join(' ').split(',').filter(value => value.trim() !== ''); // Join the remaining parts, split by comma, and remove blank values
-                synonyms[key] = values;
-            });
-            return synonyms;
-        }
         
-        // Example usage
-        const synonyms = parseSynonyms(queryResult.rows[0].content);
-        console.log('==================synonyms' , synonyms);
 
-        //===========end getting the synonyms file from vault and format it into object==================
+        // console.log('============synonyms file' , queryResult.rows)
 
 
-        function findSynonyms(wordsArray, synonyms) {
-            const result = {};
+        let updatedInputValue
+        let updatedWordsArray
+
+        if(queryResult.rows.length > 0) {
         
-            wordsArray.forEach(word => {
-                // Check if the word is present in the keys
-                if (synonyms[word]) {
-                    if (!result[word]) {
-                        result[word] = synonyms[word].slice();
+            function parseSynonyms(text) {
+                const lines = text.split('\n');
+                const synonyms = {};
+                lines.forEach(line => {
+                    // Skip empty or whitespace-only lines
+                    if (line.trim() === '') {
+                        return;
                     }
-                } else {
-                    // Check if the word is present in the values
-                    for (const key in synonyms) {
-                        if (synonyms[key].includes(word)) {
-                            result[word] = synonyms[key].filter(val => val !== word);
-                            result[word].push(key);
-                            break;
+                    const parts = line.split(' ');
+                    const key = parts.shift().substring(1); // Remove the leading '#' and take the first part
+                    const values = parts.join(' ').split(',').filter(value => value.trim() !== ''); // Join the remaining parts, split by comma, and remove blank values
+                    synonyms[key] = values;
+                });
+                return synonyms;
+            }
+
+            function findSynonyms(wordsArray, synonyms) {
+                const result = {};
+            
+                wordsArray.forEach(word => {
+                    // Check if the word is present in the keys
+                    if (synonyms[word]) {
+                        if (!result[word]) {
+                            result[word] = synonyms[word].slice();
+                        }
+                    } else {
+                        // Check if the word is present in the values
+                        for (const key in synonyms) {
+                            if (synonyms[key].includes(word)) {
+                                result[word] = synonyms[key].filter(val => val !== word);
+                                result[word].push(key);
+                                break;
+                            }
                         }
                     }
-                }
-            });
-        
-            return result;
-        }
-        
-        // Finding synonyms
-        const synonymsResult = findSynonyms(wordsArray, synonyms);
-        console.log('Synonyms:', synonymsResult);
+                });
+            
+                return result;
+            }
 
-
-        function updateInputValue(inputValue, synonymsResult) {
-            const updatedInputValue = inputValue.split(' ').map(word => {
-                if (synonymsResult[word]) {
-                    return `${word} OR ${synonymsResult[word].join(' OR ')}`;
-                }
-                return word;
-            }).join(' ');
-        
-            return updatedInputValue;
-        }
-        
-        // Update input value with synonyms
-        const updatedInputValue = updateInputValue(inputValue, synonymsResult);
-        console.log('Updated Input Value:', updatedInputValue);
-
-
-        function updateWordsArray(wordsArray, synonymsResult) {
-            const updatedWordsArray = [];
-        
-            wordsArray.forEach(word => {
-                if (word === 'OR') {
-                    updatedWordsArray.push(word);
-                } else {
-                    updatedWordsArray.push(word);
+            function updateInputValue(inputValue, synonymsResult) {
+                const updatedInputValue = inputValue.split(' ').map(word => {
                     if (synonymsResult[word]) {
-                        updatedWordsArray.push(...synonymsResult[word]);
+                        return `${word} OR ${synonymsResult[word].join(' OR ')}`;
                     }
-                }
-            });
-        
-            return updatedWordsArray;
+                    return word;
+                }).join(' ');
+            
+                return updatedInputValue;
+            }
+
+            function updateWordsArray(wordsArray, synonymsResult) {
+                const updatedWordsArray = [];
+            
+                wordsArray.forEach(word => {
+                    if (word === 'OR') {
+                        updatedWordsArray.push(word);
+                    } else {
+                        updatedWordsArray.push(word);
+                        if (synonymsResult[word]) {
+                            updatedWordsArray.push(...synonymsResult[word]);
+                        }
+                    }
+                });
+            
+                return updatedWordsArray;
+            }
+
+
+            const synonyms = parseSynonyms(queryResult.rows[0].content);
+            console.log('==================synonyms' , synonyms);
+
+            const synonymsResult = findSynonyms(wordsArray, synonyms);
+            console.log('Synonyms:', synonymsResult);
+
+            updatedInputValue = updateInputValue(inputValue, synonymsResult);
+            console.log('Updated Input Value:', updatedInputValue);
+
+            updatedWordsArray = updateWordsArray(wordsArray, synonymsResult);
+            console.log('Updated Words Array:', updatedWordsArray);
+
+        } else {
+            updatedInputValue = inputValue
+            updatedWordsArray = wordsArray
         }
         
-        // Update wordsArray with synonyms
-        const updatedWordsArray = updateWordsArray(wordsArray, synonymsResult);
-        console.log('Updated Words Array:', updatedWordsArray);
-
-
-        
-
-
         // filter the data
         const options = {
             selector: (item) => `${item.fileName} (${item.content})`,
