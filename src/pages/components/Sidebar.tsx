@@ -2597,7 +2597,7 @@ const Sidebar = () => {
 
       function drag(simulation: any) {
         function dragstarted(event: any) {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
+          if (!event.active) simulation.alphaTarget(0.1).restart();
           event.subject.fx = event.subject.x;
           event.subject.fy = event.subject.y;
         }
@@ -2896,14 +2896,7 @@ const Sidebar = () => {
         }
       });
 
-      // setPreviousGraphData({})
-
-      // const notFoundNodesMap = d3.map(notFoundNodes, (_, i) => ({ id: N[i], tag: notFoundNodes[i].tag }));
-      // const allNodes = formattingNodes.concat(notFoundNodesMap);
-      // nodes = [...allNodes]
-
-
-      // console.log('nodes' , nodes)
+     
       nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
       links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
       // const linksCopy = _.cloneDeep(links)
@@ -2940,15 +2933,6 @@ const Sidebar = () => {
         }
       });
 
-      // console.log('formattingNodeCopy',formattingNodeCopy)
-
-
-      // Compute default domains.
-      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-      // Construct the scales.
-      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
       // Construct the forces.
       const forceNode = d3.forceManyBody();
       const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
@@ -2958,10 +2942,6 @@ const Sidebar = () => {
 
       // let tickCount = 0
       function ticked() {
-        // tickedValue++
-        // console.log('ticked value', tickedValue)
-
-        // console.log('helllllo')
 
         link
           .attr("x1", (d: any) => {
@@ -3416,7 +3396,7 @@ const Sidebar = () => {
 
         function dragstarted(event: any) {
 
-          if (!event.active) simulation.alphaTarget(0.3).restart();
+          if (!event.active) simulation.alphaTarget(0.1).restart();
           event.subject.fx = event.subject.x;
           event.subject.fy = event.subject.y;
         }
@@ -3494,6 +3474,7 @@ const Sidebar = () => {
       } else {
         svgContainer = d3.select('#graph-div');
       }
+      
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
 
@@ -3626,7 +3607,6 @@ const Sidebar = () => {
 
       const svgElement = svg.node() as SVGSVGElement;
       const result = {
-        // scales: { color },
         svg: svgElement,
       };
 
@@ -4047,7 +4027,7 @@ const Sidebar = () => {
 
       function drag(simulation: any) {
         function dragstarted(event: any) {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
+          if (!event.active) simulation.alphaTarget(0.1).restart();
           event.subject.fx = event.subject.x;
           event.subject.fy = event.subject.y;
         }
@@ -4809,7 +4789,7 @@ const Sidebar = () => {
 
         function dragstarted(event: any) {
 
-          if (!event.active) simulation.alphaTarget(0.3).restart();
+          if (!event.active) simulation.alphaTarget(0.1).restart();
           event.subject.fx = event.subject.x;
           event.subject.fy = event.subject.y;
         }
