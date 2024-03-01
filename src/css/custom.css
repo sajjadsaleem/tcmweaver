@@ -2696,6 +2696,11 @@ button {
    width: 100%;
 }
 
+.welcome-page-top-container a {
+    color: #B3B3B5 !important;
+
+}
+
 /*=========================Welcome Page End=================================*/
 
 
