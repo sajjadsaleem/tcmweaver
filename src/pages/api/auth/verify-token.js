@@ -77,10 +77,7 @@ export default async function handler(req, res) {
                 .where(eq(userVaultsTable.user_id, user[0].id))
             const vaultIdsFlat = userVaultsIds.map((item) => item.vltId);
 
-            // console.log('packageids', packageIds)
-
             const ids = packageIds.map(row => row.packageIds);
-
 
             let packageData = []
             let vaultsData = []
@@ -93,10 +90,6 @@ export default async function handler(req, res) {
                 packageData.push({ id, packages: packageNames });
             }
 
-
-
-            // console.log('ids', ids)
-
             for (const vaults of ids) {
                 const vaultsNames = await db.select({ vaultId: vaultPackagesTable.vault_id })
                     .from(vaultPackagesTable)
@@ -108,7 +101,6 @@ export default async function handler(req, res) {
 
             }
 
-            // console.log('vaultsdata', vaultsData)
 
             const flattenedVaultsArray = vaultsData.flatMap(item => item.id.map(obj => obj.vaultId));
             // console.log('flatenedvaultsarray', flattenedVaultsArray)

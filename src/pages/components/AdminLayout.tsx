@@ -1,38 +1,18 @@
-// import React, { ReactNode } from "react";
-// import { useRouter } from "next/router";
-
 export interface AdminLayoutProps {
   children: ReactNode;
 }
-
-// const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-//   const router = useRouter();
-
-//   return <div className="content-wrapper">{children}</div>;
-// };
-
-// export default AdminLayout;
-
-
-
-// pages/components/global/AdminLayout.js
 
 import React, { useState, useEffect , ReactNode } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from 'next/router';
-
 import { useDispatch, useSelector } from 'react-redux'
-
-import {
-  stAccessTokenVerify
-} from '../../store/apps/auth'
-
+import {stAccessTokenVerify} from '../../store/apps/auth'
 import LayoutWrapper from './LayoutWrapper';
+import { FullPageComponentLoading } from '../../util/FullPageComponentLoading'
 // import * as Helpers from '../../../util/Helpers'
 // import { ComponentLoading } from '../../../util/ComponentLoading'
-import { FullPageComponentLoading } from '../../util/FullPageComponentLoading'
 
 // ** Store Imports
 // import { useDispatch, useSelector } from 'react-redux'
@@ -60,7 +40,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     axios.post('/api/auth/verify-token', payload)
         .then((res) => {
             if(!res.data.tokenResult){
-              router.push('/login');
+              router.push('/welcome');
             } 
             else {
               setFullPageComponentLoading(false)

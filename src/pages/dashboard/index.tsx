@@ -898,11 +898,17 @@ const Dashboard = () => {
 
     axios.delete(`/api/deleteVault?vaultName=${vaultToDelete}`)
       .then(async (response: any) => {
-        await fetchFilenames()
-        toast.success('Vault deleted successfully', { autoClose: 1500 });
-        setShowVaultDelete(false)
-        setProceedBtnLoading(false);
-        console.log("Vault deleted successfully");
+        if(!response.data.success){
+          toast.error(`${response.data.message}`, { autoClose: 1500 });
+          setShowVaultDelete(false)
+          setProceedBtnLoading(false);
+        } else {
+          await fetchFilenames()
+          toast.success('Vault deleted successfully', { autoClose: 1500 });
+          setShowVaultDelete(false)
+          setProceedBtnLoading(false);
+        }
+       
       })
       .catch((error: any) => {
         setProceedBtnLoading(false);
