@@ -90,14 +90,19 @@ export default async function search(req, res) {
             
                 wordsArray.forEach(word => {
                     // Check if the word is present in the keys
-                    if (synonyms[word]) {
-                        if (!result[word]) {
-                            result[word] = synonyms[word].slice();
+                    const lowercaseWord = word.toLowerCase();
+                    if (Object.keys(synonyms).some(key => key.toLowerCase() === lowercaseWord)){
+                        if (!Object.keys(result).some(key => key.toLowerCase() === word.toLowerCase())) {
+                            result[word] = synonyms[word.toLowerCase()].slice();
                         }
+                        // if (!result[word]) {
+                        //     console.log('========2 word' , word)
+                        //     result[word] = synonyms[word].slice();
+                        // }
                     } else {
                         // Check if the word is present in the values
                         for (const key in synonyms) {
-                            if (synonyms[key].includes(word)) {
+                            if (synonyms[key].some(val => val.toLowerCase() === word.toLowerCase())) {
                                 result[word] = synonyms[key].filter(val => val !== word);
                                 result[word].push(key);
                                 break;
