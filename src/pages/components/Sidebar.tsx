@@ -29,8 +29,6 @@ var internalId: any = 0
 let controller: any
 
 
-
-
 const Sidebar = () => {
 
   const dispatch = useDispatch()
@@ -2279,23 +2277,16 @@ const Sidebar = () => {
       nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
       links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
 
-      // console.log("nodes", nodes);
-
-      // Compute default domains.
       if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
 
-      // Construct the scales.
       const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
 
-      // Construct the forces.
       const forceNode = d3.forceManyBody();
       const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
       if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
       if (linkStrength !== undefined) forceLink.strength(linkForceValue);
 
-      // console.log("nodes ", nodes);
       const customNodes: any = nodes;
-      // console.log('nodes in force' , nodes)
 
       console.log('in make graph>force graph')
 
@@ -2323,8 +2314,6 @@ const Sidebar = () => {
 
         // nodeTitles.text((d: any) => d.id);
       }
-
-
 
       function zoomed(event: any) {
         container.attr("transform", event.transform);
@@ -2383,8 +2372,6 @@ const Sidebar = () => {
         return value !== null && typeof value === "object" ? value.valueOf() : value;
       }
 
-
-
       function getNodeTextWidth(d: any, text: string) {
         // Create a hidden div to measure the text width
         const tempDiv: any = d3.select('body')
@@ -2402,7 +2389,6 @@ const Sidebar = () => {
 
         return textWidth;
       }
-
 
       function handleMouseOver(this: any, event: any, d: any) {
         d3.select(this as SVGElement)
@@ -2522,7 +2508,6 @@ const Sidebar = () => {
         // console.log("Hovered Nodes:", hoveredNodes);
       }
 
-
       function handleMouseOut(this: any, d: any) {
         let tempMouseOverNode
         // console.log('d', d)
@@ -2584,7 +2569,6 @@ const Sidebar = () => {
         //   .style("font-size", `${nodeTextSize}px`)
       }
 
-
       function areNodesConnected(node1: any, node2: any) {
         // Check if two nodes are directly connected through a link
         return links.some((linkData: any) => {
@@ -2637,11 +2621,6 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-        // Assuming links is your array of links
-        // Replace links with your actual links data structure
-        const links: any = [];  // Replace this with your actual links data
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -2649,9 +2628,9 @@ const Sidebar = () => {
       const simulation = d3.forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -3437,11 +3416,6 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-        // Assuming links is your array of links
-        // Replace links with your actual links data structure
-        const links: any = [];  // Replace this with your actual links data
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -3453,9 +3427,9 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+         // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -4067,20 +4041,15 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-        // Assuming links is your array of links
-        // Replace links with your actual links data structure
-        // const links:any = [];  // Replace this with your actual links data
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
 
       const simulation = d3.forceSimulation(customNodes).force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           // console.log('node radius' , radius)
@@ -4831,12 +4800,6 @@ const Sidebar = () => {
 
 
       function hasLinks(node: any) {
-        // Assuming links is your array of links
-        // Replace links with your actual links data structure
-        // const links:any = [];  // Replace this with your actual links data
-
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -4848,9 +4811,9 @@ const Sidebar = () => {
       const simulation = d3.forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+       // .force("center", d3.forceCenter().strength(centerForceValue))
+       .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+       .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -5658,11 +5621,6 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-        // Assuming links is your array of links
-        // Replace links with your actual links data structure
-        // const links:any = [];  // Replace this with your actual links data
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -5673,9 +5631,9 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -5974,14 +5932,6 @@ const Sidebar = () => {
         }
       });
 
-
-      // Compute default domains.
-      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-      // Construct the scales.
-      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
-
-      // Construct the forces.
       const forceNode = d3.forceManyBody();
       const forceLink = d3.forceLink(links).id(({ index: i = 0 }) => N[i]);
       if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
@@ -6001,7 +5951,6 @@ const Sidebar = () => {
               return xmark.x
             }
             else {
-              // console.log('d',d)
               if (nodes) {
                 const sourceXMark = nodes.find((checkEachNode: any) => {
                   return checkEachNode.id === d.source.id
@@ -6020,7 +5969,6 @@ const Sidebar = () => {
               return xmark.y
             }
             else {
-              // console.log('d',d)
               if (nodes) {
                 const sourceXMark = nodes.find((checkEachNode: any) => {
                   return checkEachNode.id === d.source.id
@@ -6444,8 +6392,6 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -6456,9 +6402,9 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0.02 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0.02 : 0.05; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -7204,8 +7150,6 @@ const Sidebar = () => {
       }
 
       function hasLinks(node: any) {
-
-        // Check if the node's ID is present in any link's source or target
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
@@ -7216,9 +7160,9 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-        .force("center", d3.forceCenter().strength(centerForceValue))
-        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
-        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? 0 : 0.05; }))
+       // .force("center", d3.forceCenter().strength(centerForceValue))
+       .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+       .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15

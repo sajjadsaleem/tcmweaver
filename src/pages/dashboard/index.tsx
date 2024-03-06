@@ -229,12 +229,12 @@ const Dashboard = () => {
 
     if (authorizationCode) {
       // Authorization code is present in the URL, send it to your backend
-      console.log('authorizationCode', authorizationCode)
+      // console.log('authorizationCode', authorizationCode)
       axios.post("/api/exchangeCodeForToken", { code: authorizationCode })
         .then((res: any) => {
           // Handle the response from the backend, which may contain the access token
           const accessToken = res.data.accessToken;
-          console.log('accessToken ', accessToken)
+          // console.log('accessToken ', accessToken)
           // axios
           // .get("https://people.googleapis.com/v1/people/me", {
           //   headers: {
@@ -1330,6 +1330,7 @@ const Dashboard = () => {
                           </List>
                         </div>
                       </div>
+
                       {currentSync && (
                         <div>
                           {showCurrentSync && (
@@ -1342,11 +1343,7 @@ const Dashboard = () => {
                             {totalFilesToSync === null ? (
                               <>
                                 <span className="processing-text">Processing</span>
-                                <span
-                                  className="spinner-grow spinner-grow-sm ml-2"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
+                                <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                               </>
                             ) : (
                               <>
@@ -1355,11 +1352,7 @@ const Dashboard = () => {
                                     <span className="processing-text">
                                       Processing {currentSyncedFiles} / {totalFilesToSync} files
                                     </span>
-                                    <span
-                                      className="spinner-grow spinner-grow-sm ml-2"
-                                      role="status"
-                                      aria-hidden="true">
-                                    </span>
+                                    <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                                   </>
                                 ) : (
                                   <>
@@ -1367,10 +1360,7 @@ const Dashboard = () => {
                                       Syncronized {currentSyncedFiles} / {totalFilesToSync} files
                                     </span>
                                   </>
-                                )
-
-                                }
-
+                                )}
                               </>
                             )}
                           </ListItem>
@@ -1422,11 +1412,7 @@ const Dashboard = () => {
                             <>
                               <Button color="primary" variant="contained">
                                 Syncronizing
-                                <span
-                                  className="spinner-grow spinner-grow-sm ml-2"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
+                                <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                               </Button>
                             </>
                           ) : (
