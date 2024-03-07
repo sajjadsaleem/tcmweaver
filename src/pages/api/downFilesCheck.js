@@ -27,6 +27,8 @@ export default async function handler(request, response) {
             const db = drizzle(sql)
             let client
 
+            let errorFiles = []
+
 
             async function overwriteVault(files) {
                 // console.log('files', files)
@@ -72,28 +74,38 @@ export default async function handler(request, response) {
                             content += chunk.toString();
                         });
 
-                        await new Promise((resolve) => {
+                        await new Promise((resolve , reject) => {
                             response.data.on('end', async () => {
-                                console.log(`Downloaded file ${fileName}`);
 
-                                const insertQuery = `INSERT INTO ${tableName[0].reference_table} (filename, content) VALUES ($1, $2)`;
-                                const values = [fileName, content];
+                                try {
+                                    const insertQuery = `INSERT INTO ${tableName[0].reference_table} (filename, content) VALUES ($1, $2)`;
+                                    const values = [fileName, content];
 
-                                await client.query(insertQuery, values);
+                                    await client.query(insertQuery, values);
 
+                                    console.log(`Downloaded file ${fileName}`);
 
-                                // const insertedFile = await db.insert(basicVault)
-                                //     .values({ filename: fileName, content: content })
-
-                                downloadedFilesFromDrive.push({
-                                    filename: fileName,
-                                    content: content,
-                                });
-                                resolve();
+                                    downloadedFilesFromDrive.push({
+                                        filename: fileName,
+                                        content: content,
+                                    });
+                                    resolve();
+                                } catch (error) {
+                                    console.log(`Error downloading file ${fileName}`);
+                                    errorFiles.push({filename: fileName, message: error.message});
+                                    resolve();
+                                }
+                            });
+                            
+                            response.data.on('error', (error) => {
+                                console.log(`Error downloading file ${fileName}`);
+                                errorFiles.push({filename: fileName, message: error.message});
+                                resolve()
                             });
                         });
                     } catch (error) {
                         console.error('Error fetching file:', error);
+                        errorFiles.push({filename: fileName, message: 'Error fetching files'});
                     }
                 }
 
@@ -101,20 +113,13 @@ export default async function handler(request, response) {
             }
 
             async function createNewVault(files) {
-                // console.log('files1', files)
                 client = await pool.connect();
 
                 const tableName = await db.select().from(vaultsTable)
                     .where(eq(vaultsTable.vault_name, files.name));
 
                 console.log('tablename', tableName)
-                // const tableName = files.option;
                 const data = files.downloadedFiles
-
-                // const deleteQuery = `DELETE FROM ${tableName[0].reference_table}`;
-
-
-                // const result = await client.query(deleteQuery);
 
                 const downloadedFilesFromDrive = [];
 
@@ -144,26 +149,33 @@ export default async function handler(request, response) {
 
                         await new Promise((resolve) => {
                             response.data.on('end', async () => {
-                                console.log(`Downloaded file ${fileName}`);
-
-                                const insertQuery = `INSERT INTO ${tableName[0].reference_table} (filename, content) VALUES ($1, $2)`;
-                                const values = [fileName, content];
-
-                                await client.query(insertQuery, values);
-
-
-                                // const insertedFile = await db.insert(basicVault)
-                                //     .values({ filename: fileName, content: content })
-
-                                downloadedFilesFromDrive.push({
-                                    filename: fileName,
-                                    content: content,
-                                });
-                                resolve();
+                                try {
+                                    const insertQuery = `INSERT INTO ${tableName[0].reference_table} (filename, content) VALUES ($1, $2)`;
+                                    const values = [fileName, content];
+                                    await client.query(insertQuery, values);
+                                    console.log(`Downloaded file ${fileName}`);
+                                    downloadedFilesFromDrive.push({
+                                        filename: fileName,
+                                        content: content,
+                                    });
+                                    resolve();  
+                                } catch (error) {
+                                    console.log(`Error downloading file ${fileName}`);
+                                    errorFiles.push({filename: fileName, message: error.message});
+                                    resolve();
+                                }
                             });
+
+                            response.data.on('error', (error) => {
+                                console.log(`Error downloading file ${fileName}`);
+                                errorFiles.push({filename: fileName, message: error.message});
+                                resolve()
+                            });
+                            
                         });
                     } catch (error) {
                         console.error('Error fetching file:', error);
+                        errorFiles.push({filename: fileName, message: 'Error fetching file'});
                     }
                 }
 
@@ -189,21 +201,12 @@ export default async function handler(request, response) {
             client.release()
             console.log('downloadedFiles = ', downloadedFiles.length)
             response.status(200).json({
-                message: `${downloadedFiles.length} files synchronized successfully`,
+                message: downloadedFiles.length,
+                errorFiles: errorFiles
             });
 
-
-
-
-            try {
-
-            } catch (error) {
-                console.error('Error during file download:', error);
-                response.status(500).json({ message: 'Internal server error' });
-            }
-
         } catch (error) {
-            console.error("Error fetching file:", error.message);
+            console.error("Error :", error.message);
             response.status(500).json({ error: "Internal Server Error" });
         }
 

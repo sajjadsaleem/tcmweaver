@@ -113,6 +113,9 @@ const Dashboard = () => {
   const [filenameToView, setFilenameToView] = useState('')
   const [scroll, setScroll] = useState<DialogProps['scroll']>('paper');
   const [viewIndividualFileLoader, setViewIndividualFileLoader] = useState(false)
+  const [totalSyncronizedFiles , setTotalSyncronizedFiles] = useState<any>(0)
+  const [totalFailedSync , setTotalFailedSync] = useState<any>(null)
+  const [showFailedSyncFiles , setShowFailedSyncFiles] = useState<any>([])
 
   // console.log('original vault' , originalVault)
   // console.log('vaultFiles' , vaultFiles)
@@ -268,7 +271,6 @@ const Dashboard = () => {
   useEffect(() => {
     // Check if accessToken is available
     if (accessToken) {
-      console.log('now in google drive api')
       // Use the accessToken to make authenticated requests to Google Drive API
       axios.get("https://www.googleapis.com/drive/v3/files", {
         headers: {
@@ -387,20 +389,11 @@ const Dashboard = () => {
       .then(async (res: any) => {
         const reqData = res.data.data
         setTotalFilesToSync(res.data.message)
-        // toast("Syncronizing vaults in background. Please check the vaults in a few minutes.", {
-        //   position: "top-right",
-        //   autoClose: 1500,
-        //   hideProgressBar: false,
-        //   closeOnClick: true,
-        //   pauseOnHover: true,
-        //   draggable: true,
-        //   type: "success",
-        //   progress: undefined,
-        //   theme: "light",
-        // });
-
+       
         const chunkSize = 50;
         var currentlySyncronizingFiles = 0
+        let totalFailedFiles:any = 0
+        let totalSuccessFilesSync = 0
 
 
         for (let i = 0; i < reqData.length; i++) {
@@ -427,17 +420,16 @@ const Dashboard = () => {
               }
             })
               .then((res: any) => {
-                // console.log('res' , res.data)
+                setShowFailedSyncFiles((prevFailedFiles:any) => [...prevFailedFiles, ...res.data.errorFiles]);
 
-                // setTaskCompleted(false);
-                // setShowFolderComparison(false)
+                setTotalSyncronizedFiles((prevTotalSyncedFiles:any) => prevTotalSyncedFiles + res.data.message);
 
-                // setFolderSelectedLoader(true)
+                totalFailedFiles = totalFailedFiles + res.data.errorFiles.length
+                setTotalFailedSync(totalFailedFiles)
 
 
               }).catch((err: any) => {
                 console.log('err', err)
-                // setTaskCompleted(false);
               })
 
           }
@@ -1302,7 +1294,6 @@ const Dashboard = () => {
                                       <select id="vaultSelect"
                                         disabled={folderSelectedLoader}
                                         onChange={(e: any) => {
-                                          console.log('e change', e.target)
                                           setSelectedFolders((prevSelectedFolders: any) => {
                                             return prevSelectedFolders.map((prevFolder: any, i: any) => {
                                               if (i === index) {
@@ -1355,11 +1346,29 @@ const Dashboard = () => {
                                     <span className="spinner-grow spinner-grow-sm ml-2" role="status" aria-hidden="true"></span>
                                   </>
                                 ) : (
-                                  <>
+                                  <div style={{display: 'block'}}>
                                     <span>
-                                      Syncronized {currentSyncedFiles} / {totalFilesToSync} files
+                                      Syncronized {totalSyncronizedFiles} / {totalFilesToSync} files
                                     </span>
-                                  </>
+                                    <div style={{marginTop: '10px'}}>
+                                      {showFailedSyncFiles.length > 0 && (
+                                        <>
+                                          <span>Failed Files ({showFailedSyncFiles.length}) : </span>
+                                          <ul>
+                                            {showFailedSyncFiles.map((failedFile:any, index:any) => (
+                                              <li key={index}>
+                                                {failedFile.message.includes('duplicate key value') ? 
+                                                  `${failedFile.filename}: Duplicate File` : 
+                                                  `${failedFile.filename}: Error downloading file`
+                                                }
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </>
+                                      )}
+                                    </div>
+                                    
+                                  </div>
                                 )}
                               </>
                             )}
