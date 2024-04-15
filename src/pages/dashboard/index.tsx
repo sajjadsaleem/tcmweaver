@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import LayoutWrapper from '../components/LayoutWrapper'
-import AuthLayout from '../components/AuthLayout'
 import { ToastContainer, toast } from "react-toastify";
 import Link from 'next/link';
 import * as Helpers from '../../util/Helpers'
@@ -28,7 +27,6 @@ const Dashboard = () => {
   const getStAuth = useSelector((state: any) => state.stAuth)
 
   const [themeChangericon, setThemeChangerIcon] = useState(false);
-  const [graphOrTextView, setgraphOrTextView] = useState(true);
   const [syncPopup, setSyncPopup] = useState(false);
   const [foldersPopup, setFoldersPopup] = useState(false);
   const [folders, setFolders] = useState<any>([]);
@@ -38,7 +36,7 @@ const Dashboard = () => {
   const [vaultFiles, setVaultFiles] = useState([])
   const [searched, setSearched] = useState<string>("");
   const [originalUsers, setOriginalUsers] = useState<any>([])
-  const [searchedUsers, setSearchedUsers] = useState([])
+  const [searchedUsers, setSearchedUsers] = useState<any>([])
   const [userSearchValue, setUserSearchValue] = useState([])
   const [showAddUser, setShowAddUser] = useState(false)
   const [formData, setFormData] = useState<any>({
@@ -69,21 +67,13 @@ const Dashboard = () => {
   const [currentUserImage, setCurrentUserImage] = useState('')
   const [proccedBtnLoading, setProceedBtnLoading] = useState(false)
   const [folderSelectedLoader, setFolderSelectedLoader] = useState(false)
-  const [clickedFolder, setClickedFolder] = useState(null);
   const [taskCompleted, setTaskCompleted] = useState(false);
-  // const [selectedFolder, setSelectedFolder] = useState<any>(null);
   const [showVaultFiles, setShowVaultFiles] = useState(false)
   const [originalVaultFilesToShow, setOriginalVaultFilesToShow] = useState<any>([])
   const [vaultFilesToShow, setVaultFilesToShow] = useState<any>([])
   const [selectedFolders, setSelectedFolders] = useState<any>([]);
-  const [foldersSelectedNext, setFoldersSelectedNext] = useState<any>(false)
   const [showFolderComparison, setShowFolderComparison] = useState(false)
   const [folderToCompare, setFoldersToCompare] = useState([])
-  const [notMatchDropdown, setNotMatchDropdown] = useState([
-    {
-      name: 'Vault does not exist'
-    }
-  ])
   const [showVaultDelete, setShowVaultDelete] = useState(false)
   const [vaultToDelete, setVaultToDelete] = useState('')
   const [packageSearchValue, setPackageSearchValue] = useState([])
@@ -106,7 +96,6 @@ const Dashboard = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [getUser, setUser] = useState<any>({})
   const [getFullPageComponentLoading, setFullPageComponentLoading] = useState(true);
-  const [vaultFileToView, setVaultFileToView] = useState({})
   const [userLogoutPopup, setUserLogoutPopup] = useState(false)
   const [viewIndividualFile, setViewIndividualFile] = useState<any>({})
   const [showViewIndividualFile, setShowViewIndividualFile] = useState(false)
@@ -117,28 +106,6 @@ const Dashboard = () => {
   const [totalFailedSync , setTotalFailedSync] = useState<any>(null)
   const [showFailedSyncFiles , setShowFailedSyncFiles] = useState<any>([])
 
-  // console.log('original vault' , originalVault)
-  // console.log('vaultFiles' , vaultFiles)
-  // console.log('originalusers' , originalUsers)
-  // console.log('searchedUsers' , searchedUsers)
-  // console.log('formData' , formData)
-  // console.log('showoption' , showOptions)
-  // console.log('newpasswordData' ,newPasswordData)
-  // console.log('edituserdialog' , showEditUserDialog)
-  // console.log('indexToChangePassword' , indexToChangePassword)
-  // console.log('vaultfilestoshow' , vaultFilesToShow)
-  // console.log('folders' , folders)
-  // console.log('selectedfolders' , selectedFolders)
-  // console.log('foldertocompare'  , folderToCompare)
-  // console.log('vaulttodelete' , vaultToDelete)
-  // console.log('folderselectedloader' , folderSelectedLoader)
-  // console.log('searchedstripepackages' , searchedStripePackages)
-  // console.log('showaddvaultpopup' , showAddVaultPopup)
-  // console.log('pkg to add vault ' , packageToAddVault)
-  // console.log('selectallvaults to ' , allVaultsToSelect)
-  // console.log('defaultVault' , defaultVaultsInPackage)
-  // console.log('selectedvaultsforpackage' , selectedVaultsForPackage)
-  // console.log('viewIndividualFile',viewIndividualFile)
 
   useEffect(() => {
     const getInit = () => {
@@ -525,7 +492,6 @@ const Dashboard = () => {
 
 
   const requestUserSearch = (event: any) => {
-    // console.log(event.target.value)
     setUserSearchValue(event.target.value)
     const searchedVal = event.target.value
     const filteredRows = originalUsers.filter((row: any) => {
@@ -637,14 +603,13 @@ const Dashboard = () => {
   }
 
 
-  const handleEllipsisClick = (index: any) => {
-    // console.log('ellispes click' , index)    
+  const handleEllipsisClick = (index: any) => { 
     setShowOptions(index === showOptions ? -1 : index);
   };
 
 
   const handleEditClick = (index: any) => {
-    const userToEdit: any = originalUsers[index]
+    const userToEdit: any = searchedUsers[index]
     // console.log('usertoedit' , userToEdit)
     setIndexToChangePassword(index)
     // console.log('usertoedit' , userToEdit)
@@ -664,15 +629,11 @@ const Dashboard = () => {
 
   const handleEditUser = async () => {
     setEditUserLoader(true)
-    // console.log('emailtoudpatedata' , originalUsers[indexToChangePassword].email)
-    // console.log('formData' , formData)
-    // setUpdatePasswordLoader(true)
     const storedUserJson: any = localStorage.getItem("user");
     const storedUser = JSON.parse(storedUserJson)
 
-    console.log('storeduser', storedUser.role)
     await axios.post('/api/editUser', {
-      email: originalUsers[indexToChangePassword].email,
+      email: searchedUsers[indexToChangePassword].email,
       currentUser: storedUser.role,
       data: formData
     })
@@ -726,7 +687,7 @@ const Dashboard = () => {
 
   const handleDeleteClick = async (index: any) => {
     setIsDeleting(true);
-    const userEmailToDelete: any = originalUsers[index].email;
+    const userEmailToDelete: any = searchedUsers[index].email;
     axios.delete(`/api/deleteUser?email=${userEmailToDelete}`)
       .then(async (response: any) => {
         console.log('response after deleting ', response)
@@ -763,10 +724,9 @@ const Dashboard = () => {
 
 
   const handleSetPassword = async () => {
-    const emailToUpdatePassword: any = originalUsers[indexToChangePassword].email;
+    const emailToUpdatePassword: any = searchedUsers[indexToChangePassword].email;
     if (newPasswordData.newPassword !== newPasswordData.confirmPassword) {
       toast.error('Passwords do not match!', { autoClose: 2000 });
-      return;
     } else {
       setUpdatePasswordLoader(true)
       await axios.post('/api/updatePassword', {
@@ -792,13 +752,6 @@ const Dashboard = () => {
           toast.error('Failed to set password');
         })
     }
-
-
-
-
-    //clear fields after updating password
-
-
   }
 
 
@@ -1601,7 +1554,6 @@ const Dashboard = () => {
                 )}
 
                 {showEditUserDialog && (
-                  <>
                     <Dialog open={showEditUserDialog} onClose={closeEditUserDailog} sx={{ width: 550, margin: 'auto' }}
                       className='mobile-dashboard-edituser-dialog' >
                       <DialogTitle>Edit User</DialogTitle>
@@ -1693,7 +1645,6 @@ const Dashboard = () => {
                         </Button>
                       </DialogActions>
                     </Dialog>
-                  </>
                 )}
 
                 {showVaultDelete && (
@@ -1812,7 +1763,6 @@ const Dashboard = () => {
                 )}
 
                 {showViewIndividualFile && (
-                  <>
                     <Dialog open={showViewIndividualFile} onClose={closeViewIndivualFileDialog}
                       scroll={scroll} aria-labelledby="scroll-dialog-title"
                       aria-describedby="scroll-dialog-description"
@@ -1844,8 +1794,6 @@ const Dashboard = () => {
                         <Button onClick={closeViewIndivualFileDialog} color="primary">Close</Button>
                       </DialogActions>
                     </Dialog>
-
-                  </>
                 )}
 
               </div>
@@ -2154,15 +2102,15 @@ const Dashboard = () => {
                           </TableHead>
 
                           <TableBody>
-                            {searchedUsers.map((row: any, index) => (
+                            {searchedUsers.map((row: any, index:any) => (
                               <TableRow
                                 key={row.email}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 className='vault-table-row user-row-hover'
                               >
                                 <TableCell component="th" scope="row" className='vault-table-body-row'>{index + 1}</TableCell>
-                                <TableCell className='vault-table-body-row'>{row.full_name}</TableCell>
-                                <TableCell className='vault-table-body-row'>{row.email}</TableCell>
+                                <TableCell className='vault-table-body-row'  sx={{ width: '20%', maxWidth: '200px',overflow: 'hidden', textOverflow: 'ellipsis',whiteSpace: 'nowrap' }}>{row.full_name}</TableCell>
+                                <TableCell className='vault-table-body-row' sx={{ width: '20%', maxWidth: '200px',overflow: 'hidden', textOverflow: 'ellipsis',whiteSpace: 'nowrap' }}>{row.email}</TableCell>
                                 <TableCell className='vault-table-body-row'>{row.role_id === 1 ? 'Admin' : row.role_id === 2 ? 'User' : ''}</TableCell>
                                 <TableCell className='vault-table-body-row' style={{ color: row.status === 'Active' ? '#28C76F' : 'inherit' }}>
                                   {row.status}
