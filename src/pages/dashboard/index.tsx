@@ -1002,8 +1002,6 @@ const Dashboard = () => {
     const currentVaults = row.vaults.map((vlt: any) => vlt);
     const defaultValues = allVaultsToSelect.filter((option: any) => currentVaults.includes(option.value));
 
-    // console.log('defaultValues' , defaultValues)
-
     setSelectedVaultsForUser(defaultValues)
     setDefaultVaultsForUser(defaultValues)
     setUserToAddVault(row)
@@ -1334,18 +1332,7 @@ const Dashboard = () => {
                     <DialogActions>
                       {folderSelectedLoader ? (
                         <>
-                          {/* <Button onClick={() => {
-                            setShowFolderComparison(false)
-                            setSelectedFolders([])}} color="primary">
-                            Done
-                          </Button> */}
-                          {/* <Button onClick={() => {
-                            setShowFolderComparison(false)
-                            setFoldersPopup(true)}} color="primary">
-                            Back
-                          </Button> */}
                           {taskCompleted ? (
-                            <>
                               <Button color="primary" variant="contained" disabled>
                                 Sync
                                 {/* <span
@@ -1354,13 +1341,10 @@ const Dashboard = () => {
                                 aria-hidden="true"
                                 ></span> */}
                               </Button>
-                            </>
                           ) : (
-                            <>
                               <Button onClick={handlerFolderPopupClose} color="primary" variant="contained">
                                 Done
                               </Button>
-                            </>
                           )}
                         </>) : (
                         <>
@@ -1491,7 +1475,6 @@ const Dashboard = () => {
                 )}
 
                 {showSetPassword && (
-                  <>
                     <Dialog open={showSetPassword} onClose={closeSetPasswordDialog}>
                       <DialogTitle>Set Password</DialogTitle>
                       <DialogContent>
@@ -1550,7 +1533,6 @@ const Dashboard = () => {
                         </Button>
                       </DialogActions>
                     </Dialog>
-                  </>
                 )}
 
                 {showEditUserDialog && (
@@ -1673,7 +1655,6 @@ const Dashboard = () => {
                 )}
 
                 {showAddVaultPopup && (
-                  <>
                     <Dialog open={showAddVaultPopup} onClose={closeAddVaultPopup} className='mobile-dashboard-addvaulttouser-dialog' >
                       <Paper sx={{ width: 500 }} className='mobile-dashboard-addvaulttouser-paper'>
                         <DialogTitle>{packageToAddVault.name}</DialogTitle>
@@ -1706,11 +1687,9 @@ const Dashboard = () => {
                         </DialogActions>
                       </Paper>
                     </Dialog>
-                  </>
                 )}
 
                 {showAddVaultToUserPopup && (
-                  <>
                     <Dialog open={showAddVaultToUserPopup} onClose={closeAddVaultToUserPopup} className='mobile-dashboard-addvaulttouser-dialog' >
                       <Paper sx={{ width: 500 }} className='mobile-dashboard-addvaulttouser-paper'>
                         <DialogTitle>{userToAddVault.full_name}</DialogTitle>
@@ -1743,7 +1722,6 @@ const Dashboard = () => {
                         </DialogActions>
                       </Paper>
                     </Dialog>
-                  </>
                 )}
 
                 {userLogoutPopup && (
@@ -2126,10 +2104,7 @@ const Dashboard = () => {
                                       ))}
                                     </>
                                   ) : (
-                                    <>
                                       <p style={{ display: 'inline' }}>No vault attached</p>
-
-                                    </>
                                   )}
 
                                   <img src="attach-vault.png" alt="logo"

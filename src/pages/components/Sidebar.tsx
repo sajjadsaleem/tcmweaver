@@ -91,7 +91,7 @@ const Sidebar = () => {
   const [textColorForNode, setTextColorForNode] = useState<any>()
   const [graphLinkColor, setGraphLinkColor] = useState<any>()
   const [nodeTextSize, setNodeTextSize] = useState<any>(8)
-  const [centerForceValue, setCenterForceValue] = useState(1)
+  const [centerForceValue, setCenterForceValue] = useState(0.5)
   const [sliderValue, setSliderValue] = useState(-30)
   const [linkForceValue, setLinkForceValue] = useState(0.2)
   const [accessToken, setAccessToken] = useState('');
@@ -122,7 +122,6 @@ const Sidebar = () => {
   const [updatePasswordLoader, setUpdatePasswordLoader] = useState<any>(false)
   const [homepageFile, setHomepageFile] = useState<any>([])
   const [getPackage, setPackage] = useState([])
-  // const [selectedVaultOption, setSelectedVaultOption] = useState('Basic Vault');
   const [showLockedVaultPopup, setShowLockedVaultPopup] = useState(false)
   const [userAccessVaults, setUserAccessVaults] = useState<any>([])
   const accountOptionsRef = useRef<any>(null);
@@ -8578,7 +8577,8 @@ const Sidebar = () => {
 
 
   const handleCenterForceCommitted = (event: any, newValue: any) => {
-    setCenterForceValue(newValue)
+    let checkValue = mapValueToState(newValue , 0 , 1 , 0 , 0.8)
+    setCenterForceValue(checkValue)
   };
 
 
@@ -9954,108 +9954,7 @@ const Sidebar = () => {
                                       </div>
 
                                     </div>
-                                  </div>
-
-
-                                  {/* =======================Text Filters==============================  */}
-                                  {/* <div className="text-filters-div">
-                                  <h5>Text Filters</h5>
-
-                                  {!graphOrTextView && (
-                                    <div className={`${graphOrTextView ? '' : 'text-filters-screen'}`}>
-                                      <div className="menus-link">
-                                        <div className="sub-accordion">
-                                          <Accordion>
-                                            {allCheckboxes.map((category: any, index: any) => (
-                                              <div key={index}>
-                                                {graphOrTextView ? (
-                                                  <>
-                                                    <Accordion.Item eventKey={index.toString()} key={category.category}
-                                                      title={category.category} className="accordion-item"
-                                                    >
-                                                      <Accordion.Header className="accordion-header">
-                                                        {category.category}
-                                                      </Accordion.Header>
-                                                      <Accordion.Body className="accordion-body">
-                                                        <div className="form-check form-check-inline">
-                                                          {category.items.map((item: any) => (
-                                                            <div className="form-check form-check-inline" key={item.id}>
-                                                              <input className={`form-check-input ${category.items[item.id - 1]["status"] ===
-                                                                "exclude" ? "customCheckBackground" : ""
-                                                                }`} id={`checkbox${category.category}-${item.id}`}
-                                                                type="checkbox" checked={item.state === "checked"} value={item.value}
-                                                                onChange={() => handleCheckboxClick(category.category, item.id)}
-                                                              />
-                                                              <label className="form-check-label" htmlFor={`checkbox${category.category}-${item.id}`}>
-                                                                {item.value}
-                                                                {item.category}
-                                                              </label>
-                                                            </div>
-                                                          ))}
-                                                        </div>
-                                                      </Accordion.Body>
-                                                    </Accordion.Item>
-                                                  </>
-                                                ) : (
-                                                  <>
-                                                    {!graphFiltersName.includes(category.category) && (
-                                                      <Accordion.Item
-                                                        eventKey={index.toString()}
-                                                        key={category.category}
-                                                        title={category.category}
-                                                        className="accordion-item"
-                                                      >
-                                                        <Accordion.Header className="accordion-header">
-                                                          {category.category}
-                                                        </Accordion.Header>
-                                                        <Accordion.Body className="accordion-body">
-                                                          <div className="form-check form-check-inline">
-                                                            {category.items.map((item: any) => (
-                                                              <div
-                                                                className="form-check form-check-inline"
-                                                                key={item.id}
-                                                              >
-                                                                <input
-                                                                  className={`form-check-input ${category.items[item.id - 1]["status"] ===
-                                                                    "exclude"
-                                                                    ? "customCheckBackground"
-                                                                    : ""
-                                                                    }`}
-                                                                  type="checkbox"
-                                                                  id={`checkbox${category.category}-${item.id}`}
-                                                                  checked={item.state === "checked"}
-                                                                  onChange={() =>
-                                                                    handleCheckboxClick(
-                                                                      category.category,
-                                                                      item.id
-                                                                    )
-                                                                  }
-                                                                  value={item.value}
-                                                                />
-                                                                <label
-                                                                  className="form-check-label"
-                                                                  htmlFor={`checkbox${category.category}-${item.id}`}
-                                                                >
-                                                                  {item.value}
-                                                                  {item.category}
-                                                                </label>
-                                                              </div>
-                                                            ))}
-                                                          </div>
-                                                        </Accordion.Body>
-                                                      </Accordion.Item>
-                                                    )}
-                                                  </>
-                                                )}
-                                              </div>
-
-                                            ))}
-                                          </Accordion>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div> */}
+                                  </div>                                 
                                 </div>
                               </>
                             ) : (
