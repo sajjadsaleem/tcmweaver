@@ -669,10 +669,12 @@ const Sidebar = () => {
       wordToSearch = "";
     }
 
-    // console.log("wordToSearch before split:", wordToSearch);
+    // const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
+    //   (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    // );
 
-    const wordsArray = (wordToSearch.match(/(-?)"([^"]*)"|\S+/g) || []).map(
-      (match: any) => match.replace(/^(-?)"([^"]*)"$/, "$1$2")
+    const wordsArray = (wordToSearch.match(/(-?)["“”]([^"“”]*)["“”]|\S+/g) || []).map(
+      (match: any) => match.replace(/^(-?)["“”]([^"“”]*)["“”]$/, "$1$2")
     );
 
     return { wordToSearch, wordsArray };
@@ -722,8 +724,6 @@ const Sidebar = () => {
     }
 
     wordToSearch = wordsToSearch;
-
-    // console.log("word to search", wordToSearch);
 
     const options: FzfOptions<File> = {
       selector: (item: any) => `${item.fileName} (${item.content})`,
@@ -814,8 +814,6 @@ const Sidebar = () => {
 
     let { wordToSearch, wordsArray } = await searchBarFormation(event)
 
-
-    // console.log("words array: ", wordsArray);
 
     //changing filter status for each word in search bar
     wordsArray.forEach((word: any) => {
