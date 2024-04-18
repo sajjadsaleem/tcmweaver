@@ -7353,14 +7353,10 @@ const Sidebar = () => {
 
     let matchingFile: any = copySearchResults.find((file: any) => file.fileName === resultToOpen.fileName);
 
-
-    // console.log('matchingFile', matchingFile)
-
     marked.setOptions({ breaks: true });
 
     let editedResult = matchingFile.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
     matchingFile.content = marked(editedResult);
-    // console.log("markedContent", matchingFile);
 
     const regex = /\[\[([^[\]]+)\]\]/g;
     const hashtagParagraphRegex = /#\S+/g;
@@ -7567,18 +7563,14 @@ const Sidebar = () => {
 
 
   const handleLinkClick = async (linkClickedFromFile: any, linkClicked: any, result: any) => {
-    console.log(linkClickedFromFile, linkClicked, linkClickFromFile)
     setLinkClickFromFile(linkClicked)
-    // console.log("linkClickedFromFile: ", linkClickedFromFile);
-    // console.log("linkClicked: ", linkClicked);
-    // console.log('result' , result.id)
     setLinkClickedId(result.id)
 
     setLinkClickLoader(true)
     try {
       const tableNamesStr = userAccessVaults.join(',');
       const response = await fetch(`/api/linkFile?q=${linkClicked}&av=${tableNamesStr}`);
-      // console.log('response' , response)
+     
       const linkFile = await response.json();
 
       if (linkFile.hasOwnProperty("message")) {
@@ -7589,9 +7581,6 @@ const Sidebar = () => {
               <p>{linkFile.message}</p>
               {!showContactSupportToast && (
                 <p>Please contact: <a href="mailto:support@tcmweaver.com">support@tcmweaver.com</a></p>
-
-
-                // <button className="contact-support-button" onClick={() => setShowContactSupportToast(true)}>Contact Support</button>
               )}
             </div>,
             {
@@ -7611,45 +7600,30 @@ const Sidebar = () => {
         showToast()
       }
 
-      // console.log('linkFile', linkFile)
-
-
       const newDataObject = _.cloneDeep(linkFile)
-      console.log('newdataobject', newDataObject)
 
       let textToConvert = newDataObject.content;
       const regexForRemovedBrackets = /\[\[([^[\]]+)\]\]/g;
 
-      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets, (match: any, word: any) => `${word} `);
+      const contentWithRemovedBrackets = textToConvert.replace(regexForRemovedBrackets, (match: any, word: any) => `${word}`);
       newDataObject.contentWithRemovedBrackets = contentWithRemovedBrackets;
 
       marked.setOptions({ breaks: true, });
 
       let editedResult = newDataObject.content.replace(/\n(?=\n)/g, "\n\n<br/>\n")
 
-      // newDataObject.contentWithRemovedBrackets = marked(editedResult);
       newDataObject.content = marked(editedResult);
-
 
       const regex = /\[\[([^[\]]+)\]\]/g;
       const hashtagParagraphRegex = /#\S+/g;
+
       if (newDataObject) {
-        // console.log("newDataObject", newDataObject);
         const contentWithoutHashtags = newDataObject.content.replace(hashtagParagraphRegex, "");
-
-        // console.log('contentWithoutHashtags', contentWithoutHashtags)
-
         const contentWithStyledWords = contentWithoutHashtags.replace(regex,
-          (match: any, word: any) => `<span style = "text-decoration: underline; cursor: pointer;"> ${word}</ > `
+          (match: any, word: any) => `<span style="text-decoration: underline; cursor: pointer;">${word}</span> `
         );
 
-        // console.log('contentWithStyledWords', contentWithStyledWords)
-
-
-        // console.log("contentwithstyledword", contentWithStyledWords);
-        // console.log('openedresults' , openedResults)
         const index = openedResults.findIndex((item: any) => item.fileName === linkClickedFromFile);
-        // console.log('index' , index)
 
         if (index !== -1) {
           const updatedResults = {
@@ -7661,30 +7635,21 @@ const Sidebar = () => {
           const doesExist = openedResults.some((result) => result.fileName === updatedResults.fileName);
 
           if (!doesExist) {
-            // console.log('found')
-            // Create a copy of the openedResults array
             const updatedOpenedResults = [...openedResults];
 
-            // Insert the updatedResults object at index + 1
             updatedOpenedResults.splice(index + 1, 0, updatedResults);
 
-            // console.log("updatedOpenedResults", updatedOpenedResults);
-
-            // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
             setOpenedResultsRawData(updatedOpenedResults)
             setLinkClickLoader(false)
           } else {
-            // console.log('not found')
             const resultsWithRemovedLink = openedResults.filter((item: any) => item.fileName !== updatedResults.fileName);
             const index = resultsWithRemovedLink.findIndex((item: any) => item.fileName === linkClickedFromFile);
 
             const updatedOpenedResults = [...resultsWithRemovedLink];
 
-            // Insert the updatedResults object at index + 1
             updatedOpenedResults.splice(index + 1, 0, updatedResults);
 
-            // Update the state with the new array
             setOpenedResults(updatedOpenedResults);
             setOpenedResultsRawData(updatedOpenedResults)
             setLinkClickLoader(false)
@@ -7693,10 +7658,8 @@ const Sidebar = () => {
           // scroll to where the file is opened
           setTimeout(() => {
             const divElements = document.querySelectorAll(".view-panel-title");
-            // console.log("divElement", divElements);
             divElements.forEach((div: any) => {
               const h4Elements = div.querySelectorAll("h4");
-              // console.log("h4", h4Elements);
               h4Elements.forEach((h4: any) => {
                 if (h4.textContent === linkClicked.toUpperCase()) {
                   h4.classList.add("highlighted-heading");
@@ -7744,16 +7707,12 @@ const Sidebar = () => {
 
 
   const showNodeClickedFile = async () => {
-    // console.log("fileOpenedFromGraph now", fileOpenedFromGraph);
     const matchingResult: any = openedResults.find(
       (result: any) => result.fileName === fileOpenedFromGraph.id
     );
 
     if (matchingResult) {
-      // console.log("Matching Result:", matchingResult);
-
       if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
-        // Update the array only if the fileName is different
         setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
       }
     } else {
@@ -7796,6 +7755,71 @@ const Sidebar = () => {
     setAnimationKey((prevKey) => prevKey + 1);
     sethideFiltersForPreview(false);
   };
+
+
+  const viewNodeClickedFile = async () => {
+    console.log("================12 fileOpenedFromGraph", fileOpenedFromGraph);
+    const matchingResult: any = openedResults.find((result: any) => result.fileName === fileOpenedFromGraph.id);
+
+    if (matchingResult) {
+     
+
+      if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
+        setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
+      }
+    } else {
+      // Now does not come in this else
+      console.log('should not come in this else : showNodeClickedFile')
+      try {
+        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
+        const newDataObject = await response.json();
+        // console.log("responseJson: ", responseJson);
+
+        marked.setOptions({
+          breaks: true,
+        });
+
+        newDataObject.content = marked(newDataObject.content);
+        newDataObject.contentWithRemovedBrackets = marked(
+          newDataObject.content
+        );
+
+        const regex = /\[\[([^[\]]+)\]\]/g;
+        const hashtagParagraphRegex = /#\S+/g;
+        newDataObject.content = newDataObject.content.replace(
+          hashtagParagraphRegex,
+          ""
+        );
+
+        newDataObject.content = newDataObject.content.replace(
+          regex,
+          (match: any, word: any) =>
+            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
+        );
+        console.log("newDataObject", newDataObject);
+
+        setGraphNodeOpened(newDataObject);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    }
+
+
+    const graphSearchResultsDiv: any = document.querySelector('.graph-search-results');
+
+
+    if (graphSearchResultsDiv) {
+      graphSearchResultsDiv.style.display = 'none';
+
+      setTimeout(() => {
+        const mobileNodePreview: any = document.querySelector('.mobile-node-preview');
+        mobileNodePreview.style.display = 'block'
+      }, 200);
+    }
+
+    setAnimationKey((prevKey) => prevKey + 1);
+  }
+
 
 
   const collapseExpandedNode = () => {
@@ -9031,72 +9055,7 @@ const Sidebar = () => {
   }
 
 
-  const viewNodeClickedFile = async () => {
-    // console.log("fileOpenedFromGraph", fileOpenedFromGraph);
-    const matchingResult: any = openedResults.find((result: any) => result.fileName === fileOpenedFromGraph.id);
-
-    if (matchingResult) {
-      // console.log("Matching Result:", matchingResult);
-
-      if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
-        // Update the array only if the fileName is different
-        setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
-      }
-    } else {
-      // Now does not come in this else
-      console.log('should not come in this else : showNodeClickedFile')
-      try {
-        const response = await fetch(`/api/linkFile?q=${fileOpenedFromGraph.id}`);
-        const newDataObject = await response.json();
-        // console.log("responseJson: ", responseJson);
-
-        marked.setOptions({
-          breaks: true,
-        });
-
-        newDataObject.content = marked(newDataObject.content);
-        newDataObject.contentWithRemovedBrackets = marked(
-          newDataObject.content
-        );
-
-        const regex = /\[\[([^[\]]+)\]\]/g;
-        const hashtagParagraphRegex = /#\S+/g;
-        newDataObject.content = newDataObject.content.replace(
-          hashtagParagraphRegex,
-          ""
-        );
-
-        newDataObject.content = newDataObject.content.replace(
-          regex,
-          (match: any, word: any) =>
-            `<span style="text-decoration: underline; cursor: pointer;">${word}</span>`
-        );
-        console.log("newDataObject", newDataObject);
-
-        setGraphNodeOpened(newDataObject);
-      } catch (error) {
-        console.error("Error fetching search results:", error);
-      }
-    }
-
-
-    const graphSearchResultsDiv: any = document.querySelector('.graph-search-results');
-
-
-    if (graphSearchResultsDiv) {
-      graphSearchResultsDiv.style.display = 'none';
-
-      setTimeout(() => {
-        const mobileNodePreview: any = document.querySelector('.mobile-node-preview');
-        mobileNodePreview.style.display = 'block'
-      }, 200);
-    }
-
-    setAnimationKey((prevKey) => prevKey + 1);
-    // sethideFiltersForPreview(false);
-
-
-  }
+  
 
 
   const collapseMobileExpandedNode = () => {
@@ -9683,7 +9642,6 @@ const Sidebar = () => {
 
                             <h1
                               dangerouslySetInnerHTML={{ __html: (result as { fileNameWithHighlightedWords: string; }).fileNameWithHighlightedWords, }}
-                            // onClick={() => handleFileClick(result["item"])}
                             />
                           </div>
 
@@ -9758,9 +9716,6 @@ const Sidebar = () => {
                         ) : (
                           <img src="/arrow-left-new-disabled.svg" alt="img" className="graph-node-backarrow-single" />
                         )}
-                        {/* <ArrowBackIcon sx={{ color: themeChangericon ? '#9e9d99' : '#616161' }} fontSize="small" 
-                            className="graph-node-backarrow-single">
-                          </ArrowBackIcon> */}
                       </div>
                     ) : (
                       <div onClick={handleLeftArrowForPreviousFile}>
@@ -9769,9 +9724,6 @@ const Sidebar = () => {
                         ) : (
                           <img src="/arrow-left-dark.png" alt="img" className="graph-node-backarrow-single" />
                         )}
-                        {/* <ArrowBackIcon fontSize="small" sx={{color: themeChangericon ? '#000': '#FFF'}}
-                            className="graph-node-backarrow">
-                          </ArrowBackIcon> */}
                       </div>
                     )}
                     <h4>{graphNodeOpened[0].fileName.toUpperCase()}</h4>
