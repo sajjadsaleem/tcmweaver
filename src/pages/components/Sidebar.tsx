@@ -2864,20 +2864,13 @@ const Sidebar = () => {
           formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
         } else {
           notFoundNodes.push(eachNode)
-          // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
-          // console.log('nodeArray' , nodeArray)
-          // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-          // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
-          // console.log('currentNodeMap',currentNodeMap)
         }
       });
 
      
       nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
       links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-      // const linksCopy = _.cloneDeep(links)
 
-      // const formattingNodesMap:any = new Map(formattingNodes.map((node:any) => [node.id, node]));
       let formattingNodeCopy = formattingNodes;
 
       nodes.forEach((node: any, index: any) => {
@@ -2965,116 +2958,7 @@ const Sidebar = () => {
             return d.target.y
           });
 
-
-
-
         node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
-
-
-        // node
-        //   .attr('cx', (d: any) => d.x)
-        //   .attr('cy', (d: any) => d.y)
-
-
-
-        // .attr("cx", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.x
-        //   }
-        //   else {
-        //     return d.x
-        //   }
-        // })
-        // .attr("x", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.x
-        //   }
-        //   else {
-        //     return d.x
-        //   }
-        // })
-        // .attr("y", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.y
-        //   }
-        //   else {
-        //     return d.y
-        //   }
-        // })
-        // .attr("cy", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.y
-        //   }
-        //   else {
-        //     return d.y
-        //   }
-        // });
-
-        // nodeText
-        //   .attr("x", (d: any) => {
-        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-        //       return checkEachNode.id === d.id
-        //     })
-        //     if (xmark) {
-        //       return xmark.x - (getNodeTextWidth(d) / 4.5)
-        //     }
-        //     else {
-        //       return d.x - (getNodeTextWidth(d) / 4.5)
-        //     }
-
-        //   })
-        //   .attr("y", (d: any) => {
-        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-        //       return checkEachNode.id === d.id
-        //     })
-        //     if (xmark) {
-        //       return xmark.y + 12
-        //     }
-        //     else {
-        //       return d.y + 12
-        //     }
-        //   });
-
-
-        // if (tickCount % 5 === 0) {
-        //   nodeText
-        //     .attr("x", (d: any) => {
-        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id);
-        //       return xmark ? xmark.x - (getNodeTextWidth(d) / 4.5) : d.x - (getNodeTextWidth(d) / 4.5);
-        //     })
-        //     .attr("y", (d: any) => {
-        //       const xmark = formattingNodeCopy.find((checkEachNode: any) => checkEachNode.id === d.id)
-        //       return xmark ? xmark.y + 12 : d.y + 12;
-        //     });
-        // }
-
-        // tickCount++;
-
-
-        // nodeTitles
-        //   .text((d: any) => {
-        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-        //       return checkEachNode.id === d.id
-        //     })
-        //     if (xmark) {
-        //       return xmark.id
-        //     }
-        //     else {
-        //       return d.id
-        //     }
-        //   });
 
         formattingNodes = []
         formattingNodeCopy = []
@@ -3112,7 +2996,6 @@ const Sidebar = () => {
         setFileOpenedFromGraph(d);
         // Get the div element and set its content based on the clicked node
         const nodeInfoDiv: any = document.getElementById("nodeInfo");
-        // nodeInfoDiv.innerHTML = `<strong>ID:</strong> ${d.id}<br><strong>Tag:</strong> ${d.tag}`;
 
         // Position the div over the clicked node
         nodeInfoDiv.style.left = `${event.pageX - 30}px`;
@@ -3435,9 +3318,6 @@ const Sidebar = () => {
           debouncedUpdate();
         });
 
-
-
-
       let svgContainer;
 
       if (window.innerWidth <= 575) {
@@ -3448,11 +3328,13 @@ const Sidebar = () => {
       
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
+      
 
       const container = svg
 
       container.select("#links-g-tag").remove();
-      const link = container.append("g")
+      const link = container
+        .append("g")
         .attr("id", "links-g-tag")
         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
         .attr("stroke-opacity", linkStrokeOpacity)
@@ -3509,35 +3391,6 @@ const Sidebar = () => {
         .attr("font-size", nodeTextSize)
         .attr("fill", textColorForNode)
         .style("pointer-events", "none")
-
-
-      // // Append text labels to the container, positioned near the nodes
-      // container.select("#text-g-tag").remove();
-      // const nodeText = container
-      //   .append("g")
-      //   .attr("id", "text-g-tag")
-      //   .selectAll("title")
-      //   .data(nodes)
-      //   .join("text")
-      //   // .attr("x", (d) => d.x + 12) // Adjust the x-coordinate based on your preference
-      //   // .attr("y", (d) => d.y) // Adjust the y-coordinate based on your preference
-      //   .attr("x", (d: any) => d.x) // Keep the x-coordinate the same as the node
-      //   .attr("y", (d: any) => d.y + nodeRadius + 12)
-      //   .attr("dy", ".35em") // Adjust the vertical alignment based on your preference
-      //   .attr("font-size", nodeTextSize) // Adjust the font size based on your preference
-      //   .style("pointer-events", "none")
-      //   .text((d: any) => d.id)
-      //   .attr('fill', textColorForNode);
-
-      // container.select("#titles-g-tag").remove();
-      // const nodeTitles = container
-      //   .append("g")
-      //   .attr("id", "titles-g-tag")
-      //   .selectAll("title")
-      //   .data(nodes)
-      //   .join("title")
-      //   .text((d: any) => d.id);
-
 
       const zoom: any = d3.zoom().on("zoom", zoomed);
       svgContainer.call(zoom);
@@ -6644,11 +6497,6 @@ const Sidebar = () => {
           formattingNodes.push(previousGraphData.nodes[matchingNodeIndex]);
         } else {
           notFoundNodes.push(eachNode)
-          // const nodeArray = Object.entries(eachNode).map(([key, value]) => ({ [key]: value }));
-          // console.log('nodeArray' , nodeArray)
-          // currentNodeMap = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
-          // const currentNodeMap = d3.map(nodeArray, (_, i) => ({ id: N[i], tag: nodeArray[i].tag }));
-          // console.log('currentNodeMap',currentNodeMap)
         }
       });
 
@@ -6671,15 +6519,6 @@ const Sidebar = () => {
         }
       })
 
-      // console.log('inside graph checker', graphResizeChecker, nodeSizeChangeChecker)
-      // if (!graphResizeChecker && nodeSizeChangeChecker) {
-      //   nodes.forEach((node: any) => {
-      //     node.fx = null;
-      //     node.fy = null;
-      //   });
-      // }
-
-
       links.forEach((link: any, index: any) => {
         if (typeof link.source === 'string') {
           const sourceObject = formattingNodeCopy.find((node: any) => node.id === link.source);
@@ -6696,13 +6535,6 @@ const Sidebar = () => {
           }
         }
       });
-
-
-      // Compute default domains.
-      // if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-      // Construct the scales.
-      // const color = nodeGroup === null ? null : d3.scaleOrdinal(nodeGroups!, colors);
 
       // Construct the forces.
       const forceNode = d3.forceManyBody();
@@ -6760,70 +6592,9 @@ const Sidebar = () => {
 
         node.attr("transform", (d: any) => `translate(${d.x} ${d.y})`);
 
-
-        // .attr("cx", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.x
-        //   }
-        //   else {
-        //     return d.x
-        //   }
-        // })
-        // .attr("x", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.x
-        //   }
-        //   else {
-        //     return d.x
-        //   }
-        // })
-        // .attr("y", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.y
-        //   }
-        //   else {
-        //     return d.y
-        //   }
-        // })
-        // .attr("cy", (d: any) => {
-        //   const xmark:any = formattingNodeCopy.find((checkEachNode:any) => {
-        //     return checkEachNode.id === d.id
-        //   })
-        //   if(xmark) {
-        //     return xmark.y
-        //   }
-        //   else {
-        //     return d.y
-        //   }
-        // });
-
-        // nodeTitles
-        //   .text((d: any) => {
-        //     const xmark: any = formattingNodeCopy.find((checkEachNode: any) => {
-        //       return checkEachNode.id === d.id
-        //     })
-        //     if (xmark) {
-        //       return xmark.id
-        //     }
-        //     else {
-        //       return d.id
-        //     }
-        //   });
-
         formattingNodes = []
         formattingNodeCopy = []
 
-
-        // console.log('link',link)
       }
 
       function zoomed(event: any) {
@@ -6851,7 +6622,6 @@ const Sidebar = () => {
       }
 
       function handleNodeClick(event: any, d: any) {
-        // console.log(event, d);
         setFileOpenedFromGraph(d);
         // Get the div element and set its content based on the clicked node
         const nodeInfoDiv: any = document.getElementById("nodeInfo");
@@ -7314,9 +7084,6 @@ const Sidebar = () => {
         // scales: { color },
         svg: svgElement,
       };
-
-
-
 
       const previousNodes = [...nodes]
       const previousLinks = [...links]
@@ -7829,75 +7596,30 @@ const Sidebar = () => {
 
 
   const removeNodeAndConnected = (graphData: any, nodeId: any) => {
-
     const updatedGraphData = { ...graphData };
-
-    // Find the index of the node to remove
-    const nodeIndexToRemove = updatedGraphData.nodes.findIndex(
-      (node: any) => node.id === nodeId
-    );
-    // console.log("nodeIndexToRemove", nodeIndexToRemove);
-
+    const nodeIndexToRemove = updatedGraphData.nodes.findIndex((node: any) => node.id === nodeId);
     if (nodeIndexToRemove !== -1) {
-      // Get the ID of the node to be removed
       const nodeToRemove = updatedGraphData.nodes[nodeIndexToRemove].id;
-      // console.log("nodeToRemove", nodeToRemove);
 
-      // Find links connected to the node to remove
       const connectedLinks = updatedGraphData.links.filter(
         (link: any) =>
           link.source === nodeToRemove || link.target === nodeToRemove
       );
 
-      // console.log("connectedLinks", connectedLinks);
-
-      // // Remove the node and connected links from the graphData object
       updatedGraphData.nodes.splice(nodeIndexToRemove, 1);
-      // console.log("updatedGraphData", updatedGraphData);
 
-      // // Create a set to keep track of nodes that should not be removed
       const nodesToKeep = new Set();
-
-      // // Iterate over connected links
-      // connectedLinks.forEach((link: any) => {
-      //   // Check if the connected nodes are not connected to any other nodes
-      //   const sourceLinks = updatedGraphData.links.filter(
-      //     (l: any) => l.source === link.source
-      //   );
-      //   const targetLinks = updatedGraphData.links.filter(
-      //     (l: any) => l.target === link.target
-      //   );
-
-      //   // Check if the source node is not connected to any other nodes
-      //   if (sourceLinks.length === 1) {
-      //     nodesToKeep.add(link.source);
-      //   }
-
-      //   // Check if the target node is not connected to any other nodes
-      //   if (targetLinks.length === 1) {
-      //     nodesToKeep.add(link.target);
-      //   }
-      // });
 
       const nodesToKeepUpdate = updatedGraphData.nodes.filter(
         (node: any) => !nodesToKeep.has(node.id)
       );
 
-      // console.log("nodesToKeep", nodesToKeepUpdate);
       updatedGraphData.links = updatedGraphData.links.filter(
         (link: any) => link.source !== nodeId && link.target !== nodeId
       );
+
       updatedGraphData.nodes = nodesToKeepUpdate;
-      // console.log("updatedGraphData", updatedGraphData);
-
-      // // Remove nodes that are not in the nodesToKeep set
-      // updatedGraphData.nodes = updatedGraphData.nodes.filter((node) =>
-      //   nodesToKeep.has(node.id)
-      // );
     }
-
-    // setGraphData(updatedGraphData);
-
     return updatedGraphData;
   };
 
@@ -7913,12 +7635,8 @@ const Sidebar = () => {
 
     let graphDataCopy: any = { ...updatedGraphData }
 
-
-
-
     let filteredGraphData: any = []
 
-    // Step 1: Find items with status "exclude" in updatedCheckboxes
     const excludedValues: any = [];
     graphTagFilters.forEach((category: any) => {
       category.items.forEach((item: any) => {
@@ -7928,26 +7646,16 @@ const Sidebar = () => {
       });
     });
 
-    // console.log('excluded' , excludedValues)
-
-    // Step 2: Find corresponding node ids in graphDataCopy
     const excludedNodeIds: any = [];
 
     if (graphDataCopy.nodes.length > 0) {
       graphDataCopy.nodes.forEach((node: any) => {
         const tag = node.tag.map((tagCheck: any) => tagCheck.toLowerCase().replace(/^#/, ''));
 
-        //     // Check if any of the tags exist in the excludedValues array
         if (tag.some((tagCheck: any) => excludedValues.includes(tagCheck))) {
           excludedNodeIds.push(node.id);
         }
       });
-
-
-
-
-      console.log('excluded ids', excludedNodeIds)
-
 
       // Step 3: Remove links with source or target matching excluded node ids
       filteredGraphData.links = graphDataCopy.links.filter((link: any) => {
@@ -7957,20 +7665,14 @@ const Sidebar = () => {
       // Step 4: Remove nodes with ids in excludedNodeIds
       filteredGraphData.nodes = graphDataCopy.nodes.filter((node: any) => !excludedNodeIds.includes(node.id));
 
-      // Now, graphDataCopy is updated with the desired changes.
-      // console.log('filteredGraphData: ', filteredGraphData);
-
       setGraphDataAfterFilters(filteredGraphData)
-      makeGraph(filteredGraphData)
+      // makeGraph(filteredGraphData)
+      handleGraphForces(filteredGraphData, 'nodeTextChange')
+
 
     } else {
       console.log('No graph data found , handleGraphFilters')
     }
-
-    // console.log("updatedGraphData", updatedGraphData);
-    // console.log("graphData: ", graphData);
-
-    // makeGraph(updatedGraphData);
 
     removeBothSearchResults({ fileName: fileOpenedFromGraph.id });
   }
@@ -8611,8 +8313,6 @@ const Sidebar = () => {
 
   const handleLinkDistaneCommitted = (event: any, newValue: any) => {
     const mappedValue = mapValueToState(newValue, 0, 1, -30, -300);
-    console.log('newValue', newValue)
-    console.log('mappedValue', mappedValue)
 
     setSliderValue(mappedValue)
   };

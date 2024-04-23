@@ -15,7 +15,6 @@ const Welcome = () => {
             try {
                 await axios.get(`/api/getWelcomePage`)
                     .then((res: any) => {
-                        console.log('res from fetching welcome page: ', res.data)
                         let responseData = _.cloneDeep(res.data);
 
 
