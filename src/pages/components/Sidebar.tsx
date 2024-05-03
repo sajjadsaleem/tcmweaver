@@ -3033,16 +3033,12 @@ const Sidebar = () => {
         // Get the width of the hidden div
         const textWidth = tempDiv.node().getBoundingClientRect().width;
 
-        // Remove the temporary div from the DOM
         tempDiv.remove();
 
         return textWidth;
       }
 
       function handleMouseOver(this: any, event: any, d: any) {
-        // console.log('event', event)
-
-        // console.log('event' , event, 'nodes' , nodes)
 
         // Set the initial state before transitioning
         d3.select(this as SVGElement)
@@ -3056,7 +3052,7 @@ const Sidebar = () => {
         link
           .attr("stroke", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
-              return linkStroke; // Original link color
+              return linkStroke; 
             } else {
               return linkStroke;
             }
@@ -3116,7 +3112,7 @@ const Sidebar = () => {
           .duration(400)
           .attr("stroke", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
-              return "red"; // Change to your desired link color
+              return linkStroke
             } else {
               return linkStroke;
             }
@@ -3299,8 +3295,6 @@ const Sidebar = () => {
         return links.some((link: any) => link.source.id === node.id || link.target.id === node.id);
       }
 
-
-      // console.log("nodes ", nodes);
       const customNodes: any = nodes;
 
       const simulation = d3
