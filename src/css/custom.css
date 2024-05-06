@@ -2708,7 +2708,7 @@ button {
 
 /* ========================Media Queries=================================== */
 
-@media only screen and (min-width: 768px) and (max-width: 959px) {
+@media only screen and (min-width: 801px) and (max-width: 959px) {
     .welcome-page-main {
         padding: 15px;
         width: 65%;
@@ -2717,7 +2717,7 @@ button {
 
 
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 800px) {
 
     /*=====================Dashboard Page================================================ */
 
