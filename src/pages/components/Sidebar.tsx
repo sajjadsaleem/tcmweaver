@@ -1453,11 +1453,12 @@ const Sidebar = () => {
 
     // console.log(searchResultsInnerContainer, mobileWorkspaceContainer)
 
-    if (window.innerWidth < 786) {
+    if (window.innerWidth < 801) {
       const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
       const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
       let mobileHomepageVideo: any
       if (searchResultsInnerContainer && getComputedStyle(searchResultsInnerContainer).display === 'block') {
+        console.log('-=========================1')
         searchResultsInnerContainer.style.display = 'none';
         mobileWorkspaceContainer.style.display = 'none';
         setTimeout(() => {
@@ -1466,13 +1467,28 @@ const Sidebar = () => {
         }, 200);
 
       } else if (mobileWorkspaceContainer) {
+        const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+        const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+        const menuBtn: any = document.querySelector('.menuBtn')
+        const searchResultsFound: any = document.querySelector('.search-results-found')
+        const menus: any = document.querySelector('.menus')
+        const searchResults: any = document.querySelector('.search-results');
+
         mobileWorkspaceContainer.style.display = 'none';
         searchResultsInnerContainer.style.display = 'none';
+        sidebarWorkspaceIcon.style.display = 'flex'
+        mobileTextWorkspaceIcon.style.display = 'none'
+        menuBtn.style.display = 'flex'
+        searchResultsFound.style.display = 'flex'
+        menus.style.display = 'flex'
+        searchResults.classList.remove('mobile-text-workspace-view');
+
         setTimeout(() => {
           mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
           mobileHomepageVideo.style.display = 'block'
         }, 200);
       } else if (mobileHomepageVideo) {
+        console.log('-=========================3')
         setTimeout(() => {
           mobileHomepageVideo = document.querySelector('.mobile-homepage-video');
           if (mobileHomepageVideo) {
