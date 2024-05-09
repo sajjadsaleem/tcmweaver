@@ -1,7 +1,6 @@
 import React from 'react';
 import { CircularProgress } from '@mui/material';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDrag, useDrop } from 'react-dnd';
 
 interface WorkspaceContentProps {
     result?: any;
@@ -68,7 +67,6 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
                     <div>
                         {linkClickLoader && result?.id === linkClickedId ? (
                             <CircularProgress size={16} style={{ color: 'black', scale: '0.75', opacity: '0.5' }} />
-
                         ) : (
                             <>
                                 {themeChangericon ? (

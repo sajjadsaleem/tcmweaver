@@ -1513,7 +1513,7 @@ const Sidebar = () => {
       //   (match: any, word: any) => `${word}`
       // );
 
-      const contentWithRemovedBrackets = textToConvert.replace(regex,(match: any, word: any) => `${word}`);
+      const contentWithRemovedBrackets = textToConvert.replace(regex, (match: any, word: any) => `${word}`);
       entry.contentWithRemovedBrackets = contentWithRemovedBrackets;
 
 
@@ -1929,6 +1929,7 @@ const Sidebar = () => {
 
   const handleGraphOrTextView = () => {
     setgraphOrTextView(!graphOrTextView);
+
     if (graphNodeOpened.length > 0) {
       sethideFiltersForPreview(false)
     }
@@ -2185,7 +2186,7 @@ const Sidebar = () => {
       }
 
     } else {
-      // console.log('false')
+
       setCheckGraphStatus(false)
       let graphDiv: any;
 
@@ -2883,7 +2884,7 @@ const Sidebar = () => {
         }
       });
 
-     
+
       nodes = d3.map(nodes, (_, i) => ({ id: N[i], tag: nodes[i].tag }));
       links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
 
@@ -3068,7 +3069,7 @@ const Sidebar = () => {
         link
           .attr("stroke", (linkData: any) => {
             if (linkData.source === d || linkData.target === d) {
-              return linkStroke; 
+              return linkStroke;
             } else {
               return linkStroke;
             }
@@ -3317,7 +3318,7 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-         // .force("center", d3.forceCenter().strength(centerForceValue))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
         .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
@@ -3335,10 +3336,10 @@ const Sidebar = () => {
       } else {
         svgContainer = d3.select('#graph-div');
       }
-      
+
       const gElement = svgContainer.select('svg');
       const svg = gElement.select('g');
-      
+
 
       const container = svg
 
@@ -4671,9 +4672,9 @@ const Sidebar = () => {
       const simulation = d3.forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-       // .force("center", d3.forceCenter().strength(centerForceValue))
-       .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
-       .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -6937,9 +6938,9 @@ const Sidebar = () => {
         .forceSimulation(customNodes)
         .force("link", forceLink)
         .force("charge", d3.forceManyBody().strength(sliderValue))
-       // .force("center", d3.forceCenter().strength(centerForceValue))
-       .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
-       .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        // .force("center", d3.forceCenter().strength(centerForceValue))
+        .force("forceX", d3.forceX(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
+        .force("forceY", d3.forceY(0).strength(function (d) { return hasLinks(d) ? centerForceValue : centerForceValue; }))
         .force('collide', d3.forceCollide((d) => {
           let radius = calculateNodeRadius(d)
           return radius + 15
@@ -7297,6 +7298,29 @@ const Sidebar = () => {
   const collapseOpenedResult = (resultToCollapse: any) => {
     const collapsedResult = openedResults.filter((item: any) => item.fileName !== resultToCollapse.fileName);
 
+    const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+    if(mobileWorkspaceContainer && getComputedStyle(mobileWorkspaceContainer).display === 'block' && collapsedResult.length === 0) {
+
+      const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
+      const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+      const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+      const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+      const menuBtn: any = document.querySelector('.menuBtn')
+      const searchResultsFound: any = document.querySelector('.search-results-found')
+      const menus: any = document.querySelector('.menus')
+      const searchResults: any = document.querySelector('.search-results');
+
+      mobileWorkspaceContainer.style.display = 'none';
+      mobileTextWorkspaceIcon.style.display = 'none'
+      sidebarWorkspaceIcon.style.display = 'flex'
+      menuBtn.style.display = 'flex'
+      searchResultsFound.style.display = 'flex'
+      menus.style.display = 'flex'
+      searchResultsInnerContainer.style.display = 'block';
+      searchResults.classList.remove('mobile-text-workspace-view');
+
+    }
+
     setOpenedResultsRawData(collapsedResult)
     setOpenedResults(collapsedResult);
   };
@@ -7347,7 +7371,7 @@ const Sidebar = () => {
     try {
       const tableNamesStr = userAccessVaults.join(',');
       const response = await fetch(`/api/linkFile?q=${linkClicked}&av=${tableNamesStr}`);
-     
+
       const linkFile = await response.json();
 
       if (linkFile.hasOwnProperty("message")) {
@@ -7539,7 +7563,7 @@ const Sidebar = () => {
     const matchingResult: any = openedResults.find((result: any) => result.fileName === fileOpenedFromGraph.id);
 
     if (matchingResult) {
-     
+
 
       if (graphNodeOpened.length === 0 || matchingResult.fileName !== graphNodeOpened[0].fileName) {
         setGraphNodeOpened((prevGraphNodeOpened: any) => [matchingResult, ...prevGraphNodeOpened]);
@@ -8311,7 +8335,7 @@ const Sidebar = () => {
 
 
   const handleCenterForceCommitted = (event: any, newValue: any) => {
-    let checkValue = mapValueToState(newValue , 0 , 1 , 0 , 0.8)
+    let checkValue = mapValueToState(newValue, 0, 1, 0, 0.8)
     setCenterForceValue(checkValue)
   };
 
@@ -8434,7 +8458,7 @@ const Sidebar = () => {
   };
 
 
-  const handleUserOptions = (itemName: any) => {  
+  const handleUserOptions = (itemName: any) => {
     if (itemName === 'profile') {
       // console.log('getuser' , getUser)
       setFormData((prevData) => ({
@@ -8740,17 +8764,16 @@ const Sidebar = () => {
   const handleMobileGraphTextIcon = () => {
     handleGraphOrTextView()
 
-
     setTimeout(() => {
-      const searchResults: any = document.querySelector('.search-results');
-
-      const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
-      const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
       const searchResultsInnerContainer: any = document.querySelector('.search-results-inner-container');
-      const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
-      const menus: any = document.querySelector('.menus');
 
       if (searchResultsInnerContainer) {
+
+        const searchResults: any = document.querySelector('.search-results');
+        const sidebarWorkspaceIcon: any = document.querySelector('.sidebar-workspace-icon')
+        const mobileTextWorkspaceIcon: any = document.querySelector('.mobile-text-workspace-icons')
+        const mobileWorkspaceContainer: any = document.querySelector('.mobile-workspace-container');
+        const menus: any = document.querySelector('.menus');
 
         searchResultsInnerContainer.style.display = 'none'
         sidebarWorkspaceIcon.style.display = 'none'
@@ -8758,14 +8781,14 @@ const Sidebar = () => {
         mobileWorkspaceContainer.style.display = 'block'
         mobileTextWorkspaceIcon.style.display = 'flex'
         menus.style.display = 'none'
-
-
+      } else {
+        const menuBtn: any = document.querySelector('.menuBtn')
+        const searchResultsFound: any = document.querySelector('.search-results-found')
+        menuBtn.style.display = 'flex'
+        searchResultsFound.style.display = 'flex'
       }
     }, 50);
   }
-
-
-  
 
 
   const collapseMobileExpandedNode = () => {
@@ -8990,18 +9013,12 @@ const Sidebar = () => {
                       <img src="/search-light.svg" alt="img" onClick={handleMobileWorkspace} />
                       <img src="/graph-logo-light.png" alt="img" onClick={handleGraphOrTextView} />
 
-                      {/* <div className="mobile-workspace-count-badge">{openedResults.length}</div> */}
-
 
                     </>
                   ) : (
                     <>
                       <img src="/search-dark.svg" alt="img" onClick={handleMobileWorkspace} />
                       <img src="/graph-logo-dark.png" alt="img" onClick={handleGraphOrTextView} />
-
-                      {/* <div className="mobile-workspace-count-badge">{openedResults.length}</div> */}
-
-
                     </>
                   )}
                 </>
@@ -9614,7 +9631,7 @@ const Sidebar = () => {
                                       </div>
 
                                     </div>
-                                  </div>                                 
+                                  </div>
                                 </div>
                               </>
                             ) : (
