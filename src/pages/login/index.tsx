@@ -130,7 +130,7 @@ const Login = () => {
 
           <div className="sign-up">
           <p>or</p>
-          <Link href={'/signUp'}>
+          <Link href={'/products'}>
             <button type="submit" disabled={signUpBtnLoading} onClick={handleSignUpBtn}>
               {signUpBtnLoading ? (
                 <>
