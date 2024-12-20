@@ -8944,7 +8944,7 @@ const Sidebar = () => {
                         <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
                           <ListItemText primary="Change Password" />
                         </ListItem>
-                        {getUser.user_package.length > 0 && (
+                        {getUser?.user?.stripe_customer_id && (
                           <ListItem button onClick={() => handleUserOptions("billing")} dense>
                             <ListItemText primary="Billing" />
                             {billingLoader && <CircularProgress size={17} style={{ color: 'grey' }} />}
