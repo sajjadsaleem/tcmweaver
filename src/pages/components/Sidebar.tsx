@@ -8478,17 +8478,25 @@ const Sidebar = () => {
     }
     if (itemName === 'billing') {
       setBillingLoader(true);
-      axios.post(`/api/stripe-billing?customer_id=${getUser.user.stripe_customer_id}`)
-        .then((res: any) => {
-          window.location.href = res.data.url;
-        })
-        .catch((err: any) => {
-          console.log('err from stripe billing', err)
-          setBillingLoader(false);
-        })
+      console.log('===================1' , getUser.user)
+      if(getUser.user && getUser.user.stripe_customer_id){
+        axios.post(`/api/stripe-billing?customer_id=${getUser.user?.stripe_customer_id}`)
+          .then((res: any) => {
+            window.location.href = res.data.url;
+          })
+          .catch((err: any) => {
+            console.log('err from stripe billing', err)
+            setBillingLoader(false);
+          })
+      } else {
+        setBillingLoader(false);
+      }
     }
     if (itemName === 'logout') {
       setUserLogoutPopup(true)
+    }
+    if (itemName === 'product') {
+      router.push("/products");
     }
   }
 
@@ -8944,9 +8952,14 @@ const Sidebar = () => {
                         <ListItem button onClick={() => handleUserOptions("changepassword")} dense>
                           <ListItemText primary="Change Password" />
                         </ListItem>
-                        {getUser?.user?.stripe_customer_id && (
+                        {getUser?.user?.stripe_customer_id ? (
                           <ListItem button onClick={() => handleUserOptions("billing")} dense>
                             <ListItemText primary="Billing" />
+                            {billingLoader && <CircularProgress size={17} style={{ color: 'grey' }} />}
+                          </ListItem>
+                        ):(
+                          <ListItem button onClick={() => handleUserOptions("product")} dense>
+                            <ListItemText primary="Products" />
                             {billingLoader && <CircularProgress size={17} style={{ color: 'grey' }} />}
                           </ListItem>
                         )}
