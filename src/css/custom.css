@@ -972,11 +972,11 @@
 
 
 .homepage-content-container {
-    /* margin-top: 20px; */
-    /* overflow-y: scroll; */
+
     width: 100%;
     height: calc(100vh - 33px);
-    /* padding: 0px 0px 0px 0px; */
+    overflow-x: auto;
+    scrollbar-color: transparent transparent;
 }
 
 .homepage-content-container .opened-result-description {
