@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 
             // console.log('tokenExist', tokenExist)
 
-            if (tokenExist.length === 0) {
+            if (tokenExist.length === 0 || !tokenExist[0].verification_token) {
                 errors.push({ email: 'Token does not exist or expired' })
                 return res.status(500).json({
                     success: false,

@@ -1653,12 +1653,26 @@
     font-size: 0.875rem;
 }
 
+.complete-registration-btn,
 .sign-btn {
     margin: auto;
     display: flex;
     justify-content: center;
     margin-top: 1rem;
     width: 100%;
+}
+
+
+.complete-registration-btn button {
+    border: 1px solid #616161;
+    background-color: #616161;
+    color: #fff !important;
+    border-radius: 40px;
+    width: 100%;
+    height: 56px;
+    font-weight: 600;
+    font-size: 1.35rem;
+    margin: 0px;
 }
 
 .sign-btn button {
@@ -1673,6 +1687,7 @@
     margin: 0px;
 }
 
+.complete-registration-btn button:hover,
 .sign-btn button:hover {
     background-color: #484848;
     /* Change the background color on hover */
@@ -1680,6 +1695,7 @@
     /* Change the border color on hover */
 }
 
+.complete-registration-btn button:active,
 .sign-btn button:active {
     background-color: #393939;
     /* Change the background color on active (button pressed) */
@@ -2611,6 +2627,19 @@ button {
     align-items: center;
     flex-direction: column;
     /* background-color: orange; */
+}
+
+.complete-registration {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    /* background-color: orange; */
+}
+
+.registration-form {
+    width: 50%;
 }
 
 .complete-registration-page form {

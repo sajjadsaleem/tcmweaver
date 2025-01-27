@@ -101,13 +101,21 @@ const Products = () => {
           //   publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" client-reference-id={userData} customer-email={userEmail}>
           // </stripe-pricing-table>
 
+          // <stripe-pricing-table pricing-table-id="prctbl_1QkpZsCpbULNwyCer0lDEhDb"
+          // publishable-key="pk_test_51Q3hSrCpbULNwyCeBaXT2jBFdrfHQ8UNxqWbpkRaiWSaHGC26BHsVPHsVTXAsH2qnMoAQUCPp7p0t0taKP9pzdl500NdkvXpHE" client-reference-id={userData} customer-email={userEmail}>
+          // </stripe-pricing-table>
+
           <stripe-pricing-table pricing-table-id="prctbl_1OeT0HDIjS01COwV1crw380f"
             publishable-key="pk_live_51OeKtoDIjS01COwV377lJJe6q9TrLUiIMgqM2fhcHOSuw6KyGuBfR2iJkoTk4tcqxZ41rPVhHYcIF9n2BJbIhTFI00n3CgQ4wp" client-reference-id={userData} customer-email={userEmail}>
           </stripe-pricing-table>
         ) : (
-          //==============Stripe Test keys and table==================
+          // ==============Stripe Test keys and table==================
           // <stripe-pricing-table pricing-table-id="prctbl_1OiyHtDIjS01COwV22YFSBMv"
           //   publishable-key="pk_test_51OeKtoDIjS01COwVIBkwJJj29R1ckF4WQndtkc6q3lbdZAiLcGjGq8CSBmyfzPtEtC04lI2KGCVP4g9VDRCC1hiD00RmM8wzf6" >
+          // </stripe-pricing-table>
+
+          // <stripe-pricing-table pricing-table-id="prctbl_1QkpZsCpbULNwyCer0lDEhDb"
+          //   publishable-key="pk_test_51Q3hSrCpbULNwyCeBaXT2jBFdrfHQ8UNxqWbpkRaiWSaHGC26BHsVPHsVTXAsH2qnMoAQUCPp7p0t0taKP9pzdl500NdkvXpHE">
           // </stripe-pricing-table>
 
           <stripe-pricing-table pricing-table-id="prctbl_1OeT0HDIjS01COwV1crw380f"
