@@ -24,7 +24,6 @@ const Login = () => {
     e.preventDefault();
     
     if (!email || !password) {
-      // Display an error message or handle the case where fields are empty
       console.log("Email and password are required.");
       return;
     }
@@ -40,13 +39,11 @@ const Login = () => {
     axios
       .post("/api/auth/login", payload)
       .then((res) => {
-        // console.log('res: ' , res.data)
         setBtnLoading(false);
         Helpers.setAccessToken(res.data.token)
         Helpers.setUser(res.data.user)
         router.push({
           pathname: "/",
-          // query: { dashboard: true },
         });
       })
       .catch((err) => {
@@ -143,10 +140,7 @@ const Login = () => {
             </button>
           </Link>
           </div>
-
-
         </form>
-          
         <ToastContainer />
       </div>
     </LayoutWrapper>

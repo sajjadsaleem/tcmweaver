@@ -1,6 +1,6 @@
 // pages/dashboard/index.js (Dashboard page)
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from 'next/link';
 import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
@@ -21,7 +21,7 @@ const UserVerificationPage = () => {
     const [showConfirmPassword , setShowConfirmPassword] = useState(false)
     const [showRedirection , setShowRedirection] = useState(false)
     const [validationErrors, setValidationErrors] = useState<any>({
-        fullname: '',
+        // fullname: '',
         password: '',
         confirmPassword: '',
     });
@@ -29,7 +29,30 @@ const UserVerificationPage = () => {
     const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false)
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [fullname , setFullname] = useState("")
+    // const [fullname , setFullname] = useState("")
+    const [pageLoading, setPageLoading] = useState(true)
+    const [tokenVerify, setTokenVerify] = useState(false)
+
+
+    useEffect(() => {
+        // Extract token from URL
+        const url = window.location.href;
+        const token = url.split('/')[5]; // Assuming the token is the last segment in the URL
+
+        axios.post('/api/verifyInvitation', {token})
+        .then((res) => {
+            console.log('============res', res)
+            setPageLoading(false)
+            setTokenVerify(true)
+        })
+        .catch(err => {
+            console.log('err=',err.response.data.message)
+            toast.error(err.response.data.message);
+            setPageLoading(false)
+        });
+
+
+      }, []);
 
     
     const handleSubmit = (e:any) => {
@@ -37,9 +60,9 @@ const UserVerificationPage = () => {
 
         const newValidationErrors:any = {};
 
-        if (!fullname) {
-        newValidationErrors.fullname = 'Full Name is required';
-        }
+        // if (!fullname) {
+        // newValidationErrors.fullname = 'Full Name is required';
+        // }
         
         if (!password) {
         newValidationErrors.password = 'Password is required';
@@ -57,7 +80,7 @@ const UserVerificationPage = () => {
         setBtnLoading(true)
 
         let payload = {
-            full_name: fullname,
+            // full_name: fullname,
             password: password,
             confirm_password: confirmPassword,
             userId: user_id,
@@ -70,8 +93,10 @@ const UserVerificationPage = () => {
                 toast.success(res.data.message);
                 setShowRedirection(true)
                 setTimeout(() => {
-                    router.push('/login');
-                }, 5000);
+                    router.push({
+                        pathname: "/",
+                    });
+                }, 3000);
             })
             .catch(err => {
                 console.log('err=',err.response.data.message)
@@ -90,16 +115,6 @@ const UserVerificationPage = () => {
         setShowConfirmPassword(!showConfirmPassword);
     }
 
-    const handleFullnameChange = (e:any) => {
-        const { name, value } = e.target;
-    
-        setFullname(value);
-
-        setValidationErrors((prevValidationErrors:any) => ({
-            ...prevValidationErrors,
-            fullname: '',
-          }));
-    };
 
     const handlePasswordChange = (e:any) => {
       
@@ -125,93 +140,123 @@ const UserVerificationPage = () => {
           }));
     };
 
-
-
     return ( 
         <LayoutWrapper layout={AuthLayout} >
-
-            <div className="complete-registration-page">
-
-                <Link href="/login" style={{textDecoration: 'none'}}>
-                    <div className="logo">
-                        <img src="/graph-logoold.png" alt="img" />
-                        <p>TCM Weaver</p>
-                    </div>
-                </Link>
-
-                <form onSubmit={handleSubmit} >
-                    <div className="sign-input">
-
-                        <input type="text" className="form-control" aria-describedby="emailHelp"
-                            placeholder="Full Name" value={fullname} name="fullname"
-                            onChange={handleFullnameChange}
-                        />
-                        <span className="signup-error-message">{validationErrors.fullname}</span>
-
-
-                        <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
-                            <input
-                                type={showPassword ? 'text' : 'password'} className="form-control"
-                                aria-describedby="emailHelp" placeholder="Password"
-                                value={password} onChange={handlePasswordChange}
-                                onFocus={() => setIsFocused(true)} 
-                                onBlur={() => setIsFocused(false)}
-                            />
-                            <span className="input-group-text" id="basic-addon1" 
-                                onClick={togglePasswordVisibility}>
-                                {showPassword ? <Visibility /> : <VisibilityOff />}
-                            </span>
-                        </div>
-                        <span className="signup-error-message">{validationErrors.password}</span>
-                        
-
-                        <div className={`input-group login-page-password 
-                            ${isFocusedConfirmPassword ? 'focused' : ''}`}>
-                            <input
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                className="form-control" value={confirmPassword}
-                                aria-describedby="emailHelp" placeholder="Confirm Password"
-                                onChange={handleConfirmPasswordChange}
-                                onFocus={() => setIsFocusedConfirmPassword(true)} 
-                                onBlur={() => setIsFocusedConfirmPassword(false)}
-                            />
-                            <span className="input-group-text" id="basic-addon1" 
-                                onClick={toggleConfirmPasswordVisibility}>
-                                {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                            </span>
-                        </div>
-                        <span className="signup-error-message">{validationErrors.confirmPassword}</span>
-
-                    </div>
-
-                    <div className="sign-btn reset-page-btn">
-                        <button type="submit" disabled={btnLoading}>
-                            {btnLoading ? (
-                                <>
-                                    Please Wait{" "}
-                                    <span className="spinner-grow spinner-grow-sm ml-2"
-                                        role="status" aria-hidden="true">
-                                    </span>
-                                </>
-                            ) : (
-                                <>Complete Account</>
-                            )}
-                        </button>
-                    </div>
-                </form>
-
-                {showRedirection && (
-                    <div style={{textAlign: 'center'}} className="mt-3">
-                        <p>You will be redirected to login page ...</p>
-                    </div>
-                )}
-
-                <div className="mb-3 mt-3 text-center">
-                    <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
+            {pageLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <div>Loading...</div>
                 </div>
+            ):(
+                <>
+                    {tokenVerify ? (
+                        <div className="complete-registration-page">
+        
+                        <Link href="/login" style={{textDecoration: 'none'}}>
+                            <div className="logo">
+                                <img src="/graph-logoold.png" alt="img" />
+                                <p>TCM Weaver</p>
+                            </div>
+                        </Link>
+    
+                        <form onSubmit={handleSubmit} >
+                            <div className="sign-input">
+    
+                                {/* <input type="text" className="form-control" aria-describedby="emailHelp"
+                                    placeholder="Full Name" value={fullname} name="fullname"
+                                    onChange={handleFullnameChange}
+                                />
+                                <span className="signup-error-message">{validationErrors.fullname}</span> */}
+    
+    
+                                <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'} className="form-control"
+                                        aria-describedby="emailHelp" placeholder="Password"
+                                        value={password} onChange={handlePasswordChange}
+                                        onFocus={() => setIsFocused(true)} 
+                                        onBlur={() => setIsFocused(false)}
+                                    />
+                                    <span className="input-group-text" id="basic-addon1" 
+                                        onClick={togglePasswordVisibility}>
+                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                    </span>
+                                </div>
+                                <span className="signup-error-message">{validationErrors.password}</span>
+                                
+    
+                                <div className={`input-group login-page-password 
+                                    ${isFocusedConfirmPassword ? 'focused' : ''}`}>
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        className="form-control" value={confirmPassword}
+                                        aria-describedby="emailHelp" placeholder="Confirm Password"
+                                        onChange={handleConfirmPasswordChange}
+                                        onFocus={() => setIsFocusedConfirmPassword(true)} 
+                                        onBlur={() => setIsFocusedConfirmPassword(false)}
+                                    />
+                                    <span className="input-group-text" id="basic-addon1" 
+                                        onClick={toggleConfirmPasswordVisibility}>
+                                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                                    </span>
+                                </div>
+                                <span className="signup-error-message">{validationErrors.confirmPassword}</span>
+    
+                            </div>
+    
+                            <div className="sign-btn reset-page-btn">
+                                <button type="submit" disabled={btnLoading}>
+                                    {btnLoading ? (
+                                        <>
+                                            Please Wait{" "}
+                                            <span className="spinner-grow spinner-grow-sm ml-2"
+                                                role="status" aria-hidden="true">
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>Complete Account</>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+    
+                        {showRedirection && (
+                            <div style={{textAlign: 'center'}} className="mt-3">
+                                <p>You will be redirected to login page ...</p>
+                            </div>
+                        )}
+    
+                        <div className="mb-3 mt-3 text-center">
+                            <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
+                        </div>
+                        </div>
+                    ): (
+                        <div style={{marginTop: '5rem'}}>
+                            <Link href="/login" style={{textDecoration: 'none'}}>
+                                <div className="logo">
+                                    <img src="/graph-logoold.png" alt="img" />
+                                    <p>TCM Weaver</p>
+                                </div>
+                            </Link>
+                            <div className="flex items-center justify-center min-h-screen mt-5">
+                                <div className="text-center bg-white p-6">
+                                    <p className="text-lg font-semibold text-red-600" style={{fontSize: '20px'}}>
+                                        Password setup is already done or token is expired.
+                                    </p>
+                                    <p className="mt-2 text-gray-700" style={{fontSize: '20px'}}>
+                                    Login to your account or{" "}
+                                    <a href="/login" className="text-blue-600 hover:underline font-medium">
+                                        reset password
+                                    </a>.
+                                    </p>
+                                </div>
+                                </div>
+                        </div>
+                    )}
+                    <ToastContainer autoClose={1500} />
 
-                <ToastContainer autoClose={1500} />
-            </div>
+                </>
+            )}
+
             
         </LayoutWrapper>
     );

@@ -9,8 +9,7 @@ import * as jwt from '../../util/jwt'
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
-            // console.log('req body', req.body)
-            let { full_name, password, confirm_password, userId, token } = req.body;
+            let { password, confirm_password, userId, token } = req.body;
             userId = parseInt(userId);
 
             const tokenResult = jwt.verify(token)
@@ -26,7 +25,6 @@ export default async function handler(req, res) {
             }
 
             const rules = [
-                { full_name: ['required'] },
                 { password: ['required'] },
                 { confirm_password: ['required'] },
             ]
@@ -43,19 +41,10 @@ export default async function handler(req, res) {
                 });
             }
 
-            // const tokenExist = await prisma.users.findMany({
-            //     where: {
-            //         id: userId,
-            //         verification_token: token,
-            //     },
-            // });
-
             const db = drizzle(sql)
             const tokenExist = await db.select({
                 verification_token: users.verification_token
             }).from(users).where(eq(users.id, userId));
-
-            // console.log('tokenExist', tokenExist)
 
             if (tokenExist.length === 0 || !tokenExist[0].verification_token) {
                 errors.push({ email: 'Token does not exist or expired' })
@@ -78,39 +67,35 @@ export default async function handler(req, res) {
 
             const saltRounds = 12;
             const salt = await bcrypt.genSalt(saltRounds);
-            // Hash the password using bcrypt
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // console.log('hashed password', hashedPassword)
-
-            // const updatedUser = await prisma.users.update({
-            //     where: {
-            //         id: userId,
-            //     },
-            //     data: {
-            //         password: hashedPassword,
-            //         forgot_password_token: tokenExist[0].verification_token,
-            //         verification_token: '',
-            //         full_name: full_name,
-            //         status: 'Active',
-            //     }
-            // });
 
             const updatedUser = await db.update(users)
                 .set({
                     password: hashedPassword,
                     forgot_password_token: tokenExist[0].verification_token,
                     verification_token: '',
-                    full_name: full_name,
                     status: 'Active',
                 })
-                .where(eq(users.id, userId));
+                .where(eq(users.id, userId)).returning();
+
+            const payload = { id: updatedUser[0].id };
+            const signingOptions = {
+                subject: updatedUser[0].email
+            };
+
+            const signedToken = jwt.sign(payload, signingOptions);
 
             res.status(200).json({
                 success: true,
                 status: "success",
                 errors: [],
-                message: 'Invitation accepted successfully',
+                message: 'Password created successfully',
+                token: signedToken,
+                user: {
+                email: updatedUser[0].email,
+                role: updatedUser[0].role_id
+                }
             });
         } catch (error) {
             console.log('Error adding user:', error);

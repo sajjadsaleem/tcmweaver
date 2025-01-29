@@ -198,7 +198,7 @@ export default async (req, res) => {
                             email: event.data.object.customer_details.email,
                             username: event.data.object.customer_details.email,
                             password: await bcrypt.hash('pending', 12),
-                            full_name: 'pending',
+                            full_name: event.data.object.customer_details.name,
                             stripe_customer_id: event.data.object.customer
                         };
         
@@ -210,7 +210,7 @@ export default async (req, res) => {
                             forgot_password_token: 'abcdefghijklmnopqrstuvwxyz1234567890',
                             full_name: userData.full_name,
                             username: userData.username,
-                            status: 'Inactive',
+                            status: 'Active',
                             stripe_customer_id: userData.stripe_customer_id
                         }).returning();
     

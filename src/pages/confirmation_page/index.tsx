@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { ToastContainer, toast } from "react-toastify";
+import * as Helpers from '../../util/Helpers'
 
 const stripe = require('stripe')(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 
@@ -17,9 +18,7 @@ const ConfirmationPage = () => {
     const [sessionProduct, setSessionProduct] = useState<any>({})
     const [loading, setLoading] = useState(true);
     const [showRedirection , setShowRedirection] = useState(false)
-    const [fullname , setFullname] = useState("")
     const [validationErrors, setValidationErrors] = useState<any>({
-        fullname: '',
         password: '',
         confirmPassword: '',
     });
@@ -44,14 +43,9 @@ const ConfirmationPage = () => {
             const productId = subscriptionItem.plan.product;
             const product = await stripe.products.retrieve(productId);
 
-            // console.log('Session data:', session)
-            // console.log('Session customer data:', customer.email)
-            // console.log('Session subscription data:', subscription)
-            // console.log('Product Name:', product);
 
             axios.post(`/api/generateUrl?customer_email=${customer.email}`)
             .then((res: any) => {
-                // console.log('==============res' , res.data)
                 setUserId(res.data.user.id)
                 setVerificationToken(res.data.user.verification_token)
 
@@ -89,9 +83,6 @@ const ConfirmationPage = () => {
 
         const newValidationErrors:any = {};
 
-        if (!fullname) {
-        newValidationErrors.fullname = 'Full Name is required';
-        }
         
         if (!password) {
         newValidationErrors.password = 'Password is required';
@@ -108,7 +99,6 @@ const ConfirmationPage = () => {
         setBtnLoading(true)
 
         let payload = {
-            full_name: fullname,
             password: password,
             confirm_password: confirmPassword,
             userId: user_id,
@@ -120,9 +110,13 @@ const ConfirmationPage = () => {
                 setBtnLoading(false)
                 toast.success(res.data.message);
                 setShowRedirection(true)
+                Helpers.setAccessToken(res.data.token)
+                Helpers.setUser(res.data.user)
                 setTimeout(() => {
-                    router.push('/login');
-                }, 5000);
+                    router.push({
+                        pathname: "/",
+                    });
+                }, 3000);
             })
             .catch(err => {
                 console.log('err=',err.response.data.message)
@@ -131,16 +125,6 @@ const ConfirmationPage = () => {
             });
     };
 
-    const handleFullnameChange = (e:any) => {
-        const { name, value } = e.target;
-    
-        setFullname(value);
-
-        setValidationErrors((prevValidationErrors:any) => ({
-            ...prevValidationErrors,
-            fullname: '',
-          }));
-    };
 
     const handlePasswordChange = (e:any) => {
       
@@ -192,29 +176,6 @@ const ConfirmationPage = () => {
                                 <h3 style={{ color: 'black' }}>Thanks for subscribing</h3>
                                 <p>A payment of {`$${(sessionSubscription.plan.amount / 100).toFixed(2)}`} will appear on your statement.</p>
 
-                                {/* <button style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: '#4CAF50',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                                    transition: 'background-color 0.3s, box-shadow 0.3s',
-                                    outline: 'none',
-                                    textDecoration: 'none',
-                                    display: 'inline-block',
-                                    textAlign: 'center',
-                                    lineHeight: 'normal',
-                                    marginTop: '20px'
-                                }}
-                                    onMouseEnter={(e: any) => e.target.style.backgroundColor = '#45a049'}
-                                    onMouseLeave={(e: any) => e.target.style.backgroundColor = '#4CAF50'}
-                                    // onClick={() => window.location.href = 'https://www.tcmweaver.com'}
-                                >
-                                    OK
-                                </button> */}
 
 
                             </div>
@@ -223,19 +184,17 @@ const ConfirmationPage = () => {
 
                     <div style={{ flex: '1', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.05)' }}>
                         <div className="complete-registration">
+                            {showRedirection && (
+                                <div style={{textAlign: 'center'}} className="mt-3">
+                                    <p style={{ fontSize: '22px' }}>You will be redirected to dashboard ...</p>
+                                </div>
+                            )}
                             <div className="logo">
-                                <p>TCM Weaver</p>
+                                <p>Set Password</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className='registration-form'>
                                 <div className="sign-input">
-
-                                    <input type="text" className="form-control" aria-describedby="emailHelp"
-                                        placeholder="Full Name" value={fullname} name="fullname"
-                                        onChange={handleFullnameChange}
-                                    />
-                                    <span className="signup-error-message">{validationErrors.fullname}</span>
-
 
                                     <div className={`input-group login-page-password ${isFocused ? 'focused' : ''}`}>
                                         <input
@@ -287,12 +246,6 @@ const ConfirmationPage = () => {
                                     </button>
                                 </div>
                             </form>
-
-                            {showRedirection && (
-                                <div style={{textAlign: 'center'}} className="mt-3">
-                                    <p>You will be redirected to login page ...</p>
-                                </div>
-                            )}
 
                             <div className="mb-3 mt-3 text-center">
                                 <p>Already have an account? <Link className='text-base' href={`/login`}>Login</Link></p>
