@@ -244,9 +244,9 @@ const UserVerificationPage = () => {
                                     </p>
                                     <p className="mt-2 text-gray-700" style={{fontSize: '20px'}}>
                                     Login to your account or{" "}
-                                    <a href="/login" className="text-blue-600 hover:underline font-medium">
+                                    <Link href="/login" className="text-blue-600 hover:underline font-medium">
                                         reset password
-                                    </a>.
+                                    </Link>
                                     </p>
                                 </div>
                                 </div>

@@ -166,7 +166,7 @@ const ConfirmationPage = () => {
                     <div>Loading...</div>
                 </div>
             ) : (
-                <div style={{ display: 'flex', width: '100%', height: '100vh', color: '#6C655C' }}>
+                <div className='confirmation-page-container'>
                     <div style={{ flex: '1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <div>
                             <div style={{ textAlign: 'center', position: 'relative' }}>

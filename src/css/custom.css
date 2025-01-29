@@ -3437,3 +3437,23 @@ button {
     } 
 
 }
+
+/* ====================================Confirmation Page========================== */
+.confirmation-page-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    color: #6C655C;
+}
+
+@media (max-width: 481px) {
+    .confirmation-page-container {
+        display: block; /* Removes flex layout */
+        margin-top: 5rem;
+        height: 50vh;
+    }
+
+    .complete-registration {
+        margin-top: 3rem;
+    }
+}
