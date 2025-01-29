@@ -3456,4 +3456,8 @@ button {
     .complete-registration {
         margin-top: 3rem;
     }
+
+    .complete-registration-btn button {
+        font-size: 1rem;
+    }
 }
