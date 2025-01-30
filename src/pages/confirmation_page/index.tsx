@@ -174,7 +174,7 @@ const ConfirmationPage = () => {
                                     <div style={{ fontSize: '24px', color: 'green' }}>&#10004;</div>
                                 </div>
                                 <h3 style={{ color: 'black' }}>Thanks for subscribing</h3>
-                                <p>A payment of {`$${(sessionSubscription.plan.amount / 100).toFixed(2)}`} will appear on your statement.</p>
+                                <p>Please set your password to begin using TCM Weaver.</p>
 
 
 

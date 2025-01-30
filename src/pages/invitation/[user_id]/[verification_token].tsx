@@ -47,7 +47,7 @@ const UserVerificationPage = () => {
         })
         .catch(err => {
             console.log('err=',err.response.data.message)
-            toast.error(err.response.data.message);
+            // toast.error(err.response.data.message);
             setPageLoading(false)
         });
 
@@ -240,11 +240,11 @@ const UserVerificationPage = () => {
                             <div className="flex items-center justify-center min-h-screen mt-5">
                                 <div className="text-center bg-white p-6">
                                     <p className="text-lg font-semibold text-red-600" style={{fontSize: '20px'}}>
-                                        Password setup is already done or token is expired.
+                                        Password setup is already done or link is expired.
                                     </p>
                                     <p className="mt-2 text-gray-700" style={{fontSize: '20px'}}>
-                                    Login to your account or{" "}
-                                    <Link href="/login" className="text-blue-600 hover:underline font-medium">
+                                    <Link href="/login" style={{ textDecoration: 'underline', color: 'inherit' }}>Login to your account</Link> or{" "}
+                                    <Link href="/forgotPassword" style={{ textDecoration: 'underline', color: 'inherit' }}>
                                         reset password
                                     </Link>
                                     </p>
