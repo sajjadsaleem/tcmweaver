@@ -54,6 +54,11 @@ const Products = () => {
               window.location.href = billingResponse.data.url;
             } catch (err) {
               console.log('err from stripe billing', err);
+              console.log('err from stripe billing', err);
+              let id = res.data[0].id.toString()
+              setUserData(id);
+              let email = res.data[0].email
+              setUserEmail(email)
             }
               
           } else {

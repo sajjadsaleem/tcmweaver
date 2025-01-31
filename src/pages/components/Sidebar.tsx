@@ -8478,7 +8478,6 @@ const Sidebar = () => {
     }
     if (itemName === 'billing') {
       setBillingLoader(true);
-      console.log('===================1' , getUser.user)
       if(getUser.user && getUser.user.stripe_customer_id){
         axios.post(`/api/stripe-billing?customer_id=${getUser.user?.stripe_customer_id}`)
           .then((res: any) => {
@@ -8486,6 +8485,7 @@ const Sidebar = () => {
           })
           .catch((err: any) => {
             console.log('err from stripe billing', err)
+            router.push("/products");
             setBillingLoader(false);
           })
       } else {

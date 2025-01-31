@@ -70,8 +70,7 @@ export default async (req, res) => {
 
                 if (event.data.object.client_reference_id) {
                     let userId = null
-                    userId = await db.select({ user_id: users.id }).from(users)
-                        .where(eq(users.id, event.data.object.client_reference_id));
+                    userId = await db.select({ user_id: users.id }).from(users).where(eq(users.id, event.data.object.client_reference_id));
 
                         // const udpateStripeCustomerID = await db.insert(users)
                         // .values({ user_id: userId[0].user_id, package_id: packageId[0].packageId, stripe_subscription_id: event.data.object.subscription })

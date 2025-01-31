@@ -13,7 +13,7 @@ export default async function stripeBilling(req, res) {
             const allProducts = await stripe.products.list({ active: true });
             // console.log('======================1',allProducts)
 
-            const allPrices = await stripe.prices.list({});
+            const allPrices = await stripe.prices.list({ active: true });
             // console.log('======================2' , allPrices)
 
             const formattedProducts = allProducts.data.map(product => {

@@ -48,17 +48,23 @@ const ConfirmationPage = () => {
             .then((res: any) => {
                 setUserId(res.data.user.id)
                 setVerificationToken(res.data.user.verification_token)
-
+                if(res.data.user.verification_token === "") {
+                    router.push({
+                        pathname: "/",
+                    });
+                } else {
+                    setLoading(false)
+                }
             })
             .catch((err: any) => {
               console.log('err from stripe billing', err)
+              setLoading(false)
             })
 
             setSessionData(session)
             setSessionCustomer(customer)
             setSessionSubscription(subscription)
             setSessionProduct(product)
-            setLoading(false)
         } catch (error) {
             console.error('Error retrieving session data:', error)
             throw error
