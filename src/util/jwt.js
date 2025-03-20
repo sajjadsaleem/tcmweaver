@@ -15,7 +15,7 @@ import jwt from 'jsonwebtoken'
 
 const sign = (payload, options) => {
     const signingOptions = {
-        expiresIn: 3600,
+        expiresIn: 1209600,
         issuer: "www.barqsol.com",
         subject: options.subject
     };
@@ -24,7 +24,7 @@ const sign = (payload, options) => {
 
 const verify = (token, options) => {
     const verifyOptions = {
-        expiresIn: 86400,
+        expiresIn: 1209600,
         issuer: "www.barqsol.com"
     };
     try {
