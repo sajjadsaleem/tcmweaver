@@ -493,10 +493,13 @@ const Dashboard = () => {
 
   const requestUserSearch = (event: any) => {
     setUserSearchValue(event.target.value)
-    const searchedVal = event.target.value
+    const searchedVal = event.target.value.toLowerCase();
     const filteredRows = originalUsers.filter((row: any) => {
-      return row.full_name.toLowerCase().includes(searchedVal.toLowerCase());
+      const name = row?.full_name?.toLowerCase() || "";
+      const email = row?.email?.toLowerCase() || "";
+      return name.includes(searchedVal) || email.includes(searchedVal);
     });
+
     setSearchedUsers(filteredRows);
   };
 

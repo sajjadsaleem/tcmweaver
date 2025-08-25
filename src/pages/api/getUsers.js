@@ -36,7 +36,15 @@ export default async function getUsers(req, res) {
                 }
             }
 
-            const allUsers = await db.select().from(users);
+            const allUsers = await db.select({
+                id: users.id,
+                email: users.email,
+                username: users.username,
+                full_name: users.full_name,
+                status: users.status,
+                image: users.image,
+                role_id: users.role_id
+            }).from(users);
 
             allUsers.forEach(user => {
                 const userPackages = allUserPackages.filter(pkg => pkg.user_id === user.id);
