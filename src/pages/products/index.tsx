@@ -4,14 +4,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { useRouter } from 'next/router';
 import Script from 'next/script';
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'stripe-pricing-table': any; // or specify the correct type if available
-    }
-  }
-}
-
 
 // const stripe = require('stripe')(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from '@mui/system';
 
 const blue = {
@@ -24,7 +24,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const StyledTextareaAutosize = styled(BaseTextareaAutosize)(
+const StyledTextareaAutosize = styled(TextareaAutosize)(
   ({ theme }) => `
     width: 320px;
     font-family: 'IBM Plex Sans', sans-serif;

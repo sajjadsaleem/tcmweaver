@@ -27,10 +27,9 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
     linkClickedId,
     children
 }) => {
-    const [, ref] = useDrag({ type: 'OPENED_RESULT', item: { index }, })
-
-    const [, drop] = useDrop({
-        accept: 'OPENED_RESULT',
+    const [, dragRef] = useDrag({ type: "OPENED_RESULT", item: { index } });
+    const [, dropRef] = useDrop({
+        accept: "OPENED_RESULT",
         hover: (draggedItem: any) => {
             if (draggedItem.index !== index) {
                 moveResult(draggedItem.index, index);
@@ -39,8 +38,13 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({
         },
     });
 
+    const setRefs = (node: HTMLDivElement | null) => {
+        dragRef(node);
+        dropRef(node);
+    };
+
     return (
-        <div ref={(node) => ref(drop(node))} className="opened-results" id={result?.id ?? 'defaultId'}>
+        <div ref={setRefs} className="opened-results" id={result?.id ?? 'defaultId'}>
             <div className="view-panel-title">
                 <h4>{result?.fileName?.toUpperCase() ?? 'DefaultFileName'}</h4>
                 {result?.openedFromResults ? (
